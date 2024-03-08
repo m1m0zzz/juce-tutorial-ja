@@ -1,0 +1,273 @@
+---
+title: 基本的なオーディオ・プラグインを作る その2
+sidebar_position: 4
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアル基本的なAudio/MIDIプラグインを作る, パート2: プラグインのコーディング
+
+This tutorial follows on from [チュートリアル基本的なAudio/MIDIプラグインを作る, パート1：セットアップ](../tutorial_create_projucer_basic_plugin/), and will talk through starting from a clean project and ending up with a fully functioning, if somewhat simple, plug-in that can react to incoming MIDI notes.
+
+レベル Intermediate
+
+プラットフォーム Windows, macOS, Linux
+
+プラグイン形式： VST, VST3, AU, Standalone
+
+クラス： [オーディオプロセッサーエディター](https://docs.juce.com/master/classAudioProcessorEditor "Base class for the component that acts as the GUI for an AudioProcessor."), [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins."), [スライダー](https://docs.juce.com/master/classSlider "A slider control for changing a value."), [ミディメッセージ](https://docs.juce.com/master/classMidiMessage "Encapsulates a MIDI message."), [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events.")
+
+# Getting started
+
+Launch the Projucer and create a new audio plug-in project with the name **チュートリアルプラグイン**. If you don't remember how to do that, please refer to [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# Orientation
+
+A newly-created audio plug-in project contains two main classes: `プラグインプロセッサー` handles the audio and MIDI IO and processing logic, and `プラグインエディタ` handles any on screen GUI controls or visualisations.
+
+この2つの間で情報をやり取りする場合、プロセッサーをエディタの親と考えるのがベストです。プラグイン・プロセッサーは1つだけですが、エディターは複数作成できます。各エディターはプロセッサーへの参照を持ち、オーディオスレッドの情報やパラメータを編集したり、アクセスしたりすることができます。このプロセッサー・スレッドに情報を設定したり、取得したりするのはエディターの仕事であり、その逆はありません。
+
+The main function we will be editing in the `プラグインプロセッサー.cpp` file is the `processBlock()` method. This receives and produces both audio and MIDI data to the plug-in output. The main function we will change in the `プラグインエディター.cpp` file is the constructor, where we initialise and set up our window and GUI objects, and also the `ペイント` method where we can draw extra controls and custom GUI components.
+
+The editor constructor currently has one method call — `セットサイズ (400, 300)` — which sets the size of our plug-in window. Let's make a smaller window of `(200, 200)` for this simple application.
+
+```
+TutorialPluginAudioProcessorEditor::TutorialPluginAudioProcessorEditor (TutorialPluginAudioProcessor& p)
+    : AudioProcessorEditor (&p), audioProcessor (p)
+{
+    // ここでプラグインのエディタ・サイズが設定されます。
+    setSize (200, 200)；
+}
+AudioProcessorのGUIとして動作するコンポーネントのAudioProcessorEditorBaseクラスです。定義 juce_AudioProcessorEditor.h:46
+```
+
+## Create a simple GUI control
+
+MIDIメッセージの音量を変更するためのスライダー・オブジェクトを作ります。
+
+Create a new [スライダー](https://docs.juce.com/master/classSlider "A slider control for changing a value.") object in the Editor header file called `ミディボリューム` \[1\]:
+
+```
+class TutorialPluginAudioProcessorEditor : public juce::AudioProcessorEditor
+{
+public：
+    TutorialPluginAudioProcessorEditor (TutorialPluginAudioProcessor&)；
+    ~TutorialPluginAudioProcessorEditor()；
+ 
+    //===================================================================
+    void paint (juce::Graphics&) override；
+    void resized() override；
+ 
+private：
+    このリファレンスは、エディタが // このリファレンスを作成したプロセッサオブジェクトにアクセスするための簡単な方法として提供されます。
+    // プロセッサオブジェクトにアクセスするための簡単な方法として提供されます。
+    TutorialPluginAudioProcessor& audioProcessor；
+ 
+    juce::Slider midiVolume; // [1].
+ 
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialPluginAudioProcessorEditor).
+};
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(className)this is a shorthand way of writing both a JUCE_DECLARE_NON_COPYABLE and JUCE_LEAK_DETECTOR macro for ...Definition juce_PlatformDefs.h:245
+```
+
+:::note
+
+The [オーディオプロセッサーエディター](https://docs.juce.com/master/classAudioProcessorEditor "Base class for the component that acts as the GUI for an AudioProcessor.") plays the same role in an Audio Plug-in that the *メインコンテンツコンポーネント* has in a standalone app. See [チュートリアルメイン・コンポーネント](../tutorial_main_component/).
+
+:::
+
+We can set the properties of this slider with various functions in the editor constructor. We must also call `addAndMakeVisible (&midiVolume)` to attach our slider to the editor. There are many different slider styles and parameters to use and experiment with in your own project. For this tutorial adjust the slider parameters such that your editor constructor looks like this:
+
+```
+TutorialPluginAudioProcessorEditor::TutorialPluginAudioProcessorEditor (TutorialPluginAudioProcessor& p)
+    : AudioProcessorEditor (&p), audioProcessor (p)
+{
+    // ここでプラグインのエディタ・サイズが設定されます。
+    setSize (200, 200)；
+ 
+    // これらは、スライダー・オブジェクトのパラメータを定義します
+    midiVolume.setSliderStyle (juce::Slider::LinearBarVertical)；
+    midiVolume.setRange (0.0, 127.0, 1.0)；
+    midiVolume.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0)；
+    midiVolume.setPopupDisplayEnabled (true, false, this)；
+    midiVolume.setTextValueSuffix (" Volume")；
+    midiVolume.setValue(1.0)；
+ 
+    // この関数はスライダーをエディターに追加します。
+    addAndMakeVisible (&midiVolume)；
+}
+```
+
+JUCE windows have a method called `リサイズ` that is called once at the initialisation of the window and every time the window is resized by the user (if resizing is enabled). This is a good place to set the size and position of our sliders (and other GUI components) so they can be positioned relative to the window bounds.
+
+```
+void TutorialPluginAudioProcessorEditor::resized()
+{
+    // 引数 (x, y, width, height) でスライダーの位置とサイズを設定します。
+    midiVolume.setBounds (40, 30, 20, getHeight() - 60)；
+}
+```
+
+Lets also change the `「ハロー・ワールド` text to `「ミディ・ボリューム` in the `ペイント` function and move it to the top. This function is where all custom shapes and GUI elements are drawn to the window.
+
+```
+void TutorialPluginAudioProcessorEditor::paint (juce::Graphics& g)
+{
+    // ウィンドウ全体を白く塗りつぶす
+    g.fillAll (juce::Colours::white)；
+ 
+    // 現在の描画色を黒に設定する
+    g.setColour (juce::Colours::black)；
+ 
+    // フォントサイズを設定し、テキストを画面に描画する
+    g.setFont (15.0f)；
+ 
+    g.drawFittedText ("Midi Volume", 0, 0, getWidth(), 30, juce::Justification::centred, 1)；
+```
+
+:::note
+
+You can learn more about Components and their methods `ペイント` and `リサイズ` in [チュートリアルGraphicsクラス](../tutorial_graphics_class/) and [チュートリアル親子コンポーネント](../tutorial_component_parents_children/).
+
+:::
+
+このプログラムを実行すると、ホスト・エディター上で次のようなプラグインが作成されるはずです：
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_code_basic_plugin_1.png" caption="" />
+
+
+## Pass control information to the processor class
+
+これで、調整できるコントロールができましたが、実際には何もコントロールできません。入力されるMIDIデータをインターセプトして、ノート・オン・ボリュームをスライダーのボリュームに置き換える必要があります。プロセッサー・スレッドでMIDIエフェクトをコントロールするためにスライダーの値を取得するには、プロセッサー・スレッドに新しい変数を作成し、スライダーを使って変更できるようにする必要があります。
+
+Create a new public float variable called `ノートオンベル` in the processor class header. This is the variable that we will set with the slider.
+
+```
+public：
+    float noteOnVel；
+```
+
+スライダーが変更されるたびにこの値を設定する必要があります。そのためにスライダー・リスナーのコールバック関数を使います。どのクラスでもスライダー・リスナーの機能を継承できますが、このチュートリアルの目的では、この機能をエディター・クラスに追加します。
+
+:::note
+
+For a more in-depth description of listeners please see [チュートリアルリスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/).
+
+:::
+
+Add the inheritance \[2\] and the default callback function \[3\] so the editor class looks like this:
+
+```
+class TutorialPluginAudioProcessorEditor : public juce::AudioProcessorEditor、
+                                           private juce::Slider::Listener // [2].
+{
+public：
+    TutorialPluginAudioProcessorEditor (TutorialPluginAudioProcessor&)；
+    ~TutorialPluginAudioProcessorEditor()；
+ 
+    //==================================================================
+    // これは標準的な Juce の paint メソッドです。
+    void paint (juce::Graphics& g) override；
+ 
+    void resized() override；
+ 
+private：
+    void sliderValueChanged (juce::Slider* slider) override; // [3].
+ 
+    //==================================================================
+    このリファレンスは、エディタが // プロセッサ・オブジェクトにアクセスするための簡単な方法として提供されます。
+    // 作成したプロセッサ・オブジェクトにアクセスするための簡単な方法として提供されます。
+    TutorialPluginAudioProcessor& audioProcessor；
+ 
+    juce::Slider midiVolume；
+ 
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialPluginAudioProcessorEditor).
+};
+アクセシビリティロール::slider@ slider
+```
+
+次に、エディターのコンストラクタで、ボリューム・スライダーにスライダー・リスナーを追加します：
+
+```
+TutorialPluginAudioProcessorEditor::TutorialPluginAudioProcessorEditor (TutorialPluginAudioProcessor& p)
+    : AudioProcessorEditor (&p), audioProcessor (p)
+{
+    // ...
+ 
+    // リスナーをスライダーに追加する
+    midiVolume.addListener (this)；
+}
+```
+
+...そして、パブリック・プロセッサ・ボリューム変数を設定するリスナー関数を挿入する：
+
+```
+void TutorialPluginAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
+{
+    audioProcessor.noteOnVel = midiVolume.getValue()；
+}
+```
+
+これで、プロセッサー・クラスの変数をコントロールするスライダーができました。このプロセッサ変数を使ってMIDIデータを変更する必要がある。
+
+## Modify MIDI notes
+
+The `processBlock()` method in the processor class receives and produces both MIDI and audio buffers in real time. We are going to iterate through the midi buffer to intercept signals of `ノートオン` type and set their velocity to the value of our slider.
+
+The MIDI messages are all passed through this function. To alter the MIDI as it passes through we create a new [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events.") object called `加工ミディ` and append our modified MIDI signals to this new buffer before swapping it with the original at the end (this avoids direct modification problems). Remove the current code in the `processBlock()` method (this handles the audio buffer, which we do not need for this tutorial) and replace it with the code below.
+
+```
+void TutorialPluginAudioProcessor::processBlock (juce::AudioBufferバッファ, juce::MidiBuffer& midiMessages)
+{
+    buffer.clear()；
+ 
+    juce::MidiBuffer processedMidi；
+ 
+    for (const auto metadata : midiMessages)
+    {
+        auto message = metadata.getMessage()；
+        const auto time = metadata.samplePosition；
+ 
+        if (message.isNoteOn())
+        {
+            message = juce::MidiMessage::noteOn (message.getChannel()、
+                                                 message.getNoteNumber()、
+                                                 (juce::uint8) noteOnVel)；
+        }
+ 
+        processedMidi.addEvent (message, time)；
+    }
+ 
+    midiMessages.swapWith (processedMidi)；
+}
+```
+
+Run the plug-in in the host environment and you will see that all MIDI note on signals are coming through our plug-in have the value set with our slider. The `もし` statement above can be also used to modify and apply various transformations and effects to other types of incoming MIDI signals. With these methods you can build more complex effects and GUIs.
+
+ボタンやスライダなどの他のGUIコンポーネントを試してみたり、JUCEの機能を体験するためにJUCE DemoRunnerをチェックしたり、詳細についてはAPIドキュメントを参照してください。
+
+:::note
+
+Generating audio using the incoming MIDI notes will be covered in a future tutorial (see [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/)). For now, please have a look at the `オーディオプラグインデモ`, which is located in `JUCE/examples/Plugins`.
+
+:::
+
+# Summary
+
+このチュートリアルを読めば、次のことができるようになるはずだ：
+
+-   基本的なGUIを備えたオーディオプラグインを作成します、
+-   プラグインにMIDIデータを受信させます。
+
+# See also
+
+-   [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/)
+-   [チュートリアル基本的なAudio/MIDIプラグインを作る, パート1：セットアップ](../tutorial_create_projucer_basic_plugin/)
+-   [チュートリアルプラグインの例](../tutorial_plugin_examples/)
+-   [チュートリアルプラグインに適切なバスレイアウトを設定する](../tutorial_audio_bus_layouts/)
+-   [チュートリアルメイン・コンポーネント](../tutorial_main_component/)
+-   [チュートリアルGraphicsクラス](../tutorial_graphics_class/)
+-   [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)
+-   [チュートリアルリスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)

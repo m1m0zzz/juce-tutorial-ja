@@ -1,0 +1,214 @@
+---
+title: AudioSampleBufferクラスを使ったオーディオのループ再生
+sidebar_position: 3
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルAudioSampleBufferクラスを使ったオーディオのループ再生
+
+このチュートリアルでは、AudioSampleBuffer オブジェクトに格納されたオーディオを再生し、ループさせる方法を説明します。これは、録音されたオーディオデータを操作するサンプリングアプリケーションの基礎として役立ちます。
+
+レベル Intermediate
+
+プラットフォーム Windows, macOS, Linux
+
+クラス： [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples."), [オーディオフォーマットリーダー](https://docs.juce.com/master/classAudioFormatReader "Reads samples from an audio file stream."), [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.")
+
+# Getting started
+
+:::note
+
+This tutorial assumes you have already completed [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/) and [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/). If not, you should look at these first.
+
+:::
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/LoopingAudioSampleBufferTutorial.zip) | [ジップ](/tutorials/ZIPs/LoopingAudioSampleBufferTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+The demo project for this tutorial allows the user to open a sound file, read the whole file into an [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object, and play it in a loop. In [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/) we played sound files using an [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource "A type of AudioSource that will read from an AudioFormatReader.") object connected to an [オーディオ・トランスポート・ソース](https://docs.juce.com/master/classAudioTransportSource "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...") object to play the sound. Looping is possible using this method by enabling enabling the [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource "A type of AudioSource that will read from an AudioFormatReader.") object's looping flag — using the [AudioFormatReaderSource::setLooping()](classAudioFormatReaderSource.html#a15d8af211ce8cfcbc0c4aaac143b303e "Toggles loop-mode.") function.
+
+All of the code relevant to the discussion in this tutorial is in the `メインコンテンツコンポーネント` class of the demo project.
+
+# Loading sample data into memory
+
+There are many cases where it is probably better to use the built-in classes for sound file playback. There may be occasions where you need to do this yourself and this tutorial gives an introduction to some of the techniques. Sampler applications commonly load the sound file data into memory like this, especially when the sounds are relatively short (see the [サンプラーサウンド](https://docs.juce.com/master/classSamplerSound "A subclass of SynthesiserSound that represents a sampled audio clip.") class for an example). Synthesising sounds can also be achieved by storing a wavetable in an [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object and looping it at an appropriate rate to produce the required musical pitch. This is explored in [チュートリアルウェーブテーブルシンセシス](../tutorial_wavetable_synth/).
+
+This tutorial also highlights some of the potential multi-threading issues you may encounter when combining access to files, and audio processing on the audio thread. Some of these problems seem simple on the surface but often require carefully applied techniques in order to avoid crashes and audio glitches. These techniques are explored further in [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ（上級者向け）](../tutorial_looping_audio_sample_buffer_advanced/).
+
+## Why the length limit?
+
+デモ・プロジェクトでは、読み込めるサウンドファイルの長さを2秒未満に制限しています。この制限はかなり恣意的ですが、これには大まかに2つの理由があります：
+
+1.  If the whole file is very large then your computer might run out of physical memory. In a real application, of course, you would be able to use a much higher limit. A 2-second stereo audio file, at a sample rate of 44.1kHz, loaded into an [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object, will only occupy 705,600 bytes of memory. (See notes)
+2.  かなり短いファイルであっても、読み込みには些細な時間しかかからない。
+
+ポイント1について：コンピュータが持っている物理メモリの量を超えると、仮想メモリ（つまりハードドライブなどの二次記憶装置）を使い始める可能性がある。これでは、そもそもデータをメモリにロードする意味がなくなってしまう！もちろん、メモリが不足すれば、デバイスによっては動作が失敗することもある。
+
+Regarding point 2: we keep the example simple by loading the audio data directly in, after the [FileChooser::browseForFileToOpen()](classFileChooser.html#a546ef74bcd139b67a90e4459cd591d21 "Shows a dialog box to choose a file to open.") function has returned the file selected by the user. This means that the *メッセージスレッド* will be blocked until all of the audio has been read in from disk into the [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object. Even with short sounds we should really do this on a background thread to keep the user interface as responsive as possible for the user. For long sounds the delay and unresponsiveness will be very noticeable. Adding another (background) thread would add to the complexity of this example. See [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ（上級者向け）](../tutorial_looping_audio_sample_buffer_advanced/) for example of how to load files on a background thread in this way.
+
+シンプルにするために、デモ・プロジェクトでは長いファイルをロードしようとしてもエラーは報告されない。このようなエラー報告を追加することは、追加の練習としてあなたに残されています。
+
+## Reading the sound file
+
+When the user clicks the **オープン...** button they are presented with a file chooser. The whole file is then read into an [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) member `ファイルバッファ` in our `メインコンテンツコンポーネント` class.
+
+```
+    void openButtonClicked()
+    {
+        shutdownAudio();                                                                            // [1]
+ 
+        chooser = std::make_unique ("Select a Wave file shorter than 2 seconds to play...",
+                                                       juce::File{},
+                                                       "*.wav");
+        auto chooserFlags = juce::FileBrowserComponent::openMode
+                          | juce::FileBrowserComponent::canSelectFiles;
+ 
+        chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
+        {
+            auto file = fc.getResult();
+ 
+            if (file == juce::File{})
+                return;
+ 
+            std::unique_ptrreader (formatManager.createReaderFor (file)); // [2].
+ 
+            if (reader.get() != nullptr)
+            {
+                auto duration = (float) reader->lengthInSamples / reader->sampleRate; // [3].
+ 
+                if (duration < 2)
+                {
+                    fileBuffer.setSize ((int) reader->numChannels, (int) reader->lengthInSamples); // [4].
+                    reader->read (&fileBuffer, // [5]); // [4].
+                                  0, // [5.1]
+                                  (int) reader->lengthInSamples, // [5.2].
+                                  0, // [5.3]
+                                  true, // [5.4］
+                                  true); // [5.5］
+                    position = 0; // 【6
+                    setAudioChannels (0, (int) reader->numChannels); // [7].
+                }
+                その他
+                {
+                    // ファイルが2秒以上というエラーを処理する。
+                }
+            }
+        });
+    }
+```
+
+-   \[1\]: Notice that we shut down the audio system for the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") object each time we open a new file. This is to avoid some of the multithreading issues hinted at already. Once the audio system is shut down, there is no danger that our `getNextAudioBlock()` function will be called on the *オーディオスレッド* while we are still within the call to the [ボタン::onClick](classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "You can assign a lambda to this callback object to have it called when the button is clicked.") lambda function (which will have called this `openButtonClicked()` function from the *メッセージスレッド*).
+-   \[2\]: Here we create the [オーディオフォーマットリーダー](https://docs.juce.com/master/classAudioFormatReader "Reads samples from an audio file stream.") object using the [オーディオフォーマットマネージャー](https://docs.juce.com/master/classAudioFormatManager "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...") object. Notice that we store this in a std::unique\_ptr object as we need to manage this object ourselves. (In [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/) we pass the [オーディオフォーマットリーダー](https://docs.juce.com/master/classAudioFormatReader "Reads samples from an audio file stream.") object to the [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource "A type of AudioSource that will read from an AudioFormatReader.") object to manage for for us.) This operation may fail to create the reader object, therefore we have to check that the `読者` pointer is not a `ヌルプトル` value on the next line.
+-   \[3\]: This is where we calculate the duration of the sound file by dividing the length of the file in samples by its sample rate. We check that this is less that 2 seconds on the next line.
+-   \[4\]: Here we resize the [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object by calling the [AudioSampleBuffer::setSize()](classAudioBuffer.html#a4434de94aa03d7db6d7ef06977ddf0ac "Changes the buffer's size or number of channels.") function using the number of channels and length from the [オーディオフォーマットリーダー](https://docs.juce.com/master/classAudioFormatReader "Reads samples from an audio file stream.") object.
+-   \[5\]: This reads the audio data from the [オーディオフォーマットリーダー](https://docs.juce.com/master/classAudioFormatReader "Reads samples from an audio file stream.") object into our [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) `ファイルバッファ` member using the [AudioFormatReader::read()](classAudioFormatReader.html#ad180e2b06c2a10c0ca399c3231b155c0) function. The arguments are:
+    -   \[5.1\]: The destination start sample in the [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object where the data will start to be written.
+    -   \[5.2\]: The number of samples to read.
+    -   \[5.3\]: The start samples in the [オーディオフォーマットリーダー](https://docs.juce.com/master/classAudioFormatReader "Reads samples from an audio file stream.") object where reading will start.
+    -   \[5.4\]: For stereo (or other two-channel) files this flag indicates whether to read the left channel.
+    -   \[5.5\]: For stereo files this flag indicates whether to read the right channel.
+-   \[6\]: We need to store the most recent read position within our buffer as we play it. This resets our `位置` member to zero.
+-   \[7\]: This starts the audio system back up again. Here we have an opportunity to use the number of channels in the sound file to try and configure our audio device with the same number of channels.
+
+# Processing the audio
+
+In the `getNextAudioBlock()` function the appropriate number of samples is read from our `ファイルバッファ` [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) member and written out the the [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object in the [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock().") struct.
+
+While reading the audio data from the file we keep track of the current read position using the `位置` member (being careful to update it after all the channels of the audio have been processed for the specified block of samples):
+
+```
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+    {
+        auto numInputChannels = fileBuffer.getNumChannels()；
+        auto numOutputChannels = bufferToFill.buffer->getNumChannels()；
+ 
+        auto outputSamplesRemaining = bufferToFill.numSamples; // [8].
+        auto outputSamplesOffset = bufferToFill.startSample; // [9].
+ 
+        while (outputSamplesRemaining > 0)
+        {
+            auto bufferSamplesRemaining = fileBuffer.getNumSamples() - position; // [10].
+            auto samplesThisTime = juce::jmin (outputSamplesRemaining, bufferSamplesRemaining); // [11].
+ 
+            for (auto channel = 0; channel < numOutputChannels; ++channel)
+            {
+                bufferToFill.buffer->copyFrom (channel, // [12])
+                                               outputSamplesOffset, // [12.1].
+                                               fileBuffer, // [12.2].
+                                               channel % numInputChannels, // [12.3].
+                                               位置, // [12.4］
+                                               samplesThisTime); // [12.5].
+            }
+ 
+            outputSamplesRemaining -= samplesThisTime; // [13] }.
+            outputSamplesOffset += samplesThisTime; // 【14】.
+            位置 += samplesThisTime; // 【15
+ 
+            if (position == fileBuffer.getNumSamples())
+                position = 0; // [16］
+        }
+    }
+```
+
+-   \[8\]: The `出力サンプル数` variable stores the total number of samples that the `getNextAudioBlock()` function needs to output taking a copy from the [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock().") struct. We use this to check if we need to exit the `while()` loop that starts on the next line.
+-   \[9\]: We also take a copy of the [AudioSourceChannelInfo::startSample](structAudioSourceChannelInfo.html#a42e88ccc05d4893015e2415785390259 "The first sample in the buffer from which the callback is expected to write data.") value to use as our offset within the destination buffer.
+-   \[10\]: Here we calculate how many samples are left in the buffer from which we are reading.
+-   \[11\]: For this pass of the `while()` loop we need to output the smaller of the remaining samples for this call to the `getNextAudioBlock()` function and the remaining samples in the buffer — using the [jmin()](group__juce__core-maths.html#gae8394cdf11279b266f4aa741758c1669) function. If this is less than the total number of samples for this call to the `getNextAudioBlock()` function, then there will be one more pass of the `while()` loop, before exiting.
+-   \[12\]: For each output channel we use the [AudioSampleBuffer::copyFrom()](classAudioBuffer.html#a9ec751bfa23564c011bf3940ca17b743 "Copies samples from another buffer to this one.") function to copy sections of data from one channel of one buffer to a channel of another buffer. Here we specify the destination channel index.
+    -   \[12.1\]: This is the sample offset within the destination buffer.
+    -   \[12.2\]: This is the source [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object from which to copy.
+    -   \[12.3\]: This is the channel index of the source buffer. In case the source buffer has fewer channels than our destination buffer we use this modulo calculation. For example, a mono source buffer will mean that this always results in zero, copying the same data to each of the output channels.
+    -   \[12.4\]: This is the position to start reading from in the source buffer.
+    -   \[12.5\]: The number of samples to read that we calculated earlier.
+-   \[13\]: Now deduct the number of samples we just processed from the `出力サンプル数` variable.
+-   \[14\]: Increment the `出力サンプルオフセット` by the same amount in case we have another pass of the `while()` loop.
+-   \[15\]: Offset our `位置` member by the same amount too.
+-   \[16\]: Finally, check if the `位置` member reached the end of the `ファイルバッファ` [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object and reset it to zero to form the loop if necessary.
+
+Add a level slider to control the audio playback level of the audio file (see [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/)). You can use the [AudioSampleBuffer::applyGain()](classAudioBuffer.html#a9ffc61d339e455d4bddc7cf055a63ee3 "Applies a gain multiple to a region of one channel.") or [AudioSampleBuffer::applyGainRamp()](classAudioBuffer.html#ab0542e5b626b36087f0054e795695682 "Applies a range of gains to a region of a channel.") functions to apply the gain to the data in an [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object.
+
+# Multithreading issues
+
+As discussed previously, this tutorial avoids multithreading issues by shutting down and restarting audio each time the user clicks the **オープン...** button. But what if we didn't do this — what could happen? There many things that could go wrong, all of which have to do with the fact that both the `getNextAudioBlock()` and `openButtonClicked()` functions could be running at the same time in different threads. Here are some examples:
+
+-   Let's say that the application is already playing an audio file and the user clicks the **オープン...** button and chooses a new file. Suppose the audio thread interrupts this function between \[4\] and \[5\]. The buffer has been resized but the data hasn't been written to the buffer. The buffer may still contain audio data from the previous file but it depends whether the memory for the buffer needed to be moved when it was resized. In any case we'll probably get a glitch.
+-   It's possible that the `getNextAudioBlock()` function could be interrupted by code in the `openButtonClicked()` function. Suppose this happens just after \[11\] and that the `openButtonClicked()` function has just reached \[4\]. The buffer might be resized to be shorter than it was but we already calculated our starting point a few lines earlier. This could lead to a memory access error and the application could crash.
+-   The `getNextAudioBlock()` function could be interrupted while calling the [AudioSampleBuffer::copyFrom()](classAudioBuffer.html#a9ec751bfa23564c011bf3940ca17b743 "Copies samples from another buffer to this one.") function. Again depending in the implementation of this we could end up accessing memory that we shouldn't.
+
+:::waring
+
+There are a number of other things that could go wrong. You may be familiar with using a [クリティカルセクション](https://en.wikipedia.org/wiki/Critical_section) to synchronise memory access between threads. This is just one possible solution but care should be taken using a [クリティカルセクション](https://en.wikipedia.org/wiki/Critical_section) in audio code as it can lead to [優先順位反転](https://en.wikipedia.org/wiki/Priority_inversion) which could cause audio drop outs. We look at a solution that avoids critical sections in [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ（上級者向け）](../tutorial_looping_audio_sample_buffer_advanced/).
+
+:::
+
+# Notes
+
+44.1kHzの2秒間のステレオ・オーディオは、AudioSampleBufferオブジェクトに705,600バイトを使用します：
+
+-   2チャンネル
+-   2秒
+-   44,100サンプル
+-   4 bytes-per-sample (using the `フロート` type)
+
+Multiply these together and the result is: 2 x 2 x 2 x 44100 x 4 = 705600
+
+# Summary
+
+このチュートリアルでは、次のことを紹介した：
+
+-   サウンドファイルからオーディオデータを直接読み込む方法。
+-   データを再生用のバッファにコピーする方法。
+-   シンプルなサンプラー・アプリケーションや、ウェーブテーブル・バッファを使ったシンセサイザーの基礎となる。
+-   オーディオアプリケーションに存在する潜在的なマルチスレッド問題のいくつか。
+
+# See also
+
+-   [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/)
+-   [チュートリアルオーディオ入力を処理する](../tutorial_processing_audio_input/)
+-   [チュートリアルオーディオ波形を描く](../tutorial_audio_thumbnail/)
+-   [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ（上級者向け）](../tutorial_looping_audio_sample_buffer_advanced/)

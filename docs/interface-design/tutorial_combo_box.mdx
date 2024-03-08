@@ -1,0 +1,312 @@
+---
+title: ComboBoxクラス
+sidebar_position: 10
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルComboBoxクラス
+
+This tutorial introduces the [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") class, which is a component for displaying lists of items to the user. The contents of a [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") object can be modified dynamically, and can be used for text input, too.
+
+レベル Beginner
+
+プラットフォーム Windows, macOS, Linux, iOS, Android
+
+クラス： [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices."), [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked."), [フォント](https://docs.juce.com/master/classFont "Represents a particular font, including its size, style, etc."), [カラー](https://docs.juce.com/master/classColour "Represents a colour, also including a transparency value."), [カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)")
+
+# Getting started
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/ComboBoxTutorial.zip) | [ジップ](/tutorials/ZIPs/ComboBoxTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+The demo project displays a piece of text at the top of the window within a [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") component (see [チュートリアルLabelクラス](../tutorial_label/)). A [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") component contains the items **プレーン**, **太字**, and **イタリック**. The user can select one of these items to change the style of the text within the label.
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_combo_box_screenshot1.png" caption="Selecting font styles" />
+
+
+# The ComboBox class
+
+This tutorial introduces many of the features of the [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") class. A [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") component contains a list of text strings. Each of these text strings is associated with an ID number (an `イント` value). You can query which item is currently selected, either by:
+
+-   retrieving the currently selected ID using the [コンボボックス::getSelectedId()](classComboBox.html#ab6232527104faad901ba0fa1380cd8ec "Returns the ID of the item that's currently shown in the box.") function; or
+-   requesting the currently displayed text using the [コンボボックス::getText()](classComboBox.html#a420630894c696545c29271f557f7614d "Returns the text that is currently shown in the combo-box's text field.") function.
+
+The [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") class is also a broadcaster. To listen for changes you can register a [コンボボックス::リスナー](https://docs.juce.com/master/classComboBox_1_1Listener "A class for receiving events from a ComboBox.") class (see [チュートリアルリスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)) or alternatively use a Lambda function with the [コンボボックス::onChange](classComboBox.html#a9cf2e20990541b9fbb539cd4a8e0ac4e "You can assign a lambda to this callback object to have it called when the selected ID is changed.") helper object.
+
+Let's examine the demo project. In our `メインコンテンツコンポーネント` class we have four private members:
+
+```
+juce::Label textLabel { {}, "すばしっこい茶色の狐は、怠け者の犬を飛び越える。"};
+    juce::Font textFont { 12.0f }；
+    juce::ComboBox styleMenu；
+```
+
+The [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") and [フォント](https://docs.juce.com/master/classFont "Represents a particular font, including its size, style, etc.") objects are configured in the constructor:
+
+```
+MainContentComponent()
+    {
+        addAndMakeVisible (textLabel)；
+        textLabel.setFont (textFont)；
+```
+
+## Adding items
+
+Items can be added to a [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") object one at a time using the [コンボボックス::addItem()](classComboBox.html#a37491da45f1cbb74e47f145e5664d8bf "Adds an item to be shown in the drop-down list.") function. Here we add the "Plain", "Bold", and "Italic" items with ID numbers 1, 2, and 3 respectively:
+
+```
+// コンボボックスに項目を追加する
+        addAndMakeVisible (styleMenu)；
+        styleMenu.addItem ("Plain", 1)；
+        styleMenu.addItem ("Bold", 2)；
+        styleMenu.addItem ("Italic", 3)；
+ 
+        styleMenu.onChange = [this] { styleMenuChanged(); }；
+        styleMenu.setSelectedId (1)；
+ 
+        setSize (400, 200)；
+    }
+```
+
+## Responding to changes
+
+We could have registered our `メインコンテンツコンポーネント` object as a listener to get notified when the `スタイルメニュー` [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") object is changed by the user in the application. But in this case we implement the [コンボボックス::onChange](classComboBox.html#a9cf2e20990541b9fbb539cd4a8e0ac4e "You can assign a lambda to this callback object to have it called when the selected ID is changed.") helper object to directly call the `styleMenuChanged()` function:
+
+```
+styleMenu.onChange = [this] { styleMenuChanged(); }；
+```
+
+The `styleMenuChanged()` function handles changes to the `スタイルメニュー` object:
+
+```
+void styleMenuChanged()
+    {
+        switch (styleMenu.getSelectedId())
+        {
+            case 1: textFont.setStyleFlags (juce::Font::plain); break；
+            case 2: textFont.setStyleFlags (juce::Font::bold); break；
+            case 3: textFont.setStyleFlags (juce::Font::italic); break；
+            default: break；
+        }
+ 
+        textLabel.setFont (textFont)；
+    }
+```
+
+Here you can see that we set the `テキストフォント` [フォント](https://docs.juce.com/master/classFont "Represents a particular font, including its size, style, etc.") object appropriately based on the user's selection. Then we use this font to update the `テキストラベル` [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") object's font.
+
+## Using item ID numbers
+
+You can use any integer as an item ID *ただし* zero. Zero has a special meaning. It is used to indicate that none of the items are selected (either an item hasn't been selected yet or the [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") object is displaying some other custom text).
+
+With a small selection of items using simple numbers like 1, 2, and 3 in your code is easy to manage. This would quickly become unmanageable as you develop your app further. In our case it would be clearer to use an `列挙`. Let's add a private `列挙` for our styles:
+
+```
+enum フォントスタイル
+    {
+        stylePlain = 1、
+        styleBold、
+        styleItalic、
+        スタイル数
+    };
+```
+
+Then we can use these values when setting up the [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") object:
+
+```
+addAndMakeVisible (styleMenu)；
+ 
+        // コンボボックスに項目を追加する
+        styleMenu.addItem ("Plain", 1)；
+        styleMenu.addItem ("Bold", 2)；
+        styleMenu.addItem ("Italic", 3)；
+ 
+        styleMenu.onChange = [this] { styleMenuChanged(); }；
+        styleMenu.setSelectedId (stylePlain)；
+```
+
+And in our `styleMenuChanged()` function:
+
+```
+void styleMenuChanged()
+{
+    switch (styleMenu.getSelectedId())
+    {
+        case stylePlain: textFont.setStyleFlags (juce::Font::plain); break；
+        case styleBold: textFont.setStyleFlags (juce::Font::bold); break；
+        case styleItalic: textFont.setStyleFlags (juce::Font::italic); break；
+    }
+ 
+    textLabel.setFont (textFont)；
+}
+```
+
+少なくとも、これでコードはずっと読みやすくなる。
+
+IDナンバーを使用する他の一般的な戦略は以下の通り：
+
+-   配列を使用して、コンボボックスの項目に関連するデータを格納します。IDを配列のインデックスとして使用できますが、インデックス0は未使用のままにするか、オフセットを使用する必要があります。たとえば、IDを100から始めることができます（100、101、102など）。ID100は配列のインデックス0と関連付けられ、100を足したり引いたりすることで、IDとインデックスを簡単に変換することができます。
+-   アプリのコンボボックスごとに、異なる範囲の整数のバッチを使う。例えば、あるコンボボックスには100, 101, 102...、別のコンボボックスには200, 201, 202...といった具合です。
+-   Using a hash of the item text. You could use [文字列::ハッシュコード()](classString.html#ad8ca5cb11984df03ff9697442da5ae4b "Generates a probably-unique 32-bit hashcode from this string.") to get a *おそらく* unique hashcode for the string. But, be aware that this may return zero (using this function on an empty string returns a hashcode of zero).
+
+## Sections and dividers
+
+The list of items in a combo-box can contain dividers and section headings. This is especially useful in very long lists. Let's add a combo-box to our app that changes the text colour. First, let's add another `列挙` for our colours:
+
+```
+列挙テキスト色
+    {
+        黒 = 1、
+        白
+        赤
+        darkred、
+        indianred、
+        緑、
+        ダークグリーン
+        ライトグリーン
+        青、
+        ダークブルー
+        lightblue、
+        色数
+    };
+```
+
+And a new member to our `メインコンテンツコンポーネント` class:
+
+```
+juce::Label textLabel { {}, "すばしっこい茶色の狐は、怠け者の犬を飛び越える。"};
+    juce::Font textFont { 12.0f }；
+    juce::ComboBox styleMenu；
+    juce::ComboBox colorsMenu；
+```
+
+In the `メインコンテンツコンポーネント` constructor we need to add the code to set up the new combo-box. Here we introduce two new functions, [コンボボックス::addSeparator()](classComboBox.html#af53bb419bb136f11f6f0342702d8d902 "Adds a separator line to the drop-down list.") and [コンボボックス::addSectionHeading()](classComboBox.html#ad376928ef517800c42628399e1a80990 "Adds a heading to the drop-down list, so that you can group the items into different sections."):
+
+```
+addAndMakeVisible (colorsMenu)；
+ 
+        colorsMenu.addItem ("Black", black)；
+        colorsMenu.addItem（"白"、白）；
+        colorsMenu.addSeparator()；
+ 
+        colorsMenu.addSectionHeading（「赤」）；
+        colorsMenu.addItem（「赤」、赤）；
+        colorsMenu.addItem（「ダークレッド」、darkred）；
+        colorsMenu.addItem ("Indian Red", indianred)；
+        colorsMenu.addSeparator()；
+ 
+        colorsMenu.addSectionHeading（「グリーン」）；
+        colorsMenu.addItem（「グリーン」、green）；
+        colorsMenu.addItem（「ダークグリーン」、ダークグリーン）；
+        colorsMenu.addItem（「ライトグリーン」、ライトグリーン）；
+        colorsMenu.addSeparator()；
+ 
+        colorsMenu.addSectionHeading（「ブルー」）；
+        colorsMenu.addItem（「ブルー」、blue）；
+        colorsMenu.addItem ("Dark Blue", darkblue)；
+        colorsMenu.addItem（「ライトブルー」、ライトブルー）；
+ 
+        coloursMenu.onChange = [this] { coloursMenuChanged(); }；
+        colorsMenu.setSelectedId（黒）；
+ 
+        coloursMenu.setEditableText (true)；
+ 
+        setSize (400, 200)；
+    }
+```
+
+セクション見出しなしでセパレーターを使うことも、セパレーターなしでセクション見出しを使うこともできるが、これらは一緒に使うとうまくいく。
+
+:::note
+
+セパレーターとセクション見出しは選択できず、関連するID番号もありません。
+
+:::
+
+We need to implement a new function to handle the changes to the `カラーメニュー` object:
+
+```
+void coloursMenuChanged()
+{
+    juce::Colour textColour；
+ 
+    switch (coloursMenu.getSelectedId())
+    {
+        case black: textColour = Colours::black; break；
+        case white: textColour = Colours::white; break；
+ 
+        case red: textColour = Colours::red; break；
+        case darkred: textColour = Colours::darkred; break；
+        case indianred: textColour = Colours::indianred; break；
+ 
+        case green: textColour = Colours::green; break；
+        case darkgreen: textColour = Colours::darkgreen; break；
+        case lightgreen: textColour = Colours::lightgreen; break；
+ 
+        case blue: textColour = Colours::blue; break；
+        case darkblue: textColour = Colours::darkblue; break；
+        case lightblue: textColour = Colours::lightblue; break；
+    }
+ 
+    textLabel.setColour (juce::Label::textColourId, textColour)；
+}
+Colours::lightblueconst Colour lightblueDefinition juce_Colours.h:105
+Colours::greenenconst Colour greenDefinition juce_Colours.h:93
+Colours::darkblueconst Colour darkblueDefinition juce_Colours.h:63
+Colours::darkredconst 色 darkredDefinition juce_Colours.h:73
+Colours::whiteconst 色 whiteDefinition juce_Colours.h:179
+Colours::blueconst Colour blueDefinition juce_Colours.h:51
+Colours::blackconst Colour blackDefinition juce_Colours.h:49
+Colours::indianredconst Colour indianredDefinition juce_Colours.h:97
+Colours::darkgreenconst Colour darkgreenDefinition juce_Colours.h:67
+Colours::redconst カラー redDefinition juce_Colours.h:156
+Colours::lightgreenconst Colour lightgreenDefinition juce_Colours.h:109
+```
+
+Don't forget to set the bounds of the `カラーメニュー` object in the `リサイズ` function:
+
+```
+void resized() override
+    {
+        textLabel .setBounds (10, 10, getWidth() - 20, 20)；
+        styleMenu .setBounds (10, 40, getWidth() - 20, 20)；
+        colorsMenu .setBounds (10, 70, getWidth() - 20, 20)；
+    }
+```
+
+プロジェクトを実行すると、ウィンドウは次のようになるはずだ：
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_combo_box_screenshot2.png" caption="Selecting colours and styles" />
+
+
+ラベルテキストの色を変更できるようになりました。
+
+## Text entry
+
+The default behaviour of a combo-box is to allow the user to select only the items listed. But, you can make the combo-box editable to allow the user to enter other text. In the `メインコンテンツコンポーネント` constructor let's make our `カラーメニュー` object editable:
+
+{/* TODO */}
+{/* Now let's add a function that takes the text from the `カラーメニュー` object and treats the text as a hexadecimal colour code. The colour code is in the ARGB format (for example, "ff888888"" would be an opaque mid-grey colour): @snippet GUI/ComboBoxTutorial/ComboBoxTutorial\_02.h handleColourText Notice that we convert the string to a hex value then convert it back to a string, setting the combo-box text. This is a simple way to filter the text entered. @note A more sophisticated method to filter input text would be to implement a custom class that derives from the ComboBox class. Then you can override its Label::Listener::editorShown() virtual function to customise its text editor. You can use the TextEditor::setInputFilter() function to use a TextEditor::InputFilter object to filter the text entered before it even appears on the screen. In our <code class="project\_code">coloursMenuChanged()</code> function we need to update the <code class="code">switch..case</code> to call our <code class="project\_code">handleColourText()</code> function in the <code class="code">default</code> case: @snippet GUI/ComboBoxTutorial/ComboBoxTutorial\_02.h coloursMenuChanged @image html tutorial\_combo\_box\_screenshot3.png "Entering custom text" Run the application and you should be able to enter custom colours in the six-digit hex format (RGB). <dl class="section attention"><dt>Exercise</dt><dd> Modify the code to add any custom hex colours to the <code class="project\_code">coloursMenu</code> combo-box so that the user can choose these items again if they wish. </dd></dl> @subsection tutorial\_combo\_box\_disabling\_enabling Disabling and enabling items Items in a combo-box can be disabled and enabled (they are, of course, enabled by default). When they are disabled they will still be visible but shown greyed-out. Let's change the code so that none of the lighter versions colours (and white) can be selected if the bold style is selected. First, let's add a function to disable or enable the lighter colours using the ComboBox::setItemEnabled() function: @snippet GUI/ComboBoxTutorial/ComboBoxTutorial\_02.h setLightColoursEnabled Now let's refactor our <code class="project\_code">styleMenuChanged()</code> function and make use of the <code class="project\_code">setLightColoursEnabled()</code> function: @snippet GUI/ComboBoxTutorial/ComboBoxTutorial\_02.h styleMenuChanged Notice that in the <code class="project\_code">setStyleBold()</code> function we disable the lighter colours and we need to enable them in the other cases. Run the application and you should now see that the lighter colours are disabled when the <b class="onscreen\_text">Bold</b> style is selected. @image html tutorial\_combo\_box\_screenshot4.png "Disabling combo-box items" <dl class="section attention"><dt>Exercise</dt><dd> One problem here is that you can select a lighter colour <em>then</em> choose the bold style. Modify the code to change the colour back to <b class="onscreen\_text">black</b> if one of the lighter colours is selected when the user selects the <b class="onscreen\_text">Bold</b> style. </dd></dl> @section tutorial\_combo\_box\_notes Notes The final implementation of the code for this tutorial can be found in the <code class="filename">ComboBoxTutorial\_02.h file of the demo project. */}
+
+# Summary
+
+This tutorial has introduced the [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") class. After reading this tutorial you should be able to:
+
+-   コンボボックスを作成し、そこに項目を追加する。
+-   コンボボックスの項目に関連するID番号を管理します。
+-   コンボボックスで選択されている項目を変更するユーザーに対応する。
+-   コンボボックスにカスタムテキストを入力できるようにする。
+-   コンボボックスの項目を無効にしたり有効にしたりする。
+
+# See also
+
+-   [チュートリアルLabelクラス](../tutorial_label/)
+-   [チュートリアルTableListBoxクラス](../tutorial_table_list_box/)
+-   [チュートリアルリスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)

@@ -1,0 +1,402 @@
+---
+title: 親子コンポーネント
+sidebar_position: 1
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアル親子コンポーネント
+
+This tutorial introduces the hierarchical nature of the [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") class whereby one component can contain one or more nested child components. This is key to laying out user interfaces in JUCE.
+
+レベル Beginner
+
+プラットフォーム Windows, macOS, Linux, iOS, Android
+
+クラス： [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects."), [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended."), [カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)")
+
+# Getting started
+
+:::note
+
+This tutorial leads on from [チュートリアルGraphicsクラス](../tutorial_graphics_class/), which you should have read and understood first.
+
+:::
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/ComponentParentsChildrenTutorial.zip) | [ジップ](/tutorials/ZIPs/ComponentParentsChildrenTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+デモ・プロジェクトは、次のスクリーンショットのように、家の簡単な図面を含むシーンを表示します：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_component_parents_children_screenshot1.png" caption="A scene comprising separate elements." />
+
+
+Does that look familiar? It's rather similar to the end result of [チュートリアルGraphicsクラス](../tutorial_graphics_class/)! The difference here is that each of the parts is drawn into a separate [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") object using separate `ペイント` functions. As we will see, these are grouped logically. For example, the wall of the house and its roof are grouped into a single "house" object.
+
+これがどのように組み合わされるのか、なぜこのようにコンポーネントを構成するのが良いのか、探ってみよう。
+
+# The Component class hierarchy
+
+Most user interfaces comprise a number of elements, such as pieces of text, buttons, sliders, menus, and so on. For example, the following screenshot shows the [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") class (which is for controlling audio hardware settings, see [チュートリアルAudioDeviceManagerクラス](../tutorial_audio_device_manager/) for more information). This contains a button, some labels, some menus (combo boxes), some radio buttons, and an audio level indicator.
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_component_parents_children_screenshot2.png" caption="A user interface for controlling audio hardware settings." />
+
+
+Some individual user interface elements may also group together other user interface elements to form more useful controls. For example, the JUCE [スライダー](https://docs.juce.com/master/classSlider "A slider control for changing a value.") class can contain not only the slider itself but also a text box that shows the slider's current value. This is shown in the following screenshot:
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_component_parents_children_screenshot3.png" caption="The JUCE Slider class." />
+
+
+In each of these cases, by separating the individual elements into separate parts of hierarchy, it is much easier to design the layout of the interface (and respond to user interaction). Some components may use their `ペイント` function to draw themselves. Other components may simply contain other components. Some components may contain other components *そして* perform some drawing. The design choices are quite flexible.
+
+# The MainContentComponent class
+
+In this tutorial the `メインコンテンツコンポーネント` class contains an instance of another component class as a member. This is the `シーンコンポーネント` class, which draws the actual scene. Look at the `メインコンテンツコンポーネント` class within the project. A SceneComponent object is added as a private member:
+
+```
+private：
+    SceneComponent scene；
+ 
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
+};
+```
+
+## Adding child components
+
+Within the `メインコンテンツコンポーネント` constructor, this `シーンコンポーネント` object is added as a *子供* component and the `メインコンテンツコンポーネント` object becomes its *親*.
+
+:::waring
+
+子コンポーネントは常に1つの親を持たなければならない。必要であれば、子コンポーネントを親から削除し、別の親に追加することができます。
+
+:::
+
+子コンポーネントを表示するためには、子コンポーネントを可視化する必要があります。この2つのステップは別々に実行することもできますが、Component::addAndMakeVisible()関数を使用して、これら2つのアクションを1つのステップで実行するのがJUCEの一般的なイディオムです：
+
+```
+MainContentComponent()
+    {
+        addAndMakeVisible (scene)；
+        setSize (600, 400)；
+    }
+```
+
+## Setting child component bounds
+
+While our `メインコンテンツコンポーネント` class sets its own size during construction, many component objects initially have a zero size. The call to the Component::setSize() function will in turn trigger a call to our `MainContentComponent::resized()` function. This is a good place to set the size and position of any child components:
+
+```
+void resized() override
+    {
+        scene.setBounds (0, 0, getWidth(), getHeight())；
+    }
+```
+
+The important point here is that the coordinates in the call to the `SceneComponent::setBounds()` function are relative to its parent component (in this case our `メインコンテンツコンポーネント` object). What this means is that the top-left corner of the parent component is point (0, 0) and the child component will be positioned such that its top-left corner will be relative to this point. In fact our `シーンコンポーネント` object fills the entire content of our `メインコンテンツコンポーネント` object. An alternative way to write this is to use the Component::getLocalBounds() function. This returns a [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") object representing the bounds of the component that calls it. This results in a rectangle with a position (0, 0) and a size that its width and height. This [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") object can then be passed to the `SceneComponent::setBounds()` function. The alternative code is shown in the following code snippet:
+
+```
+void resized() override
+{
+    scene.setBounds (getLocalBounds())；
+}
+```
+
+The next section of this tutorial reflects the structure of this `シーンコンポーネント` object.
+
+:::note
+
+Child components may be positioned to exceed the bounds of the parent component but everything outside the parent component's bounds will not be drawn. If you can't see your component, make sure that the bounds have been set properly (for example, in the parent component’s `リサイズ` function).
+
+:::
+
+# The scene
+
+The `シーンコンポーネント` class does some of its own drawing and contains two child components (representing the floor and the house). The `シーンコンポーネント` declaration is as follows:
+
+```
+class SceneComponent : public juce::Component
+{
+// ...
+private：
+    FloorComponent floor；
+    HouseComponent house；
+ 
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SceneComponent)
+};
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(className)これは、JUCE_DECLARE_NON_COPYABLE と JUCE_LEAK_DETECTOR マクロの両方を ...定義 juce_PlatformDefs.h:245 に記述する省略記法です。
+```
+
+The `フロアコンポーネント` and `ハウスコンポーネント` objects are added and made visible in the constructor:
+
+```
+シーンコンポーネント()
+    {
+        addAndMakeVisible (floor)；
+        addAndMakeVisible (house)；
+    }
+```
+
+To draw the sky, we fill the entire component with light blue in the `SceneComponent::paint()` function.
+
+```
+void paint (juce::Graphics& g) override
+    {
+        g.fillAll (juce::Colours::lightblue)；
+    }
+```
+
+The floor and the house have their bounds positioned within the `SceneComponent::resized()` function:
+
+```
+void resized() override
+    {
+        floor.setBounds (10, 297, 580, 5)；
+        house.setBounds (300, 70, 200, 220)；
+    }
+```
+
+:::note
+
+コンポーネントはまず自分自身を描画し、その上に子コンポーネントを描画します。子コンポーネントの上に描画する必要がある場合は、Component::paintOverChildren()関数をオーバーライドできます。子コンポーネントは、親コンポーネントに追加された順に描画されます。これは、Component::toFront(), Component::toBack(), Component::toBehind(), または Component::setAlwaysOnTop() 関数を使用して後で調整できます。
+
+:::
+
+それぞれのクラスの中で、床と家がどのように描かれているかを見てみよう。
+
+## The floor
+
+The floor is drawn as a green horizontal line (as in [チュートリアルGraphicsクラス](../tutorial_graphics_class/)) five pixels thick, centred vertically within the component, and spanning its full width. Here is the `フロアコンポーネント::ペイント()` function (from the `フロアコンポーネント` class):
+
+```
+void paint (juce::Graphics& g) override
+    {
+        g.setColour (juce::Colours::green)；
+        g.drawLine (0.0f, (float) getHeight() / 2.0f, (float) getWidth(), (float) getHeight() / 2.0f, 5.0f)；
+    }
+```
+
+## The house
+
+The house itself doesn't perform any drawing of its own (it does not have a `ペイント` function) but comprises two other components (representing the wall and roof of the house) in the `ハウスコンポーネント` class:
+
+```
+class HouseComponent : public juce::Component
+{
+// ...
+private：
+    WallComponent wall；
+    RoofComponent roof；
+ 
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HouseComponent)
+};
+```
+
+The `ウォールコンポーネント` and `ルーフコンポーネント` objects are added and made visible in the constructor:
+
+```
+ハウスコンポーネント()
+    {
+        addAndMakeVisible (wall)；
+        addAndMakeVisible (roof)；
+    }
+```
+
+These are positioned proportionally in the `ハウスコンポーネント::リサイズ()` function:
+
+```
+void resized() override
+    {
+        auto separation = juce::jlimit (2, 10, getHeight() / 20); // [1].
+ 
+        roof.setBounds (0, 0, getWidth(), (int) (getHeight() * 0.2) - separation / 2); // [2].
+        wall.setBounds (0, (int) (getHeight() * 0.20) + 分離 / 2, getWidth(), (int) (getHeight() * 0.80) - 分離); // [3].
+    }
+```
+
+-   \[1\]: First we calculate the separation between the roof and wall. Let's make this 1⁄20 of the height of the house but make it no smaller than 2 pixels — using the [jlimit()](group__juce__core-maths.html#gacf7cd562ab136d15d3bf5c3be047cf96) function. This so that there is always a gap between the roof and the wall even when the height is small. When the height is large then the gap remains proportional to the height.
+-   \[2\]: The roof is set to be the full width of the house and 1⁄5 of the height of the house. This is adjusted to account for the separation.
+-   \[3\]: The wall is positioned under the roof occupying 4⁄5 of the height of the house. This is also adjusted to account for the separation.
+
+### The wall
+
+The `ウォールコンポーネント` class is simple. It just fills itself with a checkerboard pattern in the `ウォールコンポーネント::ペイント()` function (from the `ウォールコンポーネント` class):
+
+```
+void paint (juce::Graphics& g) override
+    {
+        g.fillCheckerBoard (getLocalBounds().toFloat(), 30, 10、
+                            juce::Colours::sandybrown, juce::Colours::saddlebrown)；
+    }
+```
+
+### The roof
+
+The `ルーフコンポーネント` class draws a triangle using a [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") object in the `ルーフコンポーネント::ペイント()` function:
+
+```
+void paint (juce::Graphics& g) override
+    {
+        g.setColour (juce::Colours::red)；
+ 
+        juce::Path roof；
+        roof.addTriangle (0.0f, (float) getHeight(), (float) getWidth(), (float) getHeight(), (float) getWidth() / 2.0f, 0.0f)；
+        g.fillPath (roof)；
+    }
+```
+
+If we call the width of the `ルーフコンポーネント` object w and the height h then the three points that make up the triangle are: (0, h), (w, h）, (w⁄2, 0).
+
+シーン内のオブジェクトの位置を変えてみてください。
+
+# Adding a sun
+
+Let's add a sun to our scene. A number of empty functions are provided for you in the `サンコンポーネント` class, to which we will add some code in a moment.
+
+First, we need to make some changes to the `シーンコンポーネント` class. Add an instance of the `サンコンポーネント` class to the private section \[4\]:
+
+```
+private：
+    FloorComponent floor；
+    HouseComponent house；
+    SunComponent sun; // [4].
+ 
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SceneComponent)
+};
+```
+
+Then we need to add the sun and make it visible \[5\]:
+
+```
+シーンコンポーネント()
+    {
+        addAndMakeVisible (floor)；
+        addAndMakeVisible (house)；
+        addAndMakeVisible (sun); // [5].
+    }
+```
+
+And position the sun in the top-right corner \[6\]:
+
+```
+void resized() override
+    {
+        floor.setBounds (10, 297, 580, 5)；
+        house.setBounds (300, 70, 200, 220)；
+        sun .setBounds (530, 10, 60, 60); // [6].
+    }
+```
+
+We need to add the drawing code to the `サンコンポーネント::ペイント()` function (in the `サンコンポーネント` class):
+
+```
+void paint (juce::Graphics& g) override
+    {
+        g.setColour (juce::Colours::yellow)；
+ 
+        auto lineThickness = 3.0f；
+        g.drawEllipse (lineThickness * 0.5f、
+                       lineThickness * 0.5f、
+                       (float) getWidth() - lineThickness * 2、
+                       (float) getHeight() - lineThickness * 2、
+                       lineThickness)；
+    }
+```
+
+楕円をコンポーネントの境界内にわずかに配置する必要があることに注意してください。これは線の太さに依存するはずです。これは、指定された座標に正確に位置する線の中心だからです。例えば、コンポーネントの端に線を引いた場合、線の太さの半分はコンポーネントの枠外に位置することになります。楕円の位置とサイズを少し調整しないとどうなるか、次のスクリーンショットをご覧ください。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_component_parents_children_screenshot4.png" caption="Drawing is clipped to the bounds of the component." />
+:::note
+
+Another way around this is to use the Component::setPaintingIsUnclipped() function to allow the component to draw beyond its bounds. Make sure you read the [API](https://juce.com/doc/classes) documentation, as there are some caveats in the use of this function.
+
+:::
+
+最終的なシーンはこのようになるはずだ：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_component_parents_children_screenshot5.png" caption="Our final scene." />
+:::note
+
+The changed code for this step can be found in the `コンポーネント親子チュートリアル_02.h` file of the demo project.
+
+:::
+
+Using the code above, the sun is always drawn as an ellipse. Since we specify the `サンコンポーネント` object to be a square, we don't notice this potential problem. Fix the `サンコンポーネント` class such that it always draws a circle within its bounds — rather than an ellipse — even if its width and height aren't the same.
+
+# Reusing components
+
+One of the main benefits of the coordinate system used by the [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") class, is that drawing is always performed relative to the top-left of the component. Another benefit of encapsulating drawing into a separate class is that it can be reused easily.
+
+For example, we can easily add another house \[7\] to the `シーンコンポーネント` class:
+
+```
+private：
+    FloorComponent floor；
+    HouseComponent house；
+    HouseComponent smallHouse; // [7].
+    SunComponent sun；
+ 
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SceneComponent)
+};
+```
+
+Then add it and make it visible \[8\] in the `シーンコンポーネント` constructor:
+
+```
+シーンコンポーネント()
+    {
+        addAndMakeVisible (floor)；
+        addAndMakeVisible (house)；
+        addAndMakeVisible (smallHouse); // [8] を追加する。
+        addAndMakeVisible (sun)；
+    }
+```
+
+And position it \[9\] in the `SceneComponent::resized()` function:
+
+```
+void resized() override
+    {
+        floor .setBounds (10, 297, 580, 5)；
+        house .setBounds (300, 70, 200, 220)；
+        smallHouse .setBounds (50, 50, 50, 50); // [9].
+        sun .setBounds (530, 10, 60, 60)；
+    }
+```
+
+小さな家を追加すると、シーンはこのようになるはずだ：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_component_parents_children_screenshot6.png" caption="Our final scene with an additional small house." />
+:::note
+
+The changed code for this final step can be found in the `コンポーネント親子チュートリアル_03.h` file of the demo project.
+
+:::
+
+Create a new class `ストリートコンポーネント` that contains a number of `ハウスコンポーネント` objects in a row to form a street, and add it to the project. Modify the `シーンコンポーネント` class such that it contains some streets and individual houses.
+
+# Summary
+
+In this tutorial we have introduced the hierarchical parent and child system that is used by the [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") class. In particular, we have learned:
+
+-   Component::addAndMakeVisible() 関数を使用して、子コンポーネントを他のコンポーネントに追加する方法。
+-   親コンポーネントに対する子コンポーネントの相対的な位置とサイズの設定方法。
+-   そのコンポーネントは、それ自身が描画を行うことも、描画を行う子コンポーネントを含むことも、その両方を行うこともできる。
+-   そのコンポーネントが最初に描画を実行し、次に子コンポーネントが親コンポーネントに追加された順に描画される。
+-   描画は通常、コンポーネントの境界にクリップされる。
+
+# See also
+
+-   [チュートリアルGraphicsクラス](../tutorial_graphics_class/)
+-   [チュートリアルアプリのルック＆フィールをカスタマイズする](../tutorial_look_and_feel_customisation/)
+-   [チュートリアル点、線、矩形クラス](../tutorial_point_line_rectangle/)
+-   [チュートリアル高度なGUIレイアウトテクニック](../tutorial_rectangle_advanced/)
+-   [チュートリアルOpenGLアプリケーションのビルド](../tutorial_open_gl_application/)

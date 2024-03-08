@@ -1,0 +1,677 @@
+---
+title: OpenGLアプリケーションのビルド
+sidebar_position: 5
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルOpenGLアプリケーションのビルド
+
+JUCEアプリケーションの高性能レンダリングライブラリとしてOpenGLを使い始める方法をご紹介します。オーディオアプリケーションやプラグインで、美しい2Dや3Dのグラフィックスをレンダリングします。
+
+レベル Advanced
+
+プラットフォーム Windows, macOS, Linux, iOS, Android
+
+クラス： [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent "A base class for writing simple one-page graphical apps."), [OpenGLContext](https://docs.juce.com/master/classOpenGLContext "Creates an OpenGL context, which can be attached to a component."), [OpenGLShaderProgramme](https://docs.juce.com/master/classOpenGLShaderProgram "Manages an OpenGL shader program."), [OpenGLHelpers](https://docs.juce.com/master/classOpenGLHelpers "A set of miscellaneous openGL helper functions."), [マトリックス3D](https://docs.juce.com/master/classMatrix3D "A 4x4 3D transformation matrix."), [ベクター3D](https://docs.juce.com/master/classVector3D "A three-coordinate vector.")
+
+# Getting started
+
+This tutorial assumes basic understanding of the OpenGL graphics library. If you are not familiar with [オープンGL](https://en.wikipedia.org/wiki/OpenGL), you should read about it first [これ](https://www.opengl.org).
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/OpenGLAppTutorial.zip) | [ジップ](/tutorials/ZIPs/OpenGLAppTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+:::waring
+
+If using the PIP version of this project, please make sure to copy the `リソース` folder into the generated Projucer project.
+
+:::
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+デモ・プロジェクトは、以下のスクリーンショットのように、Wavefrontの".obj "ファイルを解析して、標準的なOpenGLティーポット・オブジェクトを3Dグラフィックスで表示します：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_open_gl_application_screenshot1.png" caption="The demo project app window" />
+:::note
+
+The code presented here is broadly similar to the **OpenGLAppExample** from the JUCE Examples.
+
+:::
+
+# Anatomy of an OpenGL app
+
+OpenGL APIは、多くの異なるプラットフォームやビルド環境で動作する強力で汎用性の高いライブラリですが、3Dレンダリングに関する原則は、すべてのアプリケーションで類似しています。ここで説明する用語のいくつかは、OpenGLがどのようにレンダリングルーチンを実行するかを理解するための基本的なものです：
+
+-   GLコンテキスト：コンテキストは初期化段階で一度設定され、プラットフォーム固有の方法でグラフィックスレンダラーのGL設定を記述し、アプリケーション内で使用するために必要なOpenGL関数がロードされる。
+-   投影マトリックス：投影行列によって、3Dオブジェクトを2D平面に変換し、シーンをスクリーンにレンダリングすることができる。
+-   ビュー行列：ビューマトリックスによって、3D環境で幾何学的な変換を行い、オブジェクトをシーン内に配置することができる。
+-   シェーダー：オブジェクトの外観をカスタマイズするために、シェーダーを使用して、表面の光沢や反射、3Dオブジェクト上の光や影の見え方など、マテリアルの特性を記述します。
+-   頂点：シーン内でレンダリングしようとしている3Dオブジェクトを定義する3Dポイントを表します。頂点シェーダーで使用されます。
+-   フラグメント：補間によって頂点と頂点の間に存在するピクセルを表す。フラグメントシェーダやピクセルシェーダで使用されます。
+-   属性：シェーダ言語で使用される色やテクスチャ座標などの頂点パラメータを記述する。
+-   ユニフォーム：シェーダ言語で使用されるが、シェーダプログラム間で不変であるグローバルパラメータを記述する。
+-   変数：頂点シェーダプログラムとフラグメントシェーダプログラムの間で共有されるパラメータを記述します。
+-   シェイプ：アプリケーションで最終的にレンダリングしたいポリゴンをカプセル化します。この場合はティーポットです。
+
+# The OpenGL Shading Language
+
+OpenGLシェーディング言語またはGLSLは、複数のオペレーティング・システムやハードウェア・グラフィックス・カード上のグラフィックス・レンダリング・パイプラインを直接制御できるCタイプの言語です。GLSLを使用すると、オブジェクトの外観を記述するシェーダーと呼ばれる小さなプログラムを書くことができます。OpenGLを使うか、スマートフォンやタブレットのような組み込みシステム専用に設計されたサブセット・ライブラリOpenGL ESを使うかによって、言語構文は変わりませんが、パフォーマンスを考慮する必要があります。
+
+例として、このチュートリアルで使用する頂点シェーダーは次のようになります：
+
+```
+// OpenGLおよびOpenGL ES
+属性 vec4 position；
+属性 vec4 sourceColour；
+属性 vec2 textureCoordIn；
+ 
+一様な mat4 projectionMatrix；
+一様な mat4 viewMatrix；
+ 
+変化する vec4 destinationColour；
+変化する vec2 textureCoordOut；
+ 
+void main()
+{
+    destinationColour = sourceColour；
+    textureCoordOut = textureCoordIn；
+    gl_Position = projectionMatrix * viewMatrix * position；
+```
+
+そして、このチュートリアルで使用するフラグメント・シェーダーは以下のようになる：
+
+```
+// OpenGL
+変化する vec4 destinationColour；
+変化するvec2 textureCoordOut；
+ 
+void main()
+{
+    vec4 color = vec4(0.95, 0.57, 0.03, 0.7)；
+    gl_FragColor = color；
+}
+ 
+// OpenGL ES
+変化するlowp vec4 destinationColour；
+可変lowp vec2 textureCoordOut；
+ 
+void main()
+{
+    lowp vec4 color = vec4(0.95, 0.57, 0.03, 0.7)；
+    gl_FragColor = color；
+}
+```
+
+ご覧の通り、シェーダーは非常に些細なもので、OpenGLシェーダーとOpenGL ESシェーダーの違いはごくわずかです。ここで使われているGLSLの型、変数、関数は以下の通りです：
+
+-   `VEC2/VEC4`: Represents a floating point vector with 2 or 4 components.
+-   `マット4`: Represents a 4-by-4 floating point matrix.
+-   `ロープ`: Specifies a lower precision data type for OpenGL ES.
+-   `属性`: Represents a vertex-specific parameter.
+-   `ユニフォーム`: Represents a global parameter describing the GL environment.
+-   `まちまち`: Represents a shared parameter between the vertex and fragment shaders.
+-   `gl_ポジション`: The transformed vertex position for the vertex shader to execute vertex manipulations.
+-   `gl_フラグカラー`: The colour for the fragment shader to execute fragment manipulations.
+-   `メイン()`: The main function is where the vertex or fragment shader computation is performed.
+
+# The OpenGLAppComponent class
+
+In JUCE, the [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent "A base class for writing simple one-page graphical apps.") class is very similar to the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") class but instead it is used for graphical apps. When inheriting from the [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent "A base class for writing simple one-page graphical apps.") class, there are several functions that we have to override namely:
+
+-   initialise()を使用します：この関数は、シェーダーなどのレンダリングに必要なGLオブジェクトを準備します。
+-   render()を呼び出します：render関数はOpenGLレンダラーによって呼び出され、ここでOpenGLコンテキストを描画するための投影行列とビュー行列が計算される。
+-   shutdown()：この関数は、シェーダーなどのレンダリングに使用されたGLオブジェクトをクリアします。
+-   shutdownOpenGL()：サブクラスのデストラクタで、クラスが破壊される前にGLシステムをシャットダウンするために、この関数を呼び出す必要があります。
+
+OpenGLの基本を学んだところで、ティーポットのレンダリングを実装してみよう！
+
+# Calculating the Projection and View matrices
+
+投影行列とビュー行列の計算を切り離すために、これらの行列を後で使えるように返す2つのヘルパー関数を作成する。
+
+まず、以下のようにフラストラムとスクリーン境界を使って投影行列を計算する：
+
+```
+    juce::Matrix3D getProjectionMatrix() const
+    {
+        auto w = 1.0f / (0.5f + 0.1f);                                          // [1]
+        auto h = w * getLocalBounds().toFloat().getAspectRatio (false);         // [2]
+ 
+        return juce::Matrix3D::fromFrustum (-w, w, -h, h, 4.0f, 30.0f); // [3].
+    }
+```
+
+A frustum is a shape cutout from a polygon by slicing it with two parallel planes and the [マトリックス3D](https://docs.juce.com/master/classMatrix3D "A 4x4 3D transformation matrix.") class provides a handy function called `fromFrustum()` that returns a matrix from one. In the function above:
+
+-   \[1\]: We first declare a width variable to define half the width of the frustum on the near plane with an arbitrary number that works well for our scenario.
+-   \[2\]: Then we declare a height variable to define half the height of the frustum on the near plane based on the screen ratio and the width variable.
+-   \[3\]: We finally use the `fromFrustum()` function with width, height, near plane and far plane distances as arguments to retrieve the projection matrix. This gives us a perspective projection as opposed to an orthographic projection.
+
+次に、回転行列を使ってビュー行列を計算し、下図のようにティーポットをアニメーション化します：
+
+```
+    juce::Matrix3D getViewMatrix() const
+    {
+        auto viewMatrix = juce::Matrix3D::fromTranslation ({ 0.0f, 0.0f, -10.0f }); // [4].
+        auto rotationMatrix = viewMatrix.rotation ({ -0.3f、
+                                                      5.0f * std::sin ((float) getFrameCounter() * 0.01f)、
+                                                      0.0f }); // [5]
+ 
+        return viewMatrix * rotationMatrix; // [6].
+    }
+```
+
+-   \[4\]: First we create an identity matrix translated by a vector to push the matrix 10 units back into the scene. This puts our teapot right at the center of the screen but a little bit far off.
+-   \[5\]: We then create a rotation matrix from the previously defined matrix that rotates the teapot around the y-axis depending on the rendering frame counter. This will also make the rotation change direction back and forth at the rate of the sin function.
+-   \[6\]: Finally we apply the rotation by multiplaying the matrices and return the view matrix.
+
+数学的計算部分は完了したので、次にシェーダープログラムを書き始めることができる。
+
+# Writing the OpenGL shaders
+
+まず、チュートリアルのコード・ベース全体で使用する便利なメンバ変数を定義することから始めましょう：
+
+```
+    juce::String vertexShader;
+    juce::String fragmentShader;
+ 
+    std::unique_ptr shader;
+    std::unique_ptr shape;
+    std::unique_ptr attributes;
+    std::unique_ptrユニフォーム
+ 
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
+};
+```
+
+Here we have defined several pointers to the shape, attributes and uniforms we will be using in this GL context as well as an [OpenGLShaderProgramme](https://docs.juce.com/master/classOpenGLShaderProgram "Manages an OpenGL shader program.") object that manages the shader program. We also have two char pointers to define the vertex shader and fragment shader as shown in the next step:
+
+```
+void createShaders()
+    {
+        頂点シェーダ = R"(
+            属性 vec4 position；
+            属性 vec4 sourceColour；
+            属性 vec2 textureCoordIn；
+ 
+            一様な mat4 projectionMatrix；
+            一様な mat4 viewMatrix；
+ 
+            変化する vec4 destinationColour；
+            変化する vec2 textureCoordOut；
+ 
+            void main()
+            {
+                destinationColour = sourceColour；
+                textureCoordOut = textureCoordIn；
+                gl_Position = projectionMatrix * viewMatrix * position；
+            })";
+ 
+        フラグメントシェーダ
+           #if JUCE_OPENGL_ES
+            R"(varying lowp vec4 destinationColour；
+               変化する lowp vec2 textureCoordOut;)"
+           #それ以降
+            R"(varying vec4 destinationColour；
+               vec2 textureCoordOutを変化させる;)"
+           #endif
+            R"(
+               void main()
+               {)"
+           #if JUCE_OPENGL_ES
+            R"( lowp vec4 color = vec4(0.95, 0.57, 0.03, 0.7);)" "
+           #else
+            R"( vec4 color = vec4(0.95, 0.57, 0.03, 0.7);)" #endif
+           #endif
+            R"( gl_FragColor = color；
+               })";
+```
+
+In the `createShaders()` function, we first copy the previously shown shaders into the char pointers by inserting line breaks. This function will be later called in the `イニシャライズ()` function of the [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent "A base class for writing simple one-page graphical apps."). The vertex shader essentially sets the position of every vertex in the shape by setting the "gl\_Position" variable to the product of the transformation matrices namely the projection matrix followed by the view matrix. As for the fragment shader, the colour of the pixel is specified by setting the "gl\_FragColor" variable to the specified colour.
+
+In the second half of the `createShaders()` function, we create a new shader program within the current GL context \[1\] and perform some initialisation as follows:
+
+```
+        std::unique_ptrnewShader (new juce::OpenGLShaderProgram (openGLContext)); // [1].
+        juce::String statusText；
+ 
+        if (newShader->addVertexShader (juce::OpenGLHelpers::translateVertexShaderToV3 (vertexShader)))          // [2]
+              && newShader->addFragmentShader (juce::OpenGLHelpers::translateFragmentShaderToV3 (fragmentShader))
+              && newShader->link())
+        {
+            shape .reset()；
+            attribute .reset()；
+            ユニフォーム .reset()；
+ 
+            shader.reset (newShader.release()); // [3].
+            shader->use()；
+ 
+            shape .reset (new Shape())；
+            attributes .reset (new Attributes (*shader))；
+            uniforms .reset (new Uniforms (*shader))；
+ 
+            statusText = "GLSL: v"+ juce::String (juce::OpenGLShaderProgram::getLanguageVersion(), 2)；
+        }
+        else
+        {
+            statusText = newShader->getLastError(); // [4].
+        }
+    }
+```
+
+-   \[2\]: We first add the vertex shader followed by the fragment shader and attempt to link the compiled shaders into a single program.
+-   \[3\]: If the compilation and linking of the shaders are successful, we can clear the shape, attributes and uniforms pointers, assign the newly created shader to the shader program pointer and instantiate new objects for the shape, attributes and uniforms pointers.
+-   \[4\]: We can optionally keep track of the initialisation status in case the compilation of shaders fails.
+
+では、頂点、アトリビュート、ユニフォーム、シェイプを表す便利な構造を定義してみよう。
+
+## The Vertex struct
+
+頂点を表現するためには、以下のように4つの重要な変数が必要である：
+
+```
+頂点構造
+    
+        float position[3]；
+        float normal[3]；
+        float color[4]；
+        float texCoord[2]；
+    };
+```
+
+-   位置：位置の配列は、3D局所空間における頂点の位置を表します。
+-   法線：法線配列は、隣接する面の法線から計算された当該頂点の法線ベクトルの方向を表す。
+-   色：色の配列は頂点の色を RGBA フォーマットで表します。
+-   テクスチャ座標：テクスチャを使用する場合、その頂点で使用するテクスチャの2D座標を表します。
+
+## The Attributes struct
+
+The attributes structure is essentially a container class to hold several [OpenGLShaderProgram::属性](https://docs.juce.com/master/structOpenGLShaderProgram_1_1Attribute "Represents an openGL vertex attribute value.") objects together and the attributes we store are defined here:
+
+アトリビュートは頂点シェーダプログラムの頂点パラメータを記述するためのものなので、これらは先に定義したVertex構造体の変数に正確に対応しています。
+
+予想通り、次のステップで定義したプライベート・ヘルパー関数を呼び出し、引数としてシェーダープログラムを渡すことで、コンストラクタ内でこれらのアトリビュートを作成する：
+
+```
+明示的属性 (juce::OpenGLShaderProgram& shaderProgram)
+        {
+            position .reset (createAttribute (shaderProgram, "position"))；
+            normal .reset (createAttribute (shaderProgram, "normal"))；
+            sourceColour .reset（createAttribute（shaderProgram, "sourceColour"））；
+            textureCoordIn .reset (createAttribute (shaderProgram, "textureCoordIn"))；
+        }
+```
+
+The helper function in turn will call the [OpenGLShaderProgram::属性](https://docs.juce.com/master/structOpenGLShaderProgram_1_1Attribute "Represents an openGL vertex attribute value.") constructor to instantiate new objects:
+
+```
+private：
+        static juce::OpenGLShaderProgram::Attribute* createAttribute (juce::OpenGLShaderProgram& shader、
+                                                                      const juce::String& attributeName)
+        {
+            名前空間 ::juce::gl；
+ 
+            if (glGetAttribLocation (shader.getProgramID(), attributeName.toRawUTF8()) < 0)
+                nullptr を返す；
+ 
+            return new juce::OpenGLShaderProgram::Attribute (shader, attributeName.toRawUTF8())；
+        }
+```
+
+However, in the above we first check whether the attribute exists in the shader program by using the `glGetAttribLocation()` function. If the number returned is -1 then we abort the attribute instantiation.
+
+In the `イネーブル()` function, all the attributes are activated (after checking if they exist) by calling the `glVertexAttribPointer()` and `glEnableVertexAttribArray()` functions as shown below:
+
+```
+void enable()
+        {
+            名前空間 ::juce::gl；
+ 
+            if (position.get() != nullptr)
+            {
+                glVertexAttribPointer (position->attributeID, 3, GL_FLOAT, GL_FALSE, sizeof (Vertex), nullptr)；
+                glEnableVertexAttribArray (position->attributeID)；
+            }
+ 
+            if (normal.get() != nullptr)
+            {
+                glVertexAttribPointer (normal->attributeID, 3, GL_FLOAT, GL_FALSE, sizeof (Vertex), (GLvoid*) (sizeof (float) * 3))；
+                glEnableVertexAttribArray (normal->attributeID)；
+            }
+ 
+            if (sourceColour.get() != nullptr)
+            {
+                glVertexAttribPointer (sourceColour->attributeID, 4, GL_FLOAT, GL_FALSE, sizeof (Vertex), (GLvoid*) (sizeof (float) * 6))；
+                glEnableVertexAttribArray (sourceColour->attributeID)；
+            }
+ 
+            if (textureCoordIn.get() != nullptr)
+            {
+                glVertexAttribPointer (textureCoordIn->attributeID, 2, GL_FLOAT, GL_FALSE, sizeof (Vertex), (GLvoid*) (sizeof (float) * 10))；
+                glEnableVertexAttribArray (textureCoordIn->attributeID)；
+            }
+        }
+```
+
+The `glVertexAttribPointer()` function defines the array of vertex attribute data with information such as the index, size and type of data to hold. Notice that the last argument specifies the offset of the data cumulatively with regards to the other attributes defined previously in the structure. Then the `glEnableVertexAttribArray()` function enables the actual array to be used within the context.
+
+In the `無効化()` function, we do the exact opposite by calling the `glDisableVertexAttribArray()` function on all attributes:
+
+```
+無効化()
+        {
+            名前空間 ::juce::gl；
+ 
+            if (position.get() != nullptr) glDisableVertexAttribArray (position->attributeID)；
+            if (normal.get() != nullptr) glDisableVertexAttribArray (normal->attributeID)；
+            if (sourceColour.get() != nullptr) glDisableVertexAttribArray (sourceColour->attributeID)；
+            if (textureCoordIn.get() != nullptr) glDisableVertexAttribArray (textureCoordIn->attributeID)；
+        }
+```
+
+## The Uniforms struct
+
+The uniforms structure similarly contains several [OpenGLShaderProgram::ユニフォーム](https://docs.juce.com/master/structOpenGLShaderProgram_1_1Uniform "Represents an openGL uniform value.") objects in the same manner as defined here:
+
+これらは、先に頂点シェーダープログラムで定義した行列変数に正確に対応しています。
+
+予想通り、次のステップで定義したプライベート・ヘルパー関数を呼び出し、引数としてシェーダープログラムを渡すことで、コンストラクタ内でこれらのアトリビュートを作成する：
+
+```
+明示的なユニフォーム (juce::OpenGLShaderProgram& shaderProgram)
+        {
+            projectionMatrix .reset (createUniform (shaderProgram, "projectionMatrix"))；
+            viewMatrix .reset (createUniform (shaderProgram, "viewMatrix"))；
+        }
+```
+
+The helper function in turn will call the [OpenGLShaderProgram::ユニフォーム](https://docs.juce.com/master/structOpenGLShaderProgram_1_1Uniform "Represents an openGL uniform value.") constructor to instantiate new objects:
+
+```
+private：
+        static juce::OpenGLShaderProgram::Uniform* createUniform (juce::OpenGLShaderProgram& shaderProgram、
+                                                                  const juce::String& uniformName)
+        {
+            名前空間 ::juce::gl；
+ 
+            if (glGetUniformLocation (shaderProgram.getProgramID(), uniformName.toRawUTF8()) < 0)
+                return nullptr；
+ 
+            return new juce::OpenGLShaderProgram::Uniform (shaderProgram, uniformName.toRawUTF8())；
+        }
+    };
+```
+
+However, in the above we first check whether the uniform exists in the shader program by using the `glGetUniformLocation()` function. If the number returned is -1 then we abort the uniform instantiation.
+
+## The Shape struct
+
+Shape構造体は、OpenGL用語でティーポットオブジェクトを定義する場所です。メンバ変数は、ティーポットモデルのWavefront Objファイルと、すぐ下のサブ構造体として定義された頂点バッファの配列を格納するために使用されます：
+
+```
+        WavefrontObjFile shapeFile;
+        juce::OwnedArray頂点バッファ；
+```
+
+まず、頂点バッファがどのように定義されているかを見てみましょう。このバッファには、メッシュ内のインデックスの総数と、後のレンダリングに備えるための頂点バッファとインデックスバッファが含まれています：
+
+```
+GLuint vertexBuffer, indexBuffer；
+            int numIndices；
+ 
+            JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VertexBuffer)
+        };
+```
+
+このクラスのコンストラクタは、次のようにして頂点バッファを初期化します：
+
+```
+            explicit VertexBuffer (WavefrontObjFile::Shape& aShape)
+            {
+                using namespace ::juce::gl;
+ 
+                numIndices = aShape.mesh.indices.size();                                    // [1]
+ 
+                glGenBuffers (1, &vertexBuffer);                                            // [2]
+                glBindBuffer (GL_ARRAY_BUFFER, vertexBuffer);
+ 
+                juce::Array vertices;
+                createVertexListFromMesh (aShape.mesh, vertices, juce::Colours::green);     // [3]
+ 
+                glBufferData (GL_ARRAY_BUFFER,                                              // [4]
+                              static_cast (static_cast (vertices.size()) * sizeof (Vertex)),
+                              vertices.getRawDataPointer(), GL_STATIC_DRAW);
+ 
+                glGenBuffers (1, &indexBuffer);                                             // [5]
+                glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+                glBufferData (GL_ELEMENT_ARRAY_BUFFER,
+                              static_cast (static_cast(numIndices) * sizeof (juce::uint32))、
+                              aShape.mesh.indices.getRawDataPointer(), GL_STATIC_DRAW)；
+            }
+```
+
+-   \[1\]: We first retrieve the number of indices in the mesh we want to draw.
+-   \[2\]: Then we generate the buffer object name for our single vertex buffer with the `glGenBuffers()` function and bind the vertex attributes to it with the `glBindBuffer()` function.
+-   \[3\]: Using the helper function defined below, we create a vertex list from the teapot mesh.
+-   \[4\]: We can then copy the vertex list into the vertex buffer by calling the `glBufferData()` function.
+-   \[5\]: Finally we do the same for the index buffer by generating the buffer object name, binding the vertex array indices to it and copying the indices into the index buffer.
+
+頂点リストからメッシュを作成するヘルパー関数は以下のように定義されている：
+
+```
+        static void createVertexListFromMesh (const WavefrontObjFile::Mesh& mesh, juce::Arrayリスト, juce::Colour カラー)
+        {
+            auto scale = 0.2f; // [6］
+            WavefrontObjFile::TextureCoord defaultTexCoord { 0.5f, 0.5f }；
+            WavefrontObjFile::Vertex defaultNormal { 0.5f, 0.5f, 0.5f }；
+ 
+            for (auto i = 0; i < mesh.vertices.size(); ++i) // [7].
+            {
+                const auto& v = mesh.vertices.getReference (i)；
+                const auto& n = i < mesh.normals.size() ? mesh.normals.getReference (i) : defaultNormal；
+                const auto& tc = i < mesh.textureCoords.size() ? mesh.textureCoords.getReference (i) : defaultTexCoord；
+ 
+                list.add ({ { scale * v.x, scale * v.y, scale * v.z, }、
+                            { scale * n.x, scale * n.y, scale * n.z, }、
+                            { color.getFloatRed(), color.getFloatGreen(), color.getFloatBlue(), color.getFloatAlpha() }、
+                            { tc.x, tc.y }.}); // [8]
+            }
+        }
+```
+
+-   \[6\]: We first define several local variables for the mesh scale, the default texture coordinates and the default normal vector.
+-   \[7\]: Then for every vertex in the mesh, we get a reference to the vertex position, normal vector and texture coordinates to create a new Vertex object that we defined earlier.
+-   \[8\]: On the Vertex object that was created, we scale the position and normal vectors, assign a dummy green colour and finally we add it to the vertex list.
+
+In the destructor, we delete the vertex and index buffers by calling the `glDeleteBuffers()` function on each variable:
+
+```
+~頂点バッファ()
+            {
+                名前空間 ::juce::gl；
+ 
+                glDeleteBuffers (1, &vertexBuffer)；
+                glDeleteBuffers (1, &indexBuffer)；
+            }
+```
+
+The `バインド` function defined below is called when the shape is drawn and binds the vertex and index buffers using the `glBindBuffer()` function:
+
+```
+void bind()
+{
+    名前空間 ::juce::gl；
+ 
+    glBindBuffer (GL_ARRAY_BUFFER, vertexBuffer)；
+    glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, indexBuffer)；
+}
+```
+
+さて、シェイプコンストラクタに戻って、ティーポットのバイナリデータをWavefrontObjFile変数にロードしてみましょう：
+
+```
+形状()
+        {
+            auto dir = juce::File::getCurrentWorkingDirectory()；
+ 
+            int numTries = 0；
+ 
+            while (! dir.getChildFile ("Resources").exists() && numTries++ < 15)
+                dir = dir.getParentDirectory()；
+ 
+            if (shapeFile.load (dir.getChildFile ("Resources").getChildFile ("teapot.obj")).wasOk())
+                for (auto* s : shapeFile.shapes)
+                    vertexBuffers.add (new VertexBuffer (*s))；
+        }
+```
+
+:::waring
+
+Make sure that the "teapot.obj" file exists in the `リソース` folder of your project.
+
+:::
+
+ロードに成功すれば、WavefrontObjFileオブジェクトに含まれるすべての形状を繰り返し処理し、新しいVertexBufferオブジェクトを作成して頂点バッファ配列に追加することができます。
+
+Finally, we implement a `ドロー()` function that will be called in the `レンダー` function of the [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent "A base class for writing simple one-page graphical apps.") later on as defined below:
+
+```
+void draw (Attributes& glAttributes)
+        {
+            名前空間 ::juce::gl；
+ 
+            for (auto* vertexBuffer : vertexBuffers)
+            {
+                vertexBuffer->bind()；
+ 
+                glAttributes.enable()；
+                glDrawElements (GL_TRIANGLES, vertexBuffer->numIndices, GL_UNSIGNED_INT, nullptr)；
+                glAttributes.disable()；
+            }
+        }
+```
+
+For every vertex buffer in the member variable array, we first call the `バインド` function to bind the vertex and index buffers to the GL context. We then call the `イネーブル()` function defined earlier on every attribute to fill the arrays with data. Finally, the `glDrawElements` function draws every set of three vertices contained in the vertex buffer as triangles before the attributes are disabled and emptied.
+
+# Putting it all together
+
+これで、ティーポットをレンダリングするためのすべてのコンポーネントが揃った。
+
+As mentioned before our app inherits from the [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent "A base class for writing simple one-page graphical apps.") class as shown here in the `メインコンテンツコンポーネント` class:
+
+```
+class MainContentComponent : public juce::OpenGLAppComponent
+{
+public：
+```
+
+In the class constructor, we set the size of our window as usual using the `setSize()` function:
+
+```
+MainContentComponent()
+    {
+        setSize (800, 600)；
+    }
+```
+
+In the class destructor, we make sure that the OpenGL system is shutdown before our class is destroyed by calling the `shutdownOpenGL()` function:
+
+```
+~MainContentComponent()オーバーライド
+    {
+        shutdownOpenGL()；
+    }
+```
+
+As described before the [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent "A base class for writing simple one-page graphical apps.") class provides startup and shutdown functions to facilitate implementation of our graphics application. In the `イニシャライズ()` function we call the helper function `createShaders()` defined earlier to prepare the vertex and fragment shaders as shown here:
+
+```
+void initialise() オーバーライド
+    {
+        createShaders()；
+    }
+```
+
+As for the `シャットダウン` function, we ensure there is no leakage by setting all the member variable pointers to null as done here:
+
+```
+void shutdown() override
+    {
+        shader .reset()；
+        shape .reset()；
+        アトリビュート .reset()；
+        ユニフォーム .reset()；
+    }
+```
+
+Next, we perform the actual rendering by overriding the `[OpenGLAppComponent::render()](classOpenGLAppComponent.html#af4e76e80318343d5302be7af6bf4cdbc "Called to render your openGL.")` function as explained below:
+
+```
+void render() オーバーライド
+    {
+        名前空間 ::juce::gl；
+ 
+        jassert (juce::OpenGLHelpers::isContextActive())；
+ 
+        auto desktopScale = (float) openGLContext.getRenderingScale(); // [1].
+        juce::OpenGLHelpers::clear (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId)); // [2].
+ 
+        glEnable (GL_BLEND); // [3].
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)；
+ 
+        glViewport (0、
+                    0,
+                    juce::roundToInt (desktopScale * (float) getWidth())、
+                    juce::roundToInt (desktopScale * (float) getHeight())); // [4].
+ 
+        shader->use(); // [5].
+ 
+        if (uniforms->projectionMatrix.get() != nullptr) // [6].
+            uniforms->projectionMatrix->setMatrix4 (getProjectionMatrix().mat, 1, false)；
+ 
+        if (uniforms->viewMatrix.get() != nullptr) // [7].
+            uniforms->viewMatrix->setMatrix4 (getViewMatrix().mat, 1, false)；
+ 
+        shape->draw (*attributes); // [8].
+ 
+        子コンポーネントが正しく描画されるように、 // 要素バッファをリセットする。
+        glBindBuffer (GL_ARRAY_BUFFER, 0); // [9].
+        glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0)；
+    }
+```
+
+-   \[1\]: First check that the GL context is active using the `[OpenGLHelpers::isContextActive()](classOpenGLHelpers.html#aeb9c20e316e3aa59046a4fe4cb2562f8 "Returns true if the current thread has an active OpenGL context.")` function so that we can retrieve the scale factor of the rendering display.
+-   \[2\]: We can then clear the display by painting the background with the appropriate look and feel colour.
+-   \[3\]: This goes beyond the scope of the tutorial but the `glEnable()` function activates the "GL\_BLEND" option which blends the colour of the computed fragment colour with the colour buffer values. The blending method is specified in the `glBlendFunc()` function by specifying the transparency calculation.
+-   \[4\]: The `glViewport()` function sets the viewport of the GL window relative to the device screen by multiplying the width and height by the rendering display scale factor.
+-   \[5\]: By calling the `使用` function on the shader pointer, we specify which shader we want to use in this GL context.
+-   \[6\]: We set the projection matrix as a uniform variable from our helper function to compute the shader.
+-   \[7\]: We also set the view matrix as a uniform variable from our helper function to compute the shader.
+-   \[8\]: Finally, we call the `ドロー()` function defined earlier on the shape pointer to render the teapot within the GL context and attributes specified as arguments.
+-   \[9\]: We also make sure to empty the vertex attributes and vertex array indices using the `glBindBuffer()` function on the GL context.
+
+:::note
+
+接頭辞が "gl "である関数はすべて、JUCEライブラリではなく、開発マシンのOpenGLライブラリに含まれています。
+
+:::
+
+# Summary
+
+このチュートリアルでは、OpenGL JUCE アプリケーションのセットアップ方法を学びました。特に
+
+-   Learnt the functionalities of the [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent "A base class for writing simple one-page graphical apps.") class.
+-   WavefrontのObjファイルをOpenGLレンダラーにロードした。
+-   計算された投影行列とビュー行列。
+-   Configured the [OpenGLContext](https://docs.juce.com/master/classOpenGLContext "Creates an OpenGL context, which can be attached to a component.") and render appearance using shaders.
+
+# See also
+
+-   [チュートリアルアプリケーション・ウィンドウ](../tutorial_main_window/)
+-   [チュートリアルメイン・コンポーネント](../tutorial_main_component/)
+-   [チュートリアルGraphicsクラス](../tutorial_graphics_class/)
+-   [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)
+-   [チュートリアルジオメトリのアニメーション](../tutorial_animation/)

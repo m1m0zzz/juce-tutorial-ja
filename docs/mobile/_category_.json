@@ -1,7 +1,8 @@
 {
-  "label": "Graphics",
-  "position": 8,
+  "label": "Mobile",
+  "position": 10,
   "link": {
     "type": "generated-index"
   }
 }
+

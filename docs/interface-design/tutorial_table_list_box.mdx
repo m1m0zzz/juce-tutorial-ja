@@ -1,0 +1,536 @@
+---
+title: TableListBox クラス
+sidebar_position: 12
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルTableListBoxクラス
+
+JUCEユーザー・インターフェースにテーブルを組み込む。XMLファイルから読み込んだデータを表示し、テーブルのフォーマットをカスタマイズできます。
+
+レベル Intermediate
+
+プラットフォーム Windows, macOS, Linux
+
+クラス： [テーブルリストボックス](https://docs.juce.com/master/classTableListBox "A table of cells, using a TableHeaderComponent as its header."), [テーブルリストボックスモデル](https://docs.juce.com/master/classTableListBoxModel "One of these is used by a TableListBox as the data model for the table's contents."), [リストボックス](https://docs.juce.com/master/classListBox "A list of items that can be scrolled vertically."), [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox."), [テーブルヘッダーコンポーネント](https://docs.juce.com/master/classTableHeaderComponent "A component that displays a strip of column headings for a table, and allows these to be resized,..."), [XmlDocument](https://docs.juce.com/master/classXmlDocument "Parses a text-based XML document and creates an XmlElement object from it."), [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.")
+
+# Getting started
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/TableListBoxTutorial.zip) | [ジップ](/tutorials/ZIPs/TableListBoxTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+:::waring
+
+If using the PIP version of this project, please make sure to copy the `リソース` folder into the generated Projucer project.
+
+:::
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+デモ・プロジェクトは、JUCE モジュールに関する情報を含む XML ファイルから読み込まれたテーブルを表示します。表は、好きな列でソートしたり、特定の項目を編集したり、列を非表示にしたりすることができます。
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_table_list_box_screenshot1.png" caption="The app window" />
+
+
+# The ListBox class
+
+The base [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") class that allows us to display tables in JUCE is called the [リストボックス](https://docs.juce.com/master/classListBox "A list of items that can be scrolled vertically.") class. The [リストボックス](https://docs.juce.com/master/classListBox "A list of items that can be scrolled vertically.") behaviour is managed by a [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox.") class which describes the data model to display. This is useful to display a list of items in a scrollable viewport but in order to turn this into a proper table with headers describing the columns, we can use respectively the [テーブルリストボックス](https://docs.juce.com/master/classTableListBox "A table of cells, using a TableHeaderComponent as its header.") and [テーブルリストボックスモデル](https://docs.juce.com/master/classTableListBoxModel "One of these is used by a TableListBox as the data model for the table's contents.") classes. These classes encapsulate the same behaviour as their counterparts but instead incorporate the functionalities of a [テーブルヘッダーコンポーネント](https://docs.juce.com/master/classTableHeaderComponent "A component that displays a strip of column headings for a table, and allows these to be resized,...") to display column headers.
+
+When implementing a [テーブルリストボックス](https://docs.juce.com/master/classTableListBox "A table of cells, using a TableHeaderComponent as its header.") and inheriting the [テーブルリストボックスモデル](https://docs.juce.com/master/classTableListBoxModel "One of these is used by a TableListBox as the data model for the table's contents."), there are several functions to override namely:
+
+-   `getNumRows()`: Needs to return the current number of rows in the table.
+-   `paintRowBackground()`: Using the [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") context provided, we must draw the background of the row specified by the row number.
+-   `ペイントセル()`: Using the [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") context provided, we must draw the cell specified by the row and column number.
+-   `セルのリフレッシュコンポーネント()`: We can optionally override this method to create and update custom components in the table.
+-   `getColumnAutoSizeWidth()`: When using auto size for the width of the columns, this method can optionally specify how the column resizes itself.
+-   `sortOrderChanged()`: If using a custom sorting order, we can optionally specify how the column gets reordered.
+
+オプションでオーバーライドして機能を追加できる関数は他にもあるが、このチュートリアルではここで紹介する関数を実装する。
+
+# Reading Data from XML
+
+まず、XMLドキュメントからテーブルに表示したいデータをロードすることから始めよう。
+
+In the `リソース` folder of the project, you can find sample data to use with this tutorial in a file called `TableData.xml` that contains information in the following format:
+
+```
+
+    
+        //...
+    
+        //...
+
+```
+
+Here we encapsulate the whole file with the `テーブル・データ` tag and the table headers and the actual data is separated using the `ヘッダー` and `データ` tags respectively. The columns are defined with individual `コラム` tags and the rows are defined with `アイテム` tags using attributes for the content in each column of that entry.
+
+このプロジェクトのコードの実装は、このファイル構造に合わせてあるが、XMLタグは好きなように変更できる。
+
+In the `テーブル・チュートリアル・コンポーネント` class, we define a pointer to temporarily store the content of the file in a single [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") member variable and also define two additional XmlElements for the column content and the row content as shown here:
+
+```
+class TableTutorialComponent : public juce::Component、
+                                  public juce::TableListBoxModel
+{
+```
+
+```
+    std::unique_ptrチュートリアルデータ
+    juce::XmlElement* columnList = nullptr；
+    juce::XmlElement* dataList = nullptr；
+```
+
+In the class constructor, we launch a `[ファイルチューザー](https://docs.juce.com/master/classFileChooser "Creates a dialog box to choose a file or directory to load or save.")` to select the data file to display. When the `[ファイルチューザー](https://docs.juce.com/master/classFileChooser "Creates a dialog box to choose a file or directory to load or save.")` completes, it will call the `コールバック` lambda function, to load the file content into our `[XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.")` objects \[1\]. With our data loaded from the XML file, we can iterate through the column headers using a for() loop and `[XmlElement::getChildIterator](classXmlElement.html#ac620244d67b05fb572a37bc5f01f6d0d "Allows iterating the children of an XmlElement using range-for syntax.")` to assign the table headers using the `addColumn()` function \[2\] like so:
+
+```
+TableTutorialComponent()
+    {
+        const auto callback = [this] (const juce::FileChooser& chooser)
+        {
+            loadData (chooser.getResult()); // [1].
+```
+
+```
+if (columnList != nullptr)
+            {
+                for (auto* columnXml : columnList->getChildIterator())
+                {
+                    table.getHeader().addColumn (columnXml->getStringAttribute ("name"), // [2])
+                                                 columnXml->getIntAttribute ("columnId")、
+                                                 columnXml->getIntAttribute ("width")、
+                                                 50,
+                                                 400,
+                                                 juce::TableHeaderComponent::defaultFlags)；
+                }
+            }
+```
+
+この関数は、カラムの名前、幅、IDを、カラムのソート可能性とリサイズ可能性を定義するプロパティ・フラグとともに指定する。
+
+In the `ロードデータ()` helper function called in the constructor, we first find the `リソース` directory and the XML file to load and parse this [ファイル](https://docs.juce.com/master/classFile "Represents a local file or directory.") object using the `パース()` function \[3\]. We can then retrieve the rows and columns from the temporary [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") by traversing the XML structure and finding the corresponding tags with the `getChildByName()` functions \[4\]. This is a good place to set the number of rows from the data [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") by calling `getNumChildElements()` on it \[5\] as follows:
+
+```
+void loadData (juce::File tableFile)
+    {
+        if (tableFile == juce::File() || ! tableFile.exists())
+            を返します；
+ 
+        tutorialData = juce::XmlDocument::parse (tableFile); // [3].
+ 
+        dataList = tutorialData->getChildByName ("DATA")；
+        columnList = tutorialData->getChildByName ("HEADERS"); // [4] カラムリスト。
+ 
+        numRows = dataList->getNumChildElements(); // [5].
+    }
+```
+
+:::waring
+
+このチュートリアルのリソースで提供されている "TableData.xml "ファイルを選択してください。
+
+:::
+
+Let's also define a helper function called `getAttributeNameForColumnId()` that returns the name of the column based on its ID which will become handy later on:
+
+```
+juce::String getAttributeNameForColumnId (const int columnId) const
+    {
+        for (auto* columnXml : columnList->getChildIterator())
+        {
+            if (columnXml->getIntAttribute ("columnId") == columnId)
+                return columnXml->getStringAttribute ("name")；
+        }
+ 
+        return {}；
+    }
+```
+
+ここでは、子XML要素を繰り返し処理し、一致するカラムIDを見つけてそのname属性を返します。
+
+# Custom Cell Components
+
+A [テーブルリストボックス](https://docs.juce.com/master/classTableListBox "A table of cells, using a TableHeaderComponent as its header.") can hold custom components in its cells other than just text. In the following sections we explore how to incorporate a [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") into one of the columns and an editable [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") that listens to user input.
+
+## Editable Labels
+
+In the `EditableTextCustomComponent` class, we first inherit from the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class in order to set it as editable when the user double-clicks on it:
+
+```
+class EditableTextCustomComponent : public juce::Label
+    {
+    public：
+        EditableTextCustomComponent (TableTutorialComponent& td)
+            : owner (td)
+        {
+            setEditable (false, true, false)；
+        }
+```
+
+```
+private：
+        TableTutorialComponent& owner；
+        int row, columnId；
+        juce::Colour textColour；
+    };
+```
+
+ここでは、このオブジェクトがどの行と列に表示されるかを記録し、実際のテーブルへの参照も保持する。
+
+When the user interacts with the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked."), we have to extend the usual `マウスダウン()` functionalities to account for multiple selections in the table. This is achieved by calling `selectRowsBasedOnModifierKeys()` on the table and passing the modifier keys as an argument. Notice here that we still need to call the base class function to keep the original behaviour as well:
+
+```
+void mouseDown (const juce::MouseEvent& event) override
+        {
+            owner.table.selectRowsBasedOnModifierKeys (row, event.mods, false)；
+ 
+            Label::mouseDown (event)；
+        }
+```
+
+When the user edits the text in the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked."), we receive a callback from the `textWasEdited()` function and we call the helper function `setText()` defined later in the `テーブル・チュートリアル・コンポーネント` class to save the changes in the corresponding [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") object like so:
+
+```
+void textWasEdited() オーバーライド
+        {
+            owner.setText (columnId, row, getText())；
+        }
+```
+
+The following function is called by the `[テーブルリストボックスモデル](https://docs.juce.com/master/classTableListBoxModel "One of these is used by a TableListBox as the data model for the table's contents.")` when creating or updating an `EditableTextCustomComponent` object and sets the row, column and the displayed text from the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") using the `ゲットテキスト` helper function defined after:
+
+```
+void setRowAndColumn (const int newRow, const int newColumn)
+        {
+            row = newRow；
+            columnId = newColumn；
+            setText (owner.getText(columnId, row), juce::dontSendNotification)；
+        }
+```
+
+The `ゲットテキスト` and `setText()` helper functions are defined as follows:
+
+```
+juce::String getText (const int columnNumber, const int rowNumber) const
+    {
+        return dataList->getChildElement (rowNumber)->getStringAttribute (getAttributeNameForColumnId (columnNumber))；
+    }
+```
+
+Here we find the text from the row and column number in the child element contained within the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.").
+
+```
+void setText (const int columnNumber, const int rowNumber, const juce::String& newText)
+    {
+        const auto& columnName = table.getHeader().getColumnName (columnNumber)；
+        dataList->getChildElement (rowNumber)->setAttribute (columnName, newText)；
+    }
+```
+
+Here we store the text in the child element contained within the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") from the row and column number.
+
+## Selectable Button
+
+In the `セレクションカラムカスタムコンポーネント` class, we first inherit from the [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") class in order to set a [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") as a child [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") to it and assign the callback function to be called when the user interacts with it:
+
+```
+class SelectionColumnCustomComponent : public コンポーネント
+    {
+    public：
+        SelectionColumnCustomComponent (TableTutorialComponent& td)
+            : owner (td)
+        {
+            addAndMakeVisible (toggleButton)；
+ 
+            toggleButton.onClick = [this] { owner.setSelection (row, (int) toggleButton.getToggleState()); }；
+        }
+```
+
+```
+private：
+        tableTutorialComponent& owner；
+        juce::ToggleButton toggleButton；
+        int row, columnId；
+    };
+```
+
+Here we also keep track in which row and column this object is displayed and a reference to the actual table. The lambda function calls the `setSelection()` helper function defined later in the `テーブル・チュートリアル・コンポーネント` that sets the toggle state of the button.
+
+```
+        void resized() override
+        {
+            toggleButton.setBoundsInset (juce::BorderSize(2));
+        }
+```
+
+The `リサイズ` function sets the bounds of the [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") object.
+
+The following function is called by the `[テーブルリストボックスモデル](https://docs.juce.com/master/classTableListBoxModel "One of these is used by a TableListBox as the data model for the table's contents.")` when creating or updating a `セレクションカラムカスタムコンポーネント` object and sets the row, column and the toggle state from the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") using the `getSelection()` helper function defined after:
+
+```
+void setRowAndColumn (int newRow, int newColumn)
+        {
+            row = newRow；
+            columnId = newColumn；
+            toggleButton.setToggleState ((bool) owner.getSelection (row), juce::dontSendNotification)；
+        }
+```
+
+The `getSelection()` and `setSelection()` helper functions are defined as follows:
+
+```
+int getSelection (const int rowNumber) const
+    {
+        return dataList->getChildElement (rowNumber)->getIntAttribute ("Select")；
+    }
+```
+
+Here we find the toggle state from the row and column number in the child element contained within the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.").
+
+```
+void setSelection (const int rowNumber, const int newSelection)
+    {
+        dataList->getChildElement (rowNumber)->setAttribute ("Select", newSelection)；
+    }
+```
+
+Here we store the toggle state in the child element contained within the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") from the row and column number.
+
+Create additional custom cell components that incorporate [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices."), [テキストボタン](https://docs.juce.com/master/classTextButton "A button that uses the standard lozenge-shaped background with a line of text on it.") or even [スライダー](https://docs.juce.com/master/classSlider "A slider control for changing a value.") components.
+
+# Sorting the Data
+
+In order for the table to sort elements based on a chosen column, we have to define a comparator class that can be passed as a template class to be used by the `sortChildElements()` function of the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") object.
+
+We name this class `チュートリアルデータソーター` that keeps track of the name of the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") attribute to sort and the ascending or descending direction of the sorting algorithm as follows:
+
+```
+クラス TutorialDataSorter
+    {
+    public：
+        TutorialDataSorter (const juce::String& attributeToSortBy, bool forwards)
+            : attributeToSort (attributeToSortBy)、
+              方向 (forwards ? 1 : -1)
+        {}
+```
+
+```
+private：
+        juce::String attributeToSort；
+        int 方向；
+    };
+```
+
+For the `sortChildElements()` function to recognise the `チュートリアルデータソーター` as a valid comparator, we have to declare a function named `compareElements()` that takes two [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") objects and returns the order as an int.
+
+この関数は戻る必要がある：
+
+-   が2番目より前なら負の値。
+-   2つのオブジェクトが等価であれば、値は0になる。
+-   は、2つ目が1つ目より前に来る場合は正の値。
+
+```
+int compareElements (juce::XmlElement* first, juce::XmlElement* second) const
+        {
+            auto result = first->getStringAttribute (attributeToSort)
+                                .compareNatural (second->getStringAttribute (attributeToSort)); // [1].
+ 
+            if (result == 0)
+                result = 1番目->getStringAttribute（"ID"）。
+                               .compareNatural (second->getStringAttribute ("ID")); // [2].
+ 
+            return direction * result; // [3].
+        }
+```
+
+Therefore, in the above function we compare the string attributes of both XmlElements by using the `compareNatural()` method of the [ストリング](https://docs.juce.com/master/classString "The JUCE String class!") class which returns an int with the same set of rules \[1\]. If the two strings are equivalent for the attribute in question then we compare the ID column of these two elements \[2\]. Finally we need to invert the result if the direction of sorting is reversed \[3\].
+
+# Setting the Model
+
+Let's assemble all the pieces together by implementing the [テーブルリストボックスモデル](https://docs.juce.com/master/classTableListBoxModel "One of these is used by a TableListBox as the data model for the table's contents.").
+
+We first start by inheriting from the [テーブルリストボックスモデル](https://docs.juce.com/master/classTableListBoxModel "One of these is used by a TableListBox as the data model for the table's contents.") class in the `テーブル・チュートリアル・コンポーネント` class as shown here:
+
+```
+class TableTutorialComponent : public juce::Component、
+                                  public juce::TableListBoxModel
+{
+```
+
+```
+private:
+    juce::TableListBox table  { {}, this };
+    juce::Font font           { 14.0f };
+ 
+    std::unique_ptrチュートリアルデータ
+    juce::XmlElement* columnList = nullptr；
+    juce::XmlElement* dataList = nullptr；
+    int numRows = 0；
+```
+
+Here we define a [テーブルリストボックス](https://docs.juce.com/master/classTableListBox "A table of cells, using a TableHeaderComponent as its header.") member variable and set this class as its [テーブルリストボックスモデル](https://docs.juce.com/master/classTableListBoxModel "One of these is used by a TableListBox as the data model for the table's contents.") which means that our model class actually holds the table itself in this scenario. We also keep track of the number of rows in the table as required by the model.
+
+In the class constructor we add the [テーブルリストボックス](https://docs.juce.com/master/classTableListBox "A table of cells, using a TableHeaderComponent as its header.") as a child [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") \[1\]. We can also specify properties for the appearance of the table such as the outline colour and its thickness \[2\].
+
+```
+addAndMakeVisible (table); // [1].
+ 
+            table.setColour (juce::ListBox::outlineColourId, juce::Colours::grey); // [2].
+            table.setOutlineThickness (1)；
+```
+
+```
+table.getHeader().setSortColumnId (1, true); // [3].
+ 
+            table.setMultipleSelectionEnabled (true); // [4].
+```
+
+The sorting column and the column visibility is set by calling corresponding functions on the [テーブルヘッダーコンポーネント](https://docs.juce.com/master/classTableHeaderComponent "A component that displays a strip of column headings for a table, and allows these to be resized,...") of the table \[3\] and we also allow multiple selections on the table \[4\].
+
+The first function to override is the `getNumRows()` function that returns the member variable holding the number of rows. This function is necessary for the model to update the table properly:
+
+```
+int getNumRows() オーバーライド
+    {
+        numRowsを返します；
+    }
+```
+
+The `paintRowBackground()` function is implemented by first finding an alternate colour that complements the default background colour for the table:
+
+```
+void paintRowBackground (juce::Graphics& g, int rowNumber, int /*width*/, int /*height*/, bool rowIsSelected) override
+    {
+        auto alternateColour = getLookAndFeel().findColour (juce::ListBox::backgroundColourId)
+                                               .interpolatedWith (getLookAndFeel().findColour (juce::ListBox::textColourId), 0.03f)；
+        if (rowIsSelected)
+            g.fillAll (juce::Colours::lightblue)；
+        else if (rowNumber % 2)
+            g.fillAll (alternateColour)；
+    }
+```
+
+その行が選択されていれば水色で塗りつぶされ、そうでなければ他のすべての行をこの代替色で塗りつぶす。
+
+In order to fill the cells with content we override the `ペイントセル()` function as follows:
+
+```
+void paintCell (juce::Graphics& g, int rowNumber, int columnId、
+                    int width, int height, bool rowIsSelected) override
+    {
+        g.setColour (rowIsSelected ? juce::Colours::darkblue : getLookAndFeel().findColour (juce::ListBox::textColourId)); // [5].
+        g.setFont (font)；
+ 
+        if (auto* rowElement = dataList->getChildElement (rowNumber))
+        {
+            auto text = rowElement->getStringAttribute (getAttributeNameForColumnId (columnId))；
+ 
+            g.drawText (text, 2, 0, width - 4, height, juce::Justification::centredLeft, true); // [6].
+        }
+ 
+        g.setColour (getLookAndFeel().findColour (juce::ListBox::backgroundColourId))；
+        g.fillRect (width - 1, 0, 1, height); // [7].
+    }
+```
+
+-   \[5\]: First we select an appropriate colour for the text depending on whether the row is selected or not and set the font size.
+-   \[6\]: If the child row element exists in the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") object, we retrieve the right column from the row and fill the cell with corresponding text from the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.").
+-   \[7\]: Finally, we draw the separation line on the right side of the cell with the default background colour.
+
+```
+void sortOrderChanged (int newSortColumnId, bool isForwards) override
+    {
+        if (newSortColumnId != 0)
+        {
+            TutorialDataSorter sorter (getAttributeNameForColumnId (newSortColumnId), isForwards)；
+            dataList->sortChildElements (sorter)；
+ 
+            table.updateContent()；
+        }
+    }
+```
+
+When a sort order change is requested by the user, the `sortOrderChanged()` callback function is called and if the sort column is valid, we instantiate a `チュートリアルデータソーター` object with the correct attribute and direction. We can then pass that object to the `sortChildElements()` function of the [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") and force a table refresh by calling `updateContent()` on the table.
+
+The `セルのリフレッシュコンポーネント()` function is where the custom cell components can be instantiated and updated as follows:
+
+```
+    Component* refreshComponentForCell (int rowNumber, int columnId, bool /*isRowSelected*/,
+                                        Component* existingComponentToUpdate) override
+    {
+        if (columnId == 9)  // [8]
+        {
+            auto* selectionBox = static_cast (existingComponentToUpdate);
+ 
+            if (selectionBox == nullptr)
+                selectionBox = new SelectionColumnCustomComponent (*this);
+ 
+            selectionBox->setRowAndColumn (rowNumber, columnId);
+            return selectionBox;
+        }
+ 
+        if (columnId == 8)  // [9]
+        {
+            auto* textLabel = static_cast(existingComponentToUpdate)；
+ 
+            if (textLabel == nullptr)
+                textLabel = new EditableTextCustomComponent (*this)；
+ 
+            textLabel->setRowAndColumn (rowNumber, columnId)；
+            return textLabel；
+        }
+ 
+        jassert (existingComponentToUpdate == nullptr)；
+        return nullptr; // [10］
+    }
+```
+
+-   \[8\]: If the function is called on the correct "Select" column for the selection cell, then we check whether the `セレクションカラムカスタムコンポーネント` already exists in the cell. If not we instantiate a new instance and update its content by calling the `setRowAndColumn()` function on it and return the [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.").
+-   \[9\]: If the function is called on the correct "Description" column for the text editor cell, then we check whether the `EditableTextCustomComponent` already exists in the cell. If not we instantiate a new instance and update its content by calling the `setRowAndColumn()` function on it and return the [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.").
+-   \[10\]: Otherwise, it means that the function was called on a regular column and the custom [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") object for that cell should be non-existant.
+
+Finally, the [テーブルリストボックス](https://docs.juce.com/master/classTableListBox "A table of cells, using a TableHeaderComponent as its header.") offers a nice feature where the columns can be resized according to an automatic behaviour defined hereafter in the `getColumnAutoSizeWidth()` function:
+
+```
+int getColumnAutoSizeWidth (int columnId) override
+    {
+        if (columnId == 9)
+            50を返す；
+ 
+        int widest = 32；
+ 
+        for (auto i = getNumRows(); --i >= 0;)
+        {
+            if (auto* rowElement = dataList->getChildElement (i))
+            {
+                auto text = rowElement->getStringAttribute (getAttributeNameForColumnId (columnId))；
+ 
+                widest = juce::jmax (widest, font.getStringWidth (text))；
+            }
+        }
+ 
+        widest + 8；
+    }
+```
+
+Here we decide to inspect all the elements in a certain column and retrieve the widest text in a cell. We then return the width with some added padding or a fixed width if the column happens to be the "Select" column with a custom [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.").
+
+列やデータを追加し、それに応じて実装を変更することで、XML文書の内容を修正する。
+
+# Summary
+
+このチュートリアルでは、情報を表に表示する方法を学びました。特に
+
+-   XMLを使用してテーブルにデータをロード。
+-   カスタムコンポーネントをテーブルセルに組み込みました。
+-   カスタム・ソート動作に従ってテーブル・データをソートした。
+
+# See also
+
+-   [チュートリアルLabelクラス](../tutorial_label/)
+-   [チュートリアルComboBoxクラス](../tutorial_combo_box/)
+-   [チュートリアルスライダークラス](../tutorial_slider_values/)
+-   [チュートリアルラジオボタンとチェックボックス](../tutorial_radio_buttons_checkboxes/)

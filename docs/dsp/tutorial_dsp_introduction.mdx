@@ -1,0 +1,464 @@
+---
+title: DSP入門
+sidebar_position: 1
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルDSP入門
+
+デジタル信号処理とオーディオバッファ操作の領域を発見してください。JUCE DSPモジュールの基礎と、そのクラスを自分のオーディオ・アプリケーションやプラグインに組み込む方法を学びます。
+
+レベル Advanced
+
+プラットフォーム Windows, macOS, Linux
+
+プラグイン形式： VST, AU, Standalone
+
+クラス： [dsp::ProcessorChain](https://docs.juce.com/master/classdsp_1_1ProcessorChain "This variadically-templated class lets you join together any number of processor classes into a singl..."), [dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain "Applies a gain to audio samples as single samples or AudioBlocks."), [dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator "Generates a signal based on a user-supplied function."), [dsp::LadderFilter](https://docs.juce.com/master/classdsp_1_1LadderFilter "Multi-mode filter based on the Moog ladder filter."), [dsp::Reverb](https://docs.juce.com/master/classdsp_1_1Reverb "Processor wrapper around juce::Reverb for easy integration into ProcessorChain.")
+
+:::waring
+
+このプロジェクトには、C++14の機能をサポートするコンパイラが必要です。XcodeとVisual Studioの最近のバージョンには、このサポートが含まれています。
+
+:::
+
+# Getting started
+
+Before reading this tutorial, make sure you understand the basics of synthesis and have been introduced to MPE. If you would like to find more about MPE, check out this tutorial [チュートリアルマルチ・ポリフォニック・シンセサイザーを作る](../tutorial_mpe_introduction/).
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/DSPIntroductionTutorial.zip) | [ジップ](/tutorials/ZIPs/DSPIntroductionTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+プロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメント・ターゲットを選択することで、スタンドアロン・アプリケーションとして実行することができます。Xcodeでは、以下のスクリーンショットのように、メインウィンドウの左上でターゲットを変更することができます：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_standalone_screenshot1.png" caption="Changing the deployment target in Xcode" />
+
+デモ・プロジェクトでは、プラグインの上半分にMIDIキーボードが画面上に表示され、下半分にはオシロスコープを通して信号が視覚的に表示されます。現在のところ、鍵盤が押されても、オシレーターの実装を提供しない限り、プラグインは音を出力しません。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot1.png" caption="The demo project plugin window" />:::note
+
+MIDIコントローラーをお持ちの場合は、このチュートリアル中、画面上のキーボードを使う代わりに、MIDIコントローラーを接続することもできます。
+
+:::
+
+# What is DSP?
+
+デジタル信号処理では、デジタルデータを操作して、信号に対して特定の処理を行います。デジタルオーディオ処理では、異なるドメインのオーディオデータを扱うことができる：
+
+-   時間領域：時間に関して分析が行われる一次元信号。
+-   空間領域：ある空間に関して分析が行われる多次元信号。
+-   周波数領域：時間または空間を周波数で表す特定の領域。
+
+## The Fast Fourier Transform or FFT
+
+時間領域または空間領域の信号は、フーリエ変換と呼ばれる変換式を用いて周波数領域に変換することができます。この変換関数の一般的な効率的実装は高速フーリエ変換（FFT）であり、JUCE DSPモジュールで遭遇することがあります。
+
+FFTは、オーディオ信号を周波数に分解し、それぞれの周波数の大きさと位相情報を表現することができます。逆関数を使用すると、信号を元のドメインに戻すことができるため、フィルタリングなど個々の周波数成分を処理するのに非常に便利です。
+
+## Finite/Infinite Impulse Response or FIR/IIR
+
+dspには主に2つのデジタル・フィルター設計がある：
+
+-   有限インパルス応答フィルター（FIR）：各出力サンプルを以前の入力サンプルの関数として処理する安定した設計。FIRフィルタは線形位相にすることができ、多くの場合、設計は単純だがIIRフィルタより効率は低い。
+-   無限インパルス応答フィルター（IIR）：各出力サンプルを以前の入力サンプルと出力サンプルの関数として処理する、不安定な設計の可能性がある。IIRフィルタは以前の出力サンプルを使用するため内部フィードバックが発生し、設計は難しいがFIRフィルタよりも効率的である。
+
+これらのフィルター設計の中には、フィルターの鋭さや遷移周波数で発生するリップルの量を決定する多くの異なる伝達関数がある。これらの設計の多くは、アナログ・フィルターにインスパイアされたものであり、異なる伝達関数は、異なるアナログ対応をエミュレートしようとしている。
+
+JUCE DSPモジュールには、以下のような転送機能があります：
+
+-   FIR伝達関数ウィンドウ、カイザー、トランジション、最小二乗法、ハーフバンドイコライザップル。
+-   IIR伝達関数：バターワース、チェビシェフ・タイプ1、チェビシェフ・タイプ2、楕円、ハーフバンド・ポリフェーズ・オールパス。
+
+このようなフィルター設計に興味がある方は、このトピックについてより深く解説した資料をオンラインでたくさん見つけることができますが、このチュートリアルの目的上、私たちが始めるための基本的なこと以上のことを取り上げました。
+
+# The signal processing lifecycle
+
+Similarly to the audio application lifecycle of the [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") with its `prepareToPlay()` and `getNextAudioBlock()` functions, we have to implement the `prepare()` and `レンダーネクストブロック()` functions of our `オーディオエンジン` class derived from [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds.").
+
+各dspプロセッサーはまた、適切に機能するよう、以下の方法を実装しなければならない：
+
+-   `prepare()`: called before the processing starts to set sample rate and block size.
+-   `プロセス()`: processes the input and output buffers supplied in the processing context.
+-   `リセット`: resets the internal state of the processor with smoothing if necessary.
+
+## The processor chain
+
+A convenient template class of the DSP module is the `juce::dsp::ProcessorChain` which allows us to apply different processes in series by calling the `prepare()`, `プロセス()` and `リセット` methods automatically one after the other.
+
+このように、プロセッサーをテンプレート型として宣言する：
+
+```
+juce::dsp::ProcessorChain, juce::dsp::Gain> processorChain；
+```
+
+We can then apply all our processes on the `プロセッサチェーン` instance directly.
+
+dspモジュールがどのように動作するかについての基本的な知識を得たところで、いくつかの信号処理を始めてみよう！
+
+# Creating an oscillator
+
+In the `カスタムオシレーター` class, define a juce::dsp::ProcessorChain with juce::dsp::Oscillator and juce::dsp::Gain processors in this top-down order \[1\]. We want the gain processing to affect the output of the oscillator to be able to trim the level coming out. Also define an enum with processor indices \[2\] to be able to clearly refer to the corresponding process via its index later on.
+
+```
+    enum
+    {
+        oscIndex,
+        gainIndex   // [2]
+    };
+ 
+    juce::dsp::ProcessorChain, juce::dsp::Gain> processorChain; // [1].
+};
+```
+
+In the `prepare()` function, call the prepare functions of each processor in the processor chain sequentially \[3\].
+
+```
+void prepare (const juce::dsp::ProcessSpec& spec)
+    {
+        processorChain.prepare (spec); // [3].
+    }
+```
+
+In the `リセット` function, call the reset functions of each processor in the processor chain sequentially \[4\].
+
+```
+void reset() noexcept
+    {
+         processorChain.reset(); // [4].
+    }
+```
+
+次に、オシレーターがオーディオ信号を生成するのに使う周期関数を定義します。簡単な例として、サイン波から始めます。
+
+In the constructor, get a reference to the Oscillator by supplying the index of the process and use the `processorChain.get<>()` method \[5\]. Let's initialise the oscillator using a lambda function and the `標準値::sin` function to provide the sine wave to the oscillator \[6\].
+
+ルックアップテーブルは、供給される離散点の数に応じて、高価な算術演算を近似する。ここでは128点とする。
+
+```
+public:
+    //==============================================================================
+    CustomOscillator()
+    {
+        auto& osc = processorChain.template get(); // [5]
+        osc.initialise ([] (Type x) { return std::sin (x); }, 128); // [6].
+    }
+xfloat xDefinition juce_UnityPluginInterface.h:191
+```
+
+To set the frequency of the oscillator, we need to once again get a reference to it similarly to the previous step and call the `setFrequency()` method on it \[7\].
+
+```
+    void setFrequency (Type newValue, bool force = false)
+    {
+        auto& osc = processorChain.template get();
+        osc.setFrequency (newValue, force); // [7].
+    }
+```
+
+Same process with the gain processor and its `setGainLinear()` method \[8\].
+
+```
+    void setLevel (Type newValue)
+    {
+        auto& gain = processorChain.template get();
+        gain.setGainLinear (newValue); // [8].
+    }
+```
+
+In the `プロセス()` function, we can call the process functions of each processor in the processor chain sequentially \[9\].
+
+```
+    template void process (const ProcessContext& context) noexcept
+    {
+        processorChain.process (context); // [9].
+    }
+```
+
+If we run this code after implementing the above changes in the `カスタムオシレーター` class, we should be able to hear a simple sine wave synthesiser using the JUCE DSP module.
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot2.png" caption="Sine wave synthesiser with the JUCE DSP module" />
+
+# Changing the oscillator waveform
+
+オシレーターの波形をノコギリ波にして、シンセサイザーをもう少しエキサイティングにしてみよう。
+
+Since we do not have access to a `標準` version of a sawtooth function, we need to implement a manual mapping of values using the `地図` function. To do this, map the range between \-円周率 ... 円周率 to \-1 ..1 providing a linear ramp from -1 to 1. Since a sawtooth only has 2 breakpoints, we need only supply 2 discrete points to the lookup table.
+
+```
+public:
+    //==============================================================================
+    CustomOscillator()
+    {
+        auto& osc = processorChain.template get();
+        osc.initialise ([] (Type x)
+        {
+            return juce::jmap (x,
+                               Type (-juce::MathConstants::pi),
+                               Type (juce::MathConstants:π)である、
+                               タイプ (-1)、
+                               タイプ (1))；
+        }, 2);
+    }
+```
+
+このプログラムを実行することで、よりアグレッシブなサウンドが得られるはずだ。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot3.png" caption="Sawtooth synthesiser with the JUCE DSP module" />
+
+三角波や矩形波でオシレータを初期化して、その音を聴いてみてください。ホワイトノイズのオシレーターを実装できますか？
+
+# Adding a second oscillator
+
+Most analog synthesisers will have multiple oscillators and a common trick to get a thicker sound is to add a second oscillator with a slightly detuned frequency. So let's try that by modifying the `声` class.
+
+Add a second CustomOscillator template type to the processor chain \[1\] and add its corresponding index in the enum \[2\].
+
+```
+private:
+    //==============================================================================
+    juce::HeapBlock heapBlock;
+    juce::dsp::AudioBlock tempBlock;
+ 
+    enum
+    {
+        osc1Index,
+        osc2Index,             // [2]
+        masterGainIndex
+    };
+ 
+    juce::dsp::ProcessorChain, CustomOscillator, juce::dsp::Gain> processorChain; // [1].
+    //...
+};
+```
+
+Let's set the frequency of the second oscillator to the currently played note and pitch it up by 1% in the `noteStarted()` function \[3\]. We can keep the velocity at the same lavel as the first oscillator \[4\].
+
+```
+    void noteStarted() override
+    {
+        auto velocity = getCurrentlyPlayingNote().noteOnVelocity.asUnsignedFloat();
+        auto freqHz = (float) getCurrentlyPlayingNote().getFrequencyInHertz();
+ 
+        processorChain.get().setFrequency (freqHz, true);
+        processorChain.get().setLevel (velocity);
+ 
+        processorChain.get().setFrequency (freqHz * 1.01f, true);    // [3]
+        processorChain.get().setLevel (velocity); // [4].
+    }
+```
+
+Let's make sure that the detuned frequency remains the same when pitch bend is applied in the `notePitchbendChanged()` function \[5\].
+
+```
+    void notePitchbendChanged() override
+    {
+        auto freqHz = (float) getCurrentlyPlayingNote().getFrequencyInHertz();
+        processorChain.get().setFrequency (freqHz);
+        processorChain.get().setFrequency (freqHz * 1.01f); // [5].
+    }
+```
+
+プログラムを実行し、どのように聞こえるか見てみよう。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot4.png" caption="Synthesiser with a second sawtooth oscillator" />
+
+周波数を1%下げた3つ目のオシレーターを追加します。音は太くなりますか？
+
+# Adding a ladder filter
+
+シンセサイザーにフィルター・デザインを導入しよう。ラダー・フィルター・プロセッサーは、Moogシンセサイザーの有名なアナログ・デザインにインスパイアされたもので、私たちのプロジェクトではこれを使います。ここまでで、プロセッサー・チェーンにプロセッサーを追加する作業には慣れたはずです。
+
+Add the `juce::dsp::LadderFilter` to the processor chain \[1\] and add its corresponding index to the enum \[2\] in the `声` class.
+
+```
+    juce::HeapBlock heapBlock;
+    juce::dsp::AudioBlock tempBlock;
+ 
+    enum
+    {
+        osc1Index,
+        osc2Index,
+        filterIndex,        // [2]
+        masterGainIndex
+    };
+ 
+    juce::dsp::ProcessorChain, CustomOscillator,
+                              juce::dsp::LadderFilter, juce::dsp::Gain> processorChain; // [1］
+```
+
+As previously explained, get the reference of the filter processor and set its cutoff frequency at 1kHz \[3\] and resonance at 0.7 \[4\].
+
+```
+    Voice()
+    {
+        auto& masterGain = processorChain.get();
+        masterGain.setGainLinear (0.7f);
+ 
+        auto& filter = processorChain.get();
+        filter.setCutoffFrequencyHz (1000.0f); // [3].
+        filter.setResonance (0.7f); // [4].
+```
+
+信号の高域が減衰し、よりこもった音になるはずです。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot5.png" caption="Synthesiser with a ladder filter" />
+
+レゾナンス値やカットオフ周波数を変えてみて、出力を聴いてみてください。現時点では、フィルターは12dB/octaveの減衰を持つローパスフィルターです。24dB/オクターブ減衰のハイパスフィルターにすることはできますか？
+
+# Modulating the signal with an LFO
+
+クラシックなアナログ・シンセのサウンドに近づいた今、これ以上何があるだろうか？もちろん、モジュレーションLFOだ。
+
+A low frequency oscillator acts as a control signal to another parameter that we want to modulate. Its frequency is usually very low and is below the human hearing range therefore we should not add the oscillator in the processor chain like we did for the previous oscillators. This time, declare the new Oscillator as a regular member variable \[1\] in the `声` class.
+
+```
+    static constexpr size_t lfoUpdateRate = 100;
+    size_t lfoUpdateCounter = lfoUpdateRate;
+    juce::dsp::Oscillatorlfo; // [1］
+```
+
+To produce a slow and smooth modulation change to the cutoff frequency of the ladder filter, initialise the LFO as a sine wave \[2\] with a rate of 3Hz \[3\] in the `声` constructor.
+
+```
+lfo.initialise ([] (float x) { return std::sin(x); }, 128)；
+        lfo.setFrequency (3.0f)；
+    }
+```
+
+Since we do not need to update the LFO as often as the audio processing sample rate, divide the sample rate by the LFO update rate to set the LFO sample rate in the `prepare()` function \[4\]. In this case we decide to update the LFO a hundred times less frequently.
+
+```
+    void prepare (const juce::dsp::ProcessSpec& spec)
+    {
+        tempBlock = juce::dsp::AudioBlock(heapBlock, spec.numChannels, spec.maxBlockSize)；
+        processorChain.prepare (spec)；
+ 
+        lfo.prepare ({ spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels }); // [4].
+    }
+```
+
+In the following `for()` loop, we only modify the cutoff frequency every 100 samples. First call the `processSample()` function to process a single sample on the LFO \[5\] and then map its return value to the desired modulation range \[6\]. In this case we want to modulate the cutoff frequency from 100Hz to 2kHz. Finally, apply the new cutoff frequency to the ladder filter \[7\].
+
+```
+    void renderNextBlock (juce::AudioBuffer& outputBuffer, int startSample, int numSamples) override
+    {
+        auto output = tempBlock.getSubBlock (0, (size_t) numSamples);
+        output.clear();
+ 
+        for (size_t pos = 0; pos < (size_t) numSamples;)
+        {
+            auto max = juce::jmin ((size_t) numSamples - pos, lfoUpdateCounter);
+            auto block = output.getSubBlock (pos, max);
+ 
+            juce::dsp::ProcessContextReplacing context (block);
+            processorChain.process (context);
+ 
+            pos += max;
+            lfoUpdateCounter -= max;
+ 
+            if (lfoUpdateCounter == 0)
+            {
+                lfoUpdateCounter = lfoUpdateRate;
+                auto lfoOut = lfo.processSample (0.0f);                                 // [5]
+                auto curoffFreqHz = juce::jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);  // [6]
+                processorChain.get().setCutoffFrequencyHz (curoffFreqHz);  // [7]
+            }
+        }
+ 
+        juce::dsp::AudioBlock(出力バッファ)
+            .getSubBlock ((size_t) startSample, (size_t) numSamples)
+            .add (tempBlock)；
+    }
+```
+
+UFO型のサイレン音が聞こえるはずだ。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot6.png" caption="Synthesiser with an LFO" />
+
+フィルターのレゾナンスやオシレーターの周波数など、さまざまなパラメーターを変調してみてください。
+
+# Adding a simple reverb
+
+At the moment if we play our synthesiser, you may have noticed that the sound is very dry so let's add a simple reverb to add depth to our signal. In order to apply the reverb to the entire synth sound, create an effects chain in the `オーディオエンジン` class and add the `juce::dsp::Reverb` template type to the effects chain \[1\] along with its index \[2\].
+
+```
+    enum
+    {
+        reverbIndex // [2]
+    };
+ 
+    juce::dsp::ProcessorChainfxChain; // [1］
+};
+```
+
+Call the `prepare()` function on the processor chain \[3\].
+
+```
+    void prepare (const juce::dsp::ProcessSpec& spec) noexcept
+    {
+        setCurrentPlaybackSampleRate (spec.sampleRate);
+ 
+        for (auto* v : voices)
+            dynamic_cast(v)->prepare (spec)；
+ 
+        fxChain.prepare (spec); // [3].
+    }
+```
+
+In order to process the effects chain, we need to retrieve the correct AudioBlock from the [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples.") to pass the context to the processing chain. First, convert the [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples.") to a usable AudioBlock \[4\] and refer to the right portion of the samples to manipulate using the `getSubBlock()` method \[5\]. Now we can get the processing context from this AudioBlock \[6\] and process the effects chain with it \[7\].
+
+```
+    void renderNextSubBlock (juce::AudioBuffer& outputAudio, int startSample, int numSamples) override
+    {
+        MPESynthesiser::renderNextSubBlock (outputAudio, startSample, numSamples);
+ 
+        auto block = juce::dsp::AudioBlock (outputAudio);                            // [4]
+        auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);    // [5]
+        auto contextToUse = juce::dsp::ProcessContextReplacing(blockToUse); // [6].
+        fxChain.process (contextToUse); // [7].
+    }
+```
+
+これでシンセは、信号の最後にスムースなリバーブのテールが追加されるはずです。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot7.png" caption="Synthesiser with reverb" />:::note
+
+The source code for this modified version of the code can be found in the `DSPIntroductionTutorial_02.h` file of the demo project.
+
+:::
+
+# Summary
+
+このチュートリアルでは、JUCE DSP モジュールを使ってオーディオバッファを操作し、信号を処理する方法を学びました。特に
+
+-   複数のオシレーターを使ってウェーブテーブル・シンセを作成。
+-   ノコギリ波やサイン波など、さまざまな波形で遊んだ。
+-   フィルターを実装し、そのカットオフ周波数をLFOで操作。
+-   シンプルなリバーブを追加し、信号に広がりを持たせた。
+
+:::note
+
+Check out part 2 of this tutorial to add distortion and convolution here: [チュートリアルウェーブシェイピングとコンボリューションで歪みを加える](../tutorial_dsp_convolution/)
+
+Skip to part 3 of this tutorial to add delay lines here: [チュートリアルディレイラインを使ったストリング・モデルの作成](../tutorial_dsp_delay_line/)
+
+:::
+
+# See also
+
+-   [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/)
+-   [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/)
+-   [チュートリアルデシベルを使ってオーディオレベルをコントロールする](../tutorial_synth_db_level_control/)
+-   [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/)
+-   [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/)
+-   [チュートリアルマルチ・ポリフォニック・シンセサイザーを作る](../tutorial_mpe_introduction/)
+-   [チュートリアル高速フーリエ変換](../tutorial_simple_fft/)
+-   [チュートリアル信号の周波数をリアルタイムで可視化する](../tutorial_spectrum_analyser/)
+-   [チュートリアルSIMDRegisterクラスを使用した最適化](../tutorial_simd_register_optimisation/)
+-   [チュートリアルウェーブシェイピングとコンボリューションで歪みを加える](../tutorial_dsp_convolution/)
+-   [チュートリアルディレイラインを使ったストリング・モデルの作成](../tutorial_dsp_delay_line/)

@@ -1,0 +1,243 @@
+---
+title: アプリケーション・ウィンドウ
+sidebar_position: 1
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルアプリケーション・ウィンドウ
+
+このチュートリアルでは、アプリケーション・ウィンドウを持つ最小限のアプリケーションを作成する方法と、そのウィンドウのサイズと外観をカスタマイズする方法を示します。これは、あらゆるJUCE GUIアプリケーションにとって重要です。
+
+レベル Beginner
+
+プラットフォーム Windows, macOS, Linux
+
+クラス： [JUCEAアプリケーション](https://docs.juce.com/master/classJUCEApplication "An instance of this class is used to specify initialisation and shutdown code for the application."), [ドキュメントウィンドウ](https://docs.juce.com/master/classDocumentWindow "A resizable window with a title bar and maximise, minimise and close buttons."), [リサイズ可能ウィンドウ](https://docs.juce.com/master/classResizableWindow "A base class for top-level windows that can be dragged around and resized.")
+
+# Getting started
+
+Launch the Projucer and create a new GUI application project with the name **メインウィンドウチュートリアル**. In the **自動生成するファイル：** field make sure you select **Main.cppファイルのみを作成する**.
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+Modify the `MainWindowTutorialApplication` class to include the following `メインウィンドウ` class as follows:
+
+```
+//==============================================================================
+class MainWindowTutorialApplication  : public juce::JUCEApplication
+{
+public:
+    //...
+ 
+    //==============================================================================
+    class MainWindow    : public juce::DocumentWindow
+    {
+    public:
+        MainWindow (juce::String name)  : DocumentWindow (name,
+                                                          juce::Colours::lightgrey,
+                                                          DocumentWindow::allButtons)
+        {
+            centreWithSize (300, 200);
+            setVisible (true);
+        }
+ 
+        void closeButtonPressed() override
+        {
+            juce::JUCEApplication::getInstance()->systemRequestedQuit();
+        }
+ 
+    private:
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+    };
+ 
+private:
+    std::unique_ptrメインウィンドウ
+};
+DocumentWindowタイトルバーと最大化、最小化、閉じるボタンを持つサイズ変更可能なウィンドウ定義 juce_DocumentWindow.h:58
+nameint UnityEventModifiers const char * nameDefinition juce_UnityPluginInterface.h:195
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(className)これは、JUCE_DECLARE_NON_COPYABLE と JUCE_LEAK_DETECTOR の両方のマクロを ...定義 juce_PlatformDefs.h:245 に記述する省略記法です。
+ColoursContains a set of predefined named colours (mostly standard HTML colours)定義 juce_Colours.h:37
+定義 juce_AudioWorkgroup_mac.h:24
+```
+
+Add the following line to the `イニシャライズ()` function:
+
+```
+void initialise (const juce::String& commandLine) override
+{
+    mainWindow.reset (new MainWindow (getApplicationName()))；
+}
+```
+
+Finally, add the following line to the `シャットダウン` function:
+
+```
+void shutdown() override
+{
+    mainWindow = nullptr；
+}
+```
+
+# The demo project
+
+The demo project is a very minimal JUCE app that has only one source file: `メイン.cpp`. The only thing it does is to create and display an empty application window. This window should open when you run the app:
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_main_window_screenshot1.png" caption="The main app window." />
+
+
+このウィンドウをドラッグして移動したり、最大化・最小化したり、閉じてJUCEアプリを終了することができます。
+
+The C++ code in this app is just about the minimum amount of code required for a working app. The application class itself (derived from the [JUCEAアプリケーション](https://docs.juce.com/master/classJUCEApplication "An instance of this class is used to specify initialisation and shutdown code for the application.") class) will be covered in a later tutorial. For now, all the app is really doing is the single line of code in the app's `MainWindowTutorialApplication::initialise()` function:
+
+```
+void initialise (const juce::String& commandLine) override
+{
+    mainWindow.reset (new MainWindow (getApplicationName()))；
+}
+```
+
+This creates a new instance of the `メインウィンドウ` class, which leads to the application window being shown.
+
+:::note
+
+Any code that you put into the application's `イニシャライズ()` function will be executed as soon as the app starts.
+
+:::
+
+# The main window implementation
+
+## The MainWindow class
+
+Now let's take a look at the implementation of this `メインウィンドウ` class. It derives from the JUCE [ドキュメントウィンドウ](https://docs.juce.com/master/classDocumentWindow "A resizable window with a title bar and maximise, minimise and close buttons.") class, a resizable window with a title bar, and maximise, minimise, and close buttons. These are all of the elements you would expect from an application window.
+
+:::note
+
+一般的には、このようにしてアプリケーションのさまざまなコンポーネントを実装します。必要な機能を提供する適切なJUCE基本クラスを継承した新しいクラスを作成します。この新しいクラスでは、その上に独自のカスタム機能を追加することができます。
+
+:::
+
+The `メインウィンドウ` constructor is defined as follows:
+
+```
+MainWindow (juce::String name) : DocumentWindow (name、
+                                                  juce::Colours::lightgrey、
+                                                  DocumentWindow::allButtons)
+{
+    centreWithSize (300, 200)；
+    setVisible (true)；
+}
+```
+
+First, the base class ([ドキュメントウィンドウ](https://docs.juce.com/master/classDocumentWindow "A resizable window with a title bar and maximise, minimise and close buttons.")) is initialised, which requires three parameters:
+
+-   タイトルバーに表示されるウィンドウの名前。
+-   ウィンドウの背景色。
+-   タイトルバーの隅にどのボタンを表示するか。
+
+Looking at the code in `メイン.cpp`, you may notice that the first parameter is actually passed to the `メインウィンドウ` constructor by the app's `イニシャライズ()` function. This is simply the name of the app (and part of the information auto-generated by [プロジューサー](https://juce.com/projucer) when a project is created, along with the app's version number and and a few other things).
+
+アプリのタイトルバーに表示される文字列を変更してみてください。
+
+## Setting the background colour
+
+The next two arguments, the background colour and the buttons, are set directly in the `メインウィンドウ` constructor. Most common colours have predefined constants in JUCE and can be directly used like in this example. So you could replace the [カラー::ライトグレー](namespaceColours.html#a47f250277502112af4e9ac55a26d51fc) constant with, for example, constants [色::赤](namespaceColours.html#adeee57dc4a6f202204ad3a3d7e0ec243) or [カラー::ブルー](namespaceColours.html#a712056f9defb3e4e19f670d2175290c8) to quickly change the background colour of the whole app window. Of course, it is also possible to define your own custom colours. See [チュートリアルJUCEの色](../tutorial_colours/) for a more detailed introduction to colours in JUCE.
+
+## Using bitmask arguments for the buttons
+
+The third argument passed to the [ドキュメントウィンドウ](https://docs.juce.com/master/classDocumentWindow "A resizable window with a title bar and maximise, minimise and close buttons.") base class constructor is the [DocumentWindow::allButtons](classDocumentWindow.html#a104d68bc145157c6ce79169a36fc3c31af4a9b49869cebf7e8cecaf7f6dd93420 "A combination of all the buttons above.") constant. It indicates that all three default buttons (maximise, minimise, and close) should be shown in the title bar. You can change this property by using the following other constants, defined in the `列挙` [DocumentWindow::TitleBarButtons：](classComponent.html#ab18a6aca762ad01c908b8023cef6e6e4a965dbaac085fc891bfbbd4f9d145bbc8)
+
+-   [DocumentWindow::minimiseButton](classDocumentWindow.html#a104d68bc145157c6ce79169a36fc3c31a4200920dc08e7ecfe1c8b90444d99098)
+-   [DocumentWindow::maximiseButton](classDocumentWindow.html#a104d68bc145157c6ce79169a36fc3c31a84fe4bbe25739fe241f2e6128e7a51c9)
+-   [DocumentWindow::closeButton](classDocumentWindow.html#a104d68bc145157c6ce79169a36fc3c31a80e87a70beeecc78adc89517fa1df978)
+
+Using the C++ operator `|` (the bitwise OR operator), you can define any other combination of the three possible buttons. For example, to show only the close and minimise buttons, you could type:
+
+```
+MainWindow (juce::String name) : DocumentWindow (name、
+                                                  juce::Colours::lightgrey、
+                                                  DocumentWindow::closeButton | DocumentWindow::minimiseButton)
+{
+    centerWithSize (300, 200)；
+    setVisible (true)；
+}
+```
+
+This approach to pass a combination of flags to a function is called a *ビットマスク* and is found in many other places in JUCE.
+
+## Setting the window size
+
+When the `メインウィンドウ` object is created, the constructor's body is executed. The first statement calls the Component::centreWithSize() function to set the window's position and size. The second statement, a call to the Component::setVisible() function, is always required for the window to be shown after it has been created.
+
+Using the Component::centreWithSize() function, you can specify the initial width and height of the window in pixels. The function will set the size to the one specified, and then centre the component with respect to its parent component. The [ドキュメントウィンドウ](https://docs.juce.com/master/classDocumentWindow "A resizable window with a title bar and maximise, minimise and close buttons.") class derives from the [トップレベルウィンドウ](https://docs.juce.com/master/classTopLevelWindow "A base class for top-level windows.") class, which does not have a parent component, so it will be centered with respect to the whole screen.
+
+You may wish to specify another position for the window. The function Component::setBounds() offers more options in this case. To try this out, change the line containing the call to the `centerWithSize()` function to this:
+
+```
+setBounds (50, 50, 800, 600)；
+```
+
+これにより、サイズが800×600ピクセルに設定され、ウィンドウの位置が画面左上に近づきます（画面端から50ピクセル離れます）。
+
+Component::setBoundsRelative()関数を使用して、絶対ピクセルではなく、画面サイズからの相対的な位置とサイズを設定します。
+
+:::note
+
+You can learn more about sizes, bounds and positions in [チュートリアル親子コンポーネント](../tutorial_component_parents_children/).
+
+:::
+
+# Other customisation options
+
+## Making the window resizable
+
+The JUCE [ドキュメントウィンドウ](https://docs.juce.com/master/classDocumentWindow "A resizable window with a title bar and maximise, minimise and close buttons.") class itself inherits from the [リサイズ可能ウィンドウ](https://docs.juce.com/master/classResizableWindow "A base class for top-level windows that can be dragged around and resized.") class. This base class adds the functionality to make the window resizable by the user. This can be enabled with the function [ResizableWindow::setResizable()](classResizableWindow.html#a538709f0111ad32b05d858a511bcd5be "Make the window resizable or fixed.").
+
+Add the following line to the `メインウィンドウ` constructor:
+
+```
+setResizable (true, true)；
+```
+
+Take a look at the documentation for the [ResizableWindow::setResizable()](classResizableWindow.html#a538709f0111ad32b05d858a511bcd5be "Make the window resizable or fixed.") function to look up what its two boolean arguments mean. The first one determines whether the window should be resizable at all. The second one lets you add a handle to the bottom right corner to resize the window. If this argument is `擬似`, the window will instead be resizable by dragging with the mouse at any of the window's edges.
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_main_window_screenshot2.png" caption="A resizable window with a draggable corner resizer." />
+
+
+## Using a native title bar
+
+これまでのところ、アプリのメイン・ウィンドウにはJUCEのルック＆フィールを使っている。その主な利点は、どのデスクトップ・オペレーティング・システム（Windows、Mac OS X、Linux）でも同じように見え、同じように動作することです。
+
+However, the JUCE [ドキュメントウィンドウ](https://docs.juce.com/master/classDocumentWindow "A resizable window with a title bar and maximise, minimise and close buttons.") class allows you to let the window use the typical native window apperance for the operating system you run it on. This is achieved using the function [DocumentWindow::setUsingNativeTitleBar()](classTopLevelWindow.html#a749fbd5e688ed8c9af3d0d99b21e18c8 "Sets whether an OS-native title bar will be used, or a JUCE one."). Add the following line to the `メインウィンドウ` constructor:
+
+```
+setUsingNativeTitleBar (true)；
+```
+
+これでアプリケーションのウィンドウはこのようになる：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_main_window_screenshot3.png" caption="Using a native title bar on Ubuntu Linux, Windows, and Mac OS X, respectively." />
+
+
+Please note that this will adjust not only the appearance, but also the behaviour of the window to match that of a native operating system window. For example, now the `useBottomRightCornerResizerを使用します。` argument to the [ResizableWindow::setResizable()](classResizableWindow.html#a538709f0111ad32b05d858a511bcd5be "Make the window resizable or fixed.") function will not change the resizing behaviour of the window anymore. Instead, for resizing with the mouse, the window will adopt whatever behaviour is the native look-and-feel of the operating system you are running.
+
+ほとんどのアプリの場合、メインアプリのウィンドウはネイティブのルック＆フィールの方が適しています。
+
+## More customisation options
+
+Have a look at the documentation for the [ドキュメントウィンドウ](https://docs.juce.com/master/classDocumentWindow "A resizable window with a title bar and maximise, minimise and close buttons.") and [リサイズ可能ウィンドウ](https://docs.juce.com/master/classResizableWindow "A base class for top-level windows that can be dragged around and resized.") classes. Experiment with other functions not covered here that let you customise other aspects of the app's window.
+
+# Summary
+
+このチュートリアルでは、基本的な JUCE アプリのメイン・ウィンドウの動作を設定する方法について説明しました。例えば、サイズの調整、リサイズ可能なウィンドウ、タイトルと外観の設定、タイトルバーに表示するボタンの定義などです。また、ネイティブタイトルバーに切り替えて、実行中のオペレーティングシステム上でよりネイティブなウィンドウのように感じられるようにする方法についても説明しました。
+
+# Notes
+
+-   後に、複数の異なるウィンドウで構成される、より複雑なアプリを作りたくなるかもしれない。同じテクニックを使って、それぞれのウィンドウの動作をコントロールすることができる。
+
+# See also
+
+-   [チュートリアルメイン・コンポーネント](../tutorial_main_component/)
+-   [チュートリアルJUCEの色](../tutorial_colours/)
+-   [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)

@@ -1,0 +1,449 @@
+---
+title: JUCEのカラー
+sidebar_position: 3
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルJUCEの色
+
+アプリケーション内で色を指定し、さまざまな方法で適用します。
+
+レベル Beginner
+
+プラットフォーム Windows, macOS, Linux, iOS, Android
+
+クラス： [カラー](https://docs.juce.com/master/classColour "Represents a colour, also including a transparency value."), [カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)"), [ルックアンドフィール](https://docs.juce.com/master/classLookAndFeel "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")
+
+# Getting started
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/ColoursTutorial.zip) | [ジップ](/tutorials/ZIPs/ColoursTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+デモ・プロジェクトは、いくつかの子コンポーネントを表示し、いくつかの簡単な描画コマンドを実行します。これは、JUCEでどのように色が指定され、コンポーネントに適用されるかを説明するために使用されます。アプリケーションは以下のスクリーンショットのようになるはずです：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_colours_screenshot1.png" caption="The colours demo application" />
+
+
+The first part of this tutorial looks at specifying colours more generally. This is illustrated by modifying the drawing code in the `ペイント` function within the demo application. The second part of the tutorial shows how colours are specified for elements of the built-in component types (such as labels, sliders, and so on).
+
+# Colours and general painting operations
+
+JUCE specifies colours using red, green, blue, and alpha (transparency) values. This is, of course, a widely used method of specificy colours in computing, but all implementations are slightly different. In particular, JUCE provides some useful methods for manipulating colours, which can help you maintain a consistent colour palette for your application. First, let's look at the `ペイント` function from the demo application:
+
+```
+    void paint (juce::Graphics& g) override
+    {
+        g.fillAll (juce::Colours::lightgreen);
+        g.setColour (juce::Colours::orange);
+ 
+        auto centralArea = getLocalBounds().toFloat().reduced (10.0f);
+        g.drawRoundedRectangle (centralArea, 5.0f, 3.0f);
+ 
+        juce::Arraycolours { juce::Colours::red, juce::Colours::green, juce::Colours::blue }；
+ 
+        auto colorBarArea = centralArea.reduced (4.0f).withHeight (20.0f)；
+        auto colorArea = colorBarArea.withWidth (colorBarArea.getWidth() / (float) colors.size())；
+ 
+        for (auto color : colors)
+        {
+            g.setColour (color)；
+            g.fillRect (colorArea)；
+ 
+            colorArea.translate (colorArea.getWidth(), 0.0f)；
+        }
+    }
+```
+
+最初の行は、グラフィックス・コンテキスト全体を単一色で塗りつぶします（これはコンポーネントの境界全体を意味します）：
+
+```
+g.fillAll (juce::Colours::lightgreen)；
+```
+
+次の行は、与えられたグラフィックス・コンテキストに対して、今後描画操作を行う際の色を設定する。
+
+```
+g.setColour (juce::Colours::orange)；
+```
+
+次に、わずかに挿入された長方形を定義し、現在の色を使用して、境界線として丸みを帯びた長方形を描画する：
+
+```
+auto centralArea = getLocalBounds().toFloat().reduced (10.0f)；
+g.drawRoundedRectangle (centralArea, 5.0f, 3.0f)；
+```
+
+次に、色の配列を設定し、それを使って異なる色の長方形の列を描く。
+
+```
+juce::Arraycolours { juce::Colours::red, juce::Colours::green, juce::Colours::blue }；
+```
+
+この色のついた長方形の列を描くには、まず、長方形を配置する領域を定義する：
+
+```
+auto colorBarArea = centralArea.reduced (4.0f).withHeight (20.0f)；
+```
+
+Then we define the area for the first coloured rectangle. This will be a proportion of the total width of the `カラーバー領域` rectangle, divided by the number of colours that we are using:
+
+```
+auto colorArea = colorBarArea.withWidth (colorBarArea.getWidth() / colors.size())；
+```
+
+Finally, we iterate over the array of colours, fill the rectangle with the specified colour, and move the `カラーエリア` rectangle to the right for the next iteration:
+
+```
+for (auto color : colors)
+{
+    g.setColour (color)；
+    g.fillRect (colorArea)；
+ 
+    colorArea.translate (colorArea.getWidth(), 0.0f)；
+}
+```
+
+In the next few examples we will demonstrate some methods for specifying colours by changing the colours added to the `カラーズ` array.
+
+## Specifying colours by name
+
+As shown in the demo project and the code above, colours can be specified in JUCE using some constants in the [カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)") namespace.
+
+:::note
+
+Have a look at the API documentation for the [カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)") namespace for a full list, which are mostly standard HTML colours.
+
+:::
+
+In addition to the constants within the [カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)") namespace, you can use the [Colours::findColourForName()](namespaceColours.html#af4f192e53312f7dd625afc1ce029025f "Attempts to look up a string in the list of known colour names, and return the appropriate colour.") function, using a string to look up the desired colour name. For example, we could use the same red, green, and blue colours using the following code to fill our `カラーズ` array:
+
+```
+auto defaultColour = Colours::black;
+ 
+juce::Arraycolours { juce::Colours::findColourForName ("red", defaultColour)、
+                                    juce::Colours::findColourForName ("green", defaultColour)、
+                                    juce::Colours::findColourForName ("blue", defaultColour) }；
+Colours::blackconst Colour blackDefinition juce_Colours.h:49
+```
+
+:::note
+
+指定した色の検索に失敗した場合に備えて、デフォルトの色（この場合は黒）を用意しておく必要がある。
+
+:::
+
+The [Colours::findColourForName()](namespaceColours.html#af4f192e53312f7dd625afc1ce029025f "Attempts to look up a string in the list of known colour names, and return the appropriate colour.") function performs a case-insensitive search and trims whitespace from the start and end of the string, but not spaces within the string. For example, the following code will still work as expected, even though the colours are stored internally using all lowercase strings:
+
+```
+auto defaultColour = juce::Colours::black;
+ 
+juce::Arraycolors { juce::Colours::findColourForName ("DarkRed", defaultColour)、
+                                    juce::Colours::findColourForName ("DarkGreen", defaultColour)、
+                                    juce::Colours::findColourForName ("DarkBlue", defaultColour) }；
+```
+
+これにより、次のような色が生まれる：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_colours_screenshot2.png" caption="Dark red, green, and blue" />
+
+
+しかし、色名の中に空白を含むと失敗し、この場合はいずれも黒を返す：
+
+```
+auto defaultColour = Colours::black;
+ 
+juce::Arraycolours { juce::Colours::findColourForName ("Dark Red", defaultColour)、
+                                    juce::Colours::findColourForName ("Dark Green", defaultColour)、
+                                    juce::Colours::findColourForName ("Dark Blue", defaultColour) }；
+```
+
+このような場合、ニーズに合わせて独自の関数を書くのは簡単だ。例えば、文字列からすべてのスペースを取り除く関数を書くことができる：
+
+```
+static juce::String removeSpaces (const juce::String& text)
+{
+    return text.removeCharacters (" ")；
+}
+```
+
+And use that when passing a string to the [Colours::findColourForName()](namespaceColours.html#af4f192e53312f7dd625afc1ce029025f "Attempts to look up a string in the list of known colour names, and return the appropriate colour.") function:
+
+```
+auto defaultColour = juce::Colours::black;
+ 
+juce::Arraycolours { juce::Colours::findColourForName (removeSpaces ("Dark Red"), defaultColour)、
+                                    juce::Colours::findColourForName (removeSpaces ("Dark Green"), defaultColour)、
+                                    juce::Colours::findColourForName (removeSpaces ("Dark Blue"), defaultColour) }；
+```
+
+## Specifying colours from values
+
+[カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)") can also be specified using the raw red, green, blue, and alpha values. Here you can create a [カラー](https://docs.juce.com/master/classColour "Represents a colour, also including a transparency value.") object using either floating point values in the range 0.0-1.0, or integers (of type uint8) between 0-255. Using integers we can create the same red, green, and blue colours as follows:
+
+```
+juce::Arraycolours { juce::Colour (255, 0, 0), // 赤
+                                    juce::Colour (0, 128, 0), // 緑色
+                                    juce::Colour (0, 0, 255) }; // 青
+```
+
+:::note
+
+標準の "緑 "カラーは、カラーの緑要素に最大値255を持たない。
+
+:::
+
+この場合アルファ値を省略すると、アルファ値は最大値（255）に設定され、色は完全に不透明になる。
+
+また、16進数値1つで色を指定することもできる。この場合、色値要素の順番はアルファ、赤、緑、青となる：
+
+```
+juce::Arraycolours { juce::Colour (0xffff0000), // 赤
+                                    juce::Colour (0xff008000), // 緑色
+                                    juce::Colour (0xff0000ff) }; // 青
+```
+
+:::note
+
+この場合、アルファ値を指定しなければならない。そうしないとアルファ値はゼロに設定される（つまり透明になる）。
+
+:::
+
+We can also use floating point values using the [Colour::fromFloatRGBA()](classColour.html#a3992d5ea9bdaf0471bd6caa0595b0185 "Creates a colour using floating point red, green, blue and alpha values.") function:
+
+```
+juce::Array色 { juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 1.0f), // 赤
+                                    juce::Colour::fromFloatRGBA (0.0f, 0.5f, 0.0f, 1.0f), // 緑色
+                                    juce::Colour::fromFloatRGBA (0.0f, 0.0f, 1.0f, 1.0f) }; // 青色
+```
+
+:::note
+
+A integer value of 128 is equivalent to a floating point value of around 0.501961. Therefore the green colours is not *かなり* the same as the previous example, but 0.5 is close enough for this demonstration.
+
+:::
+
+Try out different colour values and review the results by running the application. You are not limited to adding three colours to the `カラーズ` array, you can use any number of colours (greater than or equal to one).
+
+## Hue, saturation, and brightness
+
+[カラー](https://docs.juce.com/master/classColour "Represents a colour, also including a transparency value.") objects can also be initialised from hue, saturation, and brightness values. This is one way to generate different colours that share some perceptual qualities.
+
+例えば、以下のコードを使って、明るい赤と暗い赤のシリーズを作ることができる：
+
+```
+juce::Arraycolours { juce::Colour::fromHSV (0.0f, // 色相
+                                                           0.5f, // 彩度
+                                                           0.3f, // 明度
+                                                           1.0f), // アルファ
+                                    juce::Colour::fromHSV (0.0f, 0.5f, 0.5f, 1.0f)、
+                                    juce::Colour::fromHSV (0.0f, 0.5f, 0.7f, 1.0f) }；
+```
+
+ここでは、色相、彩度、アルファ値は各色で一定です（色相0.0fは「赤」として知覚される色を生成するはずです）。結果は次のスクリーンショットのようになります：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_colours_screenshot3.png" caption="Reds with saturation 0.5 and brightnesses 0.3, 0.5, and 0.7" />
+
+
+We can also obtain the hue, saturation, and brightness values from a [カラー](https://docs.juce.com/master/classColour "Represents a colour, also including a transparency value.") object. For example, if we wanted a series of purples of different brightnesses, we could use the following code:
+
+```
+auto purpleHue = juce::Colours::purple.getHue();
+ 
+juce::Arraycolors { juce::Colour::fromHSV (purpleHue, 0.5f, 0.3f, 1.0f)、
+                                    juce::Colour::fromHSV (purpleHue, 0.5f, 0.5f, 1.0f)、
+                                    juce::Colour::fromHSV (purpleHue, 0.5f, 0.7f, 1.0f) }；
+```
+
+その結果が次のスクリーンショットである：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_colours_screenshot4.png" caption="Purples with saturation 0.5 and brightnesses 0.3, 0.5, and 0.7" />
+
+
+## Manipulating colour values
+
+We can also use existing colours to create new colours. For example, to make colours that are slightly brighter or darker than an existing colour we can use the [カラー::ブライト()](classColour.html#a614c7699a1b47dcf324106d548238bac "Returns a brighter version of this colour.") or [カラー::ダーカー()](classColour.html#a9910d9b8385825a87ea0d62d96115872 "Returns a darker version of this colour.") functions respectively:
+
+```
+auto baseColour = juce::Colours::orange;
+ 
+juce::Arraycolors { baseColour.darker()、
+                                    baseColour、
+                                    baseColour.brighter() }；
+```
+
+Or you can blend between two colours using the [カラー::interpolatedWith()](classColour.html#ac1500fb05c7775db2e1b21f07cc28c0c "Returns a colour that lies somewhere between this one and another.") function:
+
+```
+auto colour1 = juce::Colours::red;
+auto colour2 = juce::Colours::purple;
+ 
+juce::Arraycolors { color1、
+                                    color1.interpolatedWith (color2, 0.5f)、
+                                    color2 }；
+```
+
+その結果が次のスクリーンショットである：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_colours_screenshot5.png" caption="Red and purple with an equal blend of red and purple in between" />
+
+
+Given one colour you can create another colour that will be clearly visible against another colour using the [カラー::コントラスト()](classColour.html#a50e8a45cda60f6853cb74ed1ff1fb7d7 "Returns a colour that will be clearly visible against this colour.") function. This allows you to specify the amount of contrast using an argument:
+
+```
+auto baseColour = juce::Colours::darkcyan;
+ 
+juce::Arraycolors { baseColour、
+                                    baseColour.contrasting (0.5f) }；
+```
+
+他の2色に対して対照的な色を作ることもできる：
+
+```
+auto colour1 = juce;:Colours::lightblue;
+auto colour2 = juce;:Colours::darkred;
+ 
+juce::Arraycolors { color1、
+                                    juce::Colour::contrasting (color1, color2)、
+                                    color2 }；
+Colours::lightblueconst Colour lightblueDefinition juce_Colours.h:105
+Colours::darkredconst Colour darkredDefinition juce_Colours.h:73
+juce_AudioWorkgroup_mac.h:24
+```
+
+There are various other manipulations that can be performed such as blending two colours taking into account the alpha channel of the overlaid colour using the [カラー::オーバーレイウィズ()](classColour.html#a3c6c94ff6f05b403b783acaf7c68b439 "Returns a colour that is the result of alpha-compositing a new colour over this one.") function.
+
+# Specifying component colours
+
+The previous section explored the use of colours when performing your own drawing operations with your component's `ペイント` function. To customise the colours of the built-in components (such as sliders, labels, and so on) you need to use Component::setColour() or [LookAndFeel::setColour()](classLookAndFeel.html#a167a1e914771f32e433a0d45aaba45e3 "Registers a colour to be used for a particular purpose.") functions.
+
+Essentially, each of the built-in [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") subclasses contains an `列挙` that lists the various elements of the component that can have a specific colour. Each of these items is referred to as a *カラーID*. (The values of these colour IDs are unique across the JUCE library.) For example, the colour IDs for the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class are as follows (from [Label::ColourIds](classLabel.html#a41756012394513222e1323bb432fa701 "A set of colour IDs to use to change the colour of various aspects of the label.")):
+
+-   [Label::backgroundColourId](classLabel.html#a41756012394513222e1323bb432fa701a80bf4bb58a466a4debb994f3ee2c8cab "The background colour to fill the label with.") : The background colour to fill the label with.
+-   [Label::textColourId](classLabel.html#a41756012394513222e1323bb432fa701a1f25238374bf53d43f8c73e68c8e937c "The colour for the text.") : The colour for the text.
+-   [Label::outlineColourId](classLabel.html#a41756012394513222e1323bb432fa701ab67bf6af853bcef12b41b3e81f7d18bb "An optional colour to use to draw a border around the label.") : An optional colour to use to draw a border around the label.
+    
+    アウトラインを持たないように透明にしておく。
+    
+-   [Label::backgroundWhenEditingColourId](classLabel.html#a41756012394513222e1323bb432fa701a6ccfd805ecc818013ea4bdde69d4258b "The background colour when the label is being edited.") : The background colour when the label is being edited.
+-   [Label::textWhenEditingColourId](classLabel.html#a41756012394513222e1323bb432fa701adb6284340066b8c4d9ea389087c7d69d "The colour for the text when the label is being edited.") : The colour for the text when the label is being edited.
+-   [Label::outlineWhenEditingColourId](classLabel.html#a41756012394513222e1323bb432fa701a6c7adfce6c830c9faa94efd3445f78cf "An optional border colour when the label is being edited.") : An optional border colour when the label is being edited.
+
+Let's try changing some of these colours. If you look in the `メインコンテンツコンポーネント` constructor you will see a [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked."), a [テキストエディター](https://docs.juce.com/master/classTextEditor "An editable text box."), a [テキストボタン](https://docs.juce.com/master/classTextButton "A button that uses the standard lozenge-shaped background with a line of text on it."), and two [スライダー](https://docs.juce.com/master/classSlider "A slider control for changing a value.") objects added as child components. Add the line \[1\] as shown below to change the label's text colour to black:
+
+```
+MainContentComponent()
+{
+    label.setColour (juce::Label::textColourId, Colours::black); // [1].
+    label.setEditable (true)；
+    addAndMakeVisible (label)；
+    //...
+アクセシビリティロール::label@ label
+```
+
+結果は以下のスクリーンショットのようになるはずだ：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_colours_screenshot6.png" caption="Showing a label with a customised text colour" />
+
+
+Look at the colour IDs for the [テキストエディター](https://docs.juce.com/master/classTextEditor "An editable text box."), [テキストボタン](https://docs.juce.com/master/classTextButton "A button that uses the standard lozenge-shaped background with a line of text on it."), and [スライダー](https://docs.juce.com/master/classSlider "A slider control for changing a value.") classes ([テキストエディター::ColourIds](classTextEditor.html#aa805220923c93cd808a92fff0e3fb71d "A set of colour IDs to use to change the colour of various aspects of the editor."), [テキストボタン::ColourIds](classTextButton.html#afb6c1da587aebb63b58a2569bed70c2c "A set of colour IDs to use to change the colour of various aspects of the button."), and [スライダー::ColourIds](classSlider.html#a1012002c53381ccc7c1fe7e604a75f44 "A set of colour IDs to use to change the colour of various aspects of the slider.")) and experiment with setting different colours for the child components in the demo application.
+
+## Setting look-and-feel colours
+
+It is very common for applications, or parts of applications, to require the same colour palette for all components of the same type. You may have found in the exercise in the previous section that you needed to repeat the calls to the Component::setColour() function for both sliders in order to give them the same appearance. One use of the [ルックアンドフィール](https://docs.juce.com/master/classLookAndFeel "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...") class is to provide a single point where these colours can be specified. To illustrate this, return the `メインコンテンツコンポーネント` constructor back to its original state as shown below:
+
+```
+MainContentComponent()
+    {
+        label.setEditable (true)；
+        addAndMakeVisible (label)；
+ 
+        textEditor.setText ("これはテキストエディタです。")；
+        addAndMakeVisible (textEditor)；
+ 
+        textButton.setClickingTogglesState (true)；
+        addAndMakeVisible (textButton)；
+ 
+        addAndMakeVisible (slider1)；
+        addAndMakeVisible (slider2)；
+ 
+        setSize (600, 210)；
+    }
+```
+
+Now add the following line \[2\] to set the colour of the thumbs for both sliders:
+
+```
+//...
+getLookAndFeel().setColour (juce::Slider::thumbColourId, juce::Colours::red); // [2]...
+addAndMakeVisible (slider1)；
+addAndMakeVisible (slider2)；
+//...
+```
+
+これにより、以下のスクリーンショットのような結果が得られるはずだ：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_colours_screenshot7.png" caption="Customising the colour of multiple slider thumbs using a single line of code" />
+
+
+## Custom look-and-feel colours
+
+You can also make a subclass of one of the [ルックアンドフィール](https://docs.juce.com/master/classLookAndFeel "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...") classes ([LookAndFeel\_V1](https://docs.juce.com/master/classLookAndFeel__V1 "The original JUCE look-and-feel, as used back from 2002 to about 2007ish."), [LookAndFeel\_V2](https://docs.juce.com/master/classLookAndFeel__V2 "This LookAndFeel subclass implements the juce style from around 2008-12."), [LookAndFeel\_V3](https://docs.juce.com/master/classLookAndFeel__V3 "The latest JUCE look-and-feel style, as introduced in 2013."), or [LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4 "The latest JUCE look-and-feel style, as introduced in 2017.")) and customise specific colours in its constructor. To do this you could add the following class as a nested class of our `メインコンテンツコンポーネント` class:
+
+```
+class CustomLookAndFeel : public juce::LookAndFeel_V4
+    {
+    public：
+        CustomLookAndFeel()
+        {
+            setColour (juce::Slider::thumbColourId, juce::Colours::red)；
+        }
+    };
+```
+
+Add an instance of this class to our private member section \[3\]:
+
+```
+private：
+    CustomLookAndFeel lf; // [3].
+    juce::Label label { {}, "これはラベルテキストです。"};
+```
+
+And set the MainContentComponent class to use this look-and-feel in its constructor \[4\]:
+
+```
+MainContentComponent()
+    {
+        setLookAndFeel (&lf); // [4].
+ 
+        label.setEditable (true)；
+```
+
+:::note
+
+The changed code for this subsection can be found in the `ColoursTutorial_02.h` file of the demo project.
+
+:::
+
+Customise more colours in the `カスタムルック＆フィール` constructor.
+
+# Summary
+
+このチュートリアルでは、あなた自身のアプリケーションで使用できる以下の項目を見てきました：
+
+-   How to use the [カラー](https://docs.juce.com/master/classColour "Represents a colour, also including a transparency value.") class and [カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)") namespace to specify colours in JUCE.
+-   Using colours in your component's `ペイント` function when performing drawing operations.
+-   カラーIDを使用した組み込みコンポーネントの要素の色の指定。
+-   Specifying colours across parts of your application or your whole application using the [ルックアンドフィール](https://docs.juce.com/master/classLookAndFeel "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...") class.
+
+# See also
+
+-   [チュートリアルランダム・クラス](../tutorial_random/)
+-   [チュートリアルアプリのルック＆フィールをカスタマイズする](../tutorial_look_and_feel_customisation/)
+-   [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)
+-   [チュートリアル点、線、矩形クラス](../tutorial_point_line_rectangle/)
+-   [チュートリアル高度なGUIレイアウトテクニック](../tutorial_rectangle_advanced/)

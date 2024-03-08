@@ -1,0 +1,487 @@
+---
+title: ウェーブテーブル・シンセシス
+sidebar_position: 6
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルウェーブテーブルシンセシス
+
+シンセサイザーのオシレーターを最適化するためにウェーブテーブルを組み込みます。ウェーブテーブルを使ってサイン波オシレーターの状態を管理し、オーディオ出力にデータを書き込もう。
+
+レベル Intermediate
+
+プラットフォーム Windows, macOS, Linux
+
+クラス： [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples."), [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices."), [ランダム](https://docs.juce.com/master/classRandom "A random number generator."), [数学定数](https://docs.juce.com/master/structMathConstants "Commonly used mathematical constants.")
+
+# Getting started
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/WavetableSynthTutorial.zip) | [ジップ](/tutorials/ZIPs/WavetableSynthTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+このデモ・プロジェクトは、ランダムなサイン波高調波のスタックを生成し、ステレオ出力で出力するだけです。ユーザー・インターフェースでは、従来のオシレーターの実装とウェーブテーブルを利用した実装を比較することで、CPU使用率をモニターすることができる。
+
+In order to properly evaluate and compare the CPU usage of our different implementations, we are going to run our application in the **リリース** configuration instead of the regular **デバッグ** configuration used during testing and development. By building the project in **リリース** mode the compiler will be able to optimise the code as much as possible by removing assertions and comments from the code and inlining functions for example.
+
+To change the build configuration in Xcode, first click on the deployment targets in the top left corner of the interface and navigate to **編集スキーム...** as shown below:
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_wavetable_synth_screenshot1.png" caption="Editing the scheme" />
+
+
+In the pop-up window, select **リリース** in the **ビルド構成** combo box as shown in the screenshot:
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_wavetable_synth_screenshot2.png" caption="Changing the build configuration" />
+
+
+あなたのアプリケーションは、コンパイラによる最適化後に実行され、CPU使用率は大幅に減少するはずです。
+
+# Wavetables
+
+ウェーブテーブル・シンセシスとは、あらかじめ周期波形を埋め込んだルックアップテーブルを使用し、計算されたサンプルごとに同じ波形を生成することなくオシレーターを生成するシンセシス手法です。ウェーブテーブルは任意の周期波形で初期化され、これらの波形の分解能を指定することができます。出力する正しいサンプル値を取得する際、テーブル内のサンプル数とオーディオ・バッファ・ブロック内のサンプル数、および対応する要求周波数が一致しない場合は、2つのウェーブテーブル・サンプル間を補間して値を見つけます。
+
+例として、ウェーブテーブルからサイン波を検索したいとします。まず、例えば128サンプル・ポイントの分解能で、サイン波の1サイクル分のウェーブテーブルを作成します。バッファ・ブロックの各サンプルについて、サンプル・レート、再生要求周波数、ウェーブテーブルの解像度、波形の現在の位相または角度の組み合わせを使って、正しい補間サンプルを計算することで、正弦波のサンプル値を要求することができます。
+
+ウェーブテーブルに入る前に、簡単なサイン波オシレーターの実装から始めよう。
+
+# Sine Wave Oscillator
+
+:::note
+
+This section is covered in more detail in [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/) and if you need help with these steps please refer to that tutorial first.
+
+:::
+
+In the `サインオシレーター` class, we keep track of two member variables that store the current angle or phase in the waveform cycle and the angle delta to increment between every cycle depending on the frequency and the sample rate:
+
+```
+クラス SineOscillator
+{
+public：
+    SineOscillator() {}.
+    //...
+ 
+private：
+    float currentAngle = 0.0f, angleDelta = 0.0f；
+};
+```
+
+The `setFrequency()` function allows us to calculate the angle delta by first dividing the frequency by the sample rate and multiplying the result by 2pi, the length of a cycle in radians:
+
+```
+    void setFrequency (float frequency, float sampleRate)
+    {
+        auto cyclesPerSample = frequency / sampleRate;
+        angleDelta = cyclesPerSample * juce::MathConstants::twoPi；
+    }
+```
+
+The `getNextSample()` function gets called by the `getNextAudioBlock()` function of the [オーディオソース](https://docs.juce.com/master/classAudioSource "Base class for objects that can produce a continuous stream of audio.") on every sample in the buffer to retrieve the sample value from the oscillator. Here we calculate the sample value using the `標準値::sin()` function by passing the current angle as an argument and updating the current angle by calling the helper function `updateAngle()` defined after:
+
+```
+強制インライン float getNextSample() noexcept
+    {
+        auto currentSample = std::sin (currentAngle)；
+        updateAngle()；
+        currentSample を返します；
+    }
+```
+
+角度は、周波数を設定する際に以前に計算された角度デルタで現在の角度をインクリメントし、角度が2piを超えたときに値を折り返すことによって更新される：
+
+```
+    forcedinline void updateAngle() noexcept
+    {
+        currentAngle += angleDelta;
+        if (currentAngle >= juce::MathConstants::twoPi)
+            currentAngle -= juce::MathConstants::twoPi；
+    }
+```
+
+Now let's switch to the implementation of our `メインコンテンツコンポーネント` class.
+
+ここに示すように、出力全体のレベルとオシレーターの配列をプライベート・メンバー変数として管理している：
+
+```
+class MainContentComponent   : public juce::AudioAppComponent,
+                               public juce::Timer
+{
+//...
+ 
+private:
+    //...
+ 
+    float level = 0.0f;
+    juce::OwnedArrayオシレーター
+    //...
+};
+```
+
+In the `prepareToPlay()` function, we have to initialise the oscillators and set their frequencies to play based on the sample rate as follows:
+
+```
+void prepareToPlay (int, double sampleRate) override
+    {
+        auto numberOfOscillators = 200; // [1].
+ 
+        for (auto i = 0; i < numberOfOscillators; ++i)
+        {
+            auto* oscillator = new SineOscillator(); // [2].
+ 
+            auto midiNote = juce::Random::getSystemRandom().nextDouble() * 36.0 + 48.0; // [3].
+            auto frequency = 440.0 * pow (2.0, (midiNote - 69.0) / 12.0); // [4].
+ 
+            oscillator->setFrequency ((float) frequency, (float) sampleRate); // [5].
+            oscillators.add (oscillator)；
+        }
+ 
+        level = 0.25f / (float) numberOfOscillators; // [6].
+    }
+```
+
+-   \[1\]: First we define a large number of oscillators to evaluate the CPU load of such a number.
+-   \[2\]: For each oscillator, we instantiate a new `サインオシレーター` object that generates a single sine wave voice.
+-   \[3\]: We also select a random midi note using the [ランダム](https://docs.juce.com/master/classRandom "A random number generator.") class by shifting the lowest possible note by 4 octaves and defining a range of 3 octaves starting from that lowest note.
+-   \[4\]: In order to calculate the frequency of that midi note, we use a simple mathematical formula to retrieve the scalar to multiply the frequency of A440 with. Since we know that the midi note number of A440 is 69, by subtracting the midi note by 69 we get the semitone distance from A440 that we can then plug into the following formula: 440 \* 2 ^ (d / 12)
+-   \[5\]: Then, we set the frequency of the oscillator by passing the frequency and sample rate as arguments to the `setFrequency()` function. We also add the oscillator to the array of oscillators.
+-   \[6\]: Finally, we define the output level by dividing a quiet gain level by the number of oscillators to prevent clipping of the signal by summing such a large number of oscillator samples.
+
+In the `getNextAudioBlock()` function we simply sum all the oscillator samples and write the result to the output buffers as shown below:
+
+```
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+    {
+        auto* leftBuffer = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample); // [7].
+        auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample)；
+ 
+        bufferToFill.clearActiveBufferRegion()；
+ 
+        for (auto oscillatorIndex = 0; oscillatorIndex < oscillators.size(); ++oscillatorIndex)
+        {
+            auto* oscillator = oscillators.getUnchecked (oscillatorIndex); // [8].
+ 
+            for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
+            {
+                auto levelSample = oscillator->getNextSample() * level; // [9].
+ 
+                leftBuffer[sample] += levelSample; // [10].
+                rightBuffer[sample] += levelSample；
+            }
+        }
+    
+```
+
+-   \[7\]: First, we retrieve the left and right channel pointers to write to the output buffers.
+-   \[8\]: For each oscillator in the array we retrieve a pointer to the oscillator instance.
+-   \[9\]: Then for each sample in the audio sample buffer we get the sine wave sample and trim the gain with the level variable.
+-   \[10\]: Finally we can add that sample value to the left and right channel samples and sum the signal with the other oscillators.
+
+今、アプリケーションを実行すると、正弦波を積み重ねたランダムなノイズが聞こえるはずだ。
+
+ランダムなMIDIノートを生成する代わりに、あるコードのMIDIノートを見つけ、そのコードからランダムなノートを生成する。
+
+# Wavetable Oscillator
+
+オシレーターの実装をウェーブテーブル・シンセシス方式に変えてみよう。
+
+In the `メインコンテンツコンポーネント` class, add an AudioSampleBuffer as a member variable that will hold the wavetable values of our single sine wave cycle \[1\]. We also define the wavetable resolution as a constant of 128 samples using the bit shift operator \[2\]:
+
+```
+private:
+    juce::Label cpuUsageLabel;
+    juce::Label cpuUsageText;
+ 
+    const unsigned int tableSize = 1 << 7;      // [2]
+    float level = 0.0f;
+ 
+    juce::AudioSampleBuffer sineTable;          // [1]
+    juce::OwnedArray発振器；
+ 
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
+};
+```
+
+Define a new function called `createWavetable()` that will be called in the `メインコンテンツコンポーネント` constructor before we start the audio processing.
+
+```
+    void createWavetable()
+    {
+        sineTable.setSize (1, (int) tableSize);
+        auto* samples = sineTable.getWritePointer (0);                                   // [3]
+ 
+        auto angleDelta = juce::MathConstants::twoPi / (double) (tableSize - 1); // [4].
+        auto currentAngle = 0.0；
+ 
+        for (unsigned int i = 0; i < tableSize; ++i)
+        {
+            auto sample = std::sin (currentAngle); // [5].
+            samples[i] = (float) sample；
+            currentAngle += angleDelta；
+        }
+    }
+```
+
+-   \[3\]: In this function, initialise the AudioSampleBuffer by calling the `setSize()` method by specifying that we only need one channel and the number of samples equal to the table size, in our case a resolution of 128. Then retrieve the write pointer for that single channel buffer.
+-   \[4\]: Next, calculate the angle delta similarly to the previous section but this time using the table size and thus dividing the full 2pi cycle by 127.
+-   \[5\]: Now for each point in our wavetable, retrieve the sine wave value using the `標準値::sin()` function, assign the value to the buffer sample and increment the current angle by the delta value.
+
+Add this function call in the `メインコンテンツコンポーネント` constructor as follows:
+
+```
+MainContentComponent()
+    {
+        cpuUsageLabel.setText ("CPU Usage", juce::dontSendNotification)；
+        cpuUsageText.setJustificationType (juce::Justification::right)；
+        addAndMakeVisible (cpuUsageLabel)；
+        addAndMakeVisible (cpuUsageText)；
+ 
+        createWavetable()；
+ 
+        setSize (400, 200)；
+        setAudioChannels (0, 2); // 入力なし、出力2つ
+        startTimer (50)；
+    }
+```
+
+これでウェーブテーブルは、正弦波の全サイクルの128サンプルを含むようになります。
+
+In the for() loop of the `prepareToPlay()` function, change the below line to instantiate a `ウェーブテーブルオシレーター` object instead of a `サインオシレーター` object:
+
+```
+for (auto i = 0; i < 発振器数; ++i)
+        {
+            auto* oscillator = new WavetableOscillator (sineTable)；
+```
+
+This constructor takes as an argument the wavetable to use for the sound generation and therefore, create a corresponding new `ウェーブテーブルオシレーター` class as shown below:
+
+```
+クラス WavetableOscillator
+{
+public：
+    WavetableOscillator (const juce::AudioSampleBuffer& wavetableToUse)
+        : wavetable (wavetableToUse)
+    {
+        jassert (wavetable.getNumChannels() == 1)；
+    }
+```
+
+```
+private：
+    const juce::AudioSampleBuffer& wavetable；
+    float currentIndex = 0.0f, tableDelta = 0.0f；
+};
+```
+
+現在の角度と波形サイクルの角度デルタを記録する代わりに、現在のウェーブテーブル・インデックスとウェーブテーブルの角度デルタを格納する2つのメンバ変数を定義する。また、AudioSampleBuffer変数を定義して、使用するウェーブテーブルへの参照を保持する。
+
+The `setFrequency()` function of the `ウェーブテーブルオシレーター` class is fairly similar to the one implemented previously except that the angle delta is calculated using the size of the wavetable instead of the full cycle in radians of 2pi as follows:
+
+```
+void setFrequency (float frequency, float sampleRate)
+    {
+        auto tableSizeOverSampleRate = (float) wavetable.getNumSamples() / sampleRate；
+        tableDelta = frequency * tableSizeOverSampleRate；
+    }
+```
+
+The `getNextSample()` function is where the interpolation between the wavetable values occur in order to get the correct sample value.
+
+```
+強制インライン float getNextSample() noexcept
+    {
+        auto tableSize = (unsigned int) wavetable.getNumSamples()；
+ 
+        auto index0 = (unsigned int) currentIndex; // [6].
+        auto index1 = index0 == (tableSize - 1) ?(unsigned int) 0 : index0 + 1；
+ 
+        auto frac = currentIndex - (float) index0; // [7].
+ 
+        auto* table = wavetable.getReadPointer (0); // [8].
+        auto value0 = table[index0]；
+        auto value1 = table[index1]；
+ 
+        auto currentSample = value0 + frac * (value1 - value0); // [9].
+ 
+        if ((currentIndex += tableDelta) > (float) tableSize)   // [10]
+            currentIndex -= (float) tableSize；
+ 
+        currentSample を返す；
+    }
+```
+
+-   \[6\]: First, temporarily store the two indices of the wavetable that surround the sample value that we are trying to retrieve. If the higher index goes beyond the size of the wavetable then we wrap the value to the start of the table.
+-   \[7\]: Next, calculate the interpolation value as a fraction between the two indices by subtracting the actual current sample by the truncated lower index. This should give us a value between 0 .. 1 that defines the fraction.
+-   \[8\]: Then get a pointer to the AudioSampleBuffer and read the values at the two indices and store these values temporarily.
+-   \[9\]: The interpolated sample value can then be retrieved by using the standard interpolation formula and the fraction value calculated previously.
+-   \[10\]: Finally, increment the angle delta of the table and wrap the value around if the value exceeds the table size.
+
+この実装では、アプリケーションの実行時に同じ出力音が得られるはずだ。
+
+発振器の数を変更し、CPU使用率の変化を観察する。
+
+:::note
+
+The source code for this modified version of the code can be found in the `WavetableSynthTutorial_02.h` file of the demo project.
+
+:::
+
+# Wrapping the Wavetable
+
+先ほどのコードを注意深く見ていたら、ウェーブテーブルの値が1つ足りないことに気づいたかもしれない。最後の値がスキップされ、たまたま同じ値だった最初の値に折り返しているのだ。
+
+In the `ウェーブテーブルオシレーター` constructor, assign the table size variable to hold the resolution of the wave table minus one and define that member variable appropriately as follows:
+
+```
+クラス WavetableOscillator
+{
+public：
+    WavetableOscillator (const juce::AudioSampleBuffer& wavetableToUse)
+        : wavetable (wavetableToUse)、
+          tableSize (wavetable.getNumSamples() - 1)
+    {
+        jassert (wavetable.getNumChannels() == 1)；
+    }
+```
+
+```
+private：
+    const juce::AudioSampleBuffer& wavetable；
+    const int tableSize；
+    float currentIndex = 0.0f, tableDelta = 0.0f；
+};
+```
+
+The `setFrequency()` function needs to be updated using this variable and notice that the angle delta of the table will be slightly smaller:
+
+```
+void setFrequency (float frequency, float sampleRate)
+    {
+        auto tableSizeOverSampleRate = (float) tableSize / sampleRate；
+        tableDelta = frequency * tableSizeOverSampleRate；
+    }
+```
+
+The `getNextSample()` function remains fairly similar except that we don't need to wrap the higher index anymore because we will increase the size of the table in the next step:
+
+```
+強制インライン float getNextSample() noexcept
+    {
+        auto index0 = (unsigned int) currentIndex；
+        auto index1 = index0 + 1；
+```
+
+ここでは、以前とは異なり、解像度を定義された値の1つ上に設定し、最後のサンプルを最初のサンプルと同じに設定している：
+
+```
+void createWavetable()
+    {
+        sineTable.setSize (1, (int) tableSize + 1)；
+        auto* samples = sineTable.getWritePointer (0)；
+```
+
+```
+samples[tableSize] = samples[0]；
+    }
+```
+
+This allows us to reduce the wrapping condition in the processing call and transfering the load to the `createWavetable()` function that only gets called once at the start of the application.
+
+結果は前のセクションと同じに聞こえるはずだが、CPU使用率がわずかに減少していることに注目してほしい。
+
+このコードをさらに最適化する方法はありますか？DSPではすべての算術演算が性能にカウントされるので、できるだけ多くの演算を省くようにすべきです。
+
+:::note
+
+The source code for this modified version of the code can be found in the `WavetableSynthTutorial_03.h` file of the demo project.
+
+:::
+
+# Selecting the Harmonics
+
+ランダムなサイン波サウンドを出力する代わりに、ハーモニクスを明示的に設定することで、調和のとれたサイン波を作成してみよう。
+
+Modify the `createWavetable()` function to incorporate the harmonics in the wavetable samples of the sine wave as follows:
+
+```
+    void createWavetable()
+    {
+        sineTable.setSize (1, (int) tableSize + 1);
+        sineTable.clear();
+ 
+        auto* samples = sineTable.getWritePointer (0);
+ 
+        int harmonics[] = { 1, 3, 5, 6, 7, 9, 13, 15 };
+        float harmonicWeights[] = { 0.5f, 0.1f, 0.05f, 0.125f, 0.09f, 0.005f, 0.002f, 0.001f };     // [1]
+ 
+        jassert (juce::numElementsInArray (harmonics) == juce::numElementsInArray (harmonicWeights));
+ 
+        for (auto harmonic = 0; harmonic < juce::numElementsInArray (harmonics); ++harmonic)
+        {
+            auto angleDelta = juce::MathConstants::twoPi / (double) (tableSize - 1) * harmonics[harmonic]; // [2].
+            auto currentAngle = 0.0；
+ 
+            for (unsigned int i = 0; i < tableSize; ++i)
+            {
+                auto sample = std::sin (currentAngle)；
+                samples[i] += (float) sample * harmonicWeights[harmonic]; // [3].
+                currentAngle += angleDelta；
+            }
+        }
+ 
+        samples[tableSize] = samples[0]；
+    }
+```
+
+-   \[1\]: Define two arrays that respectively describe the indices of the odd harmonics and its corresponding weights.
+-   \[2\]: For each harmonic, calculate the angle delta by multiplying the full 2pi cycle by the harmonic order and dividing by the table size. This essentially multiplies the frequency generated by the harmonic order.
+-   \[3\]: For each sample in the table, retrieve the sine value from the current angle, add the value to the existing buffer sample by trimming the gain with the corresponding harmonic weight and increment the current angle by the delta value.
+
+```
+void prepareToPlay (int, double sampleRate) override
+    {
+        auto numberOfOscillators = 10；
+```
+
+Finally, reduce the number of oscillators to 10 in the `prepareToPlay()` function and listen to the result by running the application.
+
+倍音を偶数系列に変更して、発生する音の音色の変化に注目してください。奇数系列と偶数系列はどうでしょう？
+
+:::waring
+
+オーディオ信号に高い周波数成分を加えるので、エイリアシング効果に注意する必要があります！このチュートリアルの範囲外ですが、ナイキスト・シャノンのサンプリング定理とアップサンプリン グについて読むとよいでしょう。
+
+::::::note
+
+The source code for this modified version of the code can be found in the `WavetableSynthTutorial_04.h` file of the demo project.
+
+:::
+
+# Notes
+
+このチュートリアルでは、サイン波からウェーブテーブルを作成する方法について説明しましたが、最初のサンプルが最後のサンプルと一致していれば、基本的にどのような種類の周期波形でも保存することができます。
+
+Modify the `createWavetable()` function to generate and store different types of waveforms such as square, triangle or sawtooth waves.
+
+# Summary
+
+このチュートリアルでは、ウェーブテーブル・シンセサイザーの実装方法を学びました。特に
+
+-   正弦波オシレーターをウェーブテーブル・オシレーターに変換。
+-   数百の発振器でCPU使用率を最適化。
+-   同じ発振器のランダムな倍音をオーディオ出力に書き込む。
+-   ハーモニクスとそのウェイトを選択することで、調和のとれたサウンドを作り出した。
+
+# See also
+
+-   [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/)
+-   [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/)
+-   [チュートリアルデシベルを使ってオーディオレベルをコントロールする](../tutorial_synth_db_level_control/)
+-   [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/)
+-   [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/)
+-   [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ再生](../tutorial_looping_audio_sample_buffer/)
+-   [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ（上級者向け）](../tutorial_looping_audio_sample_buffer_advanced/)

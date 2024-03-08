@@ -1,7 +1,8 @@
 {
-  "label": "Plugins",
-  "position": 6,
+  "label": "Synth",
+  "position": 4,
   "link": {
     "type": "generated-index"
   }
 }
+

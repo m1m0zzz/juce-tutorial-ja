@@ -1,0 +1,195 @@
+---
+title: アンドロイド入門
+sidebar_position: 1
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルアンドロイドを始めよう
+
+このチュートリアルでは、JUCEベースのプロジェクトを作成するためのAndroid Studioの使い方を紹介します。
+
+レベル Beginner
+
+プラットフォーム Android
+
+# Getting started
+
+このチュートリアルでは、Android Studioアプリケーションを使用してJUCEベースのアプリケーションをビルドするために必要なツールをインストールし、設定します。
+
+# Installing the tools and development kits
+
+Android用のJUCEアプリケーションを作成する前に、いくつかの標準ツール、Android SDK、Android NDK（Native Development Kit）が必要です。
+
+## Installing Android Studio
+
+Download Android Studio from the following URL: [https://developer.android.com/sdk/index.html](https://developer.android.com/sdk/index.html)
+
+ダウンロードはかなり大きいので、時間がかかるかもしれません（macOSとWindowsで約700MB）。これは最初のダウンロードだけで、後でインストールする項目があります。このプロセス全体に時間がかかることを覚悟してください。ダウンロードが完了したら、ダウンロードを開始した後に表示されるはずの「Android Studioのインストール」ページの指示にすべて従ってください。
+
+:::note
+
+お使いのOSによっては、JDK（Java Development Kit）を7.0以降にアップデートする必要があります。インストールプロセス中（Windowsの場合）、またはAndroid Studioを最初に起動したとき（Mac OS Xの場合）に、必要に応じてインストールするよう促されるはずです。
+
+:::
+
+Android Studioの標準インストールを行う。Windowsの場合はインストーラーを使って行うが、Mac OS Xの場合はAndroid Studioを最初に開いたときにインストールを完了させる必要がある。これは以下のスクリーンショットのとおりです。
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot1.png" caption="Use the standard install type (Mac OS X)" />
+
+
+物理的なAndroidデバイスをいくつか持っている場合でも、仮想デバイスでテストすると便利なので、プロンプトが表示されたらこのオプションを選択してください。
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot3.png" caption="Install an Android Virtual Device (Mac OS X)](tutorial_android_studio_screenshot2.png) ![Install an Android Virtual Device (Windows)" />
+
+
+Keep clicking through the install process (clicking **次のページ**) until it is finished.
+
+## Installing additional SDKs
+
+Now that Android Studio itself is installed we need some additional tools. In the **Android Studioへようこそ** window, click the **設定** button in the bottom right corner.
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot4.png" caption="Go to Configure (on both Mac OS X and Windows)" />
+
+
+Then click the **SDKマネージャー** button.
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot5.png" caption="Select the SDK Manager (on both Mac OS X and Windows)" />
+
+
+If you need other SDK Platforms, then you can select the ones you need in the **SDKプラットフォーム** tab. The defaults should work fine for now.
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot6.png" caption="Select the SDK platforms needed" />
+
+
+One more thing that we need is the *アンドロイドNDK*. This is critical for JUCE to work with Android since it provides the C/C++ APIs for writing Android applications. You should make sure that CMake is installed, which is required to build the apps and LLDB for debugging C/C++ code. Note that these may be already installed. To install these, select the SDK Tools tab within the SDK Manager, select the items and press **応募する** as shown in the following screenshot:
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot7.png" caption="Install the NDK and other tools" />
+
+
+Ensure that at *最低* the items that are shown selected in the screenshot above are selected on your system (on either Windows or Mac OS X). It is fine to install additional items if you wish. Click the **応募する** button when you're done.
+
+# Using the Projucer
+
+Now that Android Studio, the Android SDKs, and the Android NDK are installed we can configure the Projucer to create JUCE-based Android Studio projects for us. (If you are not familiar with the Projucer, you may wish to refer to [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).) To do this we need to know where the Android SDKs (and the NDK) are installed.
+
+The location of the Android SDK is shown at top of the **SDKマネージャー** window. The path will be something like this (where "username" is your user name):
+
+-   `C:◆UsersUsernameAppAppData` (on Windows)
+-   `/ユーザー名/Library/Android/sdk` (on Mac OS X)
+
+Copy this path from the **SDKマネージャー** window to your clipboard ("CMD-C" on Mac OS X or "Ctrl-C" on Windows)
+
+Open the Projucer application and navigate to menu item **Projucer > グローバル検索パス...** Paste the path ("CMD-V" on Mac OS X or "Ctrl-V" on Windows) into the **アンドロイドSDK** field. When you hit "Return" the text should be displayed in white text. This is shown in the following screenshot:
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot8.png" caption="Enter your path to the Android SDK (shown on Mac OS X)" />
+
+
+SDKが見つからない、または正しくインストールされていない場合、Projucerは入力したパスを赤字で表示します。
+
+The NDK is found within the SDK in the `ndkバンドル` directory. It will be something like this:
+
+-   `C:◆Usersusername ◆Appata ◆Local ◆Android ◆sdk ◆ndk-bundle` (on Windows)
+-   `/ユーザー名/Library/Android/sdk/ndk-bundle` (on Mac OS X)
+
+Enter your SDK path, with the `ndkバンドル` directory appended, into the **アンドロイドNDK** field within the **グローバル検索パス** window.
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot9.png" caption="Enter your path to the Android NDK (shown on Mac OS X)" />
+
+
+この場合も、パスが正しくNDKが正しくインストールされていれば白で表示されるはずです（そうでない場合は赤で表示されます）。
+
+## Creating an Projucer project
+
+Now let's create a new project. Navigate to menu item **ファイル > 新規プロジェクト...** Choose a **GUIアプリケーション** project type, choose a location for the project, and make sure that you check the **アンドロイド** target platform. This is shown in the following screenshot:
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot10.png" caption="Setting up a new Projucer project" />
+
+
+Click the **作成...** button.
+
+Unless you installed all of the Android SDKs earlier, you will need to change the minimum SDK version supported in the Projucer project. Select the **アンドロイド** exporter in the left hand-column and find the **最小SDKバージョン** field. We suggest entering a value between 23 and 27 as shown in the following screenshot:
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot11.png" caption="Setting the minimum SDK version" />
+
+
+## Modifications to the application code
+
+There is a minor change that you can make to the application code, to work well on Android devices, in terms of the screen layout. In the Projucer, select the **ファイル** tab and select the `メイン.cpp`. Update the `メインウィンドウ` constructor as follows:
+
+```
+//...
+MainWindow (juce::String name) : DocumentWindow (name、
+                                                  juce::Colours::lightgrey、
+                                                  DocumentWindow::allButtons)
+{
+    setUsingNativeTitleBar (true)；
+    setContentOwned (new MainContentComponent(), true)；
+ 
+    setFullScreen (true); // centerWithSize()を呼び出すのではなく、フルスクリーンに設定します。
+    setVisible (true)；
+}
+//...
+DocumentWindowタイトルバーと最大化、最小化、閉じるボタンを持つサイズ変更可能なウィンドウ定義 juce_DocumentWindow.h:58
+nameint UnityEventModifiers const char * nameDefinition juce_UnityPluginInterface.h:195
+Colours定義済みの名前付きカラーセット（主に標準的な HTML カラー）定義 juce_Colours.h:37
+定義 juce_AudioWorkgroup_mac.h:24
+```
+
+これにより、アプリケーションは（デスクトップ・プラットフォームで一般的な）ウィンドウ内ではなく、フルスクリーンで実行されるようになる。
+
+## Opening in Android Studio
+
+You can now open the project in Android Studio by clicking the **プロジェクトを保存してIDEで開く...** button in the Projucer. Android Studio should open and display this window:
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot12.png" caption="Opening the project in Android Studio" />
+
+
+Click the **OK** button and the project should import and open. If the project fails to compile, follow the instructions to install any additional SDKs. You may need to install an older version of the SDK for the project to compile. You should now be able to run the project from within Android Studio. Hit the "run" button:
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot13.png" caption="Hit the Run button" />
+
+
+Android Studio will ask you which device you want to use. As this is the first time you launch the app, you will need to create a virtual device to run it. Click the **新規仮想デバイスの作成** button to set up a new device and select the device of your choice. You should now have a virtual device, so you can select it in the list and click the **OK** button. (If you have an Android device connected via USB you should also see it in that window.) This is shown in the following screenshot:
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot14.png" caption="Running on a virtual device" />
+
+
+これで、デバイス上でアプリケーションが起動するはずです！以下のスクリーンショットのようになるはずです（これはデバイスを横向きに回転させた状態を示しています）：
+
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_android_studio_screenshot15.png" caption="Our Hello World! app on the device" />
+:::note
+
+仮想デバイスを回転させるには、"Control-F11 "で反時計回りに、"Control-F12 "で時計回りに回転させます。(Mac OS Xでは "fn "キーも押したままにする必要があります）。
+
+:::
+
+# Summary
+
+このチュートリアルでは、以下のトピックを取り上げました：
+
+-   Android Studioのダウンロードとインストール。
+-   Android SDKとAndroid NDKのダウンロード。
+-   Android Studio用のProjucerプロジェクトを作成する。
+-   Projucer で生成したプロジェクトを Android Studio で開く。
+-   仮想（または実）デバイス上でプロジェクトを実行する。
+
+# See also
+
+-   [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/)
+-   [チュートリアルAndroidの画面サイズを管理する](../tutorial_android_screen_sizes/)

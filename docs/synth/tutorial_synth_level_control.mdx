@@ -1,0 +1,142 @@
+---
+title: オーディオレベルのコントロール
+sidebar_position: 2
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルオーディオレベルのコントロール
+
+このチュートリアルでは、オーディオを処理して出力レベルを変える方法を説明します。これは、低レベルのオーディオサンプルデータを処理することで実現します。
+
+レベル Intermediate
+
+プラットフォーム Windows, macOS, Linux
+
+クラス： [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices."), [ランダム](https://docs.juce.com/master/classRandom "A random number generator."), [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock()."), [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples."), [スライダー](https://docs.juce.com/master/classSlider "A slider control for changing a value.")
+
+# Getting started
+
+:::note
+
+This tutorial leads on from [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/), which you should have read and understood first. It also assumes that you are familiar with manipulating [スライダー](https://docs.juce.com/master/classSlider "A slider control for changing a value.") objects (see [チュートリアルスライダークラス](../tutorial_slider_values/)).
+
+:::
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/SynthLevelControlTutorial.zip) | [ジップ](/tutorials/ZIPs/SynthLevelControlTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+デモ・プロジェクトでは、ホワイト・ノイズ・ジェネレーターの出力レベルを制御するために使用できるスライダーを1つ含むウィンドウが表示されます。これは次のスクリーンショットに示されています。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_synth_level_control_screenshot1.png" caption="The demo project main window showing the level control slider." />
+
+
+IDEからプロジェクトを実行し、発生するホワイトノイズのレベルを実際にコントロールできることを確認してください。
+
+# Level control as multiplication
+
+Examining the code, you may notice that our `メインコンテンツコンポーネント` class does *ない* inherit the from [スライダー::リスナー](https://docs.juce.com/master/classSlider_1_1Listener "A class for receiving callbacks from a Slider.") class. In fact, we grab the value of the slider as soon as our `getNextAudioBlock()` function is called:
+
+```
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+    {
+        auto level = (float) levelSlider.getValue()；
+```
+
+このような単純なアプリケーションでは、このテクニックは許容範囲ですが、より複雑なアプリケーションでは、ほぼ間違いなく別のテクニックを使いたいでしょう。オーディオ処理システムを制御する値は、UIコントロールにのみ保存するのではなく、アプリケーションの "データモデル "に保存する方が良いでしょう。
+
+:::waring
+
+While it is acceptable to call [スライダー::getValue()](classSlider.html#a288c6f5c7a76100a1e7526e002e10eb5 "Returns the slider's current value.") in the `getNextAudioBlock()` function you *べからず* call the [スライダー::setValue()](classSlider.html#a430a5c4e56b39dd622f5800f787e0822 "Changes the slider's current value.") function within this the `getNextAudioBlock()` function. This is because this code is running on the audio thread. You must not do anything that changes the state of a UI object from the audio thread, although it is acceptable to query the state of UI objects, as long as you're sure these don't have side effects.
+
+:::
+
+In order to generate the white noise at the level dictated by the slider, we need to perform some basic arithmetic. The [ランダム::nextFloat()](classRandom.html#aec88d4e5cf44faaa038f6cfb41e96406 "Returns the next random floating-point number.") function always generates values between 0.0 and 1.0. If we plot this as an audio waveform, then it would look something like this:
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_synth_level_control_graph1.png" caption="Random numbers generated between 0.0 and 1.0" />
+
+
+これにアプローチする簡単な方法は、まずノイズをスケーリングし、常に-1.0から1.0の間でスケーリングされるようにすることである。これを行うには、2.0を掛け、1.0を引く。そうすると、下図のような信号になります：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_synth_level_control_graph2.png" caption="Random numbers generated between -1.0 and 1.0" />
+
+
+This is implemented in code within our `getNextAudioBlock()` function as follows:
+
+```
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+    {
+        auto level = (float) levelSlider.getValue()；
+ 
+        for (auto channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
+        {
+            auto* buffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample)；
+ 
+            for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
+            {
+                auto noise = random.nextFloat() * 2.0f - 1.0f；
+                buffer[sample] = noise * level；
+            }
+        }
+    }
+```
+
+## A minor optimisation
+
+Reducing the number of arithmetic operations is often a goal for DSP. This is one case where we can avoid performing one multiplication operation per sample. To achieve this, first we could multiply the values between 0.0 and 1.0 by a value equal to *ダブル* the required output level. Let's say we want the level to be 0.25. If we multiply our random values by 0.5 we would get something like this:
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_synth_level_control_graph3.png" caption="Random numbers scaled between 0.0 and 0.5" />
+
+
+最後に、乱数値がゼロを中心とするようにオフセットする必要がある。これを行うには、乗算した値の半分に相当する値を引く。これはもちろん元のレベル値である。最終結果はこのようになる：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_synth_level_control_graph4.png" caption="Random numbers scaled and offset to between -0.25 and 0.25" />
+
+
+This could be implemented in code via our `getNextAudioBlock()` function where you should see that there is now one fewer multiplication operation per sample:
+
+```
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+    {
+        auto level = (float) levelSlider.getValue()；
+        auto levelScale = level * 2.0f；
+ 
+        for (auto channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
+        {
+            auto* buffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample)；
+ 
+            for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
+                buffer[sample] = random.nextFloat() * levelScale - level；
+        }
+    }
+```
+
+:::note
+
+The code for this revised version can be found in the `SynthLevelControlTutorial_02.h` file of the demo project.
+
+:::
+
+One remaining problem with this implementation is that the level is only updated to a new constant value for each of the audio blocks generated. In this case, it isn't audible (as the source sound in white noise). If this was applied to most audio content, then this technique would introduce audio artefacts. This is because the level value may be jumping quite abruptly between each audio block, rather than changing smoothly during the audio blocks. Techniques for avoiding these artefacts (such as audible crackling when the level changes) are explored in other tutorials (see [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/)).
+
+ユーザーインターフェースに2つ目のスライダーを追加します。最初のスライダーで左チャンネルのレベルをコントロールし、この2番目のスライダーで右チャンネルのレベルをコントロールします。
+
+# Summary
+
+このチュートリアルでは、オーディオ信号のレベルをコントロールする方法を説明しました。以下のトピックを取り上げました：
+
+-   信号値に必要な出力レベルを乗じることによって、信号のレベルを変更すること。
+-   スライダーを使ってオーディオレベルをコントロールする。
+
+# See also
+
+-   [チュートリアルスライダークラス](../tutorial_slider_values/)
+-   [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/)
+-   [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/)
+-   [チュートリアルデシベルを使ってオーディオレベルをコントロールする](../tutorial_synth_db_level_control/)
+-   [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/)
+-   [チュートリアルウェーブテーブルシンセシス](../tutorial_wavetable_synth/)

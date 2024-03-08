@@ -1,0 +1,548 @@
+---
+title: ディレイラインでストリング・モデルを作成
+sidebar_position: 3
+---
+
+import CaptionImage from "@site/src/components/CaptionImage";
+import SourcePageLink from "@site/src/components/SourcePageLink";
+
+# チュートリアルディレイラインを使ったストリング・モデルの作成
+
+フィジカルモデリングによるリアルなストリングスモデルの実装。ディレイ・ラインを組み込んで、ステレオ音場に複雑なエコー・パターンを作り出す。
+
+レベル Advanced
+
+プラットフォーム Windows, macOS, Linux
+
+プラグイン形式： VST, AU, Standalone
+
+クラス： [dsp::ProcessorChain](https://docs.juce.com/master/classdsp_1_1ProcessorChain "This variadically-templated class lets you join together any number of processor classes into a singl..."), [dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain "Applies a gain to audio samples as single samples or AudioBlocks."), [dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator "Generates a signal based on a user-supplied function."), [dsp::Convolution](https://docs.juce.com/master/classdsp_1_1Convolution "Performs stereo partitioned convolution of an input signal with an impulse response in the frequency ..."), [dsp::WaveShaper](https://docs.juce.com/master/structdsp_1_1WaveShaper "Applies waveshaping to audio samples as single samples or AudioBlocks."), [dsp::Reverb](https://docs.juce.com/master/classdsp_1_1Reverb "Processor wrapper around juce::Reverb for easy integration into ProcessorChain.")
+
+:::waring
+
+このプロジェクトには、C++14の機能をサポートするコンパイラが必要です。XcodeとVisual Studioの最近のバージョンには、このサポートが含まれています。
+
+:::
+
+# Getting started
+
+This tutorial leads on from [チュートリアルウェーブシェイピングとコンボリューションで歪みを加える](../tutorial_dsp_convolution/). If you haven't done so already, you should read that tutorial first.
+
+Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/DSPDelayLineTutorial.zip) | [ジップ](/tutorials/ZIPs/DSPDelayLineTutorial.zip). Unzip the project and open the first header file in the Projucer.
+
+:::waring
+
+If using the PIP version of this project, please make sure to copy the `リソース` folder into the generated Projucer project.
+
+:::
+
+If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+
+# The demo project
+
+プロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメント・ターゲットを選択することで、スタンドアロン・アプリケーションとして実行することができます。Xcodeでは、以下のスクリーンショットのように、メインウィンドウの左上でターゲットを変更することができます：
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_standalone_screenshot1.png" caption="Changing the deployment target in Xcode" />
+
+デモ・プロジェクトでは、プラグインの上半分にMIDIキーボードが画面上に表示され、下半分にはオシロスコープを通して信号が視覚的に表示される。現在、鍵盤が押されると、プラグインはいくつかのリバーブとディストーションを加えた基本的なオシレーター・サウンドを出力します。
+
+:::note
+
+Feel free to remove the effects to clearly hear the changes in each steps of the tutorial by commenting out the effects processors in the `オーディオエンジン` class.
+
+:::
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot1.png" caption="The demo project plugin window" />
+
+:::note
+
+MIDIコントローラーをお持ちの場合は、このチュートリアル中、画面上のキーボードを使う代わりに、MIDIコントローラーを接続することもできます。
+
+:::
+
+# Introduction
+
+このチュートリアルでは、異なる方法で信号処理を可能にする2つの新しいDSPコンセプトを紹介します：ディレイ・ラインとフィジカル・モデリングです。
+
+このDSP用語の定義から始めよう。
+
+## What is a Delay Line?
+
+ディレイ・ラインは、残響空間のシミュレーション、サウンド・シンセシス、フィルターの実装、ディレイ、コーラス、フェイザー、フランジャーなどの古典的なタイムベース・エフェクトなど、幅広い用途に使用できるDSPの基本ツールです。
+
+基本的に、ディレイラインは非常にシンプルで、ある信号をサンプル数だけ遅らせることができます。複数のディレイ・ラインを使い、別々の信号を異なる間隔で合計することで、デジタル信号処理の大部分を作り出すことができます。
+
+アナログ領域では、遅延線は、波の伝搬を遅延させるために、バネのような実際の物理的な拡張を導入することで実装されていた。デジタル領域では、遅延線は多くの場合、サーキュラー・バッファと呼ばれるデータ構造を使って実装される。
+
+サーキュラー・バッファは、基本的に、サンプル・バッファ・ブロックのサイズに一致するサーキュラー・データ構造を作成するために、インデックスがそれ自身をラップする配列として実装することができる。これにより、前のブロックに含まれるすべてのサンプルを現在のブロックにアクセスできるように保存し、次の反復のために現在のサンプルブロックによって上書きされるようにすることができます。
+
+このチュートリアルでは、ディレイ・ラインを実装する方法として、サーキュラー・バッファを取り上げます。
+
+## What is Physical Modelling?
+
+フィジカル・モデリングは、サウンドを生成するために数学的および物理的モデルに依存するサウンド合成手法を示す。他の合成手法とは異なり、サンプルを出発点として使用せず、素材の研究を通じて物理的な意味で音がどのように生成されるかに焦点を当てる。
+
+そのひとつがデジタル導波管と呼ばれるモデルで、音響波が管やパイプの中を伝搬する物理モデルに基づいている。これらの波の境界に対する反射は、遅延線を用いて効率的に計算することができ、このモデルを用いて弦楽器などの多くの楽器の音を生成することができます。
+
+### The waveguide string model
+
+一言で言えば、導波管ストリング・モデルは、振動するストリングは、反対方向に進み、2つの端点で跳ね返る2つの波を使ってモデル化できるという概念に基づいています。この2つの波の組み合わせは、最終的に弦を弾いたときの理想的な動きをシミュレートし、2つのディレイライン（前方ディレイラインと後方ディレイライン）を使って実装することができます。
+
+しかし、この理想的な弦のモデルは、減衰が考慮されていないため、現在の状態で静止することはない。したがって、波が境界で方向を変え、その極性が反転するとき、波の変位を減らすために減衰係数を組み込むことができる。
+
+このモデルで考慮すべき他の変数は、弦をはじく位置と、弦が振動する音を拾う位置である。したがって、空間上の特定の場所から音を聴くのと同じように、2つの波が伝播する弾く位置と拾う位置を統合しなければならない。
+
+最後になるが、物理的な弦で起こる自然現象に、高い周波数の減衰が低い周波数より速いというものがある。これは、境界の一端にローパスフィルターを追加するだけで、この減衰時間の不一致をシミュレートすることができ、我々のモデルに簡単に組み込むことができる。
+
+このチュートリアルでは、ディレイ・ラインを使ってこのデジタル導波管モデルを実装し、弦を弾いたときに弦の境界で反射する波をシミュレートします。
+
+# Implement a delay line
+
+まず、単純なディレイ・ラインをベクターを使って円形バッファとして実装してみよう。
+
+In the `ディレイライン` class, there are a couple of self-explanatory helper functions already defined to facilitate the implementation such as `サイズ` and `リサイズ()` methods, a `クリア` function and a `バック()` function that retrieves the least recent sample in the buffer.
+
+We first implement the `プッシュ` function which adds a new sample by overwriting the least recently added sample \[1\] and updates the least recent index variable by wrapping the index by the size of the circular buffer \[2\]:
+
+```
+void push (Type valueToAdd) noexcept
+    {
+        rawData[leastRecentIndex] = valueToAdd; // [1].
+        leastRecentIndex = leastRecentIndex == 0 ? size() - 1 : leastRecentIndex - 1; // [2].
+    }
+```
+
+Then we complete the `ゲット` function by returning the sample located at an offset specified by the function argument while making sure that the index wraps around the vector \[3\]. Notice here that we make sure the delay does not exceed the size of the buffer.
+
+```
+型 get (size_t delayInSamples) const noexcept
+    {
+        jassert (delayInSamples >= 0 && delayInSamples < size())；
+ 
+        return rawData[(leastRecentIndex + 1 + delayInSamples) % size()]; // [3].
+    }
+```
+
+Next, we fill in the `set()` function by assigning the sample at an offset specified by the function argument while making sure that the index wraps around the vector \[4\]. Here again, we make sure the delay does not exceed the size of the buffer.
+
+```
+void set (size_t delayInSamples, Type newValue) noexcept
+    {
+        jassert (delayInSamples >= 0 && delayInSamples < size())；
+ 
+        rawData[(leastRecentIndex + 1 + delayInSamples) % size()] = newValue; // [4].
+    }
+```
+
+これでシンプルなディレイ・ラインの実装は完了だ。
+
+# Incorporate a delay effect
+
+基本的なディレイ・ライン・クラスを実装したので、シグナル・チェインにステレオ・ディレイ・エフェクトを組み込んでみましょう。
+
+In the `遅延` class, there are multiple parameters that can be tweaked to change the behaviour of our delay effect and these include delay times for individual channels, the maximum delay time allowed, the dry/wet level of the effect and the amount of feedback.
+
+これらのパラメーターとディレイ・ラインの実装を使えば、さまざまなディレイ・エフェクトを思い通りに作ることができるが、まずはコンストラクターで定義されているデフォルトのパラメーターから見ていこう：
+
+```
+{
+を公開します：
+    //==============================================================================
+    ディレイ()
+    {
+        setMaxDelayTime (2.0f)；
+        setDelayTime (0, 0.7f)；
+        setDelayTime (1, 0.5f)；
+        setWetLevel (0.8f)；
+        setFeedback (0.5f)；
+    }
+```
+
+これらのヘルパー関数は、主にパラメータを格納するために対応するメンバ変数を設定しますが、中にはパラメータの変更に対応するためにデータ構造のリサイズを必要とするものもあります。
+
+One such case is the `setMaxDelayTime()` function defined below which calls the `updateDelayLineSize()` helper function \[1\]:
+
+```
+void setMaxDelayTime (Type newValue)
+    {
+        jassert (newValue > Type (0))；
+        maxDelayTime = newValue；
+        updateDelayLineSize(); // [1].
+    }
+```
+
+Complete the following function which ensures that the circular buffers of all the delay lines are large enough to accomodate any delay time up to the max delay time by resizing the vectors \[2\]:
+
+```
+void updateDelayLineSize()
+    {
+        auto delayLineSizeSamples = (size_t) std::ceil (maxDelayTime * sampleRate)；
+ 
+        for (auto& dline : delayLines)
+            dline.resize (delayLineSizeSamples); // [2].
+    }
+```
+
+Another noteworthy case is in the `setDelayTime()` function of individual channels where a parameter change causes a call to the `updateDelayTime()` helper function \[3\] as follows:
+
+```
+void setDelayTime (size_t channel, Type newValue)
+    {
+        if (channel >= getNumChannels())
+        {
+            jassertfalse；
+            を返します；
+        }
+ 
+        jassert (newValue >= Type (0))；
+        delayTimes[channel] = newValue；
+ 
+        updateDelayTime(); // [3].
+    }
+```
+
+Implement this helper function that recalculates the delay times in samples for all the channels based on the new parameter change \[4\]:
+
+```
+void updateDelayTime() noexcept
+    {
+        for (size_t ch = 0; ch < maxNumChannels; ++ch)
+            delayTimesSample[ch] = (size_t) juce::roundToInt (delayTimes[ch] * sampleRate)；
+    }
+```
+
+In the `リセット` function, we reset the filters for each channel \[5\] which we will use in the next section of the tutorial and clear any old sample remaining in the delay lines \[6\]:
+
+```
+void reset() noexcept
+    {
+        for (auto& f : filters)
+            f.reset(); // [5].
+ 
+        for (auto& dline : delayLines)
+            dline.clear(); // [6].
+    }
+```
+
+In the `prepare()` function, we make sure that the size of the delay lines \[7\] and the delay times in samples \[8\] are still correct in case the sample rate was changed between sample blocks and initialise the filters with a low-pass filter for now \[9\]:
+
+```
+void prepare (const juce::dsp::ProcessSpec& spec)
+{
+    jassert (spec.numChannels <= maxNumChannels);
+    sampleRate = (Type) spec.sampleRate;
+    updateDelayLineSize(); // [7]
+    updateDelayTime();     // [8]
+ 
+    filterCoefs = juce::dsp::IIR::Coefficients::makeFirstOrderLowPass (sampleRate, Type (1e3)); // [9].
+ 
+    for (auto& f : filters)
+    {
+        f.prepare (spec)；
+        f.coefficients = filterCoefs；
+    }
+}
+jassert#definejassert(expression)プラットフォーム非依存アサーションマクロ定義 juce_PlatformDefs.h:165
+```
+
+Now let's deal with the `プロセス()` function to actually implement the delay effect:
+
+```
+template void process (const ProcessContext& context) noexcept
+{
+    auto& inputBlock = context.getInputBlock()；
+    auto& outputBlock = context.getOutputBlock()；
+    auto numSamples = outputBlock.getNumSamples()；
+    auto numChannels = outputBlock.getNumChannels()；
+ 
+    jassert (inputBlock.getNumSamples() == numSamples)；
+    jassert (inputBlock.getNumChannels() == numChannels)；
+ 
+    for (size_t ch = 0; ch < numChannels; ++ch)
+    {
+        auto* input = inputBlock .getChannelPointer (ch)；
+        auto* output = outputBlock.getChannelPointer (ch)；
+        auto& dline = delayLines[ch]；
+        auto delayTime = delayTimesSample[ch]；
+        auto& filter = filters[ch]；
+ 
+        for (size_t i = 0; i < numSamples; ++i)
+        {
+            auto delayedSample = dline.get (delayTime); // [10].
+            auto inputSample = input[i]; // [11].
+            auto dlineInputSample = std::tanh (inputSample + feedback * delayedSample); // [12].
+            dline.push (dlineInputSample); // [13].
+            auto outputSample = inputSample + wetLevel * delayedSample; // [14].
+            output[i] = outputSample; // [15].
+        }
+    }
+}
+```
+
+-   \[10\]: First, for each sample in the buffer block of each channel, retrieve the delayed sample from the corresponding delay line.
+-   \[11\]: Then get the current sample from the input block.
+-   \[12\]: Next, calculate the sample to be pushed into the delay line by mixing the input sample with the delay line output weighted with the feedback parameter using `標準::tanh()`. The hyperbolic tangent function allows us to smoothly combine the two signals without clipping the summed sample and provides a natural decay.
+-   \[13\]: We then push the sample calculated in the previous step into the delay line.
+-   \[14\]: Finally, calculate the output sample by mixing the input sample with the delay line output weighted with the dry/wet parameter.
+-   \[15\]: Then assign the sample to the output block.
+
+If we run this code after implementing the above changes in the `遅延` class, we should be able to hear the delay effect on the oscillator signal.
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_delay_line_screenshot1.png" caption="Delaying the oscillator signal" />
+
+様々なディレイ・パラメーターを試し、ディレイ・パターンがステレオ・フィールド内でどのように変化するかに注目してください。
+
+# Filter the delay effect
+
+ほとんどのディレイ・エフェクトは、自然界で発生するような、よりリアルなサウンドを提供するために、信号が繰り返し減衰する際のフィルタリングを組み込んでいます。それでは、ディレイ・サウンドにフィルターをかけてみましょう。
+
+This can be achieved very easily by simply changing one line in the `プロセス()` function of the `遅延` class as follows:
+
+```
+template void process (const ProcessContext& context) noexcept
+{
+    //...
+ 
+    for (size_t ch = 0; ch < numChannels; ++ch)
+    {
+        //...
+ 
+        for (size_t i = 0; i < numSamples; ++i)
+        {
+            auto delayedSample = filter.processSample (dline.get (delayTime)); // [1].
+            auto inputSample = input[i]；
+            auto dlineInputSample = std::tanh (inputSample + feedback * delayedSample)；
+            dline.push (dlineInputSample)；
+            auto outputSample = inputSample + wetLevel * delayedSample；
+            output[i] = outputSample；
+        }
+    }
+}
+```
+
+Here we simply call the `processSample()` function on the filter object by passing the delayed sample from the delay line \[1\].
+
+Change the filter type to a high-pass filter in the `prepare()` function by swapping the coefficients and calling the `makeFirstOrderHighPass()` function \[2\] as shown here:
+
+```
+void prepare (const juce::dsp::ProcessSpec& spec)
+{
+    //...
+    filterCoefs = juce::dsp::IIR::Coefficients::makeFirstOrderHighPass (sampleRate, Type (1e3)); // [2].
+    //...
+}
+```
+
+プログラムを実行すると、リピート回数が増えるにつれて、より明るい遅延音が得られるはずだ。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_delay_line_screenshot2.png" caption="Filtering the delayed signal" />
+
+様々な種類のフィルターを使って遅延音を処理し、繰り返される信号の音がどのように変化するかを試してみてください。
+
+# Integrate a waveguide string model
+
+遅延効果のためにディレイ・ラインを都合よく実装したので、同じクラスを使って導波管ストリング・モデルを統合するために同じデータ構造を使うことができる。
+
+In the `導波管文字列` class, there are multiple parameters that can be tweaked to change the behaviour of our string model and these include the trigger position, the pickup position and the decay time for the damping of the strings.
+
+デフォルト・パラメーターはコンストラクターで定義され、そのコンストラクターは対応するメンバー変数を次のように設定する：
+
+```
+を公開します：
+    //==============================================================================
+    導波管文字列()
+    {
+        setTriggerPosition(Type (0.2))；
+        setPickupPosition (Type (0.8))；
+        setDecayTime (Type (0.5))；
+    }
+```
+
+These helper functions also call the `updateParameters()` function which initialises various variables such as the size of the delay lines, the pickup indices relative to the delay lines, the trigger index relative to the forward delay line and the filter coefficients as well as the decay coefficient based on the decay time.
+
+以下に説明するように、このヘルパー関数の実装を追加する：
+
+```
+void updateParameters()
+{
+    auto length = (size_t) juce::roundToInt (sampleRateHz / freqHz); // [1]
+    forwardDelayLine .resize (length);
+    backwardDelayLine.resize (length);
+ 
+    forwardPickupIndex  = (size_t) juce::roundToInt (jmap (pickupPos, Type (0), Type (length / 2 - 1)));            // [2]
+    backwardPickupIndex = length - 1 - forwardPickupIndex;
+ 
+    forwardTriggerIndex = (size_t) juce::roundToInt (jmap (triggerPos, Type (0), Type (length / 2 - 1)));           // [3]
+ 
+    filter.coefficients = juce::dsp::IIR::Coefficients::makeFirstOrderLowPass (sampleRateHz, 4 * freqHz); // [4].
+ 
+    decayCoef = juce::jmap (decayTime, std::pow (Type (0.999), Type (length)), std::pow (Type (0.99999), Type (length))); // [5].
+ 
+    reset()を実行する；
+}
+jmapconstexpr Type jmap(Type value0To1, Type targetRangeMin, Type targetRangeMax)正規化された値(0から1の間)をターゲット範囲にリマップする。定義 juce_MathsFunctions.h:369
+```
+
+-   \[1\]: First, we resize the delay lines to the sample rate over the fundamental frequency of the note played. This is taken from the fact that the fundamental frequency is equal to the sampling frequency over the number of samples needed in the loop.
+-   \[2\]: Next, we retrieve the index of the pickup position on the forward delay line by mapping the variable in the range of 0.0 .. 1.0 to the range of 0 to half of the delay line length. This is to accomodate the full cycle which includes the two directions of the travelling wave with the polarity flipping. The index of the pickup position on the backward delay line is calculated by simply taking the inverse of the forward index.
+-   \[3\]: The index of the trigger position on the forward delay line is mapped in the same way from the range of 0.0 .. 1.0 to the range of 0 to half of the delay line length.
+-   \[4\]: Then the coefficients of the low-pass filter that simulates the decay behaviour are set at a frequency that is four times higher than its fundamental.
+-   \[5\]: Finally, the decay coefficient is calculated from the decay time by mapping from the range of 0.0 .. 1.0 to the range of 0.999^長さ to 0.99999^長さ. This produces values close to 1 which depicts the very little damping that actually happens on physical vibrating strings.
+
+In the `リセット` function, we reset the delay lines to clear any old sample remaining:
+
+```
+void reset() noexcept
+    {
+        forwardDelayLine .clear()；
+        backwardDelayLine.clear()；
+    }
+```
+
+In the `prepare()` function, we create a temporary audio block that will be used later for processing \[6\] and make sure that the parameters are still correct in case the sample rate was changed between sample blocks by calling the `updateParameters()` function again \[7\]:
+
+```
+    void prepare (const juce::dsp::ProcessSpec& spec)
+    {
+        sampleRateHz = (Type) spec.sampleRate;
+        tempBlock = juce::dsp::AudioBlock(heapBlock, spec.numChannels, spec.maximumBlockSize); // [6].
+        filter.prepare (spec)；
+        updateParameters(); // [7].
+    }
+```
+
+撥弦によって引き起こされる弦の励振を引き起こすには、2本の遅延線によって表される両方の波の初期変位を設定しなければならない。
+
+To do this in the `トリガー()` function, iterate first between the samples contained from the start of the delay line to the index of the trigger position, calculate the values for each sample by mapping the indices to ascending values reaching half of the note velocity and assigning these to the delay lines in opposite directions \[8\]. Do the same for the samples contained between the index of the trigger position to the end of the delay line with descending values from half of the note velocity \[9\].
+
+```
+void trigger (Type velocity) noexcept
+    {
+        jassert (velocity >= Type (0) && velocity <= Type (1))；
+ 
+        for (size_t i = 0; i <= forwardTriggerIndex; ++i) // [8].
+        {
+            auto value = juce::jmap (Type (i), Type (0), Type (forwardTriggerIndex), Type (0), velocity / 2)；
+            forwardDelayLine .set (i, value)；
+            backwardDelayLine.set (getDelayLineLength() - 1 - i, value)；
+        }
+ 
+        for (size_t i = forwardTriggerIndex; i < getDelayLineLength(); ++i) // [9].
+        {
+            auto value = juce::jmap (Type (i), Type (forwardTriggerIndex), Type (getDelayLineLength() - 1), velocity / 2, Type (0))；
+            forwardDelayLine .set (i, value)；
+            backwardDelayLine.set (getDelayLineLength() - 1 - i, value)；
+        }
+    }
+```
+
+バッファブロック内のすべてのサンプルを生成するために、サンプル生成の1反復のみを返すヘルパー関数を以下のように宣言する：
+
+```
+タイプ processSample() noexcept
+    {
+        auto forwardOut = forwardDelayLine .back(); // [10].
+        auto backwardOut = backwardDelayLine.back(); // [11].
+ 
+        forwardDelayLine .push (-backwardOut); // [12].
+        backwardDelayLine.push (-decayCoef * filter.processSample (forwardOut)); // [13].
+ 
+        return forwardDelayLine.get (forwardPickupIndex) + backwardDelayLine.get (backwardPickupIndex); // [14].
+    }
+```
+
+-   \[10\]: First, we retrieve the least recent sample from the circular buffer of the forward delay line by calling the `バック()` function declared earlier.
+-   \[11\]: We do the same for the least recent sample of the backward delay line.
+-   \[12\]: Next, we have to push this last sample located at the boundary of the backward delay line into the forward delay line by inverting the polarity.
+-   \[13\]: Then, we do the same for the other delay line but this time instead we filter the sample with the low-pass filter and multiply by the decay coefficient to apply dampening before inverting the polarity and pushing the sample into the circular buffer.
+-   \[14\]: Finally, we return the recorded sample from the pickup location by summing the signal from both delay lines at their respective pickup indices.
+
+In the `プロセス()` function, simply process all the samples in the buffer block by calling the `processSample()` helper function and assigning the values to the temporary block created earlier \[15\]. Then copy the samples to all channels in the audio block \[16\] and add the content of the temporary block into the output block along with the original content contained in the input block \[17\].
+
+```
+    template void process (const ProcessContext& context) noexcept
+    {
+        auto&& outBlock = context.getOutputBlock()；
+        auto numSamples = outBlock.getNumSamples()；
+        auto* dst = tempBlock.getChannelPointer (0)；
+ 
+        for (size_t i = 0; i < numSamples; ++i) // [15].
+            dst[i] = processSample()；
+ 
+        for (size_t ch = 1; ch < tempBlock.getNumChannels(); ++ch) // [16].
+            juce::FloatVectorOperations::copy (tempBlock.getChannelPointer (ch)、
+                                               tempBlock.getChannelPointer (0)、
+                                               (int) numSamples)；
+ 
+        outBlock.copyFrom (context.getInputBlock()).add (tempBlock.getSubBlock (0, outBlock.getNumSamples()))；
+    }
+```
+
+In the `声` class, add a `導波管文字列` processor to the processor chain \[18\] and add its corresponding index in the enum \[19\].
+
+```
+    enum
+    {
+        oscIndex,
+        stringIndex,        // [19]
+        masterGainIndex
+    };
+ 
+    juce::dsp::ProcessorChain, WaveguideString, juce::dsp::Gain> processorChain; // [18].
+};
+```
+
+In the `noteStarted()` function, remove the line that sets the level of the oscillator as we will be using the waveguide string model to generate sounds. Retrieve a reference to the string model from the processor chain \[20\], set the fundamental frequency of the string to the frequency of the note played \[21\] and trigger the plucking by calling the `トリガー()` function with the note velocity \[22\].
+
+```
+    void noteStarted() override
+    {
+        auto velocity = getCurrentlyPlayingNote().noteOnVelocity.asUnsignedFloat();
+        auto freqHz = (float) getCurrentlyPlayingNote().getFrequencyInHertz();
+ 
+        processorChain.get().setFrequency (freqHz, true);
+ 
+        //processorChain.get().setLevel (velocity);
+ 
+        auto& stringModel = processorChain.get(); // [20]
+        stringModel.setFrequency (freqHz); // [21].
+        stringModel.trigger (velocity); // [22].
+    }
+```
+
+プログラムを実行し、どのように聞こえるか見てみよう。
+
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_delay_line_screenshot3.png" caption="Delaying the waveguide string signal" />
+
+ピックアップ／トリガーの位置やディケイ・タイム、フィルターの種類など、さまざまな導波管のパラメーターを試し、生成されるストリング・サウンドにどのような影響を与えるかに注目してください。
+
+:::note
+
+The source code for this modified version of the code can be found in the `DSPDelayLineTutorial_02.h` file of the demo project.
+
+:::
+
+# Summary
+
+このチュートリアルでは、ストリング・モデルと遅延線の実装方法を学びました。特に
+
+-   フィジカルモデリングとディレイラインの基礎を学ぶ。
+-   シンプルなタイムベースエフェクトのベースとなるディレイラインを実装。
+-   ディレイ・ラインを組み込んで、ステレオで面白いディレイ効果を生み出す。
+-   物理モデリング技術に基づく導波管ストリングモデルを統合。
+
+:::note
+
+Return to part 1 of this tutorial to brush up on oscillators and filters here: [チュートリアルDSP入門](../tutorial_dsp_introduction/)
+
+Jump back to part 2 of this tutorial to understand distortion and convolution here: [チュートリアルウェーブシェイピングとコンボリューションで歪みを加える](../tutorial_dsp_convolution/)
+
+:::
+
+# See also
+
+-   [チュートリアル高速フーリエ変換](../tutorial_simple_fft/)
+-   [チュートリアル信号の周波数をリアルタイムで可視化する](../tutorial_spectrum_analyser/)
+-   [チュートリアルSIMDRegisterクラスを使用した最適化](../tutorial_simd_register_optimisation/)
+-   [チュートリアルDSP入門](../tutorial_dsp_introduction/)
+-   [チュートリアルウェーブシェイピングとコンボリューションで歪みを加える](../tutorial_dsp_convolution/)
