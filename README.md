@@ -2,6 +2,48 @@
 
 This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
+### Status
+
+ルール:
+- 🤖 ... 機械翻訳 (スクリプト)
+- 🛠️ ... 機械翻訳と正常なリンク
+- ✅ ... 正しい日本語と正しいフォーマット
+
+#### Getting Started
+
+| タイトル | ステータス |
+| --- | :---: |
+| Projucerを始める | ✅ |
+| Projucerプロジェクトを管理する | 🤖 |
+| 基本的なオーディオプラグインの作成 パート1 | 🤖 |
+| 基本的なオーディオプラグインの作成 パート2 | 🤖 |
+| アプリケーションに適したProjucerテンプレートの選択 | 🤖 |
+
+#### Audio
+all: 🤖
+
+#### MIDI
+all: 🤖
+
+#### Plugins
+all: 🤖
+
+#### DSP
+all: 🤖
+
+#### Graphics
+all: 🤖
+
+#### Interface Design
+all: 🤖
+
+#### Mobile
+all: 🤖
+
+#### Utility Classes
+all: 🤖
+
+
 ### Installation
 
 ```
@@ -26,18 +68,5 @@ This command generates static content into the `build` directory and can be serv
 
 ### Deployment
 
-Github Actions -> [.github/workflows/deploy.yml](.github/workflows/deploy.yml)
-
-~~Using SSH:~~
-
-```
-$ USE_SSH=true yarn deploy
-```
-
-~~Not using SSH:~~
-
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+Github Actions
+[File .github/workflows/deploy.yml](.github/workflows/deploy.yml)
