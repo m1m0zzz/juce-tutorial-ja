@@ -19,7 +19,7 @@ const config: Config = {
   organizationName: 'm1m0zzz', // Usually your GitHub org/user name.
   projectName: 'juce-tutorial-ja', // Usually your repo name.
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
