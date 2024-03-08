@@ -36,7 +36,7 @@ If you need help with this step, see [チュートリアルProjucerパート1：
 
 This tutorial synthesises a sine wave using the standard library function `標準値::sin()`. In order to use this we need to maintain a state for our sine wave generation by storing the current *位相角* and the amount by which the phase angle needs to increment for each output sample. This size of this change per sample ("delta") is dependent on the sample rate of the output and the frequency of the sine wave we want to generate.
 
-:::waring
+:::warning
 
 Most synthesis applications and plug-ins are likely not to use the `標準値::sin()` function as it probably isn't the most efficient technique. Commonly a [ウェーブテーブル](https://en.wikipedia.org/wiki/Table-lookup_synthesis) would be used, see [チュートリアルウェーブテーブルシンセシス](../tutorial_wavetable_synth/). Wavetables also allow for waveshapes other than sine waves, too.
 
@@ -150,7 +150,7 @@ MainContentComponent()
 
 The key to the way this algorithm works is to check whether the current and target values are the same or different. If they are the same, then we can simply use our original code as the `角度デルタ` member doesn't need to change. If the current and target values are different, then we need to update the `角度デルタ` member for each sample as we gradually move the current value closer to the target.
 
-:::waring
+:::warning
 
 この例では、出力バッファのサンプル数をランプの長さとして使用します。つまり、バッファサイズが非常に小さい場合、アーティファクトが聞こえる可能性があります。
 

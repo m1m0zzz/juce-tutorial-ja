@@ -244,7 +244,7 @@ By the end, all three variables point to the same initial instance. There are no
 
 Whenever a [ValueTree](https://docs.juce.com/master/classValueTree "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...") object is reassigned (or goes out of scope), the underlying data it was pointing to loses a reference. If that data is not held elsewhere, it is automatically destroyed. This may sound scary, as if you might be operating in a world where your data could self-destruct at any moment; in reality, it is very unlikely that you will inadvertently lose your nodes! It is a very robust system. Besides, if the data is important, you’ll probably find that you have in fact already stored it somewhere; it is as intuitive as you could wish for.
 
-:::waring
+:::warning
 
 This also means that you need to be careful in real-time code such as an audio callback. Reassigning a [ValueTree](https://docs.juce.com/master/classValueTree "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...") object in an audio callback could inadvertently cause the `delete` operator if there are no longer references to the previously assigned data.
 
@@ -286,7 +286,7 @@ We can then implement the following callback functions depending on the behaviou
 
 Callbacks are propagated upwards in the tree hierarchy so listeners to parent nodes will also receive property change callbacks from children and therefore types and property names should be checked.
 
-:::waring
+:::warning
 
 Since callbacks are synchronous, for any time-critical applications you should use an [AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater "Has a callback method that is triggered asynchronously.") to handle property changes.
 

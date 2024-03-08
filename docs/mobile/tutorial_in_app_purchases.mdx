@@ -16,7 +16,7 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 クラス： [InAppPurchases::リスナー](https://docs.juce.com/master/structInAppPurchases_1_1Listener "Represents an object that gets notified about events such as product info returned or product purchas..."), [サウンドプレーヤー](https://docs.juce.com/master/classSoundPlayer "A simple sound player that you can add to the AudioDeviceManager to play simple sounds."), [非同期アップデーター](https://docs.juce.com/master/classAsyncUpdater "Has a callback method that is triggered asynchronously."), [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox.")
 
-:::waring
+:::warning
 
 This project requires Apple Developer and iTunes Connect accounts on macOS/iOS and a Google Play Developer account on Android. If you need help with this, follow the instructions on the [アップル開発者](https://developer.apple.com/account/), [iTunes Connect](https://itunesconnect.apple.com) and [Google Playデベロッパー](https://play.google.com/apps/publish/) websites to open up these accounts.
 
@@ -28,7 +28,7 @@ This project requires Apple Developer and iTunes Connect accounts on macOS/iOS a
 
 Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/InAppPurchaseTutorial.zip) | [ジップ](/tutorials/ZIPs/InAppPurchaseTutorial.zip). Unzip the project and open the first header file in the Projucer.
 
-:::waring
+:::warning
 
 If using the PIP version of this project, please make sure to copy the `リソース` folder into the generated Projucer project.
 
@@ -46,7 +46,7 @@ If you need help with this step, see [チュートリアルProjucerパート1：
 
 アプリケーションはシミュレータで実行されているので、商品がグレーアウトし、価格が無期限にフェッチされるのは予想された動作です。
 
-::::::waring
+::::::warning
 
 これはチュートリアル・プロジェクトですが、サンドボックス・モードかテスト・ユーザーとしてログインしていない限り、商品を購入しようとするとクレジットカードに課金されます！
 
@@ -198,7 +198,7 @@ Let's start by displaying the IAP products that we want to sell in the user inte
     }
 ```
 
-:::waring
+:::warning
 
 これらのプロダクトIDは、iTunes ConnectやGoogle Play Consoleの値と正確に一致しなければ正しく動作しません。
 
@@ -299,7 +299,7 @@ We can now start overriding the [アプリ内課金](https://docs.juce.com/maste
 
 # Retrieving purchases
 
-:::waring
+:::warning
 
 このセクションは物理的なデバイス上でのみ機能します。シミュレーターでは正しく機能しませんので、試さないでください。
 
@@ -459,7 +459,7 @@ In this piece of code, we mainly update the font styles of the name and price la
 
 # Purchasing products
 
-:::waring
+:::warning
 
 このセクションは物理的なデバイス上でのみ機能します。シミュレーターでは正しく機能しませんので、試さないでください。
 

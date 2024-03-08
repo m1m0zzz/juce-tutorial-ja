@@ -18,7 +18,7 @@ Platforms: Windows, macOS, Linux, iOS, Android
 
 Classes: [ThreadedAnalyticsDestination](https://docs.juce.com/master/classThreadedAnalyticsDestination "A base class for dispatching analytics events on a dedicated thread."), [ButtonTracker](https://docs.juce.com/master/classButtonTracker "A class that automatically sends analytics events to the Analytics singleton when a button is clicked..."), [WebInputStream](https://docs.juce.com/master/classWebInputStream "An InputStream which can be used to read from a given URL."), [CriticalSection](https://docs.juce.com/master/classCriticalSection "A re-entrant mutex."), [CriticalSection::ScopedLockType](classCriticalSection.html#a4d398019b977a4c2151c6f1e2a06210b "Provides the type of scoped lock to use with a CriticalSection.")
 
-:::waring
+:::warning
 
 This project requires a Google Analytics account. If you need help with this, follow the instructions on the [Google Analytics website](https://support.google.com/analytics/) to open an account.
 
@@ -67,7 +67,7 @@ The first step for the project to work properly is to set up the Google Analytic
 
 Copy this ID, and replace the `apiKey` placeholder variable in the `GoogleAnalyticsDestination` class:
 
-:::waring
+:::warning
 
 Ideally, this API key should not be visible in your binary distribution as there could be all sorts of malicious uses if discovered and may pollute your analytics data with spam. One way to prevent this would be to retrieve the API key dynamically at runtime (such as from your own server).
 

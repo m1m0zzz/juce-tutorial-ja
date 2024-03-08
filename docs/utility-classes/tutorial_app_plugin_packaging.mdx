@@ -222,9 +222,9 @@ Here we have general properties that we can set in the `[Setup]` section of the 
 
 Certain shotcuts for common Windows path locations are available in this syntax format by enclosing the desired variable with curly brackets.
 
--   {pf}: Shortcut for "Program Files" located at `C:\Program Files`.
--   {cf}: Shortcut for "Common Files" located at `C:\Program Files\Common Files`.
--   {app}: Shortcut for the destination application directory chosen by the user during installation.
+-   \{pf\}: Shortcut for "Program Files" located at `C:\Program Files`.
+-   \{cf\}: Shortcut for "Common Files" located at `C:\Program Files\Common Files`.
+-   \{app\}: Shortcut for the destination application directory chosen by the user during installation.
 
 In order to specify the default installation directory, we set the `DefaultDirName` variable to the "Common Files" directory but the user can still choose to install the plugins elsewhere as seen here when running the setup installer:
 
@@ -252,7 +252,7 @@ All the steps explained in this part of the tutorial were also applicable for pa
 
 ## Runtime library linking
 
-:::waring
+:::warning
 
 Due to a recent Windows 10 update, static linking of the runtime library has been deprecated and dynamic linking is suggested instead.
 

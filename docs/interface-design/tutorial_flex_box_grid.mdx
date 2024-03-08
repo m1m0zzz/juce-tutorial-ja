@@ -195,7 +195,7 @@ void resized() override
 
 However instead of specifying the flex-grow, flex-shrink and flex-basis values on the individual [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container.") objects, in this case we set the number of rows and columns on the [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") object using TrackInfo objects. The constraints can be specified in fractions or pixels by using the `(それは)` and `ックス` suffixes respectively. In this example we define a grid with 1 row and 3 columns with the center column taking twice as much space as the others.
 
-:::waring
+:::warning
 
 JUCEのピクセルは物理的なピクセルと等価ではありません。内部計算により、画面のDPI解像度に応じてピクセル密度が変換されます。
 

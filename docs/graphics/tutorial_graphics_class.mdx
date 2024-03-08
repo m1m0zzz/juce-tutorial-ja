@@ -47,7 +47,7 @@ Let's have another look at the paint function. Remember that the `ペイント` 
 
 Notice that as the argument to this callback, a reference to a [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") instance is passed in. This [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") object is provided by the underlying framework. It is the graphics context that you can use to render any graphical elements: text, lines, shapes, colours, gradients and much more. We will explore some of these in this tutorial.
 
-:::waring
+:::warning
 
 The [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") class is usually only used in the `ペイント` callback. Normally, you should never use it anywhere else unless when drawing onto an image.
 
@@ -81,7 +81,7 @@ juce::Font mainComponentFont ("Times New Roman", 20.0f, juce::Font::bold | juce:
 
 アプリを再度コンパイルして実行すると、フォントが変更されていることが確認できるはずだ。
 
-:::waring
+:::warning
 
 コンピュータに実際にインストールされていない書体を使用することは、JUCEアプリでフォントが正しく動作しない非常に一般的な原因です。
 

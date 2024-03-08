@@ -49,7 +49,7 @@ void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) overri
 
 このような単純なアプリケーションでは、このテクニックは許容範囲ですが、より複雑なアプリケーションでは、ほぼ間違いなく別のテクニックを使いたいでしょう。オーディオ処理システムを制御する値は、UIコントロールにのみ保存するのではなく、アプリケーションの "データモデル "に保存する方が良いでしょう。
 
-:::waring
+:::warning
 
 While it is acceptable to call [スライダー::getValue()](classSlider.html#a288c6f5c7a76100a1e7526e002e10eb5 "Returns the slider's current value.") in the `getNextAudioBlock()` function you *べからず* call the [スライダー::setValue()](classSlider.html#a430a5c4e56b39dd622f5800f787e0822 "Changes the slider's current value.") function within this the `getNextAudioBlock()` function. This is because this code is running on the audio thread. You must not do anything that changes the state of a UI object from the audio thread, although it is acceptable to query the state of UI objects, as long as you're sure these don't have side effects.
 

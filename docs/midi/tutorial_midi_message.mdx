@@ -158,7 +158,7 @@ This function attempts to parse all types of MIDI message (even though we have o
 
 We would only reach the final line of this function if the message was a system message (system exclusive, for example). You can access the raw data of any message using [MidiMessage::getRawData()](classMidiMessage.html#acb371198496cdac48c2fe2a96c884913 "Returns a pointer to the raw midi data.") but generally it is easier (and more readable) to use the range of built-in functions for most purposes.
 
-:::waring
+:::warning
 
 Using functions to access data in a [ミディメッセージ](https://docs.juce.com/master/classMidiMessage "Encapsulates a MIDI message.") for messages of the wrong type will lead to errors. For example, the [MidiMessage::getNoteNumber()](classMidiMessage.html#a6a5f965e98254fb026c5a20b64edcbc1 "Returns the midi note number for note-on and note-off messages.") function will return a value from any [ミディメッセージ](https://docs.juce.com/master/classMidiMessage "Encapsulates a MIDI message.") object but this doesn't confirm that the message is either a note-on or note-off message. You *マスト* check first with one of the functions [MidiMessage::isNoteOn()](classMidiMessage.html#a590da92c0536e23f9d3c90c99278d789 "Returns true if this message is a 'key-down' event."), [MidiMessage::isNoteOff()](classMidiMessage.html#af66814dee34738882ba39d8796b77be0 "Returns true if this message is a 'key-up' event."), or [MidiMessage::isNoteOnOrOff()](classMidiMessage.html#a0d1c1c5927eb898dbacb832f768299bc "Returns true if this message is a 'key-down' or 'key-up' event.").
 
@@ -197,7 +197,7 @@ addMessageToList (messageOff)；
 
 The [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events.") class provides functions for iterating over buffers of MIDI messages based on their timestamps. To illustrate this we will set up a simple scheduling system where we add [ミディメッセージ](https://docs.juce.com/master/classMidiMessage "Encapsulates a MIDI message.") objects with specific timestamps to a [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events.") object. Then we use a [タイマー](https://docs.juce.com/master/classTimer "Makes repeated callbacks to a virtual method at a specified time interval.") object that checks regularly whether any MIDI messages are due to be delivered.
 
-:::waring
+:::warning
 
 The [タイマー](https://docs.juce.com/master/classTimer "Makes repeated callbacks to a virtual method at a specified time interval.") class is not suitable for high-precision timing. This is used to keep the example simple by keeping all function calls on the *メッセージスレッド*. For more robust timing you should use another thread (in most cases the audio thread is appropriate for rendering [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events.") objects in to audio).
 

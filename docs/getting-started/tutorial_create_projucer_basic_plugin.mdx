@@ -46,7 +46,7 @@ One of the challenges of building plug-ins is testing them. Thankfully, JUCE mak
 
 アプリケーションを実行すると、次のようなグラフィカル・ノード・エディターが表示されます：
 
-![The JUCE plug-in host](thttps://docs.juce.com/master/utorial_create_projucer_basic_plugin_1.png)
+<CaptionImage src="thttps://docs.juce.com/master/tutorial_create_projucer_basic_plugin_1.png" caption="The JUCE plug-in host" />
 
 Pressing "Cmd-P" (or going to **オプション > 利用可能なプラグインのリストを編集...**) will allow you to update the list of plug-ins on your system (you will only have to do this once per project). Click the options button at the bottom of the pop-up window and click **新規または更新されたVST3プラグインをスキャン...**. On macOS JUCE Audio plugins are automatically copied to `~/Library/Audio/Plug-Ins/VST3`, and the host application automatically searches that folder, so you shouldn’t need to manually specify where to look — just click **スキャン**. On Windows you will need to manually copy the VST3 you built from your project's build folder to the VST3 installation folder, which is typically `C:¥Program Files¥Common Files¥VST3`.
 

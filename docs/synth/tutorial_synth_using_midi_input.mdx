@@ -159,7 +159,7 @@ private：
 -   \[4\]: In the `getNextAudioBlock()` function we pull buffers of MIDI data from the [ミディキーボードステート](https://docs.juce.com/master/classMidiKeyboardState "Represents a piano keyboard, keeping track of which keys are currently pressed.") object.
 -   \[5\]: These buffers of MIDI are passed to the synthesiser which will be used to render the voices using the timestamps of the note-on and note-off messages (and other MIDI channel voice messages).
 
-:::waring
+:::warning
 
 [シンセサイザー・ボイス](https://docs.juce.com/master/classSynthesiserVoice "Represents a voice that a Synthesiser can use to play a SynthesiserSound.") objects must be added to one and only one [シンセサイザー](https://docs.juce.com/master/classSynthesiser "Base class for a musical device that can play sounds.") object. The [シンセサイザー](https://docs.juce.com/master/classSynthesiser "Base class for a musical device that can play sounds.") object manages the lifetime of the voices.
 
@@ -288,7 +288,7 @@ void renderNextBlock (juce::AudioSampleBuffer& outputBuffer, int startSample, in
 -   \[8\]: We use a simple exponential decay envelope shape.
 -   \[9\]: When the `テールオフ` value is small we determine that the voice has ended. We *マスト* call the [SynthesiserVoice::clearCurrentNote()](classSynthesiserVoice.html#a55d1e7a062f8dc9a6cd78526b0da049c "Resets the state of this voice after a sound has finished playing.") function at this point so that the voice is reset and available to be reused.
 
-:::waring
+:::warning
 
 It is *とても* important that you take note of the `開始サンプル` argument. The synthesiser is very likely to call the `レンダーネクストブロック()` function mid-way through one of its output blocks. This is because the notes may start on any sample. These start times are based on the timestamps of the MIDI data received.
 
@@ -322,7 +322,7 @@ This may include velocity information from the MIDI note-off message, but in man
 
 スクリーン上のキーボードだけでなく、外部MIDIソースからシンセサイザーをコントロールできる機能を追加しよう。
 
-:::waring
+:::warning
 
 おそらく、モバイル・プラットフォームではなく、macOS、Windows、Linuxなどのデスクトップ・プラットフォームで試す必要があるだろう。
 

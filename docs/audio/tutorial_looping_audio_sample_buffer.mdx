@@ -180,7 +180,7 @@ As discussed previously, this tutorial avoids multithreading issues by shutting 
 -   It's possible that the `getNextAudioBlock()` function could be interrupted by code in the `openButtonClicked()` function. Suppose this happens just after \[11\] and that the `openButtonClicked()` function has just reached \[4\]. The buffer might be resized to be shorter than it was but we already calculated our starting point a few lines earlier. This could lead to a memory access error and the application could crash.
 -   The `getNextAudioBlock()` function could be interrupted while calling the [AudioSampleBuffer::copyFrom()](classAudioBuffer.html#a9ec751bfa23564c011bf3940ca17b743 "Copies samples from another buffer to this one.") function. Again depending in the implementation of this we could end up accessing memory that we shouldn't.
 
-:::waring
+:::warning
 
 There are a number of other things that could go wrong. You may be familiar with using a [クリティカルセクション](https://en.wikipedia.org/wiki/Critical_section) to synchronise memory access between threads. This is just one possible solution but care should be taken using a [クリティカルセクション](https://en.wikipedia.org/wiki/Critical_section) in audio code as it can lead to [優先順位反転](https://en.wikipedia.org/wiki/Priority_inversion) which could cause audio drop outs. We look at a solution that avoids critical sections in [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ（上級者向け）](../tutorial_looping_audio_sample_buffer_advanced/).
 

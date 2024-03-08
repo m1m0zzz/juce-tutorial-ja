@@ -18,7 +18,7 @@ Platforms: Windows, macOS, Linux
 
 Classes: [OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus "A base class for online unlocking systems."), [OnlineUnlockForm](https://docs.juce.com/master/classOnlineUnlockForm "Acts as a GUI which asks the user for their details, and calls the appropriate methods on your Online..."), [KeyGeneration](https://docs.juce.com/master/classKeyGeneration "Contains static utilities for generating key-files that can be unlocked by the OnlineUnlockStatus cla..."), [RSAKey](https://docs.juce.com/master/classRSAKey "RSA public/private key-pair encryption class."), [TracktionMarketplaceStatus](https://docs.juce.com/master/classTracktionMarketplaceStatus "An implementation of the OnlineUnlockStatus class which talks to the Tracktion Marketplace server.")
 
-:::waring
+:::warning
 
 This tutorial assumes elementary knowledge of RSA cryptography, certificates, network protocols and PHP syntax.
 
@@ -324,7 +324,7 @@ At this point, if we decide to run the server locally and try to contact the aut
 
 To do this locally for testing purposes, we can create a self-signed certificate and use tunneling to access the underlying unsecure HTTP protocol through HTTPS.
 
-:::waring
+:::warning
 
 Make sure that you have OpenSSL, PHP and "stunnel" installed on your computer to test the back end server. OpenSSL will be necessary to generate the self-signed certificate, PHP offers a built-in web server that you can run locally on your machine and "stunnel" allows you to tunnel a secure connection into it.
 
@@ -378,7 +378,7 @@ Then import the self-signed certificate into **Trusted Root Certification Author
 
 
 <CaptionImage src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot10.png" caption="Importing the certificate" />
-:::waring
+:::warning
 
 Do not use a self-signed certificate or tunneling for real applications as this is not considered as secure as a CA-signed certificate. This method is only used for demonstrative purposes.
 

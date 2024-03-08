@@ -30,7 +30,7 @@ export default class CustomTurndownService extends TurndownService {
         )
       },
       replacement: function (content) {
-        return ":::waring" + content + ":::"
+        return ":::warning" + content + ":::"
       }
     })
     this.addRule("dt", {
