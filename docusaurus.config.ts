@@ -67,6 +67,14 @@ const config: Config = {
           label: 'Tutorial',
         },
         {
+          label: 'tag:ビギナー',
+          to: '/tags/ビギナー/',
+        },
+        {
+          label: 'tag:中級',
+          to: '/tags/中級/',
+        },
+        {
           href: 'https://github.com/m1m0zzz/juce-tutorial-ja',
           label: 'GitHub',
           position: 'right',

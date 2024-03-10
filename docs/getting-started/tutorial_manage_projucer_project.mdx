@@ -1,25 +1,26 @@
 ---
 title: Projucerプロジェクトを管理する
 sidebar_position: 2
+tags: ["ビギナー"]
 ---
 
 import CaptionImage from "@site/src/components/CaptionImage";
 import SourcePageLink from "@site/src/components/SourcePageLink";
 
-# チュートリアル：Projucerパート2：Projucerプロジェクトを管理する
+# Projucerパート2：Projucerプロジェクトを管理する
 
 <SourcePageLink path="tutorial_manage_projucer_project.html" />
 
-[チュートリアル：Projucerパート1：Projucerを始める](../tutorial_new_projucer_project/)
+[Projucerパート1：Projucerを始める](../tutorial_new_projucer_project/)
 では、新しいJUCEプロジェクトを作成し、それをネイティブIDEにエクスポートし、コーディングを開始する方法を学びました。
 しかし、Projucerはそれだけではありません。
 プロジェクトのすべての設定を管理したり、ソースファイルを追加したりするための非常に強力なクロスプラットフォームツールでもあります。
 あなたがJUCEアプリケーションを開発するとき、Projucerはそのプロセスを通してあなたの忠実な伴侶となるでしょう。
 このチュートリアルでは、いくつかの重要な機能の概要を説明します。
 
-レベル: ビギナー
+レベル：ビギナー
 
-プラットフォーム: Windows, macOS, Linux, iOS, Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 
 ## はじめよう
@@ -109,3 +110,43 @@ JUCEライブラリのコードは、様々なモジュールに整理されて�
 ブラウザで個々のモジュールをクリックすると、モジュール固有の設定とプロパティにアクセスできます。
 そこで、特定のモジュールのバージョンとライセンスをチェックし、特定のモジュールが使用しているSDKや外部ライブラリなどの追加依存関係へのパスを設定することができます。
 通常、デフォルトの設定で問題なく動作するので、このページに入る必要はほとんどないはずです。
+
+### エクスポートターゲット、コンフィギュレーション、ビルド設定
+
+先に作成したさまざまなエクスポートターゲット（Xcode、Visual Studioなど）は、Exportersタブで見つけることができます。
+ブラウザでこれらをクリックすると、このエクスポートターゲットのビルド設定にアクセスできます。
+ここで、追加のコンパイラやリンカのフラグ、その他のプラットフォーム固有のビルド設定を指定します。
+
+IDEとプラットフォームを追加して新しいエクスポート・ターゲットを作成するには、「+」マークをクリックしてください。
+これはいつでもできます。
+例えば、元々Windows と OSX 用の JUCE アプリケーションを作成した後で、Linux のサポートも追加することにした場合、簡単にそれを行うことができます。
+
+また、エクスポートターゲットを右クリックして、Delete this exporter を選択すれば、エクスポートターゲットを削除することもできます。
+
+Projucer は各エクスポート・ターゲットにビルド・コンフィギュレーションを作成し、ネイティブIDEが実際にアプリをコンパイルして実行する際に使用します。
+デフォルトでは、DebugとRelease の2つのコンフィギュレーションが各エクスポート・ターゲットに追加されます。
+これらのコンフィギュレーションをクリックすると、この特定のコンフィギュレーションのプラットフォーム固有のビルド設定にアクセスできます
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_manage_projucer_project_screenshot5.png"
+  caption="さまざまなIDE構成（左、強調表示）と構成固有のビルド設定（右）"
+/>
+
+追加設定も可能です。
+例えば、Visual Studioエクスポート・ターゲットの場合、Projucer は64ビットを使用する Debug と Release のコンフィギュレーションを追加します。
+しかし、Windowsアプリに32ビット・サポートを追加したい場合もあるでしょう。
+この場合、既存の2つの構成をコピーし（構成を右クリックし、**Create a copy of this configuration**を選択）、
+コピーの名前をそれぞれDebug32とRelease32に変更し、両方の構成のビルド設定Architectureを64ビットから32ビットに変更します。
+
+## 概要
+このチュートリアルを読めば、次のことができるようになるはずだ：
+
+- Projucer を使ってソースファイルを編集し、JUCE モジュールを管理する
+- アプリのビルド設定を構成する
+- 新しいエクスポート・ターゲットとビルド設定を作成する
+
+## 関連項目
+
+- [Projucerパート1：Projucerを始める](../tutorial_new_projucer_project/)
+- [基本的なAudio/MIDIプラグインを作る パート1：セットアップ](../tutorial_create_projucer_basic_plugin/)
+- [Projucerパート3：アプリケーションに適したProjucerテンプレートの選択](../tutorial_choosing_projucer_template/)

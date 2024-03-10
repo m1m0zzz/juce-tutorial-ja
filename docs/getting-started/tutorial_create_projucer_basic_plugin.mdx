@@ -1,89 +1,131 @@
 ---
 title: 基本的なオーディオプラグインの作成 パート1
 sidebar_position: 3
+tags: ["中級"]
 ---
 
 import CaptionImage from "@site/src/components/CaptionImage";
 import SourcePageLink from "@site/src/components/SourcePageLink";
 
-# チュートリアル基本的なAudio/MIDIプラグインを作る, パート1：セットアップ
+# 基本的なAudio/MIDIプラグインを作る パート1：セットアップ
 
-このチュートリアルでは、コンピュータをセットアップし、JUCE を使ってオーディオプラグイン（VST3 と AudioUnit）を開発するための Projucer プロジェクトを作成します。最後には、"Hello, World!" と言って、Cubase や REAPER のような VST3 ホストにロードできるオーディオプラグインが完成します。
+<SourcePageLink path="tutorial_create_projucer_basic_plugin.html" />
 
-レベル Intermediate
+このチュートリアルでは、コンピュータをセットアップし、JUCE を使ってオーディオプラグイン（VST3 と AudioUnit）を開発するための Projucer プロジェクトを作成します。
+最後には、"Hello, World!" と言って、Cubase や REAPER のような VST3 ホストにロードできるオーディオプラグインが完成します。
 
-プラットフォーム Windows, macOS, Linux
+レベル：中級
 
-プラグイン形式： VST3, AU, Standalone
+プラットフォーム：Windows, macOS, Linux
 
-# Getting started
-
-[JUCEをダウンロード](https://shop.juce.com/get-juce/download). Unpack the JUCE folder and place it to some location on your computer. Your user home folder is a convenient place.
-
-JUCEフォルダにあるProjucerアプリケーションを起動します。
-
-If you are not familiar with the Projucer yet, please read [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/) first.
-
-# Download and install plug-in dependencies
-
-## VST3 and AudioUnit
-
-VST3およびAU（MacOSのみ）プラグインを作成するために必要なファイルは、すべてJUCEに同梱されています（JUCEの最新バージョンを使用している限り）。
-
-# Create an audio plug-in project with the Projucer
-
-To create an audio plug-in with JUCE, create a new project in the Projucer and select **オーディオプラグイン** as the project type. See [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/) if you don't know how to do that.
-
-Projucerの新規プロジェクトの設定において、エクスポートするプラグイン・タイプや、プラグインがMIDIノートを受信するか生成するかなどのプロジェクト設定を変更することができます（他にもいろいろあります）。これらの設定はいつでも変更できます。
-
-In this tutorial we are creating a VST3 plug-in, so make sure that the **VST3** setting is ticked in the "Plugin Formats" field. Then tick **プラグインMIDI入力** and **プラグインMIDI出力** in the "Plugin Characteristics" field below.
-
-That’s all the config you need! Now click **プロジェクトを保存してIDEで開く...** Your new project will open. Click the build button to verify that your plug-in builds and that everything has been set up correctly.
-
-# Set up plug-in debugging (optional)
-
-One of the challenges of building plug-ins is testing them. Thankfully, JUCE makes that easy, with a built-in plug-in host. To access the host go to `extras/AudioPluginHost/` and open the `ジュセール` file with the Projucer. Click **プロジェクトを保存してIDEで開く...**. Then inside your IDE build the project to create a binary (which on Mac OS X you will find at `extras/AudioPluginHost/Builds/MacOSX/build`).
-
-アプリケーションを実行すると、次のようなグラフィカル・ノード・エディターが表示されます：
-
-<CaptionImage src="thttps://docs.juce.com/master/tutorial_create_projucer_basic_plugin_1.png" caption="The JUCE plug-in host" />
-
-Pressing "Cmd-P" (or going to **オプション > 利用可能なプラグインのリストを編集...**) will allow you to update the list of plug-ins on your system (you will only have to do this once per project). Click the options button at the bottom of the pop-up window and click **新規または更新されたVST3プラグインをスキャン...**. On macOS JUCE Audio plugins are automatically copied to `~/Library/Audio/Plug-Ins/VST3`, and the host application automatically searches that folder, so you shouldn’t need to manually specify where to look — just click **スキャン**. On Windows you will need to manually copy the VST3 you built from your project's build folder to the VST3 installation folder, which is typically `C:¥Program Files¥Common Files¥VST3`.
-
-スキャンが完了したら、ノードエディタに戻って右クリックし、コンテキストメニューからプラグインを選択します（デフォルトでは "yourcompany "という会社の下にあります。）MIDI入力とAudio Inputノードがプラグインの入力にルーティングされ、プラグインのオーディオ出力がAudio Outputノードにルーティングされるように、ノードを接続します。
+プラグイン形式：VST3, AU, Standalone
 
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_create_projucer_basic_plugin_2.png" caption="Making connections in the JUCE plug-in host" />
+## はじめる
+
+[JUCEをダウンロードする。](https://shop.juce.com/get-juce/download)
+JUCEフォルダを解凍し、コンピュータの任意の場所に置きます。
+ユーザのホームフォルダが便利です。
+
+JUCEフォルダの中にあるProjucerアプリケーションを起動します。
+
+Projucerにまだ慣れていない方は、[Projucerパート1：Projucerを始める](../tutorial_new_projucer_project/)
+をお読みください。
+
+## プラグインの依存関係をダウンロードしてインストールする
+
+### VST3 と AudioUnit
+
+VST3 および AU（MacOSのみ）プラグインを作成するために必要なファイルは、
+すべてJUCEに同梱されています。（JUCEの最新バージョンを使用している限り）
 
 
-Double click your plugin to launch the GUI. The default plugin does nothing but show **ハロー・ワールド**.
+## Projucerでオーディオプラグインプロジェクトを作成する
 
-You can select **オプション > オーディオデバイス設定の変更...** to make sure your inputs and outputs all go to the right places. Hit **ファイル > 保存** to make it easy to retrieve this configuration.
+JUCEでオーディオ・プラグインを作成するには、Projucerで新規プロジェクトを作成し、プロジェクトの種類として **Audio Plug-In** を選択します。
+Projucerの使い方がわからない場合は、[Projucerパート1：Projucerを始める](../tutorial_new_projucer_project/) を参照してください。
 
-Used in this way the Plug-In Host gives you a very simple environment in which to test a plug-in, but there’s more that we can do. We can configure the host to enable step-through debugging of your plugin. To do this on macOS go back to your plug-in project in Xcode, click **製品 > スキーム > スキームを編集...**, then under **走る** select **その他...** from the **実行可能** dropdown and locate **プラグインホスト.app**. Make sure **デバッグ実行ファイル** is ticked. In Visual Studio on Windows you should go to the properties page of the VST3 build target, select the "Debugging" pane, then set the path to the AudioPluginHost executable in the "Command" field.
+Projucerの新規プロジェクトの設定において、エクスポートするプラグイン・タイプや、プラグインがMIDIノートを受信するか生成するかなどのプロジェクト設定を変更することができます。
+これらの設定はいつでも変更できます。
 
-プラグインをビルドして実行すると、自動的にホストが起動し、プラグインがホスト内にロードされると、ブレークポイントを設定してステップスルーデバッグを行うことができます。
+このチュートリアルではVST3プラグインを作成するので、"Plugin Formats "フィールドで **VST3** 設定にチェックが入っていることを確認してください。
+次に、下の "Plugin Characteristics "フィールドで **Plugin MIDI input** と **Plugin MIDI output** にチェックを入れます。
 
-# Next steps
+必要な設定は以上です！**Save Project and Open in IDE...** をクリックします。
+新しいプロジェクトが開きます。
+ビルドボタンをクリックして、プラグインがビルドされ、すべてが正しく設定されていることを確認します。
 
-Now you are ready and good to go to code an audio plug-in that actually does some audio. Read on in [チュートリアル基本的なAudio/MIDIプラグインを作る, パート2: プラグインのコーディング](../tutorial_code_basic_plugin/).
 
-# Notes
+## プラグインデバッグの設定（オプション）
 
-To build AAX plug-ins (for Pro Tools) you will need to contact Avid for a developer license in order to access their SDK. If you do obtain access to the AAX SDK you will notice that the Projucer has a path that you can set in its **グローバル・プリファレンス** window.
+プラグインを構築する際の課題の一つは、それをテストすることです。
+ありがたいことに、JUCEはプラグインホストを内蔵しているので、それを簡単に行うことができます。
+ホストにアクセスするには、`extras/AudioPluginHost/` に行き、Projucerで `.jucer` ファイルを開きます。
+**Save ProjectとOpen in IDE...** をクリックします。
+そして IDE内でプロジェクトをビルドしてバイナリを作成します（Mac OS Xでは `extras/AudioPluginHost/Builds/MacOSX/build` にあります）
 
-# Summary
+アプリケーションを実行すると、次のようなグラフィカルノードエディターが表示されます：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_create_projucer_basic_plugin_1.png"
+  caption="JUCE plug-in host"
+/>
+
+"Cmd-P" を押す（または **Options > Edit the List of Available Plug-ins...**）と、
+システム上のプラグインリストを更新することができます（プロジェクトごとに1回だけ行う必要があります）。
+ポップアップ・ウィンドウの下部にあるオプション・ボタンをクリックし、**Scan for new or updated VST3 plug-ins...** をクリックします。  
+macOSの場合、JUCE Audioプラグインは自動的に `~/Library/Audio/Plug-Ins/VST3` にコピーされ、ホストアプリケーションが自動的にそのフォルダを検索します。  
+Windowsの場合、ビルドしたVST3をプロジェクトのビルドフォルダからVST3のインストールフォルダ（通常は `C:\Program Files\Common Files\VST3`）に手動でコピーする必要があります。
+
+スキャンが完了したら、ノードエディタに戻って右クリックし、コンテキストメニューからプラグインを選択します（デフォルトでは "yourcompany "という会社の下にあります。
+）MIDI入力とAudio Inputノードがプラグインの入力にルーティングされ、プラグインのオーディオ出力がAudio Outputノードにルーティングされるように、ノードを接続します。
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_create_projucer_basic_plugin_2.png"
+  caption="JUCE plug-in host でコネクションを作る" 
+/>
+
+
+プラグインをダブルクリックするとGUIが起動します。
+デフォルトのプラグインは何もしませんが、Hello worldが表示されます。
+
+**Options > Change the Audio Device Settings...** を選択して、入力と出力がすべて正しい場所に行くようにできます。
+**File > Save** をクリックすると、この設定を簡単に呼び出すことができます。
+
+このようにプラグインホストを使用すると、プラグインをテストするための非常にシンプルな環境が得られます。
+プラグインのステップスルーデバッグができるようにホストを設定することができます。  
+macOS でこれを行うには、Xcodeでプラグインプロジェクトに戻り、**Product > Scheme > Edit Scheme...** をクリックし、
+**Run** で **Executable** ドロップダウンから **Other...** を選択し、**Plugin Host.app** を探します。
+Debug executableにチェックが入っていることを確認してください。  
+Windows の Visual Studio では、VST3ビルドターゲットのプロパティページに行き、
+"Debugging" ペインを選択し、"Command" フィールドに AudioPluginHost 実行ファイルへのパスを設定します。
+
+これで、プラグインをビルドして実行すると、自動的にホストが起動し、プラグインがホスト内にロードされると、
+ブレークポイントを設定してステップスルーデバッグを行うことができます。
+
+## 次のステップ
+
+これで、実際にオーディオを再生するオーディオプラグインをコーディングする準備が整いました。
+[基本的なAudio/MIDIプラグインを作る パート2：プラグインのコーディング](../tutorial_code_basic_plugin/)
+を読んでください。
+
+## 備考
+
+Pro Tools用の AAXプラグインをビルドするには、Avidに連絡してSDKにアクセスするための開発者ライセンスを取得する必要があります。
+AAX SDKにアクセスした場合、Projucerの **Global Preferences** ウィンドウで設定できるパスがあることに気づくでしょう。
+
+## 概要
 
 このチュートリアルを読めば、次のことができるようになるはずだ：
 
--   オーディオプラグイン開発に必要な依存関係をインストールします、
--   JUCEオーディオプラグイン用のProjucerプロジェクトを作成します、
--   オーディオプラグイン開発のためのデバッグ環境を構築する。
+- オーディオプラグイン開発に必要な依存関係をインストールします、
+- JUCEオーディオプラグイン用のProjucerプロジェクトを作成します、
+- オーディオプラグイン開発のためのデバッグ環境を構築する。
 
-# See also
+## 関連項目
 
--   [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/)
--   [チュートリアルProjucerパート2：Projucerプロジェクトを管理する](../tutorial_manage_projucer_project/)
--   [チュートリアル基本的なAudio/MIDIプラグインを作る, パート2: プラグインのコーディング](../tutorial_code_basic_plugin/)
--   [チュートリアルプラグインの例](../tutorial_plugin_examples/)
--   [チュートリアルプラグインに適切なバスレイアウトを設定する](../tutorial_audio_bus_layouts/)
+- [Projucerパート1：Projucerを始める](../tutorial_new_projucer_project/)
+- [Projucerパート2：Projucerプロジェクトを管理する](../tutorial_manage_projucer_project/)
+- [基本的なAudio/MIDIプラグインを作る パート2：プラグインのコーディング](../tutorial_code_basic_plugin/)
+- [チュートリアル：プラグインの例](../../plugins/tutorial_plugin_examples/)
+- [チュートリアル：プラグインに適切なバスレイアウトを設定する](../../plugins/tutorial_audio_bus_layouts/)
