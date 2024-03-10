@@ -16,7 +16,7 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 クラス： [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices."), [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock()."), [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples."), [ランダム](https://docs.juce.com/master/classRandom "A random number generator.")
 
-# Getting started
+## はじめる
 
 Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/SimpleSynthNoiseTutorial.zip) | [ジップ](/tutorials/ZIPs/SimpleSynthNoiseTutorial.zip). Unzip the project and open the first header file in the Projucer.
 
@@ -165,7 +165,7 @@ void releaseResources() override
 
 オーディオ出力の数を変えてみてください。モノラルノイズはステレオノイズとは微妙に違って聞こえることに注意してください。マルチチャンネルのサウンドカードがあれば、2チャンネル以上のノイズを生成できるかもしれません。また、発生するノイズのレベルを変えてみることもできます。例えば、レベル0.1のノイズを生成するには、ランダムに生成された値に0.2を掛け、0.1を引く必要があります。
 
-# Summary
+# 概要
 
 This tutorial has introduced the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") class, used by the Audio Application template, in order to generate audio. We have covered the following topics:
 
@@ -173,7 +173,7 @@ This tutorial has introduced the [オーディオコンポーネント](https://
 -   オーディオ・コールバックに応答してオーディオ・データを書き込む。
 -   Using the [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock().") struct and the AudioSampleBuffer class.
 
-# See also
+# 関連項目
 
 -   [チュートリアルAudioDeviceManagerクラス](../tutorial_audio_device_manager/)
 -   [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/)

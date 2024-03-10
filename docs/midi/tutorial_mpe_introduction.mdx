@@ -16,7 +16,7 @@ MPE規格の基礎とMPEに対応したシンセサイザーの実装方法を�
 
 クラス： [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds."), [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE."), [MPENote](https://docs.juce.com/master/structMPENote "This struct represents a playing MPE note."), [MPEValue](https://docs.juce.com/master/classMPEValue "This class represents a single value for any of the MPE dimensions of control."), [スムース値](https://docs.juce.com/master/classSmoothedValue "A utility class for values that need smoothing to avoid audio glitches.")
 
-# Getting started
+## はじめる
 
 Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/MPEIntroductionTutorial.zip) | [ジップ](/tutorials/ZIPs/MPEIntroductionTutorial.zip). Unzip the project and open the first header file in the Projucer.
 
@@ -435,7 +435,7 @@ This simply cross fades between a sine wave and a (non-bandlimited) square wave,
 
 Modify the `MPEDemoSynthVoice` class to crossfade between two sine waves, one octave appart, in response to the *ベル* parameter.
 
-# Summary
+# 概要
 
 In this tutorial we have introduced some of the [MPE](https://support.roli.com/article/what-is-mpe/) based classes in JUCE. You should now know:
 
@@ -446,7 +446,7 @@ In this tutorial we have introduced some of the [MPE](https://support.roli.com/a
 -   That the [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds.") class contains an [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") object that it uses to drive the synthesiser.
 -   That you must implement a class that inherits from the [MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice "Represents an MPE voice that an MPESynthesiser can use to play a sound.") class to implement your synthesiser's audio code.
 
-# See also
+# 関連項目
 
 -   [チュートリアルMPEゾーンの理解](../tutorial_mpe_zones/)
 -   [チュートリアル：MIDIイベントの処理](../tutorial_handling_midi_events/)

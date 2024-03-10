@@ -16,7 +16,7 @@ This tutorial introduces the [コンボボックス](https://docs.juce.com/maste
 
 クラス： [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices."), [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked."), [フォント](https://docs.juce.com/master/classFont "Represents a particular font, including its size, style, etc."), [カラー](https://docs.juce.com/master/classColour "Represents a colour, also including a transparency value."), [カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)")
 
-# Getting started
+## はじめる
 
 Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/ComboBoxTutorial.zip) | [ジップ](/tutorials/ZIPs/ComboBoxTutorial.zip). Unzip the project and open the first header file in the Projucer.
 
@@ -295,7 +295,7 @@ The default behaviour of a combo-box is to allow the user to select only the ite
 {/* TODO */}
 {/* Now let's add a function that takes the text from the `カラーメニュー` object and treats the text as a hexadecimal colour code. The colour code is in the ARGB format (for example, "ff888888"" would be an opaque mid-grey colour): @snippet GUI/ComboBoxTutorial/ComboBoxTutorial\_02.h handleColourText Notice that we convert the string to a hex value then convert it back to a string, setting the combo-box text. This is a simple way to filter the text entered. @note A more sophisticated method to filter input text would be to implement a custom class that derives from the ComboBox class. Then you can override its Label::Listener::editorShown() virtual function to customise its text editor. You can use the TextEditor::setInputFilter() function to use a TextEditor::InputFilter object to filter the text entered before it even appears on the screen. In our <code class="project\_code">coloursMenuChanged()</code> function we need to update the <code class="code">switch..case</code> to call our <code class="project\_code">handleColourText()</code> function in the <code class="code">default</code> case: @snippet GUI/ComboBoxTutorial/ComboBoxTutorial\_02.h coloursMenuChanged @image html tutorial\_combo\_box\_screenshot3.png "Entering custom text" Run the application and you should be able to enter custom colours in the six-digit hex format (RGB). <dl class="section attention"><dt>Exercise</dt><dd> Modify the code to add any custom hex colours to the <code class="project\_code">coloursMenu</code> combo-box so that the user can choose these items again if they wish. </dd></dl> @subsection tutorial\_combo\_box\_disabling\_enabling Disabling and enabling items Items in a combo-box can be disabled and enabled (they are, of course, enabled by default). When they are disabled they will still be visible but shown greyed-out. Let's change the code so that none of the lighter versions colours (and white) can be selected if the bold style is selected. First, let's add a function to disable or enable the lighter colours using the ComboBox::setItemEnabled() function: @snippet GUI/ComboBoxTutorial/ComboBoxTutorial\_02.h setLightColoursEnabled Now let's refactor our <code class="project\_code">styleMenuChanged()</code> function and make use of the <code class="project\_code">setLightColoursEnabled()</code> function: @snippet GUI/ComboBoxTutorial/ComboBoxTutorial\_02.h styleMenuChanged Notice that in the <code class="project\_code">setStyleBold()</code> function we disable the lighter colours and we need to enable them in the other cases. Run the application and you should now see that the lighter colours are disabled when the <b class="onscreen\_text">Bold</b> style is selected. @image html tutorial\_combo\_box\_screenshot4.png "Disabling combo-box items" <dl class="section attention"><dt>Exercise</dt><dd> One problem here is that you can select a lighter colour <em>then</em> choose the bold style. Modify the code to change the colour back to <b class="onscreen\_text">black</b> if one of the lighter colours is selected when the user selects the <b class="onscreen\_text">Bold</b> style. </dd></dl> @section tutorial\_combo\_box\_notes Notes The final implementation of the code for this tutorial can be found in the <code class="filename">ComboBoxTutorial\_02.h file of the demo project. */}
 
-# Summary
+# 概要
 
 This tutorial has introduced the [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") class. After reading this tutorial you should be able to:
 
@@ -305,7 +305,7 @@ This tutorial has introduced the [コンボボックス](https://docs.juce.com/m
 -   コンボボックスにカスタムテキストを入力できるようにする。
 -   コンボボックスの項目を無効にしたり有効にしたりする。
 
-# See also
+# 関連項目
 
 -   [チュートリアルLabelクラス](../tutorial_label/)
 -   [チュートリアルTableListBoxクラス](../tutorial_table_list_box/)

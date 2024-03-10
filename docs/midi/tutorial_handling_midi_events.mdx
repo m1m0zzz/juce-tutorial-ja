@@ -16,7 +16,7 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 クラス： [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices."), [ミディメッセージ](https://docs.juce.com/master/classMidiMessage "Encapsulates a MIDI message."), [MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback "Receives incoming messages from a physical MIDI input device."), [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices."), [MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent "A component that displays a piano keyboard, whose notes can be clicked on."), [ミディキーボードステート](https://docs.juce.com/master/classMidiKeyboardState "Represents a piano keyboard, keeping track of which keys are currently pressed."), [コールバックメッセージ](https://docs.juce.com/master/classCallbackMessage "A message that invokes a callback method when it gets delivered."), [スコープ値セッター](https://docs.juce.com/master/classScopedValueSetter "Helper class providing an RAII-based mechanism for temporarily setting and then re-setting a value.")
 
-# Getting started
+## はじめる
 
 Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/HandlingMidiEventsTutorial.zip) | [ジップ](/tutorials/ZIPs/HandlingMidiEventsTutorial.zip). Unzip the project and open the first header file in the Projucer.
 
@@ -235,7 +235,7 @@ void addMessageToList (const juce::MidiMessage& message, const juce::String& sou
 
 ユーザー・インターフェースに、モジュレーション・ホイール（CC1）やピッチ・ホイールなどのメッセージを送信し、それに反応するスライダーをいくつか追加する。
 
-# Summary
+# 概要
 
 このチュートリアルでは、MIDI入力イベントを処理したり表示したりするためのいくつかのクラスを紹介しました。特に以下のことができるようになるはずです：
 
@@ -245,7 +245,7 @@ void addMessageToList (const juce::MidiMessage& message, const juce::String& sou
 -   Display MIDI note data using the [MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent "A component that displays a piano keyboard, whose notes can be clicked on.") class.
 -   Post messages from other threads to be be dealt with on the message thread using the [コールバックメッセージ](https://docs.juce.com/master/classCallbackMessage "A message that invokes a callback method when it gets delivered.") class.
 
-# See also
+# 関連項目
 
 -   [チュートリアルAudioDeviceManagerクラス](../tutorial_audio_device_manager/)
 -   [チュートリアルMIDIデータの作成](../tutorial_midi_message/)

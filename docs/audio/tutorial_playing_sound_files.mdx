@@ -16,7 +16,7 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 クラス： [オーディオフォーマットマネージャー](https://docs.juce.com/master/classAudioFormatManager "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi..."), [オーディオフォーマットリーダー](https://docs.juce.com/master/classAudioFormatReader "Reads samples from an audio file stream."), [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource "A type of AudioSource that will read from an AudioFormatReader."), [オーディオ・トランスポート・ソース](https://docs.juce.com/master/classAudioTransportSource "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,..."), [ファイルチューザー](https://docs.juce.com/master/classFileChooser "Creates a dialog box to choose a file or directory to load or save."), [変更リスナー](https://docs.juce.com/master/classChangeListener "Receives change event callbacks that are sent out by a ChangeBroadcaster."), [ファイル](https://docs.juce.com/master/classFile "Represents a local file or directory."), [ファイルチューザー](https://docs.juce.com/master/classFileChooser "Creates a dialog box to choose a file or directory to load or save.")
 
-# Getting started
+## はじめる
 
 Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/PlayingSoundFilesTutorial.zip) | [ジップ](/tutorials/ZIPs/PlayingSoundFilesTutorial.zip). Unzip the project and open the first header file in the Projucer.
 
@@ -423,7 +423,7 @@ The source code for this exercise can be found in the `サウンドファイル�
 
 :::
 
-# Summary
+# 概要
 
 このチュートリアルでは、サウンドファイルの読み込みと再生について紹介しました。特に、以下の事柄を取り上げました：
 
@@ -437,7 +437,7 @@ The source code for this exercise can be found in the `サウンドファイル�
 
 The second and third arguments to the [AudioTransportSource::setSource()](classAudioTransportSource.html#a20a6a91c4505e77207cadef7ddc4dc5c "Sets the reader that is being used as the input source.") function allow you to control look ahead buffering on a background thread. The second argument is the buffer size to use and the third argument is a pointer to a [タイムスライススレッド](https://docs.juce.com/master/classTimeSliceThread "A thread that keeps a list of clients, and calls each one in turn, giving them all a chance to run so...") object, which is used for the background processing. In this example we use a zero buffer size and a `ヌルプトル` value for the thread object, which is the default.
 
-# See also
+# 関連項目
 
 -   [チュートリアルリスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)
 -   [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/)

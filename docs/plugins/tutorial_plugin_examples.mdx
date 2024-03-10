@@ -18,7 +18,7 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 クラス： [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events."), [ソートセット](https://docs.juce.com/master/classSortedSet "Holds a set of unique primitive objects, such as ints or doubles."), [AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto..."), [シンセサイザー](https://docs.juce.com/master/classSynthesiser "Base class for a musical device that can play sounds."), [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events."), [ミディメッセージ](https://docs.juce.com/master/classMidiMessage "Encapsulates a MIDI message."), [オーディオプロセッサ値ツリー状態](https://docs.juce.com/master/classAudioProcessorValueTreeState "This class contains a ValueTree that is used to manage an AudioProcessor's entire state."), [GenericAudioProcessorEditor (ジェネリックオーディオプロセッサーエディター)](https://docs.juce.com/master/classGenericAudioProcessorEditor "A type of UI component that displays the parameters of an AudioProcessor as a simple list of sliders,...")
 
-# Getting started
+## はじめる
 
 このチュートリアルにはいくつかのデモ・プロジェクトがあります。これらのプロジェクトのダウンロード・リンクは、チュートリアルの関連セクションに記載されています。
 
@@ -618,7 +618,7 @@ Next, we perform the actual processing in the `processBlock()` function as follo
 -   \[14\]: Then we can check whether the channel index clicked is valid and get the write pointer for the correct channel buffer.
 -   \[15\]: Finally we calculate the frequency of the sine wave by dividing the A4 frequency by the sample rate. Then for every sample to fill, we produce a sine wave with appropriate frequency and phase offset using the sample offset variable that we increment after the assignment for the next sample.
 
-# Summary
+# 概要
 
 このチュートリアルでは、オーディオ／ミディ・プラグインの例をいくつか見てきました。特に
 
@@ -627,7 +627,7 @@ Next, we perform the actual processing in the `processBlock()` function as follo
 -   複数の出力を持つシンセサイザーを製作。
 -   チャンネル数を拡張するためにサラウンド対応プラグインを構築。
 
-# See also
+# 関連項目
 
 -   [チュートリアル基本的なAudio/MIDIプラグインを作る, パート1：セットアップ](../tutorial_create_projucer_basic_plugin/)
 -   [チュートリアル基本的なAudio/MIDIプラグインを作る, パート2: プラグインのコーディング](../tutorial_code_basic_plugin/)

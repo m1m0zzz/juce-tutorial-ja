@@ -16,7 +16,7 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 クラス： [ランダム](https://docs.juce.com/master/classRandom "A random number generator."), [BigInteger](https://docs.juce.com/master/classBigInteger "An arbitrarily large integer class."), [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples.")
 
-# Getting started
+## はじめる
 
 Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/ProcessingAudioInputTutorial.zip) | [ジップ](/tutorials/ZIPs/ProcessingAudioInputTutorial.zip). Unzip the project and open the first header file in the Projucer.
 
@@ -129,7 +129,7 @@ auto level = (float) levelSlider.getValue()；
 
 In this example we don't smooth the amplitude changes as we do in [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/). This is partly to keep the example simple, but you probably wouldn't hear any additional glitches due to the crackling effect anyway. Modify the code to simply output the input channels, scaled by the level slider value, but also smooth out the level changes so that there are no glitches.
 
-# Summary
+# 概要
 
 このチュートリアルでは、JUCE アプリケーションのオーディオ入力からのオーディオ処理について紹介しました。特に
 
@@ -138,7 +138,7 @@ In this example we don't smooth the amplitude changes as we do in [チュート�
 -   アクティブなチャンネルと非アクティブなチャンネルをどう扱うか。
 -   入力と出力のチャンネル数が異なる場合、どうすればよいかを推論する方法。
 
-# See also
+# 関連項目
 
 -   [チュートリアルAudioDeviceManagerクラス](../tutorial_audio_device_manager/)
 -   [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/)
