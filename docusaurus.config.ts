@@ -19,7 +19,7 @@ const config: Config = {
   organizationName: 'm1m0zzz', // Usually your GitHub org/user name.
   projectName: 'juce-tutorial-ja', // Usually your repo name.
 
-  onBrokenLinks: 'warn',
+  onBrokenLinks: 'warn', // TODO
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
@@ -46,6 +46,11 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
+        gtag: {
+          trackingID: 'G-1662Y26YFC',
+          anonymizeIP: true,
+        },
+        sitemap: {},
       } satisfies Preset.Options,
     ],
   ],
