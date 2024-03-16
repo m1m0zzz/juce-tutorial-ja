@@ -6,6 +6,7 @@ tags: ["ビギナー"]
 
 import CaptionImage from "@site/src/components/CaptionImage";
 import SourcePageLink from "@site/src/components/SourcePageLink";
+import ClassList from "@site/src/components/ClassList";
 
 # チュートリアル：プラグインに適切なバスレイアウトを設定する
 
@@ -19,7 +20,14 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 プラグイン形式：VST, VST3, AU, Standalone
 
-クラス： [オーディオプロセッサ::バスレイアウト](https://docs.juce.com/master/structAudioProcessor_1_1BusesLayout "Represents the bus layout state of a plug-in."), [AudioProcessor::BusesProperties](https://docs.juce.com/master/structAudioProcessor_1_1BusesProperties "Structure used for AudioProcessor Callbacks."), [オーディオチャンネルセット](https://docs.juce.com/master/classAudioChannelSet "Represents a set of audio channel types."), [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.")
+<ClassList
+  refs={[
+    "AudioProcessor::BusesLayout",
+    "AudioProcessor::BusesProperties",
+    "AudioChannelSet",
+    "AudioProcessor" 
+  ]}
+/>
 
 ## はじめる
 

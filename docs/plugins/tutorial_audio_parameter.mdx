@@ -6,6 +6,7 @@ tags: ["ビギナー"]
 
 import CaptionImage from "@site/src/components/CaptionImage";
 import SourcePageLink from "@site/src/components/SourcePageLink";
+import ClassList from "@site/src/components/ClassList";
 
 # チュートリアル：プラグインパラメータの追加
 
@@ -18,10 +19,13 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 プラットフォーム：Windows, macOS, Linux
 
-クラス：
-[AudioParameterFloat](https://docs.juce.com/master/tutorial_audio_parameter.html),
-[AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool.html),
-[GenericAudioProcessorEditor](https://docs.juce.com/master/classGenericAudioProcessorEditor.html)
+<ClassList
+  refs={[
+    "AudioParameterFloat",
+    "AudioParameterBool",
+    "GenericAudioProcessorEditor",
+  ]}
+/>
 
 
 ## はじめる

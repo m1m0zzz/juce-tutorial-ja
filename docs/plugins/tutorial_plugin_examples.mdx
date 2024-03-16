@@ -6,6 +6,7 @@ tags: ["中級"]
 
 import CaptionImage from "@site/src/components/CaptionImage";
 import SourcePageLink from "@site/src/components/SourcePageLink";
+import ClassList from "@site/src/components/ClassList";
 
 # チュートリアル：プラグインの例
 
@@ -19,7 +20,18 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 プラグイン形式：VST, VST3, AU, AAX, Standalone
 
-クラス： [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events."), [ソートセット](https://docs.juce.com/master/classSortedSet "Holds a set of unique primitive objects, such as ints or doubles."), [AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto..."), [シンセサイザー](https://docs.juce.com/master/classSynthesiser "Base class for a musical device that can play sounds."), [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events."), [ミディメッセージ](https://docs.juce.com/master/classMidiMessage "Encapsulates a MIDI message."), [オーディオプロセッサ値ツリー状態](https://docs.juce.com/master/classAudioProcessorValueTreeState "This class contains a ValueTree that is used to manage an AudioProcessor's entire state."), [GenericAudioProcessorEditor (ジェネリックオーディオプロセッサーエディター)](https://docs.juce.com/master/classGenericAudioProcessorEditor "A type of UI component that displays the parameters of an AudioProcessor as a simple list of sliders,...")
+<ClassList
+  refs={[
+    "MidiBuffer",
+    "SortedSet",
+    "AudioParameterFloat",
+    "Synthesiser",
+    "MidiBuffer",
+    "MidiMessage",
+    "AudioProcessorValueTreeState",
+    "GenericAudioProcessorEditor",
+  ]}
+/>
 
 ## はじめる
 
