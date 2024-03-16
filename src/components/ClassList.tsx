@@ -6,11 +6,11 @@ const toUrl = (ref: string) => {
   }
 }
 
-export function ClassLink({ ref }: {
-  ref: string
+export function ClassLink({ name }: {
+  name: string
 }): JSX.Element {
   return (
-    <a href={`https://docs.juce.com/master/${toUrl(ref)}.html`}>{ref}</a>
+    <a href={`https://docs.juce.com/master/${toUrl(name)}.html`}>{name}</a>
   )
 }
 
