@@ -90,15 +90,21 @@ AudioProcessorValueTreeState (AudioProcessor& processorToConnectTo,
                               ParameterLayout parameterLayout);
 ```
 
-{/* TODO: fix link and format */}
-
-このチュートリアルではアンドゥを実装しないので、UndoManagerオブジェクトにはnullptr値を使います。nullptr値は、アンドゥのサポートを使用しないことを示します。
+このチュートリアルではアンドゥを実装しないので、[UndoManager](https://docs.juce.com/master/classUndoManager.html)
+オブジェクトにはnullptr値を使います。nullptr値は、アンドゥのサポートを使用しないことを示します。
 
 ### パラメータの設定
 
-AudioProcessorValueTreeStateのAudioProcessorValueTreeState::ParameterLayoutパラメータには、プラグインのパラメータが含まれています。AudioProcessorValueTreeStateは、RangedAudioParameterから派生した任意のパラメータを管理することができ、AudioProcessorValueTreeState::ParameterLayoutコンストラクタは、可変数のRangedAudioParameterサブクラスまたはRangedAudioParameterを含むAudioProcessorParameterGroupsを取ることができます。
+[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) の
+[AudioProcessorValueTreeState::ParameterLayout](https://docs.juce.com/master/classAudioProcessorValueTreeState.html)
+パラメータには、プラグインのパラメータが含まれています。
+[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) は、
+[RangedAudioParameter](https://docs.juce.com/master/classRangedAudioParameter.html) から派生した任意のパラメータを管理することができ、
+[AudioProcessorValueTreeState::ParameterLayout](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) コンストラクタは、
+可変数の [RangedAudioParameter](https://docs.juce.com/master/classRangedAudioParameter.html) サブクラスまたは
+RangedAudioParameterを含むAudioProcessorParameterGroupsを取ることができます。
 
-パラメータとグループの所有権はAPVTSが持つため、パラメータとグループはstd::unique_ptrを使って渡されます。
+パラメータとグループの所有権はAPVTSが持つため、パラメータとグループは `std::unique_ptr` を使って渡されます。
 
 JUCEの組み込みパラメータ型は、チュートリアルで使用したものと同じです：プラグイン・パラメータの追加で使用したものと同じものです。
 
@@ -118,13 +124,19 @@ JUCEの組み込みパラメータ型は、チュートリアルで使用した�
     {
 ```
 
-AudioProcessorValueTreeState にパラメータを追加すると、自動的にアタッチされたAudioProcessorにもパラメータが追加されます。
+[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html)
+にパラメータを追加すると、自動的にアタッチされた
+[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html)
+にもパラメータが追加されます。
 
-パラメータIDは、このパラメータの一意な識別子でなければなりません。英数字とアンダースコア、スペースは使用できません。パラメータ名は、画面に表示される名前です。
+*parameter ID* は、このパラメータの一意な識別子でなければなりません。
+英数字とアンダースコア、スペースは使用できません。
+*parameter name* は、画面に表示される名前です。
 
 ## ゲイン処理の実行
 
-信号のクリックを避けるために、ゲインの変化と信号位相の変化を滑らかにします。そのために、以前に計算したゲイン値をプロセッサに保存します[1]：
+信号のクリックを避けるために、ゲインの変化と信号位相の変化を滑らかにします。
+そのために、以前に計算したゲイン値をプロセッサに保存します[1]：
 
 ```cpp
 private:
@@ -157,7 +169,11 @@ private:
     }
 ```
 
-ここでは、位相反転係数（+1または-1）を計算し、これにゲインを掛けて、最初の処理コールバックの準備をします。AudioProcessorValueTreeState::getRawParameterValue()関数を使用して、パラメータ値を表すfloat値へのポインタを取得していることがわかります。これを再参照して、実際の値を取得します。処理はTutorialProcessor::processBlock()関数で実行されます：
+ここでは、位相反転係数（+1または-1）を計算し、これにゲインを掛けて、最初の処理コールバックの準備をします。
+[AudioProcessorValueTreeState::getRawParameterValue()](https://docs.juce.com/master/classAudioProcessorValueTreeState.html#a645123ccd146258f28d77b6095169c91)
+関数を使用して、パラメータ値を表すfloat値へのポインタを取得していることがわかります。
+これを再参照して、実際の値を取得します。
+処理は `TutorialProcessor::processBlock()` 関数で実行されます：
 
 ```cpp
     void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
@@ -177,15 +193,24 @@ private:
     }
 ```
 
-ここでは、値が変化していなければ、単純に一定のゲインを適用していることがわかる。値が変化した場合は、ゲイン・ランプを適用し、次の時間に対してpreviousGain値を更新します。
+ここでは、値が変化していなければ、単純に一定のゲインを適用していることがわかる。
+値が変化した場合は、ゲイン・ランプを適用し、次の時間に対してpreviousGain値を更新します。
 
 ### パラメータの保存と取得
 
-オーディオを処理するルーチンを提供するだけでなく、プラグインの状態全体をメモリブロックに保存したり取得したりするメソッドも提供する必要があります。これには、すべてのパラメータの現在値を含める必要がありますが、必要であれば、他の状態情報を含めることもできます（たとえば、プラグインがファイルを扱う場合、ファイルパスを保存することもできます）。
+オーディオを処理するルーチンを提供するだけでなく、プラグインの状態全体をメモリブロックに保存したり取得したりするメソッドも提供する必要があります。
+これには、すべてのパラメータの現在値を含める必要がありますが、必要であれば、他の状態情報を含めることもできます（たとえば、プラグインがファイルを扱う場合、ファイルパスを保存することもできます）。
 
-プラグインの状態を保存するためにAudioProcessorValueTreeStateオブジェクトを使用すると、ValueTreeオブジェクトをXMLに簡単に変換できるため、この処理が非常に簡単になります。
+プラグインの状態を保存するために
+[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html)
+オブジェクトを使用すると、 
+[ValueTree](https://docs.juce.com/master/classValueTree.html)
+オブジェクトをXMLに簡単に変換できるため、この処理が非常に簡単になります。
 
-AudioProcessor::getStateInformation()コールバックは、プラグインの状態をMemoryBlockオブジェクトに保存するように要求します。ValueTreeオブジェクトを介してXMLを使用してこれを行うには、コードは単純です：
+[AudioProcessor::getStateInformation()](https://docs.juce.com/master/classAudioProcessor.html#a5d79591b367a7c0516e4ef4d1d6c32b2)
+コールバックは、プラグインの状態を
+[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html) オブジェクトに保存するように要求します。
+[ValueTree](https://docs.juce.com/master/classValueTree.html) オブジェクトを介してXMLを使用してこれを行うには、コードは単純です：
 
 ```cpp
     void getStateInformation (juce::MemoryBlock& destData) override
@@ -196,7 +221,9 @@ AudioProcessor::getStateInformation()コールバックは、プラグインの�
     }
 ```
 
-作成されたXmlElementオブジェクトは、先ほどValueTreeオブジェクトの初期化に使用した「APVTSTutorial」というタグ名を持つ。
+作成された [XmlElement](https://docs.juce.com/master/classXmlElement.html)
+オブジェクトは、先ほど [ValueTree](https://docs.juce.com/master/classValueTree.html)
+オブジェクトの初期化に使用した「APVTSTutorial」というタグ名を持つ。
 
 XMLから状態をリストアするのは、ほとんど簡単です：
 
@@ -211,11 +238,13 @@ XMLから状態をリストアするのは、ほとんど簡単です：
     }
 ```
 
-ここでは、安全のためにいくつかのエラーチェックを行います。また、XML 要素のタグ名を検査することで、ValueTree が生成する XML がプラグインに適した ValueTree 型であることを確認します。
+ここでは、安全のためにいくつかのエラーチェックを行います。
+また、XML 要素のタグ名を検査することで、ValueTree が生成する XML がプラグインに適した ValueTree 型であることを確認します。
 
 ## ゲインエディター
 
-プロジェクトのGenericEditorクラスを見てみよう。GenericEditorクラスの宣言がとてもシンプルであることにお気づきでしょう：
+プロジェクトの `GenericEditor` クラスを見てみよう。
+`GenericEditor` クラスの宣言がとてもシンプルであることにお気づきでしょう：
 
 ```cpp
 class GenericEditor : public juce::AudioProcessorEditor
@@ -223,18 +252,24 @@ class GenericEditor : public juce::AudioProcessorEditor
 public:
 ```
 
-スライダーとボタンのインタラクションに応答するために、Slider::ListenerクラスとButton::Listenerクラスを継承する必要があると思うかもしれません。しかし、これもAudioProcessorValueTreeStateクラスを使う利点の1つです。代わりに、AudioProcessorValueTreeStateクラス内のアタッチメント・クラスを使用することができます。
+スライダーとボタンのインタラクションに応答するために、
+[Slider::Listener](https://docs.juce.com/master/classSlider_1_1Listener.html)
+クラスと
+[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html)
+クラスを継承する必要があると思うかもしれません。
+しかし、これも[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) クラスを使う利点の1つです。
+代わりに、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) クラス内のアタッチメント・クラスを使用することができます。
 
 ### コンポーネント・アタッチメント
 
-実際、これらのクラスの名前は非常に長くなる可能性があるため、必要なアタッチメント・クラスごとにtypedefを用意した：
+実際、これらのクラスの名前は非常に長くなる可能性があるため、必要なアタッチメント・クラスごとに `typedef` を用意した：
 
 ```cpp
     typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
 ```
 
-GenericEditorクラスには、スライダー、トグル・ボタン、いくつかのアタッチメント・オブジェクトなど、多くのメンバーが含まれている：
+`GenericEditor` クラスには、スライダー、トグル・ボタン、いくつかのアタッチメント・オブジェクトなど、多くのメンバーが含まれている：
 
 ```cpp
 private:
@@ -249,9 +284,9 @@ private:
 };
 ```
 
-また、AudioProcessorValueTreeStateオブジェクトを参照する必要があるので、その参照も保持しておく。
+また、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) オブジェクトを参照する必要があるので、その参照も保持しておく。
 
-GenericEditorクラスのコンストラクタは、これらのオブジェクトをセットアップします：
+`GenericEditor` クラスのコンストラクタは、これらのオブジェクトをセットアップします：
 
 ```cpp
     GenericEditor (juce::AudioProcessor& parent, juce::AudioProcessorValueTreeState& vts)
@@ -272,17 +307,31 @@ GenericEditorクラスのコンストラクタは、これらのオブジェク�
     }
 ```
 
-これはプロセッサのTutorialProcessor::createEditor()関数によって呼び出されます：
+これはプロセッサの `TutorialProcessor::createEditor()` 関数によって呼び出されます：
 
-スライダーの値域を設定する必要さえないことにお気づきでしょう。これは SliderAttachment クラスによって自動的に行われます。アタッチメントのコンストラクタにAudioProcessorValueTreeState、パラメータID、アタッチするスライダーオブジェクトを渡すだけです。
+スライダーの値域を設定する必要さえないことにお気づきでしょう。
+これは [SliderAttachment](https://docs.juce.com/master/classAudioProcessorValueTreeState_1_1SliderAttachment.html)
+クラスによって自動的に行われます。
+アタッチメントのコンストラクタに
+[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html)
+、パラメータID、アタッチする [Slider](https://docs.juce.com/master/classSlider.html)
+オブジェクトを渡すだけです。
 
 :::note
 
-私たちはまだ Slider オブジェクトの所有権を保持しています。アタッチメントクラスが Slider オブジェクトと同じライフタイムを持っていることを確認してください。
+私たちはまだ [Slider](https://docs.juce.com/master/classSlider.html)
+オブジェクトの所有権を保持しています。
+アタッチメントクラスが [Slider](https://docs.juce.com/master/classSlider.html)
+オブジェクトと同じライフタイムを持っていることを確認してください。
 
 :::
 
-ButtonAttachmentクラスでは、ボタン名を指定する必要があります。(また、AudioProcessorValueTreeState::ComboBoxAttachmentクラスは、ComboBoxオブジェクトにアタッチできますが、ComboBoxに手動で入力する必要があります)。
+[ButtonAttachment](https://docs.juce.com/master/classAudioProcessorValueTreeState_1_1ButtonAttachment.html)
+クラスでは、ボタン名を指定する必要があります。
+(また、[AudioProcessorValueTreeState::ComboBoxAttachment](https://docs.juce.com/master/classAudioProcessorValueTreeState_1_1ComboBoxAttachment.html)
+クラスは、[ComboBox](https://docs.juce.com/master/classComboBox.html)
+オブジェクトにアタッチできますが、[ComboBox](https://docs.juce.com/master/classComboBox.html)
+に手動で入力する必要があります)
 
 :::danger[エクササイズ]
 
@@ -293,7 +342,8 @@ ButtonAttachmentクラスでは、ボタン名を指定する必要がありま�
 
 ## プログラムでパラメータを追加する
 
-また、AudioProcessorValueTreeStateに対してaddを呼び出すことで、プログラム的にパラメータ（またはAudioProcessorParameterGroups）を追加することもできます。以下にその例を示します：
+また、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) に対してaddを呼び出すことで、プログラム的にパラメータ（または AudioProcessorParameterGroups）を追加することもできます。
+以下にその例を示します：
 
 ```cpp
 juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
@@ -314,7 +364,7 @@ YourAudioProcessor()
 
 ## 非推奨メソッド
 
-JUCEバージョン5.4以前では、AudioProcessorValueTreeStateにパラメータを追加する唯一の方法は、多くの関数パラメータを持つ、今では非推奨のcreateAndAddParameterメソッドを使用することでした。
+JUCEバージョン5.4以前では、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) にパラメータを追加する唯一の方法は、多くの関数パラメータを持つ、今では非推奨のcreateAndAddParameterメソッドを使用することでした。
 
 以前は次のようなコードでした。
 
@@ -329,7 +379,7 @@ using Parameter = juce::AudioProcessorValueTreeState::Parameter；
 createAndAddParameter (std::make_unique<Parameter> (paramID1, paramName1, ...))；
 ```
 
-しかし、このチュートリアルで説明されている新しいAudioProcessorValueTreeStateコンストラクタを使用する方が、はるかに良い方法です：
+しかし、このチュートリアルで説明されている新しい[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) コンストラクタを使用する方が、はるかに良い方法です：
 
 ```cpp
 using Parameter = AudioProcessorValueTreeState::Parameter;
@@ -341,7 +391,7 @@ YourAudioProcessor()
 
 ## 概要
 
-このチュートリアルでは、AudioProcessorValueTreeStateクラスを紹介し、それがどのように役立つかを紹介しました：
+このチュートリアルでは、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) クラスを紹介し、それがどのように役立つかを紹介しました：
 
 - プラグインパラメータの管理
 - XMLを使用したプラグイン状態の保存と取得。
