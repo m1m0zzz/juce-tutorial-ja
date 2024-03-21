@@ -75,8 +75,8 @@ const config: Config = {
           label: 'Tutorial',
         },
         {
-          label: 'tag:ビギナー',
-          to: '/tags/ビギナー/',
+          label: 'tag:初級',
+          to: '/tags/初級/',
         },
         {
           label: 'tag:中級',
