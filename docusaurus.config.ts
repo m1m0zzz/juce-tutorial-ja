@@ -60,12 +60,12 @@ const config: Config = {
       { name: 'keywords', content: 'JUCE, plugin, VST, 日本語, チュートリアル' },
     ],
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/juce-social-card.jpg',
     navbar: {
       title: 'JUCE日本語版チュートリアル',
       logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        alt: 'Logo',
+        src: 'img/juce.png',
       },
       items: [
         {
