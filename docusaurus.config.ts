@@ -61,6 +61,11 @@ const config: Config = {
     ],
     // Replace with your project's social card
     image: 'img/juce-social-card.jpg',
+    docs: {
+      sidebar: {
+        autoCollapseCategories: true
+      }
+    },
     navbar: {
       title: 'JUCE日本語版チュートリアル',
       logo: {
