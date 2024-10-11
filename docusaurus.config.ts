@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'JUCE日本語版チュートリアル',
   tagline: 'JUCEを始めよう',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/juce.png',
 
   // Set the production url of your site here
   url: 'https://m1m0zzz.github.io',
@@ -74,18 +74,16 @@ const config: Config = {
       },
       items: [
         {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
-          position: 'left',
-          label: 'Tutorial',
-        },
-        {
           label: 'tag:初級',
           to: '/tags/初級/',
         },
         {
           label: 'tag:中級',
           to: '/tags/中級/',
+        },
+        {
+          label: 'tag:上級',
+          to: '/tags/上級/',
         },
         {
           href: 'https://github.com/m1m0zzz/juce-tutorial-ja',
