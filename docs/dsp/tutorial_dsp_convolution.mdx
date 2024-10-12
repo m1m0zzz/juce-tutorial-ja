@@ -1,14 +1,20 @@
 ---
 title: ウェーブシェーピングとコンボリューションによる歪みの追加
 sidebar_position: 2
+tags: ["上級"]
 ---
 
 import CaptionImage from "@site/src/components/CaptionImage";
 import SourcePageLink from "@site/src/components/SourcePageLink";
 
-# チュートリアルウェーブシェイピングとコンボリューションで歪みを加える
+# チュートリアル：ウェーブシェイピングとコンボリューションで歪みを加える
 
-ウェーブシェーピングでハーモニック・ディストーションを作り、シンセサイザー・サウンドに重厚さを加える。インパルス・レスポンスに含まれる音の特徴を取り出すコンボリューションの基礎を学びます。
+<SourcePageLink path="tutorial_dsp_convolution" />
+
+
+ウェーブシェーピングでハーモニック・ディストーションを作り、シンセサイザー・サウンドに重厚さを加える。
+インパルス・レスポンスに含まれる音の特徴を取り出すコンボリューションの基礎を学びます。
+
 
 レベル：Advanced
 
@@ -20,7 +26,9 @@ import SourcePageLink from "@site/src/components/SourcePageLink";
 
 :::warning
 
-このプロジェクトには、C++14の機能をサポートするコンパイラが必要です。XcodeとVisual Studioの最近のバージョンには、このサポートが含まれています。
+このプロジェクトには、C++14の機能をサポートするコンパイラが必要です。
+XcodeとVisual Studioの最近のバージョンには、このサポートが含まれています。
+
 
 :::
 
@@ -40,11 +48,14 @@ If you need help with this step, see [チュートリアルProjucerパート1：
 
 # The demo project
 
-プロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメント・ターゲットを選択することで、スタンドアロン・アプリケーションとして実行することができます。Xcodeでは、以下のスクリーンショットのように、メインウィンドウの左上でターゲットを変更することができます：
+プロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメント・ターゲットを選択することで、スタンドアロン・アプリケーションとして実行することができます。
+Xcodeでは、以下のスクリーンショットのように、メインウィンドウの左上でターゲットを変更することができます：
 
 <CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_standalone_screenshot1.png" caption="Changing the deployment target in Xcode" />
 
-デモ・プロジェクトでは、プラグインの上半分にMIDIキーボードが画面上に表示され、下半分にはオシロスコープを通して信号が視覚的に表示される。現在、鍵盤が押されると、プラグインはリバーブを加えた基本的なオシレーター・サウンドを出力します。
+デモ・プロジェクトでは、プラグインの上半分にMIDIキーボードが画面上に表示され、下半分にはオシロスコープを通して信号が視覚的に表示される。
+現在、鍵盤が押されると、プラグインはリバーブを加えた基本的なオシレーター・サウンドを出力します。
+
 
 :::note
 
@@ -58,21 +69,29 @@ Feel free to remove the reverb to clearly hear the changes in each steps of the 
 
 MIDIコントローラーをお持ちの場合は、このチュートリアル中、画面上のキーボードを使う代わりに、MIDIコントローラーを接続することもできます。
 
+
 :::
 
 # Introduction
 
 このチュートリアルでは、異なる方法で信号処理を可能にする2つの新しいDSPコンセプトを紹介します：ウェーブシェーピングとコンボリューションです。
 
+
 このDSP用語の定義から始めよう。
+
 
 ## What is Waveshaping?
 
-ウェーブシェーピングとは、ある信号が、元の信号に適用される伝達関数によって別の信号にシェーピングされるプロセスのことである。例えば、単純な正弦波は、数学的な関数を適用することによって異なる波形に成形することができる。
+ウェーブシェーピングとは、ある信号が、元の信号に適用される伝達関数によって別の信号にシェーピングされるプロセスのことである。
+例えば、単純な正弦波は、数学的な関数を適用することによって異なる波形に成形することができる。
 
-ウェーブシェイパーは、特定の伝達関数を適用する際に、元の信号に高調波コンテンツを追加することで、効果的に歪みを作り出すために使用することができます。ご存知のように、例えば矩形波や三角波は基本的に正弦波に奇数倍音を加えたもので、のこぎり波は正弦波に奇数倍音と偶数倍音を加えたものです。
 
-この事実を知っていれば、歪みを作り出す1つの方法は、正弦波の形状を矩形波に近づけることである。では、伝達関数を使ってそれを実現するにはどうすればよいのでしょうか？
+ウェーブシェイパーは、特定の伝達関数を適用する際に、元の信号に高調波コンテンツを追加することで、効果的に歪みを作り出すために使用することができます。
+ご存知のように、例えば矩形波や三角波は基本的に正弦波に奇数倍音を加えたもので、のこぎり波は正弦波に奇数倍音と偶数倍音を加えたものです。
+
+
+この事実を知っていれば、歪みを作り出す1つの方法は、正弦波の形状を矩形波に近づけることである。
+では、伝達関数を使ってそれを実現するにはどうすればよいのでしょうか？
 
 Consider for instance a simple sine wave sin(x) which could be plotted as follows:
 
@@ -82,7 +101,9 @@ By applying the signum transfer function onto the sine wave, a function that ess
 
 <CaptionImage src="https://docs.juce.com/master/tutorial_dsp_convolution_graph2.png" caption="Square wave with signum function" />
 
-しかし、この完璧な波形は、カーブのエッジが硬いため、ハードクリッピングと呼ばれる厳しい歪みを生み出すという問題がある。また、このような波形は、アナログ領域で再現するには「完璧すぎる」ため、ほとんどのアナログ・シンセサイザーで作られる矩形波のようには聞こえません。
+しかし、この完璧な波形は、カーブのエッジが硬いため、ハードクリッピングと呼ばれる厳しい歪みを生み出すという問題がある。
+また、このような波形は、アナログ領域で再現するには「完璧すぎる」ため、ほとんどのアナログ・シンセサイザーで作られる矩形波のようには聞こえません。
+
 
 In order to create a more gentle kind of distortion called soft-clipping, we can use a hyperbolic tangent transfer function tanh(sin(x)) which outputs a signal that looks almost like a sine wave but with a rounder curve as shown here:
 
@@ -94,13 +115,17 @@ Then, in order to reach a square-like shape, we can boost the signal into clippi
 
 おわかりのように、どのような種類の伝達関数でも入力信号に適用できるため、ウェーブシェーピングの可能性は無限にある。
 
+
 In JUCE, you can perform Waveshaping with the [dsp::WaveShaper](https://docs.juce.com/master/structdsp_1_1WaveShaper "Applies waveshaping to audio samples as single samples or AudioBlocks.") class included in the DSP module.
 
 ## What is Convolution?
 
-コンボリューションとは、ある空間の残響特性を、その空間の特性を表すインパルス応答をあらかじめ録音しておき、それを使ってシミュレートすることです。このプロセスにより、インパルス応答のサンプルに対してデータの各サンプルを乗算して合成出力を作成するコンボリューションによって、入力信号にあらゆるタイプの音響プロファイルを適用することができます。
+コンボリューションとは、ある空間の残響特性を、その空間の特性を表すインパルス応答をあらかじめ録音しておき、それを使ってシミュレートすることです。
+このプロセスにより、インパルス応答のサンプルに対してデータの各サンプルを乗算して合成出力を作成するコンボリューションによって、入力信号にあらゆるタイプの音響プロファイルを適用することができます。
 
-インパルス・レスポンスとは、プロファイリングする空間で短いインパルスを録音することで生成されるオーディオファイルのことですが、必ずしも実際の物理的な空間である必要はありません。例えば、このようにキャビネットを通してインパルスを再生し、その効果を録音することで、ギターアンプのプロファイルをキャプチャすることができます：
+
+インパルス・レスポンスとは、プロファイリングする空間で短いインパルスを録音することで生成されるオーディオファイルのことですが、必ずしも実際の物理的な空間である必要はありません。
+例えば、このようにキャビネットを通してインパルスを再生し、その効果を録音することで、ギターアンプのプロファイルをキャプチャすることができます：
 
 <CaptionImage src="https://docs.juce.com/master/tutorial_dsp_convolution_graph5.png" caption="A Guitar Amp impulse response" />
 
@@ -108,7 +133,8 @@ In JUCE, you can perform Waveshaping with the [dsp::WaveShaper](https://docs.juc
 
 <CaptionImage src="https://docs.juce.com/master/tutorial_dsp_convolution_graph6.png" caption="A Cassette Recorder impulse response" />
 
-入力信号がインパルス応答とコンボリューションされると、元のドライ信号は、両方の特性を保持したウェットな残響に変換されます。例えば、100msの440Hzの正弦波を、上図のギター・アンプのインパルス応答でコンボリューションすると、次のような結果が得られます：
+入力信号がインパルス応答とコンボリューションされると、元のドライ信号は、両方の特性を保持したウェットな残響に変換されます。
+例えば、100msの440Hzの正弦波を、上図のギター・アンプのインパルス応答でコンボリューションすると、次のような結果が得られます：
 
 <CaptionImage src="https://docs.juce.com/master/tutorial_dsp_convolution_graph7.png" caption="A sine wave through the Guitar Amp impulse response" />
 
@@ -117,6 +143,7 @@ In JUCE, you can perform Waveshaping with the [dsp::WaveShaper](https://docs.juc
 <CaptionImage src="https://docs.juce.com/master/tutorial_dsp_convolution_graph8.png" caption="A sine wave through the Cassette Recorder impulse response" />
 
 このように、コンボリューションの可能性は無限であり、どのようなインパルス応答でも入力信号に適用できる。
+
 
 In JUCE, you can perform Convolution with the [dsp::Convolution](https://docs.juce.com/master/classdsp_1_1Convolution "Performs stereo partitioned convolution of an input signal with an impulse response in the frequency ...") class included in the DSP module.
 
@@ -154,7 +181,9 @@ void prepare (const juce::dsp::ProcessSpec& spec)
 }
 ```
 
-ここで、ウェーブシェイパーが入力信号の整形に使用する伝達関数を定義したいと思います。このチュートリアルの導入部で説明したように、まずハードクリッピング関数から始めましょう。
+ここで、ウェーブシェイパーが入力信号の整形に使用する伝達関数を定義したいと思います。
+このチュートリアルの導入部で説明したように、まずハードクリッピング関数から始めましょう。
+
 
 In the constructor, get a reference to the WaveShaper by supplying the index of the process and use the `processorChain.get<>()` method \[5\]. Let's initialise the waveshaper using a lambda function that limits the values to a range of \-0.1 .. 0.1 \[6\].
 
@@ -190,6 +219,7 @@ Change the amount of limiting that occurs in the transfer function by restrictin
 # Change the transfer function
 
 伝達関数を双曲線正接に変えて、ウェーブシェーパーのクリッピングをもう少しソフトにしてみよう。
+
 
 Add two `juce::dsp::Gain` processors to the processor chain with the `juce::dsp::WaveShaper` in between them \[1\] and add the corresponding indices to the enum as pre-gain \[2\] and post-gain \[3\]. These will allow us to adjust the level of the signal going into the waveshaper and control the level coming out of it, thus affecting the behaviour of the transfer function.
 
@@ -232,13 +262,17 @@ Here we also retrieve a reference to the pre-gain processor \[5\] and boost the 
 
 プログラムを実行すると、また違った歪んだサウンドが得られるはずだ。
 
+
 <CaptionImage src="https://docs.juce.com/master/tutorial_dsp_convolution_screenshot2.png" caption="Waveshaping with the hyperbolic tangent function" />
 
-ウェーブシェイパーで使われている伝達関数をシグナム関数に変えてみてください。音の違いを感じますか？
+ウェーブシェイパーで使われている伝達関数をシグナム関数に変えてみてください。
+音の違いを感じますか？
 
 # Adjust the filter
 
-お気づきかもしれませんが、ウェーブシェイパーで低域を歪ませると、歪んだ音がすぐに濁ってしまうことがあります。ウェーブシェイパーで信号を処理する前にハイパスフィルターを導入することで、この問題を軽減することができます。
+お気づきかもしれませんが、ウェーブシェイパーで低域を歪ませると、歪んだ音がすぐに濁ってしまうことがあります。
+ウェーブシェイパーで信号を処理する前にハイパスフィルターを導入することで、この問題を軽減することができます。
+
 
 Add a `juce::dsp::ProcessorDuplicator` with the `juce::dsp::IIR::Filter` and `juce::dsp::IIR::Coefficients` classes as template arguments \[1\] in order to easily convert the mono filter into a multi-channel version. To simplify the long class names, we use shorter names with the "using" keyword and add the corresponding index in the enum \[2\].
 
@@ -275,13 +309,16 @@ In the `prepare()` function, get a reference to the filter processor \[3\] and s
 
 信号の低域が減衰し、よりクリアなサウンドになるはずです。
 
+
 <CaptionImage src="https://docs.juce.com/master/tutorial_dsp_convolution_screenshot3.png" caption="Filtering before the waveshaper" />
 
 ウェーブシェイピングの前にさまざまなタイプのフィルターを試し、歪んだ信号の高調波成分がどのように変化するかに注目してください。
 
+
 # Implement the cabinet simulator
 
 コンボリューションを使ってギター・キャビネットをシミュレートすることで、サウンドにさらに個性を与えてみよう。
+
 
 In the `キャブシミュレーター` class, add a `juce::dsp::Convolution` processor to the processor chain \[1\] and add its corresponding index in the enum \[2\].
 
@@ -381,6 +418,7 @@ public:
 
 プログラムを実行し、どのように聞こえるか見てみよう。
 
+
 <CaptionImage src="https://docs.juce.com/master/tutorial_dsp_convolution_screenshot4.png" caption="Guitar amp simulation with convolution" />
 
 Load the impulse reponse of the cassette recorder included in the `リソース` folder and notice how drastically the convolved sound changes.
@@ -393,7 +431,8 @@ The source code for this modified version of the code can be found in the `DSPCo
 
 # 概要
 
-このチュートリアルでは、ウェーブシェーピングとコンボリューションの取り入れ方を学んだ。特に
+このチュートリアルでは、ウェーブシェーピングとコンボリューションの取り入れ方を学んだ。
+特に
 
 -   ウェーブシェイピングとコンボリューションの基礎を学ぶ。
 -   ハードクリッピング・ウェーブシェイパーを内蔵し、歪みを作り出す。
