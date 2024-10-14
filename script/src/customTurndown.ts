@@ -19,7 +19,7 @@ export default class CustomTurndownService extends TurndownService {
         )
       },
       replacement: function (content) {
-        return ":::note" + content + ":::"
+        return "\n:::note\n\n" + content.trim() + "\n\n:::\n"
       }
     })
     this.addRule("dl-warning", {
@@ -30,9 +30,21 @@ export default class CustomTurndownService extends TurndownService {
         )
       },
       replacement: function (content) {
-        return ":::warning" + content + ":::"
+        return "\n:::warning\n\n" + content.trim() + "\n\n:::\n"
       }
     })
+    this.addRule("dl-attention", {
+      filter: function (node) {
+        return (
+          node.nodeName === "DL" &&
+          node.classList.contains("attention")
+        )
+      },
+      replacement: function (content) {
+        return "\n:::danger[エクササイズ]\n\n" + content.trim() + "\n\n:::\n"
+      }
+    })
+
     this.addRule("dt", {
       filter: "dt",
       replacement: () => ""

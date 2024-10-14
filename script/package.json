@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "ts-node"
+    "start": "ts-node main.ts",
+    "node": "ts-node"
   },
   "keywords": [],
   "author": "",
