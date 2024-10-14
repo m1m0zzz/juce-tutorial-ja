@@ -49,32 +49,19 @@ export default class CustomTurndownService extends TurndownService {
       filter: "dt",
       replacement: () => ""
     })
-    // this.addRule("caption-image", {
-    //   filter: "img",
-    //   replacement: function (content, node) {
-    //     console.log("caption image!");
-    //     console.log(node.nodeType);
-    //     if (node.ELEMENT_NODE) {
-    //       node.
-    //       const src = node.getAttribute("src");
-    //       const caption = node.getAttribute("alt");
-    //       console.log(src, caption);
-    //       return `<CaptionImage src="${src}" caption="${caption}"`
-    //     }
-    //     return "error";
-    //   }
-    // })
-    // this.keep("CaptionImage" as TurndownService.Filter);
-    // this.addRule("fragment-to-codeblock", {
-    //   filter: function (node) {
-    //     return (
-    //       node.nodeName === "DIV" &&
-    //       node.classList.contains("fragment")
-    //     )
-    //   },
-    //   replacement: function (content) {
-    //     return "```cpp\n" + content + "\n```"
-    //   }
-    // })
+    this.addRule("caption-image", {
+      filter: function (node) {
+        return (
+          node.nodeName === "DIV" &&
+          node.classList.contains("caption-image")
+        )
+      },
+      replacement: function (content) {
+        console.log("caption image!");
+        // TODO: div with JSON
+        return "error";
+      }
+    })
+    this.keep("CaptionImage" as TurndownService.Filter);
   }
 }

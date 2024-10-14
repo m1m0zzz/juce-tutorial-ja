@@ -15,7 +15,8 @@ const OUTPUT_DIR = "out";
 const LOG = true;
 const DO_TRANSLATE = false;
 // const CATEGORY_FILTER: string[] = []
-const CATEGORY_FILTER: string[] = ["DSP", "Utility Classes"]
+const CATEGORY_FILTER_FLAG = true
+const CATEGORY_FILTER: string[] = ["DSP"]
 
 function log(message?: any, ...optionalParams: any[]) {
   if (LOG) {
@@ -28,7 +29,7 @@ const turndownService = new CustomTurndownService();
 const translator = new deepl.Translator(process.env.DEEPL_API_KEY as string);
 
 async function t(texts: string) {
-  if (!DO_TRANSLATE) return texts;
+  if (!DO_TRANSLATE) return "aaaa";
   return (await translator.translateText(texts, null, "ja")).text
 }
 
@@ -40,6 +41,31 @@ type Link = {
 type Group = {
   category: string,
   links: Link[]
+}
+
+function searchCategory(groups: Group[], link: Link) {
+  for (let i = 0; i < groups.length; i++) {
+    const links = groups[i].links;
+    for (let j = 0; j < links.length; j++) {
+      const _link = links[j];
+      if (link.title == _link.title && link.href == _link.href) {
+        return groups[i].category
+      }
+    }
+  }
+}
+
+
+function searchCategoryWithRef(groups: Group[], ref: string) {
+  for (let i = 0; i < groups.length; i++) {
+    const links = groups[i].links;
+    for (let j = 0; j < links.length; j++) {
+      const _link = links[j];
+      if (_link.href.includes(ref)) {
+        return groups[i].category
+      }
+    }
+  }
 }
 
 const getHTML = async (url: string) => {
@@ -97,17 +123,31 @@ const readTutorialPage = async (link: Link, path: string, index: number, groups:
 
   contents.find("a[href]").each((_i, el) => {
     const href = $(el).attr("href") || "";
+    console.log(href)
     if (/^http?s/.test(href))  {
       return true; // continue
     }
-    const m = href.match(/(tutorial_)?(.+)\.html$/);
-    if (!m) {
-    } else if (m[1] && m[2]) { // tutorial
+    const m = href.match(/(tutorial_)(.+)\.html$/);
+    console.log(m)
+    if (m && m[1]) { // tutorial
       const ref = m[1] + m[2]
       // ref includes
-      $(el).attr("href", "../" + ref + "/");
+      const thisCategory = searchCategory(groups, link)
+      const refCategory = searchCategoryWithRef(groups, ref)
+      if (!thisCategory || !refCategory) throw Error("no category")
+
+      if (thisCategory == refCategory) {
+        $(el).attr("href", "../" + ref + "/");
+      } else {
+        $(el).attr("href", "../../" + kebabCase(refCategory) + "/" + ref + "/");
+      }
+
     } else { // external link
-      $(el).attr("href", baseUrl + m[2]);
+      if (href.startsWith("/")) {
+        $(el).attr("href", baseUrl + href.slice(1));
+      } else {
+        $(el).attr("href", baseUrl + href);
+      }
     }
   })
   // TODO; div.image -> caption image (JSX)
@@ -124,7 +164,7 @@ const readTutorialPage = async (link: Link, path: string, index: number, groups:
   // pre code
   contents.find("div.fragment").each((i, el) => {
     const code = $(el).text();
-    $(el).replaceWith(`<pre><code>${code}</code></pre>`);
+    $(el).replaceWith(`<pre><code class="language-cpp">${code}</code></pre>`);
   })
 
   const formattedHtml = contents.html();
@@ -139,31 +179,37 @@ const readTutorialPage = async (link: Link, path: string, index: number, groups:
   });
 }
 
-const translateDOMText = async ($: cheerio.CheerioAPI, elements: cheerio.Cheerio<cheerio.AnyNode>) => {
+const translatePage = async ($: cheerio.CheerioAPI, elements: cheerio.Cheerio<cheerio.AnyNode>) => {
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
-    // TODO: escape codeblock
-    if ($(element).children().length) {
-      await translateDOMText($, $(element).children());
-    } else {
-      const text = $(element).text().trim();
-      if (text != "" && text != "\n" && text != "\n\r") {
-        $(element).text(await t(text));
+    const el = $(element);
+    const tagName = el.prop("tagName");
+    if (tagName == "PRE" || tagName == "CODE") {
+      continue
+    }
+
+    if (element.type == "text") {
+      const text = element.data
+      // if (text == "\n") continue
+      const m = text.match(/^([\s\r\n]*)([^\s\r\n]+)([\s\r\n]*)/)
+      if (m) {
+        element.data = m[1] + (await t(m[2])) + m[3];
       }
+    } else {
+      await translatePage($, el.contents());
     }
  }
 }
 
+// translation and html -> markdown
 const convertMarkdownJa = async (html: string, link: Link, heading: string, tags: string[], sidebar_position: number) => {
   let translatedHTML;
-  if (DO_TRANSLATE) {
-    log("translating ...");
-    let $ = cheerio.load(html, {}, false); // cheerio fragment mode
-    await translateDOMText($, $.root()); // overwrite $.root()
-    translatedHTML = $.root().html();
-    if (!translatedHTML) {
-      throw Error(`error: convertMarkdownJa() title: ${link.title}`)
-    }
+  // log("translating ...");
+  let $ = cheerio.load(html, {}, false); // cheerio fragment mode
+  await translatePage($, $.root()); // overwrite $.root()
+  translatedHTML = $.root().html();
+  if (!translatedHTML) {
+    throw Error(`error: convertMarkdownJa() title: ${link.title}`)
   }
   const baseUrl = /https?:\/\/docs\.juce\.com\/master\//
   const markdown = turndownService.turndown(translatedHTML || html).trim();
@@ -176,7 +222,7 @@ tags: [${tags.join(", ")}]
 
 # ${await t(heading)}
 
-<SourcePageLink path="${link.href.replace(baseUrl, "")}" />
+<SourcePageLink path="${link.href.replace(baseUrl, "").replace(".html", "")}" />
 
 `;
   return frontMatter + markdown + "\n";
@@ -187,7 +233,9 @@ tags: [${tags.join(", ")}]
   log("config:");
   log("output dir:", OUTPUT_DIR);
   log("translation:", DO_TRANSLATE);
-  log("category filter:", CATEGORY_FILTER);
+  log("category filter:", CATEGORY_FILTER_FLAG);
+  if (CATEGORY_FILTER_FLAG)
+    log("category filter:", CATEGORY_FILTER);
   log("")
 
   const groups = await readListPage();
@@ -199,7 +247,7 @@ tags: [${tags.join(", ")}]
   for (let i = 0; i < groups.length; i++) {
     const group = groups[i];
     const category = groups[i].category;
-    if (CATEGORY_FILTER.length != 0 && !CATEGORY_FILTER.includes(category)) {
+    if (CATEGORY_FILTER_FLAG && !CATEGORY_FILTER.includes(category)) {
       log(color(`skip: ${category}`, Yellow))
       continue;
     }
@@ -219,8 +267,9 @@ tags: [${tags.join(", ")}]
       if (err) throw err;
       log(`write: ${categoryPath}`);
     });
-    for (let j = 0; j < group.links.length; j++) {
-    // for (let j = 0; j < 1; j++) {
+    // TODO
+    // for (let j = 0; j < group.links.length; j++) {
+    for (let j = 0; j < 1; j++) {
       const link = group.links[j];
       // href: https://docs.juce.com/master/XXX.html
       const filename = new URL(link.href).pathname.replace("/master/", "").replace(".html", ".mdx");
