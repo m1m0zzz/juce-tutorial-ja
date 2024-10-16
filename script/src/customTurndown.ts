@@ -19,7 +19,7 @@ export default class CustomTurndownService extends TurndownService {
         )
       },
       replacement: function (content) {
-        return "\n:::note\n\n" + content.trim() + "\n\n:::\n"
+        return "\n\n:::note\n\n" + content.trim() + "\n\n:::\n"
       }
     })
     this.addRule("dl-warning", {
@@ -30,7 +30,7 @@ export default class CustomTurndownService extends TurndownService {
         )
       },
       replacement: function (content) {
-        return "\n:::warning\n\n" + content.trim() + "\n\n:::\n"
+        return "\n\n:::warning\n\n" + content.trim() + "\n\n:::\n"
       }
     })
     this.addRule("dl-attention", {
@@ -41,7 +41,7 @@ export default class CustomTurndownService extends TurndownService {
         )
       },
       replacement: function (content) {
-        return "\n:::danger[エクササイズ]\n\n" + content.trim() + "\n\n:::\n"
+        return "\n\n:::danger[エクササイズ]\n\n" + content.trim() + "\n\n:::\n"
       }
     })
 
@@ -53,15 +53,19 @@ export default class CustomTurndownService extends TurndownService {
       filter: function (node) {
         return (
           node.nodeName === "DIV" &&
-          node.classList.contains("caption-image")
+          node.classList.contains("image")
         )
       },
-      replacement: function (content) {
-        console.log("caption image!");
-        // TODO: div with JSON
-        return "error";
+      replacement: function (content, node) {
+        const src = node.querySelector(".img-src")?.textContent || "undefined"
+        const caption = node.querySelector(".caption")?.textContent
+        return (
+          `\n<CaptionImage\n` +
+          `  src="${src}"\n` +
+          (caption ? `  caption="${caption}"\n` : '') +
+          `>\n`
+        )
       }
     })
-    this.keep("CaptionImage" as TurndownService.Filter);
   }
 }

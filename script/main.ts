@@ -13,7 +13,7 @@ import { color, Yellow } from "./src/colors";
 const OUTPUT_DIR = "out";
 // const OUTPUT_DIR = "../docs";
 const LOG = true;
-const DO_TRANSLATE = false;
+const DO_TRANSLATE = true;
 // const CATEGORY_FILTER: string[] = []
 const CATEGORY_FILTER_FLAG = true
 const CATEGORY_FILTER: string[] = ["DSP"]
@@ -28,9 +28,9 @@ dotenv.config();
 const turndownService = new CustomTurndownService();
 const translator = new deepl.Translator(process.env.DEEPL_API_KEY as string);
 
-async function t(texts: string) {
+async function t(text: string) {
   if (!DO_TRANSLATE) return "aaaa";
-  return (await translator.translateText(texts, null, "ja")).text
+  return (await translator.translateText(text, null, "ja")).text
 }
 
 type Link = {
@@ -123,26 +123,23 @@ const readTutorialPage = async (link: Link, path: string, index: number, groups:
 
   contents.find("a[href]").each((_i, el) => {
     const href = $(el).attr("href") || "";
-    console.log(href)
-    if (/^http?s/.test(href))  {
+    if (/^http?s/.test(href))  { // external link
       return true; // continue
     }
     const m = href.match(/(tutorial_)(.+)\.html$/);
-    console.log(m)
-    if (m && m[1]) { // tutorial
+    if (m && m[1]) { // tutorial page
       const ref = m[1] + m[2]
-      // ref includes
       const thisCategory = searchCategory(groups, link)
       const refCategory = searchCategoryWithRef(groups, ref)
       if (!thisCategory || !refCategory) throw Error("no category")
 
       if (thisCategory == refCategory) {
+        // NOTE: trailingSlash: true なので、同カテゴリでも "../"
         $(el).attr("href", "../" + ref + "/");
       } else {
         $(el).attr("href", "../../" + kebabCase(refCategory) + "/" + ref + "/");
       }
-
-    } else { // external link
+    } else { // zip, class ...
       if (href.startsWith("/")) {
         $(el).attr("href", baseUrl + href.slice(1));
       } else {
@@ -150,18 +147,14 @@ const readTutorialPage = async (link: Link, path: string, index: number, groups:
       }
     }
   })
-  // TODO; div.image -> caption image (JSX)
+  // caption image
   contents.find("div.image").each((i, el) => {
-    const src = $(el).find("img").attr("src") || "undefined";
-    const caption = $(el).find("div.caption").text().trim();
-    // @site/src/components/CaptionImage
-    $(el).replaceWith(`<img src="${src}" alt="${caption}" />`)
-    const m = src.match(/(.+)\.png$/);
-    if (m) {
-      $(el).attr("src", baseUrl + m[1]);
-    }
+    const img = $(el).find("img")
+    let src = img.attr("src") || "undefined";
+    if (/(.+)\.png$/.test(src)) src = baseUrl + src
+    img.replaceWith(`<div class="img-src">${src}</div>`)
   })
-  // pre code
+  // code block
   contents.find("div.fragment").each((i, el) => {
     const code = $(el).text();
     $(el).replaceWith(`<pre><code class="language-cpp">${code}</code></pre>`);
@@ -187,11 +180,18 @@ const translatePage = async ($: cheerio.CheerioAPI, elements: cheerio.Cheerio<ch
     if (tagName == "PRE" || tagName == "CODE") {
       continue
     }
+    if (tagName == "DIV" && el.hasClass('image')) {
+      const capEl = el.find(".caption")
+      const caption = capEl.text()
+      capEl.text((await t(caption)))
+      continue
+    }
 
     if (element.type == "text") {
       const text = element.data
-      // if (text == "\n") continue
-      const m = text.match(/^([\s\r\n]*)([^\s\r\n]+)([\s\r\n]*)/)
+      // TODO
+      if (text.trim() == "") continue
+      const m = text.match(/([\s\r\n]*?)(\s?[^\r\n]+\s?)([\s\r\n]*?)/)
       if (m) {
         element.data = m[1] + (await t(m[2])) + m[3];
       }
@@ -204,7 +204,7 @@ const translatePage = async ($: cheerio.CheerioAPI, elements: cheerio.Cheerio<ch
 // translation and html -> markdown
 const convertMarkdownJa = async (html: string, link: Link, heading: string, tags: string[], sidebar_position: number) => {
   let translatedHTML;
-  // log("translating ...");
+  log(`translating ... ${link.href}`);
   let $ = cheerio.load(html, {}, false); // cheerio fragment mode
   await translatePage($, $.root()); // overwrite $.root()
   translatedHTML = $.root().html();
@@ -267,9 +267,9 @@ tags: [${tags.join(", ")}]
       if (err) throw err;
       log(`write: ${categoryPath}`);
     });
-    // TODO
-    // for (let j = 0; j < group.links.length; j++) {
-    for (let j = 0; j < 1; j++) {
+    // TODO: debag mode
+    for (let j = 0; j < group.links.length; j++) {
+    // for (let j = 0; j < 1; j++) {
       const link = group.links[j];
       // href: https://docs.juce.com/master/XXX.html
       const filename = new URL(link.href).pathname.replace("/master/", "").replace(".html", ".mdx");
