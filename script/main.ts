@@ -14,23 +14,33 @@ const OUTPUT_DIR = "out";
 // const OUTPUT_DIR = "../docs";
 const LOG = true;
 const DO_TRANSLATE = true;
-// const CATEGORY_FILTER: string[] = []
 const CATEGORY_FILTER_FLAG = true
-const CATEGORY_FILTER: string[] = ["DSP"]
-
-function log(message?: any, ...optionalParams: any[]) {
-  if (LOG) {
-    console.log(message, ...optionalParams)
-  }
-}
+const CATEGORY_FILTER: string[] = [
+  // "Getting Started",
+  "Audio",
+  "Synth",
+  "MIDI",
+  // "Plugins",
+  "DSP",
+  "Graphics",
+  "Interface Design",
+  "Mobile",
+  "Utility Classes",
+]
 
 dotenv.config();
 const turndownService = new CustomTurndownService();
 const translator = new deepl.Translator(process.env.DEEPL_API_KEY as string);
 
 async function t(text: string) {
-  if (!DO_TRANSLATE) return "aaaa";
+  if (!DO_TRANSLATE) return text;
   return (await translator.translateText(text, null, "ja")).text
+}
+
+function log(message?: any, ...optionalParams: any[]) {
+  if (LOG) {
+    console.log(message, ...optionalParams)
+  }
 }
 
 type Link = {
@@ -177,19 +187,22 @@ const translatePage = async ($: cheerio.CheerioAPI, elements: cheerio.Cheerio<ch
     const element = elements[i];
     const el = $(element);
     const tagName = el.prop("tagName");
+
     if (tagName == "PRE" || tagName == "CODE") {
       continue
-    }
-    if (tagName == "DIV" && el.hasClass('image')) {
+    } else if (tagName == "DIV" && el.hasClass('image')) {
       const capEl = el.find(".caption")
       const caption = capEl.text()
-      capEl.text((await t(caption)))
+      capEl.text(await t(caption))
+      continue
+    } else if (tagName == "A") {
+      const title = el.attr("title")
+      if (title) el.attr("title", await t(title))
       continue
     }
 
     if (element.type == "text") {
       const text = element.data
-      // TODO
       if (text.trim() == "") continue
       const m = text.match(/([\s\r\n]*?)(\s?[^\r\n]+\s?)([\s\r\n]*?)/)
       if (m) {
@@ -267,9 +280,8 @@ tags: [${tags.join(", ")}]
       if (err) throw err;
       log(`write: ${categoryPath}`);
     });
-    // TODO: debag mode
+
     for (let j = 0; j < group.links.length; j++) {
-    // for (let j = 0; j < 1; j++) {
       const link = group.links[j];
       // href: https://docs.juce.com/master/XXX.html
       const filename = new URL(link.href).pathname.replace("/master/", "").replace(".html", ".mdx");

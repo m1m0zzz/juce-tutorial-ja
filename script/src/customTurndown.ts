@@ -11,6 +11,10 @@ export default class CustomTurndownService extends TurndownService {
     });
 
     this.use(turndownPluginGfm.gfm);
+    this.addRule("list-item", {
+      filter: "li",
+      replacement: (content) => `- ${content}\n`
+    })
     this.addRule("dl-note", {
       filter: function (node) {
         return (
