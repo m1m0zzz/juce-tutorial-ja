@@ -1,180 +1,191 @@
 ---
 title: ホワイトノイズ発生器を作る
 sidebar_position: 1
+tags: [中級]
 ---
 
 # チュートリアルホワイトノイズ・ジェネレーターを作る
 
+<SourcePageLink path="tutorial_simple_synth_noise" />
+
 このチュートリアルでは、簡単な合成とオーディオ出力を紹介します。このチュートリアルは、JUCE のオーディオ・アプリケーション（およびプラグイン）のコンセプトを理解するための鍵となります。
 
-レベル：中級
+レベル中級
 
-プラットフォーム：Windows, macOS, Linux
+プラットフォームWindows , macOS , Linux
 
-クラス： [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices."), [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock()."), [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples."), [ランダム](https://docs.juce.com/master/classRandom "A random number generator.")
+クラス： [AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。"),[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。"),[AudioBuffer](https://docs.juce.com/master/classAudioBuffer.html "浮動小数点オーディオサンプルを含むマルチチャンネルバッファ。"),[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")
 
-## はじめる
+# スタート
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/SimpleSynthNoiseTutorial.zip) | [ジップ](/tutorials/ZIPs/SimpleSynthNoiseTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/SimpleSynthNoiseTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/SimpleSynthNoiseTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-This tutorial assumes that you are familiar with the basic principles of digital audio. In particular, you should know how audio signals are represented using sampling. You should also be familiar with the idea of the *サンプルレート* in this context (which you may know as *サンプリングレート*, *サンプリング周波数*, or other similar terms).
+このチュートリアルは、あなたがデジタルオーディオの基本原理を知っていることを前提にしています。特に、オーディオ信号がサンプリングを使ってどのように表現されるかを知っている必要があります。の考え方も知っている必要があります。*サンプルレート*この文脈では*サンプリングレート*,*サンプリング周波数*その他類似の用語）。
 
-# The demo project
+# デモ・プロジェクト
 
-The demo project was created using [プロジューサー](https://juce.com/projucer) **オーディオアプリケーション** template.
+デモプロジェクトは[The Projucer](https://juce.com/projucer) **オーディオアプリケーション**テンプレートがある。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_simple_synth_noise_screenshot1.png" caption="The Audio Application template shown highlighted within The Projucer." />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_simple_synth_noise_screenshot1.png"
+  caption="オーディオ・アプリケーション・テンプレートは、The Projucer内でハイライト表示されています。"
+>
 
 これは、JUCEで独自のオーディオ・アプリケーションを開発するための出発点として役立ちます。このデモプロジェクトは、ホワイトノイズを合成し、ターゲットデバイスのデフォルトのオーディオハードウェアから再生します。
 
-# The Audio Application template
+# オーディオ・アプリケーション・テンプレート
 
 このチュートリアルでは、オーディオ出力のみを実装しています。オーディオ入力とオーディオ入力データのリアルタイムオーディオ処理については、他のチュートリアルで説明します。オーディオ・アプリケーション・テンプレートは、GUIアプリケーション・テンプレートとよく似ています：
 
--   The `メインコンテンツコンポーネント` class inherits from the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") class rather than the [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") class.
--   The `juce_audio_utils` module is added to the project, in addition to the other audio-related modules that are added to projects by default.
+- について`MainContentComponent`クラスは[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスではなく[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスである。
+- について`juce_audio_utils`モジュールは、デフォルトでプロジェクトに追加される他のオーディオ関連モジュールに加えて、プロジェクトに追加されます。
 
 Audio Application テンプレートは、ここで提供する例のような単純なアプリケーションに使用できます。また、より複雑なアプリケーション、基本的にはターゲットデバイスのオーディオハードウェアと直接対話する必要のあるアプリケーションにも拡張可能です。JUCEによるオーディオ・プラグインの作成については、他のチュートリアルで説明します。
 
-## The audio application lifecycle
+## オーディオ・アプリケーションのライフサイクル
 
-The [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") class is an abstract base class, it has three [ピュアバーチャル](http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/) functions that represent the lifecycle of our audio application that we *マスト* implement in our derived class:
+について[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスは抽象基底クラスで、次の3つの機能を持つ。[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)オーディオ・アプリケーションのライフサイクルを表す関数は、次のとおりです。*マスト*を派生クラスに実装します：
 
--   [AudioAppComponent::prepareToPlay()](classAudioAppComponent.html#a70634aa3ffaf6e7ff0d233e5933a063d "Tells the source to prepare for playing."): This is called just before audio processing starts.
--   [AudioAppComponent::releaseResources()](classAudioAppComponent.html#a588d9b990fc308774215548959e0fc50 "Allows the source to release anything it no longer needs after playback has stopped."): This is called when audio processing has finished.
--   [AudioAppComponent::getNextAudioBlock()](classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "Called repeatedly to fetch subsequent blocks of audio data."): This is called each time the audio hardware needs a new block of audio data.
+- [AudioAppComponent::prepareToPlay()](https://docs.juce.com/master/classAudioAppComponent.html#a70634aa3ffaf6e7ff0d233e5933a063d "ソースに演奏の準備を指示する。"):オーディオ処理が始まる直前に呼び出される。
+- [AudioAppComponent::releaseResources()](https://docs.juce.com/master/classAudioAppComponent.html#a588d9b990fc308774215548959e0fc50 "再生停止後、ソースが不要になったものをリリースできるようにする。"):オーディオ処理が終了したときに呼び出されます。
+- [AudioAppComponent::getNextAudioBlock()](https://docs.juce.com/master/classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "オーディオデータの後続ブロックをフェッチするために繰り返し呼び出される。"):オーディオハードウェアが新しいオーディオデータのブロックを必要とするたびに呼び出される。
 
-Of these three, the most important is perhaps [AudioAppComponent::getNextAudioBlock()](classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "Called repeatedly to fetch subsequent blocks of audio data."), since this is where you will either generate or process audio in your JUCE audio application. To understand how this works, we need to know a little about how modern computers generate audio. The audio hardware needs to generate a certain number of samples per channel for each second of audio. The CD-quality sample rate is 44.1kHz, which means there needs to be 44100 samples per second per channel sent to the audio hardware for playback. Rather than being passed to the audio hardware a single sample at a time, the samples are passed in buffers — or blocks — containing a certain number of samples. For example, at 44.1kHz and a block size of 441 our [AudioAppComponent::getNextAudioBlock()](classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "Called repeatedly to fetch subsequent blocks of audio data.") function would be called 100 times per second.
+この3つの中で最も重要なのは、おそらく[AudioAppComponent::getNextAudioBlock()](https://docs.juce.com/master/classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "オーディオデータの後続ブロックをフェッチするために繰り返し呼び出される。")JUCE オーディオアプリケーションでオーディオを生成したり処理したりするのはここだからです。この仕組みを理解するために、現代のコンピュータがどのようにオーディオを生成するかを少し知っておく必要があります。オーディオハードウ ェアは、オーディオの各秒について、チャンネルごとにある数のサンプルを生成する必要があります。CD品質のサンプルレートは44.1kHzで、これは、再生するためにオーディオハードウェアに送られる、1チャンネルあたり毎秒44100サンプルが必要であることを意味します。オーディオハードウェアには、一度に1サンプルずつ渡されるのではなく、一定のサンプル数を含むバッファ（ブロック）で渡されます。例えば、44.1kHz、ブロックサイズ441の場合、次のようになります。[AudioAppComponent::getNextAudioBlock()](https://docs.juce.com/master/classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "オーディオデータの後続ブロックをフェッチするために繰り返し呼び出される。")関数は1秒間に100回呼び出される。
 
 :::note
 
-The buffer size of 441 samples, above, is used to keep the arithmetic simple for the purposes of explanation. In practice, a buffer size of 441 would be unusual. Hardware buffer sizes would almost certainly be a even number and would tend to be powers-of-two (256, 512, 1024, and so on). It is important that your application is prepared to deal with *いずれも* buffer size. For more information on the settings for sample rate and buffer sizes, see [チュートリアルAudioDeviceManagerクラス](../tutorial_audio_device_manager/).
+上記の441サンプルというバッファサイズは、説明のために演算をシンプルに保つために使用されている。実際には441というバッファサイズは珍しい。ハードウェアのバッファサイズは、ほぼ間違いなく偶数であり、2の累乗（256、512、1024 など）になる傾向があります。アプリケーションは、以下のような場合に対応できるようにしておくことが重要です。*いずれも*バッファ・サイズ。サンプル・レートとバッファ・サイズの設定については、以下を参照してください。[Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/).
 
 :::
 
-Essentially, our [AudioAppComponent::getNextAudioBlock()](classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "Called repeatedly to fetch subsequent blocks of audio data.") is servicing the *オーディオ・コールバック* of the audio hardware. It is important to note that this function will be called from another thread (the *オーディオスレッド* in most cases).
+基本的に、我々は[AudioAppComponent::getNextAudioBlock()](https://docs.juce.com/master/classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "オーディオデータの後続ブロックをフェッチするために繰り返し呼び出される。")のサービスを行っている。*オーディオ・コールバック*を呼び出します。注意すべき点は、この関数は別のスレッド (*オーディオスレッド*ほとんどの場合）。
 
 JUCEオーディオ・アプリケーションが正しく動作するためには、さらに2つの重要な関数があります。今回は、それらを実装するのではなく、呼び出す必要があります：
 
--   [AudioAppComponent::setAudioChannels()](classAudioAppComponent.html#a1cb6b457848fa80df7efc39cf095d465 "A subclass should call this from their constructor, to set up the audio."): We must call this to register the number of input and output channels we need. Typically, we do this in our constructor. In turn, this function triggers the start of audio processing in our application.
--   [AudioAppComponent::shutdownAudio()](classAudioAppComponent.html#a40f1e657f048d02c5d065de566a84d92 "Shuts down the audio device and clears the audio source."): We must call this to shutdown the audio system. Typically, we do this in our destructor.
+- [AudioAppComponent::setAudioChannels()](https://docs.juce.com/master/classAudioAppComponent.html#a1cb6b457848fa80df7efc39cf095d465 "サブクラスはコンストラクタからこれを呼び出し、オーディオをセットアップしなければならない。"):必要な入出力チャンネル数を登録するために呼び出す。通常、コンストラクタでこれを行います。この関数を呼び出すと、アプリケーションのオーディオ処理が開始されます。
+- [AudioAppComponent::shutdownAudio()](https://docs.juce.com/master/classAudioAppComponent.html#a40f1e657f048d02c5d065de566a84d92 "オーディオデバイスをシャットダウンし、オーディオソースをクリアします。"):オーディオシステムをシャットダウンするために呼び出さなければならない。一般的には、デストラクタの中でこれを行います。
 
-## Initialising the audio application
+## オーディオアプリケーションの初期化
 
-Let's now explore our simple implementation of a noise generator by examining the life cycle of an audio application in more detail. Our constructor needs to set up the size of the [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") object (see [チュートリアルメイン・コンポーネント](../tutorial_main_component/)). We also need to initialise at least one audio output:
+それでは、オーディオアプリケーションのライフサイクルをより詳しく調べることで、ノイズジェネレータの簡単な実装を探ってみましょう。コンストラクタで[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")オブジェクト（参照[Tutorial: The main component](../../graphics/tutorial_main_component/)).また、少なくとも1つのオーディオ出力を初期化する必要があります：
 
-```
-MainContentComponent()
+```cpp
+    MainContentComponent()
     {
-        setSize (800, 600)；
-        setAudioChannels (0, 2); // 入力なし、出力2つ
+        setSize (800, 600);
+        setAudioChannels (0, 2); // no inputs, two outputs
     }
 ```
 
-As mentioned above, the call to the [AudioAppComponent::setAudioChannels()](classAudioAppComponent.html#a1cb6b457848fa80df7efc39cf095d465 "A subclass should call this from their constructor, to set up the audio.") function triggers the audio system to start up. In particular, it will call the `prepareToPlay()` function:
+前述のように[AudioAppComponent::setAudioChannels()](https://docs.juce.com/master/classAudioAppComponent.html#a1cb6b457848fa80df7efc39cf095d465 "サブクラスはコンストラクタからこれを呼び出し、オーディオをセットアップしなければならない。")関数は、オーディオシステムの起動をトリガーします。特に`prepareToPlay()`関数である：
 
-```
-void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override
+```cpp
+    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override
     {
-        juce::String message；
-        message << "再生準備中です；
-        message << " samplesPerBlockExpected = " << samplesPerBlockExpected << " \n"；
-        message << " sampleRate = " << sampleRate；
-        juce::Logger::getCurrentLogger()->writeToLog (message)；
+        juce::String message;
+        message << "Preparing to play audio...\n";
+        message << " samplesPerBlockExpected = " << samplesPerBlockExpected << "\n";
+        message << " sampleRate = " << sampleRate;
+        juce::Logger::getCurrentLogger()->writeToLog (message);
     }
 ```
 
-In this case we don't really need to do anything here, but as it is a [ピュアバーチャル](http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/) function we *マスト* implement at least an empty function. Here we log some useful information that we can gain about the audio system on the target device at this point. The `期待されるサンプル数` argument, as its name suggests, is the size (in samples) of the buffers of audio that we can expect to be asked for each time a buffer of audio is requested in our `getNextAudioBlock()` function. This buffer size might vary between callbacks, but it is a good indication. The `サンプルレート` argument tells us the current sample rate of the hardware. We would need this if we were doing something that is frequency-dependent, such as synthesising tones (see [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/)) or using equalisation. We would also need to know the sample rate if we were using delay effects. We don't need this information to generate noise.
+この場合、ここで何かをする必要はない。[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数*マスト*少なくとも空の関数を実装します。ここでは、この時点でターゲットデバイスのオーディオシステムについて得ることができる、いくつかの有用な情報を記録します。その`samplesPerBlockExpected`引数は、その名前が示すように、オーディオのバッファのサイズ（サンプル数）である。`getNextAudioBlock()`関数で使用される。このバッファサイズはコールバックによって異なるかもしれないが、良い目安にはなる。この`sampleRate`引数は、ハードウェアの現在のサンプルレートを示す。音色を合成するような、周波数に依存するようなことをする場合、これが必要になる ([Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/)またはイコライザーを使う。また、ディレイエフェクトを使用する場合は、サンプルレートを知る必要があります。ノイズを発生させるためにこの情報は必要ありません。
 
-## Generating audio data
+## オーディオデータの生成
 
-Soon after this call to our `prepareToPlay()` function the audio thread will begin requesting blocks of audio via the [AudioAppComponent::getNextAudioBlock()](classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "Called repeatedly to fetch subsequent blocks of audio data.") function. This function is passed a single `バッファートゥフィル` argument that is an [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock().") struct. The [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock().") struct contains a multichannel buffer of audio samples. It also contains two integer values that specify which region of this buffer should be processed on this call. In more detail, the [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock().") contains the following members:
+その直後、私たちはこう呼びかけた。`prepareToPlay()`関数を介して、オーディオスレッドはオーディオのブロックのリクエストを開始する。[AudioAppComponent::getNextAudioBlock()](https://docs.juce.com/master/classAudioAppComponent.html#aec5e36e694a5bd2edae903d1079166b1 "オーディオデータの後続ブロックをフェッチするために繰り返し呼び出される。")関数に渡される。この関数には`bufferToFill`引数は[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。")構造体その[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。")struct は、オーディオサンプルのマルチチャンネルバッファを含む。また、このバッファのどの領域がこの呼び出しで処理されるべきかを指定する2つの整数値も含まれる。より詳細には[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。")には以下のメンバーが含まれている：
 
--   `オーディオサンプルバッファ*バッファ`: An AudioSampleBuffer object is a multichannel buffer of audio data that is essentially a multidimensional array of `フロート` values. When our `getNextAudioBlock()` function is called, this buffer contains any audio data from the target device's audio input (if we requested audio input). When our `getNextAudioBlock()` function returns, we must have filled the relevant section of the buffer with audio that we want to play.
--   `int startSample`: This is the sample index within the buffer where our `getNextAudioBlock()` function should start reading or writing audio.
--   `int numSamples`: This is the number of samples in the buffer that should be read or written.
+- `AudioSampleBuffer* buffer`AudioSampleBufferオブジェクトは、オーディオデータのマルチチャンネルバッファであり、基本的には、次のような多次元配列である。`float`価値観私たちの`getNextAudioBlock()`関数が呼び出されると、このバッファにはターゲット・デバイスのオーディオ入力（オーディオ入力を要求した場合）からのオーディオ・データが含まれます。私たちの`getNextAudioBlock()`関数が返した時点で、バッファの該当セクションが再生したいオーディオで満たされていなければならない。
+- `int startSample`これは、バッファ内のサンプルのインデックスである。`getNextAudioBlock()`関数はオーディオの読み書きを開始しなければならない。
+- `int numSamples`バッファ内の読み書きが必要なサンプル数。
 
 浮動小数点値として保存されるオーディオデータは、非常に簡単です。オーディオ信号の各サンプルは、公称±1.0の範囲の値として保存されます。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_simple_synth_noise_graph1.png" caption="A full scale ±1.0 sine wave." />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_simple_synth_noise_graph1.png"
+  caption="フルスケール±1.0の正弦波。"
+>
 
+このようにピークレベルが±1.0の場合、出力レベルは次のようになる。*とても*大音量。実際、これは、オーディオシステムがクリッピングせずに生成できる最大音量です。通常、私たちはこの±1.0の制限を超えないオーディオを出力する必要があります（ただし、最終的な出力が低くなる限り、処理の中間段階がこの制限を超えても問題ありません）。
 
-At a peak level of ±1.0 like this the output level will be *とても* loud. In fact, this is the loudest the audio system will be able to generate without clipping. Typically, we will need to output audio that doesn't exceed this ±1.0 limit (although it is fine for intermediate stages of processing to go beyond this limit, as long as the final output is lower).
+## AudioSampleBuffer クラス
 
-## The AudioSampleBuffer class
+AudioSampleBufferクラスは、（非常に基本的なレベルでは）マルチチャンネル配列の`float`オーディオデータを扱うための便利な関数群を提供します。これらの関数の多くは後のチュートリアルで扱いますが、ここでは以下の関数を使います：
 
-While the AudioSampleBuffer class is (at a very basic level) just a multichannel array of `フロート` values, it provides a useful set of functions for dealing with audio data. Many of these functions will be covered in later tutorials, but here we make use of the following functions:
-
--   [AudioSampleBuffer::getNumChannels()](classAudioBuffer.html#a3a9ecde91bf5b96871ce3a474c1d831f "Returns the number of channels of audio data that this buffer contains."): This returns the number of audio channels stored in the buffer. In this case the value should match the number of output channels we requested in our call to the [AudioAppComponent::setAudioChannels()](classAudioAppComponent.html#a1cb6b457848fa80df7efc39cf095d465 "A subclass should call this from their constructor, to set up the audio.") function earlier. (This value will always be the maximum of the number of input and output channels.)
--   [AudioSampleBuffer::getWritePointer()](classAudioBuffer.html#a10cfe91eb4965895bc258cee02409d3b "Returns a writeable pointer to one of the buffer's channels."): This returns a pointer to the buffer of `フロート` values at a specific sample offset.
+- [AudioSampleBuffer::getNumChannels()](https://docs.juce.com/master/classAudioBuffer.html#a3a9ecde91bf5b96871ce3a474c1d831f):バッファに格納されているオーディオチャンネルの数を返します。この場合、この値は[AudioAppComponent::setAudioChannels()](https://docs.juce.com/master/classAudioAppComponent.html#a1cb6b457848fa80df7efc39cf095d465 "サブクラスはコンストラクタからこれを呼び出し、オーディオをセットアップしなければならない。")関数を使う。(この値は常に入出力チャンネル数の最大値となる)。
+- [AudioSampleBuffer::getWritePointer()](https://docs.juce.com/master/classAudioBuffer.html#a10cfe91eb4965895bc258cee02409d3b):のバッファへのポインタを返す。`float`特定のサンプルオフセットでの値。
 
 この単純なアプリケーションでホワイトノイズを生成するには、バッファの要求されたセクションをランダムな値で満たす必要があります。これを行うには、バッファ内のチャンネルを繰り返し処理し、そのチャンネルのバッファ内で開始サンプルを見つけ、必要なサンプル数をバッファに書き込みます：
 
-```
-void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+```cpp
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
     {
         for (auto channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
         {
-            // この音声出力チャンネルのバッファ内の開始サンプルへのポインタを取得します。
-            auto* buffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample)；
+            // Get a pointer to the start sample in the buffer for this audio output channel
+            auto* buffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample);
  
-            // 必要なサンプル数を-0.125から+0.125の間のノイズで埋める
+            // Fill the required number of samples with noise between -0.125 and +0.125
             for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
-                buffer[sample] = random.nextFloat() * 0.25f - 0.125f；
+                buffer[sample] = random.nextFloat() * 0.25f - 0.125f;
         }
     }
 ```
 
-## Generating white noise using the Random class
+## Randomクラスを使ってホワイトノイズを生成する
 
-Here we make use of the [ランダム](https://docs.juce.com/master/classRandom "A random number generator.") class in order to generate our random values (see [チュートリアルランダム・クラス](../tutorial_random/)). To generate white noise we need to generate uniformly distributed random numbers around zero. Here we generate random values between -0.125 and +0.125 by first calling the [ランダム::nextFloat()](classRandom.html#aec88d4e5cf44faaa038f6cfb41e96406 "Returns the next random floating-point number.") function. This generates values between 0 and 1. Then we multiply the result of this by 0.25 and subtract 0.125. (See [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/) for more information on this process.) Notice that we didn't use the [Random::getSystemRandom()](classRandom.html#ad7d9d42dd0efbb68d569e975b0778518 "The overhead of creating a new Random object is fairly small, but if you want to avoid it,...") function to get the shared *システム* [ランダム](https://docs.juce.com/master/classRandom "A random number generator.") object, as shown in other tutorials ([チュートリアルランダム・クラス](../tutorial_random/)). This is because we are calling the [ランダム::nextFloat()](classRandom.html#aec88d4e5cf44faaa038f6cfb41e96406 "Returns the next random floating-point number.") function on the audio thread. We need to create our own [ランダム](https://docs.juce.com/master/classRandom "A random number generator.") object otherwise the values might get corrupted by other threads using that shared [ランダム](https://docs.juce.com/master/classRandom "A random number generator.") object. To achieve this, an instance of the [ランダム](https://docs.juce.com/master/classRandom "A random number generator.") class is added to our `メインコンテンツコンポーネント` class:
+ここでは[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスで乱数値を生成します ([Tutorial: The Random class](../../utility-classes/tutorial_random/)).ホワイトノイズを発生させるには、ゼロの周りに一様に分布する乱数を発生させる必要があります。ここでは、最初に[Random::nextFloat()](https://docs.juce.com/master/classRandom.html#aec88d4e5cf44faaa038f6cfb41e96406 "次のランダムな浮動小数点数を返します。")関数を使います。この関数は0から1の間の値を生成し、その結果に0.25を掛け、0.125を引く。(参照[Tutorial: Control audio levels](../tutorial_synth_level_control/)を参照のこと)。を使用していないことに注意してください。[Random::getSystemRandom()](https://docs.juce.com/master/classRandom.html#ad7d9d42dd0efbb68d569e975b0778518 "新しいRandomオブジェクトを作成するオーバーヘッドはかなり小さいが、もしそれを避けたいのであれば...。")関数を使用して、共有の*システム* [Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")オブジェクトを使用することができます。[Tutorial: The Random class](../../utility-classes/tutorial_random/)).これは[Random::nextFloat()](https://docs.juce.com/master/classRandom.html#aec88d4e5cf44faaa038f6cfb41e96406 "次のランダムな浮動小数点数を返します。")関数をオーディオ・スレッド上に作成する必要がある。独自の[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")オブジェクトを使用している他のスレッドによって値が破損される可能性がある。[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")オブジェクトのインスタンスを作成する。これを実現するために[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスが`MainContentComponent`クラスである：
 
-```
-プライベート：
-    juce::Random random；
+```cpp
+private:
+    juce::Random random;
  
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent).
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-## Shutting down the audio application
+## オーディオアプリケーションのシャットダウン
 
-When our application is closed, our destructor will be called. At this point we should call the [AudioAppComponent::shutdownAudio()](classAudioAppComponent.html#a40f1e657f048d02c5d065de566a84d92 "Shuts down the audio device and clears the audio source.") function:
+アプリケーションが閉じられると、デストラクタが呼び出される。この時点で[AudioAppComponent::shutdownAudio()](https://docs.juce.com/master/classAudioAppComponent.html#a40f1e657f048d02c5d065de566a84d92 "オーディオデバイスをシャットダウンし、オーディオソースをクリアします。")関数である：
 
-```
-~MainContentComponent()オーバーライド
+```cpp
+    ~MainContentComponent() override
     {
-        shutdownAudio()；
+        shutdownAudio();
     }
 ```
 
-Calling the [AudioAppComponent::shutdownAudio()](classAudioAppComponent.html#a40f1e657f048d02c5d065de566a84d92 "Shuts down the audio device and clears the audio source.") function will, in turn, cause the [AudioAppComponent::releaseResources()](classAudioAppComponent.html#a588d9b990fc308774215548959e0fc50 "Allows the source to release anything it no longer needs after playback has stopped.") function to be called. This is a good place to dispose of resources, if we allocated any during the running of our audio process (for example, if we allocated memory or opened some files). In this case, we didn't need any additional resources and we just log the function call with a simple message:
+を呼び出す。[AudioAppComponent::shutdownAudio()](https://docs.juce.com/master/classAudioAppComponent.html#a40f1e657f048d02c5d065de566a84d92 "オーディオデバイスをシャットダウンし、オーディオソースをクリアします。")関数は[AudioAppComponent::releaseResources()](https://docs.juce.com/master/classAudioAppComponent.html#a588d9b990fc308774215548959e0fc50 "再生停止後、ソースが不要になったものをリリースできるようにする。")関数を呼び出します。これは、オーディオプロセスの実行中にリソースを割り当てた場合（例えば、メモリを割り当てたり、ファイルを開いたりした場合）、リソースを破棄するのに良い場所です。この場合、追加のリソースは必要ないので、単純なメッセージとともに関数呼び出しをログに記録します：
 
-```
-void releaseResources() override
+```cpp
+    void releaseResources() override
     {
-        juce::Logger::getCurrentLogger()->writeToLog ("Releasing audio resources")；
+        juce::Logger::getCurrentLogger()->writeToLog ("Releasing audio resources");
     }
 ```
+
+:::danger[エクササイズ]
 
 オーディオ出力の数を変えてみてください。モノラルノイズはステレオノイズとは微妙に違って聞こえることに注意してください。マルチチャンネルのサウンドカードがあれば、2チャンネル以上のノイズを生成できるかもしれません。また、発生するノイズのレベルを変えてみることもできます。例えば、レベル0.1のノイズを生成するには、ランダムに生成された値に0.2を掛け、0.1を引く必要があります。
 
+:::
+
 # 概要
 
-This tutorial has introduced the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") class, used by the Audio Application template, in order to generate audio. We have covered the following topics:
+このチュートリアルでは[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスは、オーディオを生成するために Audio Application テンプレートで使用されます。以下のトピックを取り上げました：
 
--   オーディオシステムの初期化とシャットダウン。
--   オーディオ・コールバックに応答してオーディオ・データを書き込む。
--   Using the [オーディオソースチャンネル情報](https://docs.juce.com/master/structAudioSourceChannelInfo "Used by AudioSource::getNextAudioBlock().") struct and the AudioSampleBuffer class.
+- オーディオシステムの初期化とシャットダウン。
+- オーディオ・コールバックに応答してオーディオ・データを書き込む。
+- を使用している。[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。")構造体とAudioSampleBufferクラスがある。
 
-# 関連項目
+# こちらも参照
 
--   [チュートリアルAudioDeviceManagerクラス](../tutorial_audio_device_manager/)
--   [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/)
--   [チュートリアルデシベルを使ってオーディオレベルをコントロールする](../tutorial_synth_db_level_control/)
--   [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/)
--   [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/)
--   [チュートリアルウェーブテーブルシンセシス](../tutorial_wavetable_synth/)
+- [Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)
+- [Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/)
+- [Tutorial: Control audio levels using decibels](../tutorial_synth_db_level_control/)
+- [Tutorial: Control audio levels](../tutorial_synth_level_control/)
+- [Tutorial: Build a MIDI synthesiser](../tutorial_synth_using_midi_input/)
+- [Tutorial: Wavetable synthesis](../tutorial_wavetable_synth/)

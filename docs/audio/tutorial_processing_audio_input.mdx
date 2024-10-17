@@ -1,21 +1,24 @@
 ---
 title: オーディオ入力の処理
 sidebar_position: 2
+tags: [初級]
 ---
 
 # チュートリアルオーディオ入力を処理する
 
+<SourcePageLink path="tutorial_processing_audio_input" />
+
 このチュートリアルでは、オーディオ入力を処理してオーディオ出力に渡す方法を説明します。
 
-レベル：初級
+レベル初心者
 
-プラットフォーム：Windows, macOS, Linux
+プラットフォームWindows , macOS , Linux
 
-クラス： [ランダム](https://docs.juce.com/master/classRandom "A random number generator."), [BigInteger](https://docs.juce.com/master/classBigInteger "An arbitrarily large integer class."), [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples.")
+クラス： [Random](https://docs.juce.com/master/classRandom.html "乱数発生器。"),[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。"),[AudioBuffer](https://docs.juce.com/master/classAudioBuffer.html "浮動小数点オーディオサンプルを含むマルチチャンネルバッファ。")
 
-## はじめる
+# スタート
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/ProcessingAudioInputTutorial.zip) | [ジップ](/tutorials/ZIPs/ProcessingAudioInputTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/ProcessingAudioInputTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/ProcessingAudioInputTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 :::note
 
@@ -23,11 +26,11 @@ Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/Pr
 
 :::
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# The demo project
+# デモ・プロジェクト
 
-The demo project modulates an incoming signal with white noise. The level of the white noise can be changed which affects the level of the overall output (see [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/) for the technique used to generate the white noise). The result is a very "fuzzy" version of the input signal.
+このデモ・プロジェクトは、入力信号をホワイト・ノイズで変調します。ホワイトノイズのレベルは変更可能で、出力全体のレベルに影響を与えます ([Tutorial: Control audio levels](../../synth/tutorial_synth_level_control/)ホワイトノイズを生成するために使用される技術については、こちらを参照）。その結果、入力信号は非常に "ファジー "なものになる。
 
 :::warning
 
@@ -37,9 +40,13 @@ The demo project modulates an incoming signal with white noise. The level of the
 
 マイクとヘッドフォンは別々に使うのがベストだろう。もちろん、このプロジェクトが正しく機能するためには、何らかのオーディオ入力デバイスが必要です。
 
-# Audio input
+# 音声入力
 
-This tutorial uses the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") class as the basis for the demo project application. In other tutorials we generate audio within the `getNextAudioBlock()` function — see [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/), [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/), and [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/). In this tutorial we read the audio input and output some audio too. In the `メインコンテンツコンポーネント` constructor we request two audio inputs and two audio outputs:
+このチュートリアルでは[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスをデモ・プロジェクト・アプリケーションの基礎として使用します。他のチュートリアルでは`getNextAudioBlock()`関数 - 参照[Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/),[Tutorial: Control audio levels](../../synth/tutorial_synth_level_control/)そして[Tutorial: Build a sine wave synthesiser](../../synth/tutorial_sine_synth/).このチュートリアルでは、オーディオ入力を読み取り、音声も出力します。このチュートリアルでは`MainContentComponent`コンストラクタで、2つのオーディオ入力と2つのオーディオ出力を要求します：
+
+```cpp
+        setAudioChannels (2, 2);
+```
 
 :::note
 
@@ -47,97 +54,100 @@ This tutorial uses the [オーディオコンポーネント](https://docs.juce.
 
 :::
 
-## Reusing buffers
+## バッファの再利用
 
-It is important to know that the input and output buffers are not completely separate. The same buffer is used for the input and output. You can test this by temporarily commenting out all of the code in the `getNextAudioBlock()` function. If you then run the application, the audio input will be passed directly to the output. In the `getNextAudioBlock()` function, the number of channels in the [オーディオサンプルバッファ](https://docs.juce.com/master/classAudioBuffer) object within the `バッファートゥフィル` struct may be larger than the number input channels, the number of output channels, or both. It is important to access only the data that refers to the number of input and output channels that you have requested, *そして* that are available. In particular, if you have more input channels than output channels you *べからず* modify the channels that should contain read-only data.
+重要なことは、入力と出力のバッファーは完全に分離されているわけではないということである。入力と出力には同じバッファが使われる。のすべてのコードを一時的にコメントアウトすることで、これをテストすることができる。`getNextAudioBlock()`関数を使います。アプリケーションを実行すると、オーディオ入力が直接出力に渡されます。アプリケーションの`getNextAudioBlock()`関数のチャンネル数は[AudioSampleBuffer](https://docs.juce.com/master/classAudioBuffer.html) オブジェクトを`bufferToFill`構造体は、入力チャンネル数、出力チャンネル数、またはその両方よりも大きくなる可能性があります。要求した入出力チャンネル数を参照するデータのみにアクセスすることが重要である、*そして*を使用することができます。特に、入力チャンネル数が出力チャンネル数より多い場合は、以下のようになります。*べからず*読み取り専用データを含むチャンネルを変更する。
 
-## Getting active channels
+## アクティブ・チャンネルの獲得
 
-{/* TODO */}
-{/* In the `getNextAudioBlock()` function we obtain [BigInteger](https://docs.juce.com/master/classBigInteger "An arbitrarily large integer class.") objects that represent the list of active input and output channels as a *ビットマスク* (this is similar to the [ビットセット](http://www.cplusplus.com/reference/bitset/bitset/) class or using a [std::vector<ブール](http://www.cplusplus.com/reference/vector/vector-bool/) object). In these [BigInteger](https://docs.juce.com/master/classBigInteger "An arbitrarily large integer class.") objects the channels are represented by a 0 (inactive) or 1 (active) in the bits comprising the [BigInteger](https://docs.juce.com/master/classBigInteger "An arbitrarily large integer class.") value. */}
+の中で`getNextAudioBlock()`関数が得られる。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")これは、アクティブな入出力チャンネルのリストを*ビットマスク*(これは[std::bitset](https://docs.juce.com/master/http://www.cplusplus.com/reference/bitset/bitset/)クラスを使用するか[std::vector<bool>](https://docs.juce.com/master/http://www.cplusplus.com/reference/vector/vector-bool/)オブジェクト)。これらの[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")を構成するビットの0（非アクティブ）または1（アクティブ）で表されます。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")値である。
 
 :::note
 
-See [チュートリアルBigInteger クラス](../tutorial_big_integer/) for other operations that can be performed on [BigInteger](https://docs.juce.com/master/classBigInteger "An arbitrarily large integer class.") objects.
+参照[Tutorial: The BigInteger class](../../utility-classes/tutorial_big_integer/)に対して実行可能なその他の操作については[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトがある。
 
 :::
 
-```
-void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+```cpp
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
     {
-        auto* device = deviceManager.getCurrentAudioDevice()；
-        auto activeInputChannels = device->getActiveInputChannels()；
-        auto activeOutputChannels = device->getActiveOutputChannels()；
+        auto* device = deviceManager.getCurrentAudioDevice();
+        auto activeInputChannels  = device->getActiveInputChannels();
+        auto activeOutputChannels = device->getActiveOutputChannels();
 ```
 
-To work out the maximum number of channels over which we need to iterate, we can inspect the bits in the [BigInteger](https://docs.juce.com/master/classBigInteger "An arbitrarily large integer class.") objects to find the highest numbered bit. The maximum number of channels will be one more than this.
+反復処理に必要な最大チャンネル数を調べるには、以下のビットを調べればよい。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトから最上位のビットを見つける。最大チャンネル数はこれより1つ多くなる。
 
-```
-auto maxInputChannels = activeInputChannels .getHighestBit() + 1；
-        auto maxOutputChannels = activeOutputChannels.getHighestBit() + 1；
+```cpp
+        auto maxInputChannels  = activeInputChannels .getHighestBit() + 1;
+        auto maxOutputChannels = activeOutputChannels.getHighestBit() + 1;
 ```
 
 次に、レベルスライダから希望のレベルを取得し、出力チャンネルを1つずつ処理してオーディオを処理します。入力チャンネルの最大数がゼロの場合（ハードウェアにオーディオ入力がない場合、2つのチャンネルを要求したにもかかわらず、そうなる可能性があります）、オーディオを処理しようとしてはいけません。この場合、単に出力チャンネルバッファをゼロにします（無音を出力します）。個々の出力チャンネルが非アクティブの場合もあるので、チャンネルの状態をチェックし、非アクティブの場合はそのチャンネルにサイレンスを出力する：
 
-```
-auto level = (float) levelSlider.getValue()；
+```cpp
+        auto level = (float) levelSlider.getValue();
  
         for (auto channel = 0; channel < maxOutputChannels; ++channel)
         {
             if ((! activeOutputChannels[channel]) || maxInputChannels == 0)
             {
-                bufferToFill.buffer->clear (channel, bufferToFill.startSample, bufferToFill.numSamples)；
+                bufferToFill.buffer->clear (channel, bufferToFill.startSample, bufferToFill.numSamples);
             }
 ```
 
 そして、入力されたデータを処理し、出力する：
 
-```
-その他
+```cpp
+            else
             {
-                auto actualInputChannel = channel % maxInputChannels; // [1].
+                auto actualInputChannel = channel % maxInputChannels; // [1]
  
-                if (! activeInputChannels[channel]) // [2].
+                if (! activeInputChannels[channel]) // [2]
                 {
-                    bufferToFill.buffer->clear (channel, bufferToFill.startSample, bufferToFill.numSamples)；
+                    bufferToFill.buffer->clear (channel, bufferToFill.startSample, bufferToFill.numSamples);
                 }
-                else // [3].
+                else // [3]
                 {
-                    auto* inBuffer = bufferToFill.buffer->getReadPointer (actualInputChannel、
-                                                                          bufferToFill.startSample)；
-                    auto* outBuffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample)；
+                    auto* inBuffer = bufferToFill.buffer->getReadPointer (actualInputChannel,
+                                                                          bufferToFill.startSample);
+                    auto* outBuffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample);
  
                     for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
                     {
-                        auto noise = (random.nextFloat() * 2.0f) - 1.0f；
-                        outBuffer[sample] = inBuffer[sample] + (inBuffer[sample] * noise * level)；
+                        auto noise = (random.nextFloat() * 2.0f) - 1.0f;
+                        outBuffer[sample] = inBuffer[sample] + (inBuffer[sample] * noise * level);
                     }
                 }
             }
         }
-    
+    }
 ```
 
 コードの説明は簡単であろうが、いくつかのハイライトを紹介しよう：
 
--   \[1\]: We may have requested more output channels than input channels, so our app needs to make a decision about what to do about these extra outputs. In this example we simply repeat the input channels if we have more outputs than inputs. (To do this we use the modulo operator to "wrap" our access to the input channels based on the number of input channels available.) In other applications it may be more appropriate to output silence for higher numbered channels where there are more output channels than input channels.
--   \[2\]: Individual input channels may be inactive so we output silence in this case too.
--   \[3\]: This final block *実際に* does the processing! Here we get pointers to the input and output buffer samples and add some noise to the input samples.
+- \[1\]入力チャンネルよりも多くの出力チャンネルをリクエストしたかもしれないので、アプリはこれらの余分な出力をどうするか決定する必要がある。この例では、入力チャンネルよりも出力チャンネルの方が多い場合、単純に入力チャンネルを繰り返す。(そのために、modulo演算子を使って、利用可能な入力チャンネル数に基づいて入力チャンネルへのアクセスを「ラップ」している)。他のアプリケーションでは、入力チャンネルより出力チャンネルの方が多い場合、より大きな番号のチャンネルにサイレンスを出力する方が適切かもしれない。
+- \[2\]個々の入力チャンネルが非アクティブの場合もあるので、その場合も無音を出力する。
+- \[3\]この最後のブロックは*実際に*が処理を行う！ここでは、入力と出力バッファのサンプルへのポインタを取得し、入力サンプルにノイズを加えます。
 
-In this example we don't smooth the amplitude changes as we do in [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/). This is partly to keep the example simple, but you probably wouldn't hear any additional glitches due to the crackling effect anyway. Modify the code to simply output the input channels, scaled by the level slider value, but also smooth out the level changes so that there are no glitches.
+:::danger[エクササイズ]
+
+この例では、次のように振幅の変化を平滑化しない。[Tutorial: Build a sine wave synthesiser](../../synth/tutorial_sine_synth/).これは例をシンプルに保つためでもありますが、いずれにせよ、クラックリング効果によるグリッチを追加で聞くことはないでしょう。入力チャンネルを単純にレベルスライダーの値でスケーリングして出力するようにコードを修正してください。
+
+:::
 
 # 概要
 
 このチュートリアルでは、JUCE アプリケーションのオーディオ入力からのオーディオ処理について紹介しました。特に
 
--   コンピュータのオーディオ入力ハードウェアからオーディオにアクセスできるようにオーディオアプリケーションを設定する方法。
--   入力と出力のバッファは共有される。
--   アクティブなチャンネルと非アクティブなチャンネルをどう扱うか。
--   入力と出力のチャンネル数が異なる場合、どうすればよいかを推論する方法。
+- コンピュータのオーディオ入力ハードウェアからオーディオにアクセスできるようにオーディオアプリケーションを設定する方法。
+- 入力と出力のバッファは共有される。
+- アクティブなチャンネルと非アクティブなチャンネルをどう扱うか。
+- 入力と出力のチャンネル数が異なる場合、どうすればよいかを推論する方法。
 
-# 関連項目
+# こちらも参照
 
--   [チュートリアルAudioDeviceManagerクラス](../tutorial_audio_device_manager/)
--   [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/)
--   [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/)
--   [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/)
+- [Tutorial: The AudioDeviceManager class](../tutorial_audio_device_manager/)
+- [Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)
+- [Tutorial: Control audio levels](../../synth/tutorial_synth_level_control/)
+- [Tutorial: Build a sine wave synthesiser](../../synth/tutorial_sine_synth/)

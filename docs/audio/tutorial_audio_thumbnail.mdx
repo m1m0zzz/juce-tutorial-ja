@@ -1,57 +1,62 @@
 ---
 title: オーディオ波形を描く
 sidebar_position: 5
+tags: [中級]
 ---
 
 # チュートリアルオーディオ波形を描く
 
-This tutorial introduces the display of audio waveforms using the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") class. This provides an easy way of drawing any number of waveforms within your audio applications.
+<SourcePageLink path="tutorial_audio_thumbnail" />
 
-レベル：中級
+を使ったオーディオ波形の表示について紹介します。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスを使用します。これによって、オーディオ・アプリケーション内で任意の数の波形を簡単に描画できるようになります。
 
-プラットフォーム：Windows, macOS, Linux
+レベル中級
 
-クラス： [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file."), [オーディオサムネイルキャッシュ](https://docs.juce.com/master/classAudioThumbnailCache "An instance of this class is used to manage multiple AudioThumbnail objects."), [オーディオフォーマットリーダー](https://docs.juce.com/master/classAudioFormatReader "Reads samples from an audio file stream."), [変更リスナー](https://docs.juce.com/master/classChangeListener "Receives change event callbacks that are sent out by a ChangeBroadcaster.")
+プラットフォームWindows , macOS , Linux
 
-## はじめる
+クラス： [AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。"),[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。"),[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。"),[ChangeListener](https://docs.juce.com/master/classChangeListener.html "ChangeBroadcasterから発信される変更イベントコールバックを受信する。")
+
+# スタート
 
 :::note
 
-This tutorial leads on from [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/), which you should have read and understood first. It also assumes that you are familiar with the [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") class and the Component::paint() function for performing drawing within a component (see [チュートリアルGraphicsクラス](../tutorial_graphics_class/)).
+このチュートリアルは[Tutorial: Build an audio player](../tutorial_playing_sound_files/)を読んで理解する必要がある。また、本書は、あなたが以下の項目について熟知していることを前提としている。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスと、コンポーネント内で描画を行うための Component::paint() 関数 ([Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)).
 
 :::
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/AudioThumbnailTutorial.zip) | [ジップ](/tutorials/ZIPs/AudioThumbnailTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AudioThumbnailTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AudioThumbnailTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# The demo project
+# デモ・プロジェクト
 
-The demo project presents three buttons in the same way as [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/) (for opening, playing, and stopping a sound file).
+デモ・プロジェクトでは、次のように3つのボタンが表示される。[Tutorial: Build an audio player](../tutorial_playing_sound_files/)(サウンドファイルを開く、再生する、停止する）。
 
 また、サウンドファイルの波形を描画する矩形領域もあります。デフォルトの状態（サウンドファイルがロードされていない状態）では、アプリケーションは以下のようになります：
 
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_audio_thumbnail_screenshot1.png" caption="The demo project showing its initial state" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_audio_thumbnail_screenshot1.png"
+  caption="デモプロジェクトの初期状態"
+>
 
 サウンドファイルがロードされると、アプリケーションは次のようになる：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_audio_thumbnail_screenshot2.png"
+  caption="AudioThumbnailクラスを使ってファイルを開き、表示したデモ・プロジェクト。"
+>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_audio_thumbnail_screenshot2.png" caption="The demo project showing a file opened and displayed using the AudioThumbnail class" />
+オーディオ波形の描画は、特に長いファイルの場合、一般的に、波形の描画が効率的で、ユーザーにもわかりやすいフォーマットで、オーディオデータの低解像度バージョンを保存する必要があります。そのため[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスがこの低解像度バージョンを処理し、必要に応じて作成・更新されます。
 
+# AudioThumbnailの設定
 
-Drawing an audio waveform, especially for long files, generally involves storing a low resolution version of the audio data in a format that makes drawing the waveform efficient and also clear to the user. The [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") class handles this low resolution version for you and it is created and updated when needed.
+まず重要な点は[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラス**ではない**のサブクラスです。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスである。その[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスは、オーディオ波形を`paint()`別の関数[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")オブジェクトを追加します。以下のコードは、以下のデモ・プロジェクトに基づいてこの機能を追加する方法を示しています。[Tutorial: Build an audio player](../tutorial_playing_sound_files/).
 
-# Setting up the AudioThumbnail
+## 追加オブジェクト
 
-The first important point is that the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") class **ではない** a subclass of the [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") class. The [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") class is used to perform the drawing of the audio waveform within the `ペイント` function of another [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") object. The code below shows how to add this functionality based on the demo project from [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/).
+我々の`MainContentComponent`クラスに2つのメンバを追加する必要があります。[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトと[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトになる。その[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")クラスは、1つまたは複数のオーディオファイルの必要な低解像度バージョンをキャッシュするために使用されます。これは、例えば、あるファイルを閉じて新しいファイルを開き、また最初のファイルを開こうとすると[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")には最初のファイルの低解像度バージョンが残っているので、データを再スキャンして再計算する必要はない。もうひとつの便利な機能は[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")の異なるインスタンス間で共有できる。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラス
 
-## Additional objects
-
-In our `メインコンテンツコンポーネント` class we need to add two members: an [オーディオサムネイルキャッシュ](https://docs.juce.com/master/classAudioThumbnailCache "An instance of this class is used to manage multiple AudioThumbnail objects.") object and an [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object. The [オーディオサムネイルキャッシュ](https://docs.juce.com/master/classAudioThumbnailCache "An instance of this class is used to manage multiple AudioThumbnail objects.") class is used to cache the necessary low resolution version of one or more audio files. This means, for example, if we close a file, open a new file, then return to open the first file, the [オーディオサムネイルキャッシュ](https://docs.juce.com/master/classAudioThumbnailCache "An instance of this class is used to manage multiple AudioThumbnail objects.") will still contain the low resolution version of the first file and won't need to rescan and recalculate the data. Another useful feature is that [オーディオサムネイルキャッシュ](https://docs.juce.com/master/classAudioThumbnailCache "An instance of this class is used to manage multiple AudioThumbnail objects.") objects can be shared between different instances of the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") class
-
-```
+```cpp
     juce::TextButton openButton;
     juce::TextButton playButton;
     juce::TextButton stopButton;
@@ -59,70 +64,74 @@ In our `メインコンテンツコンポーネント` class we need to add two 
     std::unique_ptr chooser;
  
     juce::AudioFormatManager formatManager;                    // [3]
-    std::unique_ptrreaderSource；
-    juce::AudioTransportSource transportSource；
-    TransportState 状態；
-    juce::AudioThumbnailCache thumbnailCache; // [1].
-    juce::AudioThumbnail thumbnail; // [2].
+    std::unique_ptr readerSource;
+    juce::AudioTransportSource transportSource;
+    TransportState state;
+    juce::AudioThumbnailCache thumbnailCache;                  // [1]
+    juce::AudioThumbnail thumbnail;                            // [2]
  
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent).
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-If statically allocated objects like this are used, it is important that the [オーディオサムネイルキャッシュ](https://docs.juce.com/master/classAudioThumbnailCache "An instance of this class is used to manage multiple AudioThumbnail objects.") object \[1\] is listed before the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object \[2\] since it is passed as an argument to the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") [コンストラクタを使用する。](classAudioThumbnail.html#abfa7516538eb0518cddeec4c71cf329d) It is also important that the [オーディオフォーマットマネージャー](https://docs.juce.com/master/classAudioFormatManager "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...") object \[3\] is listed before the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object for the same reason.
+このような静的に割り当てられたオブジェクトを使用する場合、次のことが重要である。[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクト\[1\]の前に表示される。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクト\[2\]に引数として渡されるからである。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。") [constructor.](https://docs.juce.com/master/classAudioThumbnail.html#abfa7516538eb0518cddeec4c71cf329d)ということも重要である。[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")オブジェクト\[3\]の前に表示される。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトも同じ理由である。
 
-## Initialising the objects
+## オブジェクトの初期化
 
-In the initialiser list for the `メインコンテンツコンポーネント` constructor we set up these objects:
+のイニシャライザーリストでは`MainContentComponent`コンストラクターでこれらのオブジェクトをセットアップする：
 
-```
-MainContentComponent()
-       : 状態 (停止)、
-         thumbnailCache (5), // [4].
-         thumbnail (512, formatManager, thumbnailCache) // [5].
+```cpp
+    MainContentComponent()
+       : state (Stopped),
+         thumbnailCache (5),                            // [4]
+         thumbnail (512, formatManager, thumbnailCache) // [5]
     {
 ```
 
--   \[4\]: The [オーディオサムネイルキャッシュ](https://docs.juce.com/master/classAudioThumbnailCache "An instance of this class is used to manage multiple AudioThumbnail objects.") objects must be constructed with the number of thumbnails to store.
--   \[5\]: The [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object itself needs to be constructed by telling it how many source samples will be used to create a single thumbnail sample. This governs the resolution of the low resolution version. The other two arguments are the [オーディオフォーマットマネージャー](https://docs.juce.com/master/classAudioFormatManager "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...") and [オーディオサムネイルキャッシュ](https://docs.juce.com/master/classAudioThumbnailCache "An instance of this class is used to manage multiple AudioThumbnail objects.") objects, as discussed above.
+- \[4\](その)[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトは、保存するサムネイルの数で構築されなければならない。
+- \[5\](その)[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトは、1 つのサムネイルサンプルを作成するために使用されるソースサンプルの数を指定することで、それ自体を構築する必要があります。これが低解像度バージョンの解像度を決定します。他の 2 つの引数は[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")そして[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトがある。
 
-The [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") class is also a type of [チェンジブロードキャスター](https://docs.juce.com/master/classChangeBroadcaster "Holds a list of ChangeListeners, and sends messages to them when instructed.") class. We can register as a listener for changes \[6\] (in our `メインコンテンツコンポーネント` constructor). These changes will be when the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object has changed such that we need to update our drawing of the waveform.
+について[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスも[ChangeBroadcaster](https://docs.juce.com/master/classChangeBroadcaster.html "ChangeListenersのリストを保持し、指示があったときにメッセージを送信する。")クラスに登録することができます。変更のリスナーとして登録できる\[6\](私たちの`MainContentComponent`コンストラクタ)。これらの変更は[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトが変更されたので、波形の描画を更新する必要がある。
 
-## Responding to changes
-
-In our `changeListenerCallback()` function we need to determine whether the change is being broadcasted from the [オーディオ・トランスポート・ソース](https://docs.juce.com/master/classAudioTransportSource "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...") object or the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object:
-
+```cpp
+        thumbnail.addChangeListener (this);            // [6]
 ```
-void changeListenerCallback (juce::ChangeBroadcaster* source) override
+
+## 変化への対応
+
+我々の`changeListenerCallback()`関数からブロードキャストされているかどうかを判断する必要がある。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトまたは[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトがある：
+
+```cpp
+    void changeListenerCallback (juce::ChangeBroadcaster* source) override
     {
-        if (source == &transportSource) transportSourceChanged()；
-        if (source == &thumbnail) thumbnailChanged()；
+        if (source == &transportSource) transportSourceChanged();
+        if (source == &thumbnail)       thumbnailChanged();
     }
 ```
 
-The `transportSourceChanged()` function just contains our original code for responding to changes in the [オーディオ・トランスポート・ソース](https://docs.juce.com/master/classAudioTransportSource "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...") object:
+について`transportSourceChanged()`の変更に対応するためのオリジナルのコードを含むだけである。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトがある：
 
-```
-void transportSourceChanged()
+```cpp
+    void transportSourceChanged()
     {
-        changeState (transportSource.isPlaying() ?Playing : Stopped)；
+        changeState (transportSource.isPlaying() ? Playing : Stopped);
     }
 ```
 
-If it is the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object that has changed, we call the Component::repaint() function. This will cause our `ペイント` function to be called during the next screen drawing operation:
+もしそれが[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトが変更されたら、Component::repaint()関数を呼び出します。これにより`paint()`関数を呼び出す：
 
-```
-void thumbnailChanged()
+```cpp
+    void thumbnailChanged()
     {
-        repaint()；
+        repaint();
     }
 ```
 
-## Opening the file
+## ファイルを開く
 
-When we open the sound file successfully we also need to pass the file to the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object \[7\] within a [ファイル入力ソース](https://docs.juce.com/master/classFileInputSource "A type of InputSource that represents a normal file.") object.
+サウンドファイルをうまく開いたら、そのファイルを[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクト\[7\]の中にある。[FileInputSource](https://docs.juce.com/master/classFileInputSource.html "通常のファイルを表すInputSourceの一種。")オブジェクトがある。
 
-```
+```cpp
     void openButtonClicked()
     {
         chooser = std::make_unique ("Select a Wave file to play...",
@@ -141,169 +150,183 @@ When we open the sound file successfully we also need to pass the file to the [�
  
                 if (reader != nullptr)
                 {
-                    auto newSource = std::make_unique(reader, true)；
-                    transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate)；
-                    playButton.setEnabled (true)；
-                    thumbnail.setSource (new juce::FileInputSource (file)); // [7].
-                    readerSource.reset (newSource.release())；
+                    auto newSource = std::make_unique (reader, true);
+                    transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);
+                    playButton.setEnabled (true);
+                    thumbnail.setSource (new juce::FileInputSource (file));                            // [7]
+                    readerSource.reset (newSource.release());
                 }
             }
         });
     }
 ```
 
-## Performing the drawing
+## 描画の実行
 
-In our `ペイント` function, first we calculate the rectangle into which we will draw. Then we check how many channels the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object contains, which tells us whether we have a file loaded or not:
+我々の`paint()`関数では、まず描画する矩形を計算する。次に[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")これは、ファイルがロードされているかどうかを示す：
 
-```
+```cpp
     void paint (juce::Graphics& g) override
     {
-        juce::RectanglethumbnailBounds (10, 100, getWidth() - 20, getHeight() - 120)；
+        juce::Rectangle thumbnailBounds (10, 100, getWidth() - 20, getHeight() - 120);
  
         if (thumbnail.getNumChannels() == 0)
-            paintIfNoFileLoaded (g, thumbnailBounds)；
-        さもなければ
-            paintIfFileLoaded (g, thumbnailBounds)；
+            paintIfNoFileLoaded (g, thumbnailBounds);
+        else
+            paintIfFileLoaded (g, thumbnailBounds);
     }
 ```
 
-If we have no file loaded then we display the message **ファイルが読み込まれない** by passing our `paintIfNoFileLoaded()` function the [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") object and the bounds rectangle:
+もしファイルが読み込まれていなければ、次のようなメッセージが表示される。**ファイルが読み込まれない**私たちの`paintIfNoFileLoaded()`関数を使用する。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトと境界の矩形：
 
-```
+```cpp
     void paintIfNoFileLoaded (juce::Graphics& g, const juce::Rectangle& thumbnailBounds)
     {
-        g.setColour (juce::Colours::darkgrey)；
-        g.fillRect (thumbnailBounds)；
-        g.setColour (juce::Colours::white)；
-        g.drawFittedText ("No File Loaded", thumbnailBounds, juce::Justification::centred, 1)；
+        g.setColour (juce::Colours::darkgrey);
+        g.fillRect (thumbnailBounds);
+        g.setColour (juce::Colours::white);
+        g.drawFittedText ("No File Loaded", thumbnailBounds, juce::Justification::centred, 1);
     }
 ```
 
-The important part is next. If we *する* have a file loaded we can draw the waveform:
+重要なのは次だ。もし私たちが*する*ファイルをロードすれば、波形を描くことができる：
 
-```
+```cpp
     void paintIfFileLoaded (juce::Graphics& g, const juce::Rectangle& thumbnailBounds)
     {
-        g.setColour (juce::Colours::white)；
-        g.fillRect (thumbnailBounds)；
+        g.setColour (juce::Colours::white);
+        g.fillRect (thumbnailBounds);
  
-        g.setColour (juce::Colours::red); // [8].
+        g.setColour (juce::Colours::red);                               // [8]
  
-        thumbnail.drawChannels (g, // [9]).
-                                thumbnailBounds、
-                                0.0, // 開始時間
-                                thumbnail.getTotalLength(), // 終了時間
-                                1.0f); // 垂直ズーム
+        thumbnail.drawChannels (g,                                      // [9]
+                                thumbnailBounds,
+                                0.0,                                    // start time
+                                thumbnail.getTotalLength(),             // end time
+                                1.0f);                                  // vertical zoom
     }
 ```
 
--   \[8\]: Notice that we set the current colour for the [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") object. This will govern the colour used by the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object to draw the waveform.
--   \[9\]: We call the [AudioThumbnail::drawChannels()](classAudioThumbnail.html#a8fc354b03e88e66771ef3b9647fdd9fa "Draws the waveforms for all channels in the thumbnail.") function passing it the [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") object with which to draw, the rectangle into which it should draw, the start and end times (in seconds), and the vertical zoom factor. Here we use the [オーディオサムネイル::getTotalLength()](classAudioThumbnail.html#a76892e0159356999dfe317fa1c5e044b "Returns the length of the audio file, in seconds.") function to get the file duration so that we can draw the whole file. (We could have obtained the length from our [オーディオ・トランスポート・ソース](https://docs.juce.com/master/classAudioTransportSource "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...") object using the [AudioTransportSource::getLengthInSeconds()](classAudioTransportSource.html#aa2896785ea5864f2cd961676bfbe21b7 "Returns the stream's length in seconds.") function to get the same result.)
+- \[8\]現在の色を[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトの色を指定します。これは[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトを使って波形を描く。
+- \[9\]と呼ぶ。[AudioThumbnail::drawChannels()](https://docs.juce.com/master/classAudioThumbnail.html#a8fc354b03e88e66771ef3b9647fdd9fa "サムネイル内の全チャンネルの波形を描画します。")関数に渡す。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクト、描画する矩形、開始時間と終了時間（秒単位）、垂直ズーム倍率。ここでは[AudioThumbnail::getTotalLength()](https://docs.juce.com/master/classAudioThumbnail.html#a76892e0159356999dfe317fa1c5e044b "オーディオファイルの長さを秒単位で返します。")関数を使ってファイルの長さを取得し、ファイル全体を描画できるようにした。(長さは[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトを使用する。[AudioTransportSource::getLengthInSeconds()](https://docs.juce.com/master/classAudioTransportSource.html#aa2896785ea5864f2cd961676bfbe21b7 "ストリームの長さを秒単位で返します。")関数で同じ結果が得られる)。
 
-This covers all the basic points for using an [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") object.
+を使用する際の基本的なポイントをすべて網羅している。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトがある。
 
-In practice you will commonly want to display only certain regions of the sound files. It should be clear from the [AudioThumbnail::drawChannels()](classAudioThumbnail.html#a8fc354b03e88e66771ef3b9647fdd9fa "Draws the waveforms for all channels in the thumbnail.") function how simple this is to implement using JUCE. Try modifying the code to display only a specific region of the file.
+:::danger[エクササイズ]
 
-# Adding a time position marker
+実際には、サウンドファイルの特定の領域だけを表示したい場合が多い。それは[AudioThumbnail::drawChannels()](https://docs.juce.com/master/classAudioThumbnail.html#a8fc354b03e88e66771ef3b9647fdd9fa "サムネイル内の全チャンネルの波形を描画します。")関数は、JUCEを使用して、これがいかに簡単に実装できるかを示しています。ファイルの特定の領域だけを表示するようにコードを修正してみてください。
+
+:::
+
+# タイムポジションマーカーの追加
 
 このセクションでは、ファイル再生の現在時刻を表示する縦線の追加について説明します。
 
-## Adding a timer
+## タイマーの追加
 
-First of all we need to add the [タイマー](https://docs.juce.com/master/classTimer "Makes repeated callbacks to a virtual method at a specified time interval.") class to our list of base classes \[10\]:
+まず最初に[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスを基本クラスのリストに加える。\[10\]:
 
-```
-class MainContentComponent : public juce::AudioAppComponent、
-                               public juce::ChangeListener、
-                               private juce::Timer // [10].
+```cpp
+class MainContentComponent   : public juce::AudioAppComponent,
+                               public juce::ChangeListener,
+                               private juce::Timer               // [10]
 {
-public：
+public:
 ```
 
-Then we need to make the timer callback repaint our component. Make sure this code is added to the `プライベート` section as you will notice we inherited privately from the [タイマー](https://docs.juce.com/master/classTimer "Makes repeated callbacks to a virtual method at a specified time interval.") class:
+次に、タイマー・コールバックがコンポーネントを再描画するようにします。このコードが`private`のセクションを私的に継承していることにお気づきだろう。[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスである：
 
-```
-void timerCallback() オーバーライド
+```cpp
+    void timerCallback() override
     {
-        を再描画する；
+        repaint();
     }
 ```
 
-In the `メインコンテンツコンポーネント` constructor we need to start the timer \[11\] — every 40ms should be sufficient:
+の中で`MainContentComponent`コンストラクタでタイマーをスタートさせる必要がある。\[11\]\- 40ミリ秒ごとで十分だろう：
 
-```
-startTimer (40); // [11].
+```cpp
+        startTimer (40);                                  // [11]
     }
 ```
+
+:::danger[エクササイズ]
 
 実際、ファイルが正常にオープンされた時点でタイマーをスタートさせれば、タイマーのスタートを遅らせることができる。
 
-## Drawing the position line
+:::
 
-Finally, to draw the line we need to calculate the position of the line and draw it *その後* drawing the thumbnail:
+## ポジションラインを引く
 
-```
+最後に、線を引くために、線の位置を計算し、線を引く必要がある。*その後*サムネイルを描く
+
+```cpp
     void paintIfFileLoaded (juce::Graphics& g, const juce::Rectangle& thumbnailBounds)
     {
-        g.setColour (juce::Colours::white)；
-        g.fillRect (thumbnailBounds)；
+        g.setColour (juce::Colours::white);
+        g.fillRect (thumbnailBounds);
  
-        g.setColour (juce::Colours::red)；
+        g.setColour (juce::Colours::red);
  
-        auto audioLength = (float) thumbnail.getTotalLength(); // [12].
-        thumbnail.drawChannels (g, thumbnailBounds, 0.0, audioLength, 1.0f)；
+        auto audioLength = (float) thumbnail.getTotalLength();                               // [12]
+        thumbnail.drawChannels (g, thumbnailBounds, 0.0, audioLength, 1.0f);
  
-        g.setColour (juce::Colours::green)；
+        g.setColour (juce::Colours::green);
  
-        auto audioPosition = (float) transportSource.getCurrentPosition()；
+        auto audioPosition = (float) transportSource.getCurrentPosition();
         auto drawPosition = (audioPosition / audioLength) * (float) thumbnailBounds.getWidth()
-                            + (float) thumbnailBounds.getX(); // [13].
-        g.drawLine (drawPosition, (float) thumbnailBounds.getY(), drawPosition、
-                    (float) thumbnailBounds.getBottom(), 2.0f); // [14].
+                            + (float) thumbnailBounds.getX();                                // [13]
+        g.drawLine (drawPosition, (float) thumbnailBounds.getY(), drawPosition,
+                    (float) thumbnailBounds.getBottom(), 2.0f);                              // [14]
     }
 ```
 
--   \[12\]: Store the length of the file in a variable since we need to use this value twice.
--   \[13\]: The position is calculated as a proportion of the total length of the audio file. The position to draw the line needs to be based on the same proportion of the width of the rectangle that the thumbnail is drawn within. We need to offset the drawing position based on the x-coordinate of the rectangle.
--   \[14\]: Here we draw a line that is 2 pixels wide between the top (y) and bottom of the rectangle.
+- \[12\]この値を2回使う必要があるので、ファイルの長さを変数に格納する。
+- \[13\]位置はオーディオファイルの全長に対する割合で計算されます。線を引く位置は、サムネイルが描画される矩形の幅と同じ割合にする必要があります。矩形のx座標に基づいて描画位置をオフセットする必要があります。
+- \[14\]ここでは、矩形の上端（y）と下端（b）の間に幅2ピクセルの線を引く。
 
 これでアプリケーションをビルドして実行できるはずだ。
 
 :::note
 
-The source code for this modified version of the application can be found in the `オーディオサムネイルチュートリアル_02.h` file of the demo project.
+この修正版アプリケーションのソースコードは`AudioThumbnailTutorial_02.h`ファイルにある。
 
-::::::warning
+:::
+
+:::warning
 
 この例の問題点は、40ミリ秒ごとにコンポーネントを強制的に再描画していることです。これは単純な例では許容できるかもしれませんが、より複雑なケースではパフォーマンスの問題にぶつかるでしょう。これについては、下の演習を見てください。
 
 :::
 
-Separate the drawing into a separate child components (see [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)). You should have three components:
+:::danger[エクササイズ]
 
--   オーディオ波形を描画するコンポーネント。
--   再生位置を垂直線として描画するコンポーネント。
--   この2つの子コンポーネントを含むメインの親コンポーネント。
+図面を別の子コンポーネントに分離する ([Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)).つのコンポーネントが必要です：
+
+- オーディオ波形を描画するコンポーネント。
+- 再生位置を垂直線として描画するコンポーネント。
+- この2つの子コンポーネントを含むメインの親コンポーネント。
 
 こうすることで、コードが簡単になるだけでなく、正しく行えば、フレームごとに波形を再描画する必要がなくなるので、より効率的になります。また、ユーザーが波形をクリックした場合に再生位置を変更する機能を追加することもできる。
 
+:::
+
 :::note
 
-The source code for possible implementations of this exercise can be found in the `オーディオサムネイルチュートリアル_03.h` and `オーディオサムネイルチュートリアル_04.h` files of the demo project.
+この練習を実装するためのソースコードは`AudioThumbnailTutorial_03.h`そして`AudioThumbnailTutorial_04.h`のファイルにある。
 
 :::
 
 # 概要
 
-This tutorial has introduced the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") class and how it can be integrated into an audio application. In particular we have covered:
+このチュートリアルでは[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスと、それをオーディオ・アプリケーションに統合する方法について説明しました。特に
 
--   Initialising [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") and [オーディオサムネイルキャッシュ](https://docs.juce.com/master/classAudioThumbnailCache "An instance of this class is used to manage multiple AudioThumbnail objects.") objects.
--   Using the [オーディオサムネイル](https://docs.juce.com/master/classAudioThumbnail "Makes it easy to quickly draw scaled views of the waveform shape of an audio file.") class within a component.
--   コンポーネントを構造化することで、描画が複雑なコンテンツが不必要に再描画されないようにする。
+- 初期化[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")そして[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトがある。
+- を使用している。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスをコンポーネント内で使用します。
+- コンポーネントを構造化することで、描画が複雑なコンテンツが不必要に再描画されないようにする。
 
-# 関連項目
+# こちらも参照
 
--   [チュートリアルGraphicsクラス](../tutorial_graphics_class/)
--   [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)
--   [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/)
+- [Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)
+- [Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)
+- [Tutorial: Build an audio player](../tutorial_playing_sound_files/)

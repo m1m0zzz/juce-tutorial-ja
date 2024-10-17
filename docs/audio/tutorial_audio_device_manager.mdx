@@ -1,61 +1,154 @@
 ---
 title: AudioDeviceManagerクラス
 sidebar_position: 6
+tags: [中級]
 ---
 
 # チュートリアルAudioDeviceManagerクラス
 
-This tutorial introduces the [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") class which is used for managing audio devices on all platforms. This allows you to configure things such as the device sample rate and the number of inputs and outputs.
+<SourcePageLink path="tutorial_audio_device_manager" />
 
-レベル：中級
+このチュートリアルでは[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")クラスは、すべてのプラットフォームのオーディオデバイスを管理するために使用されます。これにより、デバイスのサンプルレートや入出力の数などを設定することができます。
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+レベル中級
 
-クラス： [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices."), [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob..."), [変更リスナー](https://docs.juce.com/master/classChangeListener "Receives change event callbacks that are sent out by a ChangeBroadcaster."), [BigInteger](https://docs.juce.com/master/classBigInteger "An arbitrarily large integer class.")
+プラットフォームWindows , macOS , Linux , iOS , Android
 
-## はじめる
+クラス： [AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。"),[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。"),[ChangeListener](https://docs.juce.com/master/classChangeListener.html "ChangeBroadcasterから発信される変更イベントコールバックを受信する。"),[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")
 
-:::note
-
-This tutorial assumes that you have a basic grasp of using the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") class for audio input and output (see [チュートリアルオーディオ入力を処理する](../tutorial_processing_audio_input/)). It also assumes that you are familiar with basic GUI layout techniques (see [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)).
-
-:::
-
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/AudioDeviceManagerTutorial.zip) | [ジップ](/tutorials/ZIPs/AudioDeviceManagerTutorial.zip). Unzip the project and open the first header file in the Projucer.
-
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
-
-# The demo project
-
-The demo project is based on the Audio Application template from the Projucer. It presents an [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") object which allows you to configure your audio device settings. The demo project also presents a simple text console that reports the current audio device settings. The application also shows the current CPU usage of the audio processing element of the application.
+# スタート
 
 :::note
 
-The code presented here is broadly similar to the **オーディオ設定デモ** from the JUCE Demo. The main difference is that the audio generated is the same as in the [チュートリアルオーディオ入力を処理する](../tutorial_processing_audio_input/) (this ring-modulates the audio input with white noise).
+このチュートリアルでは、基本的に[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")オーディオ入出力用のクラス ([Tutorial: Processing audio input](../tutorial_processing_audio_input/)).また、基本的なGUIレイアウトのテクニック([Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)).
 
 :::
-<CaptionImage src="https://docs.juce.com/master/tutorial_audio_device_manager_screenshot1.png" caption="An AudioDeviceSelectorComponent object showing settings for an AudioDeviceManager object" />
 
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AudioDeviceManagerTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AudioDeviceManagerTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-# Audio Devices
+このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+
+# デモ・プロジェクト
+
+このデモプロジェクトは、Projucerのオーディオアプリケーションテンプレートに基づいています。これは[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")オブジェクトで、オーディオデバイスの設定を行うことができます。デモプロジェクトでは、現在のオーディオデバイスの設定を報告するシンプルなテキストコンソールも表示します。このアプリケーションは、アプリケーションのオーディオ処理エレメントの現在のCPU使用率も表示します。
+
+:::note
+
+ここで紹介するコードは、大まかに以下のものと似ている。**オーディオ設定デモ**JUCE Demo から。主な違いは、生成されるオーディオが[Tutorial: Processing audio input](../tutorial_processing_audio_input/)(これはオーディオ入力をホワイトノイズでリング変調する）。
+
+:::
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_audio_device_manager_screenshot1.png"
+  caption="AudioDeviceManager オブジェクトの設定を示す AudioDeviceSelectorComponent オブジェクト"
+>
+
+# オーディオ機器
 
 JUCEは、それがサポートする全てのプラットフォーム上でオーディオデバイスにアクセスする一貫した手段を提供します。ここで提供されるデモアプリケーションは、デスクトッププラットフォームにのみデプロイされるかもしれませんが、これはGUIレイアウトの制約によるものです。オーディオはモバイルプラットフォームでもシームレスに動作します。
 
-In the Audio Application template, the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") class instantiates an [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") object `デバイスマネージャー` — it is a public member, therefore it is accessible from your subclass. The [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") class also performs some basic initialisation of this [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") object — this happens when you call [AudioAppComponent::setAudioChannels()](classAudioAppComponent.html#a1cb6b457848fa80df7efc39cf095d465 "A subclass should call this from their constructor, to set up the audio.").
+オーディオ・アプリケーション・テンプレートでは[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスは[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクト`deviceManager`\- はパブリック・メンバーなので、サブクラスからアクセスできる。そのため[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスの基本的な初期化も行います。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトを呼び出したときに起こります。[AudioAppComponent::setAudioChannels()](https://docs.juce.com/master/classAudioAppComponent.html#a1cb6b457848fa80df7efc39cf095d465 "サブクラスはコンストラクタからこれを呼び出し、オーディオをセットアップしなければならない。").
 
-The [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") class will attempt to use the default audio device unless this is overridden. This may be configured in code or via the [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") as illustrated here. Device settings and preferences may be stored and recalled on subsequent applications launches. The [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") class can also fallback to the default device in such circumstances if the preferred device is no longer available (for example, if an external audio device has been unplugged since the last launch).
+について[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")クラスは、オーバーライドされない限り、デフォルトのオーディオ・デバイスを使用しようとします。これはコードで設定するか、あるいは[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")この図のようにデバイスの設定やプリファレンスは保存され、次回以降のアプリケーション起動時に呼び出すことができます。アプリケーションの[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")クラスはまた、優先デバイスが利用できなくなった場合（例えば、前回の起動以降に外部オーディオデバイスのプラグが抜かれた場合）、そのような状況でデフォルトデバイスにフォールバックすることもできます。
 
-The [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") class is also a hub for incoming MIDI messages. This is explored in other tutorials (see [チュートリアル：MIDIイベントの処理](../tutorial_handling_midi_events/)).
+について[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")クラスはまた、入力されるMIDIメッセージのハブでもあります。これは他のチュートリアルで説明されています([Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/)).
 
-The [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") class can broadcast changes to its settings as it inherits from the [チェンジブロードキャスター](https://docs.juce.com/master/classChangeBroadcaster "Holds a list of ChangeListeners, and sends messages to them when instructed.") class. The right-hand side of our component posts some of the important audio device settings whenever a change in our [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") object is triggered.
+について[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")クラスを継承しているため、設定の変更をブロードキャストすることができます。[ChangeBroadcaster](https://docs.juce.com/master/classChangeBroadcaster.html "ChangeListenersのリストを保持し、指示があったときにメッセージを送信する。")クラスを作成します。このコンポーネントの右側は、オーディオ・デバイスの設定が変更されるたびに、重要なオーディオ・デバイスの設定を投稿します。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトがトリガーされる。
 
-## The AudioDeviceSelectorComponent class
+## AudioDeviceSelectorComponent クラス
 
-The [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") class provides convenient way of configuring audio devices on all platforms. As mentioned above, this is displayed in the right-hand side of our user interface for the demo project. When the [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") object is constructed we pass it the [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") object that we want it to control along with a number of other options including the number of channels to support (see the [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") class [ビルダー](classAudioDeviceSelectorComponent.html#a859af6ef664a974dc7d2ce3d24d8f94c) for more information). Here we create the [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") object by passing it the [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") object that is the member of the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices."), allowing up to 256 input and output channels, hiding MIDI configuration, and showing our channels as single channels rather than stereo pairs:
+について[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")クラスは、すべてのプラットフォームでオーディオデバイスを設定する便利な方法を提供します。上述したように、これはデモ・プロジェクトのユーザー・インターフェースの右側に表示されています。クラスが[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")オブジェクトが構築されたら[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトをコントロールしたい。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")クラス[constructor](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html#a859af6ef664a974dc7d2ce3d24d8f94c)を参照)。ここでは[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")オブジェクトに渡す。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")のメンバーである[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")最大256の入出力チャンネルを可能にし、MIDIコンフィギュレーションを隠し、チャンネルをステレオ・ペアではなくシングル・チャンネルとして表示する：
 
--   オーディオ機器の変化に対応。
--   サンプルレートやチャンネル数など、オーディオデバイスの便利な設定にアクセスできます。
+```cpp
+    MainContentComponent()
+        : audioSetupComp (deviceManager,
+                          0,     // minimum input channels
+                          256,   // maximum input channels
+                          0,     // minimum output channels
+                          256,   // maximum output channels
+                          false, // ability to select midi inputs
+                          false, // ability to select midi output device
+                          false, // treat channels as stereo pairs
+                          false) // hide advanced options
+    {
+```
 
-# 関連項目
+我々のインターフェイスは、コントロールできるように設定されている：
 
--   [チュートリアルオーディオ入力を処理する](../tutorial_processing_audio_input/)
+- 出力デバイスの選択。
+- 入力デバイスの選択
+- 入出力チャンネルのイネーブルとディセーブル。
+- デバイスがサポートしている）サンプルレートを選択する。
+- オーディオバッファーサイズ（ブロックサイズ）の選択。
+
+これらの設定を変更すると、インターフェースの右側にある小さなコンソール・ウィンドウに新しいデータ・リストが表示されることに気づくはずだ。これは[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")クラスは[ChangeBroadcaster](https://docs.juce.com/master/classChangeBroadcaster.html "ChangeListenersのリストを保持し、指示があったときにメッセージを送信する。")クラスである。
+
+我々の`changeListenerCallback()`関数を呼び出す。`dumpDeviceInfo()`関数にアクセスする。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトから現在のオーディオデバイスを取得します。次に、デバイスに関する様々な情報を取得します：
+
+```cpp
+    void dumpDeviceInfo()
+    {
+        logMessage ("--------------------------------------");
+        logMessage ("Current audio device type: " + (deviceManager.getCurrentDeviceTypeObject() != nullptr
+                                                     ? deviceManager.getCurrentDeviceTypeObject()->getTypeName()
+                                                     : ""));
+ 
+        if (auto* device = deviceManager.getCurrentAudioDevice())
+        {
+            logMessage ("Current audio device: "   + device->getName().quoted());
+            logMessage ("Sample rate: "    + juce::String (device->getCurrentSampleRate()) + " Hz");
+            logMessage ("Block size: "     + juce::String (device->getCurrentBufferSizeSamples()) + " samples");
+            logMessage ("Bit depth: "      + juce::String (device->getCurrentBitDepth()));
+            logMessage ("Input channel names: "    + device->getInputChannelNames().joinIntoString (", "));
+            logMessage ("Active input channels: "  + getListOfActiveBits (device->getActiveInputChannels()));
+            logMessage ("Output channel names: "   + device->getOutputChannelNames().joinIntoString (", "));
+            logMessage ("Active output channels: " + getListOfActiveBits (device->getActiveOutputChannels()));
+        }
+        else
+        {
+            logMessage ("No audio device open");
+        }
+    }
+```
+
+:::note
+
+を使用している。`getListOfActiveBits()`関数を使用して[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")アクティブなチャンネルのリストを*ビットマスク*にしている。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトになる。その[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトはビットマスクとして使用される。[std::bitset](https://docs.juce.com/master/http://www.cplusplus.com/reference/bitset/bitset/)または[std::vector<bool>](https://docs.juce.com/master/http://www.cplusplus.com/reference/vector/vector-bool/).を構成するビットの0（非アクティブ）または1（アクティブ）で表される。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")の値です。参照[Tutorial: The BigInteger class](../../utility-classes/tutorial_big_integer/)に対して実行可能なその他の操作については[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトがある。
+
+:::
+
+このような変化に対応することは、実際のアプリケーションでは実に有用である。多くの場合、サンプルレートやその他のオーディオパラメータの変更に適切に対応することが重要です。
+
+:::danger[エクササイズ]
+
+の設定を変えて試してみてください。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")このコンストラクタは、マルチチャンネルサウンドカードを使用していて、アプリが対応できるチャンネル数を制限できる場合に特に便利です。また、チャンネルのペアをステレオ・ペアとして表示することもできます。
+
+:::
+
+について[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")クラスにも**テスト**ボタンをクリックします。これはデバイスの出力から正弦音を再生するもので、ユーザーがターゲット・デバイスでオーディオ出力が機能しているかテストするのに便利です。
+
+## CPU使用率
+
+を呼び出して、アプリケーションのオーディオ処理エレメントのCPU使用率を求めます。[AudioDeviceManager::getCpuUsage()](https://docs.juce.com/master/classAudioDeviceManager.html#a79563c9d2cc87d059d8b101515e8dee1 "オーディオコールバック内で使用可能なCPUの平均割合を返します。")関数を使用しています。我々の`MainContentComponent`クラスを継承している。[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスで、50ミリ秒ごとにタイマーを起動する。我々の`timerCallback()`関数からCPU使用率を得る。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトに表示されます。この値は[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトをパーセンテージ（小数点以下6桁）で表示します：
+
+```cpp
+    void timerCallback() override
+    {
+        auto cpu = deviceManager.getCpuUsage() * 100;
+        cpuUsageText.setText (juce::String (cpu, 6) + " %", juce::dontSendNotification);
+    }
+```
+
+この特定のアプリケーションでは、オーディオ処理をほとんど行っていないので、CPU 使用率は非常に低く、おそらく多くのターゲットデバイスでは1％未満でしょう。しかし、異なるサンプルレートとバッファサイズが CPU 負荷に与える影響は、設定を組み合 わせて試すことで確認できます。一般的に、サンプルレートが高く、バッファサイズが小さいほど、より多くの CPU を使用します。
+
+# 概要
+
+このチュートリアルでは[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")クラスと一般的なオーディオ・デバイスについて説明します。あなたは今、次の方法を知っているはずです：
+
+- アクセス[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトの中から[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")オブジェクトを使います。
+- を作成する。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")オブジェクトを制御する。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトがある。
+- オーディオ機器の変化に対応。
+- サンプルレートやチャンネル数など、オーディオデバイスの便利な設定にアクセスできます。
+
+# こちらも参照
+
+- [Tutorial: Processing audio input](../tutorial_processing_audio_input/)

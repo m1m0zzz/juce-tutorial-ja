@@ -1,151 +1,168 @@
 ---
 title: サイン波シンセサイザーを作る
 sidebar_position: 4
+tags: [中級]
 ---
 
 # チュートリアルサイン波シンセサイザーを作る
 
+<SourcePageLink path="tutorial_sine_synth" />
+
 このチュートリアルでは、簡単なサイン波合成を紹介します。正弦波発振器の状態を管理し、オーディオ出力にデータを書き込む方法を紹介します。
 
-レベル：中級
+レベル中級
 
-プラットフォーム：Windows, macOS, Linux
+プラットフォームWindows , macOS , Linux
 
-クラス： [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices."), [スライダー](https://docs.juce.com/master/classSlider "A slider control for changing a value."), [数学定数](https://docs.juce.com/master/structMathConstants "Commonly used mathematical constants.")
+クラス： [AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。"),[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。"),[MathConstants](https://docs.juce.com/master/structMathConstants.html "よく使われる数学定数。")
 
-## はじめる
+# スタート
 
 :::note
 
-This tutorial leads on from [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/), which you should have read and understood first.
+このチュートリアルは[Tutorial: Control audio levels](../tutorial_synth_level_control/)それは最初に読んで理解すべきだった。
 
 :::
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/SineSynthTutorial.zip) | [ジップ](/tutorials/ZIPs/SineSynthTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/SineSynthTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/SineSynthTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# The demo project
+# デモ・プロジェクト
 
 このデモ・プロジェクトは、Projucerのオーディオ・アプリケーション・テンプレートに基づいています。正弦波の周波数をコントロールするためのスライダーが1つ表示されます。
 
-# Generating a sine wave
+# 正弦波の生成
 
-This tutorial synthesises a sine wave using the standard library function `標準値::sin()`. In order to use this we need to maintain a state for our sine wave generation by storing the current *位相角* and the amount by which the phase angle needs to increment for each output sample. This size of this change per sample ("delta") is dependent on the sample rate of the output and the frequency of the sine wave we want to generate.
+このチュートリアルでは、標準ライブラリ関数`std::sin()`.これを使用するには、電流を保存して正弦波生成の状態を維持する必要があります。*位相角*と、出力サンプルごとに位相角がインクリメントされる必要がある量です。このサンプルごとの変化の大きさ（「デルタ」）は、出力のサンプル・レートと、生成したい正弦波の周波数に依存します。
 
 :::warning
 
-Most synthesis applications and plug-ins are likely not to use the `標準値::sin()` function as it probably isn't the most efficient technique. Commonly a [ウェーブテーブル](https://en.wikipedia.org/wiki/Table-lookup_synthesis) would be used, see [チュートリアルウェーブテーブルシンセシス](../tutorial_wavetable_synth/). Wavetables also allow for waveshapes other than sine waves, too.
+ほとんどの合成アプリケーションやプラグインでは`std::sin()`最も効率的な手法ではないだろう。一般的に[wavetable](https://en.wikipedia.org/wiki/Table-lookup_synthesis)を参照されたい。[Tutorial: Wavetable synthesis](../tutorial_wavetable_synth/).ウェーブテーブルは正弦波以外の波形も扱うことができる。
 
 :::
 
-## Maintaining our state
+## 国家の維持
 
-In our `メインコンテンツコンポーネント` class we store three `ダブル` members \[1\]:
+我々の`MainContentComponent`クラスには3つの`double`メンバー\[1\]:
 
-We have a simple function that updates the `角度デルタ` member:
-
+```cpp
+    double currentSampleRate = 0.0, currentAngle = 0.0, angleDelta = 0.0; // [1]
 ```
+
+を更新する単純な関数がある。`angleDelta`メンバーだ：
+
+```cpp
     void updateAngleDelta()
     {
         auto cyclesPerSample = frequencySlider.getValue() / currentSampleRate;         // [2]
-        angleDelta = cyclesPerSample * 2.0 * juce::MathConstants::pi; // [3］
+        angleDelta = cyclesPerSample * 2.0 * juce::MathConstants::pi;          // [3]
     }
 ```
 
--   \[2\]: First we calculate the number of cycles that will need to complete for each output sample.
--   \[3\]: Then this is multiplied by the length of a whole sine wave cycle, which is 2pi radians.
+- \[2\]まず、各出力サンプルに必要なサイクル数を計算します。
+- \[3\]そして、これに正弦波1周期の長さを掛けると、次のようになる。2piラジアン
 
-Before this function can work correctly we need to know the output sample rate. This is because we need to know how frequently the samples are being generated, this is in order to know the amount of change that is needed per sample. We are passed the sample rate by the [AudioAppComponent::prepareToPlay()](classAudioAppComponent.html#a70634aa3ffaf6e7ff0d233e5933a063d "Tells the source to prepare for playing.") callback function:
+この関数が正しく動作する前に、出力サンプルレートを知る必要がある。これは、サンプルの生成頻度を知る必要があるためで、1サンプルあたりに必要な変化量を知るためです。サンプルレートは[AudioAppComponent::prepareToPlay()](https://docs.juce.com/master/classAudioAppComponent.html#a70634aa3ffaf6e7ff0d233e5933a063d "ソースに演奏の準備を指示する。")コールバック関数：
 
-```
-void prepareToPlay (int, double sampleRate) override
+```cpp
+    void prepareToPlay (int, double sampleRate) override
     {
-        currentSampleRate = sampleRate；
-        updateAngleDelta()；
+        currentSampleRate = sampleRate;
+        updateAngleDelta();
     }
 ```
 
-Here we store a copy of the sample rate value and call our `updateAngleDelta()` function initially.
+ここでは、サンプルレート値のコピーを保存し`updateAngleDelta()`関数は当初は
 
-## Using the slider value
+## スライダーの値を使う
 
-When the slider is moved while the app is running, we need to update the `角度デルタ` member again:
+アプリの実行中にスライダーが動いたら`angleDelta`またメンバーだ：
 
-```
-frequencySlider.onValueChange = [this].
+```cpp
+        frequencySlider.onValueChange = [this]
         {
             if (currentSampleRate > 0.0)
-                updateAngleDelta()；
+                updateAngleDelta();
         };
 ```
 
-Here we check that the sample rate is valid, before calling the `updateAngleDelta()` function again.
+を呼び出す前に、サンプルレートが有効かどうかをチェックする。`updateAngleDelta()`関数を再び使用する。
 
-## Outputting the audio
+## オーディオの出力
 
-During the `getNextAudioBlock()` callback we need to generate the actual sine wave and write it to the output:
+期間中`getNextAudioBlock()`コールバックで実際のサイン波を生成し、それを出力に書き出す必要がある：
 
-```
-void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+```cpp
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
     {
-        auto level = 0.125f；
-        auto* leftBuffer = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample)；
-        auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample)；
+        auto level = 0.125f;
+        auto* leftBuffer  = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
+        auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample);
  
         for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
         {
-            auto currentSample = (float) std::sin (currentAngle)；
-            currentAngle += angleDelta；
-            leftBuffer[sample] = currentSample * level；
-            rightBuffer[sample] = currentSample * level；
+            auto currentSample = (float) std::sin (currentAngle);
+            currentAngle += angleDelta;
+            leftBuffer[sample]  = currentSample * level;
+            rightBuffer[sample] = currentSample * level;
         }
     }
 ```
 
-For each output sample we calculate the sine function for the current angle, then increment the angle for the next sample. Notice that we bring the level down to `0.125` as a full scale sine wave will be very loud! We could (and perhaps should) *ラップ* the current angle value back to zero when it reaches 2pi. Since larger values still return a valid value we can actually avoid this calculation. We get something like that shown in the following image:
+出力サンプルごとに、現在の角度に対するサイン関数を計算し、次のサンプルの角度をインクリメントする。レベルを`0.125`フルスケールの正弦波は非常に大きくなる！私たちは次のことができる（そしておそらくそうすべきだ）。*ラップ*に達すると、現在の角度値をゼロに戻す。2pi.より大きな値はまだ有効な値を返すので、実際にはこの計算を避けることができる。次の画像のようなものが得られる：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_synth_sine_graph1.png" caption="A full scale ±1.0 sine wave showing the phase angle in radians." />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_synth_sine_graph1.png"
+  caption="位相角をラジアン単位で示すフルスケール±1.0の正弦波。"
+>
 
+## スライダーの構成
 
-## The slider configuration
+スライダーの値が非線形に変化することにお気づきかもしれない（そうでなければ、今すぐ試してみるべきだ）。実はこの変化は対数的なものなのです。これにより、小さい値では分解能が高くなり、大きい値では分解能が低くなります。周波数値をコントロールする場合、この方法が適切なことがよくあります（音楽的には、リニアに等しく変化するよりも、周波数間の比率で等しく変化するように聞こえるからです）。この設定は[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "値の分布方法を変更するためのスキュー係数を設定する。")機能\[4\].私たちのスライダーの範囲は次のように設定されている。50..5000したがって、スライダートラックの中心を500ということは、スライダーの最小値と中央、中央と最大値の間に等しい音楽的間隔があることを意味する：
 
-You may have noticed that the slider value changes non-linearly (if not you should try this out now). These changes are, in fact, logarithmic. This gives us higher resolution for smaller values and lower resolution for larger values. When controlling a frequency value this is often appropriate (as musically, we hear equal changes in ratios between frequences rather than equal linear changes). This is configured by using the [スライダー::setSkewFactorFromMidPoint()](classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "Sets up a skew factor to alter the way values are distributed.") function \[4\]. Our slider range is set to 50..5000 therefore setting the centre of the slider track to represent 500 would mean there is an equal musical interval between the slider minimum and the centre, and the centre and the slider maximum:
-
-```
-MainContentComponent()
+```cpp
+    MainContentComponent()
     {
-        addAndMakeVisible (frequencySlider)；
-        frequencySlider.setRange (50.0, 5000.0)；
-        frequencySlider.setSkewFactorFromMidPoint (500.0); // [4].
+        addAndMakeVisible (frequencySlider);
+        frequencySlider.setRange (50.0, 5000.0);
+        frequencySlider.setSkewFactorFromMidPoint (500.0); // [4]
 ```
 
-The *スキュー係数* for the slider can be set directly using the [スライダー::setSkewFactor()](classSlider.html#aba8fe3610e7198bd4c1f2804736bfbf2 "Sets up a skew factor to alter the way values are distributed.") function although it is often easier to think about what value you want at the mid-point.
+について*スキュー係数*を使って直接設定できます。[Slider::setSkewFactor()](https://docs.juce.com/master/classSlider.html#aba8fe3610e7198bd4c1f2804736bfbf2 "値の分布方法を変更するためのスキュー係数を設定する。")関数は、中間点でどのような値が欲しいかを考える方が簡単な場合が多い。
 
-Add another slider to the application to control the level of the sine wave. Take care to keep the level well below 1.0 — a maximum value of 0.25 should be fine.
+:::danger[エクササイズ]
 
-# Smoothing frequency changes
+アプリケーションに別のスライダーを追加して、サイン波のレベルをコントロールする。レベルを1.0\- の最大値である。0.25でいいはずだ。
 
-スライダーを動かすと、特に高い周波数帯域で、耳に聞こえる、おそらくは不要なアーチファクトが発生することにお気づきでしょう。これは、スライダーが実際には離散的なステップで変化しているためで、スライダーを素早く動かすと、このステップはかなり大きくなります。これに加えて、スライダーの周波数はオーディオブロックごとにしか更新されないため、これらの変化の正確な効果はハードウェアのブロックサイズに依存します。
+:::
 
-## State members for smoothing
+# 周波数の変化を滑らかにする
 
-Let's add two members to our class, one to store the current frequency being used for synthesis, and another *ターゲット* frequency that the user has requested by moving the slider. Then we can more slowly ramp between these values to remove the artefacts:
+スライダを動かすと、特に高い周波数で、耳に聞こえる、おそらく不要なアーチファクトが発生することにお気づきでしょう。これは、スライダが実際には離散的なステップで変化しており、スライダを素早く動かすとこのステップがかなり大きくなるためです。これに加えて、スライダーの周波数はオーディオブロックごとにしか更新されないため、これらの変化の正確な効果はハードウェアのブロックサイズに依存します。
 
-We initialise these values at the same time \[5\]. We can also initialise the slider to the same value \[6\]:
+## スムージング用ステート・メンバー
 
+ひとつは、合成に使われている現在の周波数を保存するためのもので、もうひとつは、合成に使われている現在の周波数を保存するためのものだ。*ターゲット*ユーザーがスライダーを動かして要求した頻度。その後、これらの値の間をよりゆっくりとランプして、アーチファクトを除去することができる：
+
+```cpp
+    double currentFrequency = 500.0, targetFrequency = 500.0; // [5]
 ```
-MainContentComponent()
+
+これらの値を同時に初期化する\[5\].スライダーを同じ値に初期化することもできます。\[6\]:
+
+```cpp
+    MainContentComponent()
     {
-        addAndMakeVisible (frequencySlider)；
-        frequencySlider.setRange (50.0, 5000.0)；
-        frequencySlider.setSkewFactorFromMidPoint (500.0)；
-        frequencySlider.setValue (currentFrequency, juce::dontSendNotification); // [6].
+        addAndMakeVisible (frequencySlider);
+        frequencySlider.setRange (50.0, 5000.0);
+        frequencySlider.setSkewFactorFromMidPoint (500.0);
+        frequencySlider.setValue (currentFrequency, juce::dontSendNotification);  // [6]
 ```
 
-## Updating the synthesis code
+## 合成コードの更新
 
-The key to the way this algorithm works is to check whether the current and target values are the same or different. If they are the same, then we can simply use our original code as the `角度デルタ` member doesn't need to change. If the current and target values are different, then we need to update the `角度デルタ` member for each sample as we gradually move the current value closer to the target.
+このアルゴリズムが機能する鍵は、現在値と目標値が同じか異なるかをチェックすることである。もし同じなら、単純に元のコードを`angleDelta`メンバーは変更する必要はない。もし現在値と目標値が異なるなら、その時点で`angleDelta`各サンプルのメンバーは、現在の値を徐々に目標値に近づけていく。
 
 :::warning
 
@@ -153,79 +170,87 @@ The key to the way this algorithm works is to check whether the current and targ
 
 :::
 
-```
-void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+```cpp
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
     {
-        auto level = 0.125f；
-        auto* leftBuffer = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample)；
-        auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample)；
+        auto level = 0.125f;
+        auto* leftBuffer  = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
+        auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample);
  
-        auto localTargetFrequency = targetFrequency；
+        auto localTargetFrequency = targetFrequency;
  
-        if (! juce::approximatelyEqual (localTargetFrequency, currentFrequency)) // [7].
+        if (! juce::approximatelyEqual (localTargetFrequency, currentFrequency))                              // [7]
         {
-            auto frequencyIncrement = (localTargetFrequency - currentFrequency) / bufferToFill.numSamples; // [8].
+            auto frequencyIncrement = (localTargetFrequency - currentFrequency) / bufferToFill.numSamples;    // [8]
  
             for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
             {
-                auto currentSample = (float) std::sin (currentAngle)；
-                currentFrequency += frequencyIncrement; // [9].
-                updateAngleDelta(); // [10].
-                currentAngle += angleDelta；
-                leftBuffer[sample] = currentSample * level；
-                rightBuffer[sample] = currentSample * level；
+                auto currentSample = (float) std::sin (currentAngle);
+                currentFrequency += frequencyIncrement;                                                       // [9]
+                updateAngleDelta();                                                                           // [10]
+                currentAngle += angleDelta;
+                leftBuffer[sample]  = currentSample * level;
+                rightBuffer[sample] = currentSample * level;
             }
  
-            currentFrequency = localTargetFrequency；
+            currentFrequency = localTargetFrequency;
         }
-        else // [11］
+        else                                                                                                  // [11]
         {
             for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
             {
-                auto currentSample = (float) std::sin (currentAngle)；
-                currentAngle += angleDelta；
-                leftBuffer[sample] = currentSample * level；
-                rightBuffer[sample] = currentSample * level；
+                auto currentSample = (float) std::sin (currentAngle);
+                currentAngle += angleDelta;
+                leftBuffer[sample]  = currentSample * level;
+                rightBuffer[sample] = currentSample * level;
             }
         }
     }
 ```
 
--   \[7\]: Check if our target is different from the current value. Notice that we take a local copy of the target value, just in case the slider changes the value on the message thread while this function runs.
--   \[8\]: Calculate the required increment per sample.
--   \[9\]: Increment the current frequency.
--   \[10\]: Update the `デルタ角度` member based on this new frequency.
--   \[11\]: Otherwise just use the original code.
+- \[7\]ターゲットが現在の値と異なるかどうかをチェックする。この関数が実行されている間にスライダーがメッセージスレッド上で値を変更した場合に備えて、ターゲット値のローカルコピーを取っていることに注意してください。
+- \[8\]1サンプルに必要なインクリメントを計算します。
+- \[9\]現在の周波数をインクリメントする。
+- \[10\]を更新する。`deltaAngle`この新しい周波数に基づくメンバー。
+- \[11\]そうでない場合は、オリジナルのコードを使用してください。
 
 :::note
 
-The format of this code uses a typically pattern for [デジタル信号処理](https://en.wikipedia.org/wiki/Digital_signal_processing) code. We avoid conditional statements in the inner `for()` loop, if possible. Instead, having the condition tested outside the loop, and we use two different, but quite similar loops depending upon whether the parameter is changing.
+このコードの書式は、以下の典型的なパターンを使用しています。[DSP](https://en.wikipedia.org/wiki/Digital_signal_processing)コードを使用します。内部では条件文は使わない。`for()`ループを使用する。その代わりに、条件をループの外でテストさせ、パラメータが変化しているかどうかによって、2つの異なる、しかしよく似たループを使う。
 
 :::
 
-Finally, we need to update our [スライダー::onValueChange](classSlider.html#a680d007f6a824a28a60aa05b4045e794 "You can assign a lambda to this callback object to have it called when the slider value is changed.") helper object so that it just updates the target value:
+最後に[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "このコールバックオブジェクトにラムダを代入して、スライダーの値が変更されたときにコールさせることができます。")ヘルパー・オブジェクトはターゲット値を更新するだけである：
 
-これで終わりです！スライダーの動きによるアーティファクトが取り除かれているはずです。
+```cpp
+        frequencySlider.onValueChange = [this] { targetFrequency = frequencySlider.getValue(); };
+```
+
+これで終わりです！スライダーの動きによるアーチファクトが取り除かれているはずです。
+
+:::danger[エクササイズ]
 
 以前の練習で追加したレベル・スライダ・コントロールにスムージングを追加します。
 
-# Notes
+:::
 
--   Not wrapping the phase angle around 2pi may not be ideal in all circumstances. If using `フロート` rather than `ダブル` variables then there would be some innaccuracy to the calculations when the current angle value became very large. By not wrapping the phase at 2pi using the `標準値::sin()` function performs reasonably well compared to a simple wavetable technnique. See [チュートリアルウェーブテーブルシンセシス](../tutorial_wavetable_synth/) for an exploration of this.
+# 備考
+
+- 位相角を巻き込まない2piは、すべての状況において理想的であるとは限りません。もし`float`よりも`double`変数を使用すると、現在の角度値が非常に大きくなったときに、計算が不正確になる可能性がある。で位相をラップしないことで2piを使用している。`std::sin()`関数は、単純なウェーブテーブル技法に比べ、それなりにうまく機能する。参照[Tutorial: Wavetable synthesis](../tutorial_wavetable_synth/)を参照されたい。
 
 # 概要
 
 このチュートリアルでは、サイン波の合成と制御の基本的な方法をいくつか紹介しました。ここでは
 
--   正弦波発振器の状態を維持するために必要不可欠な変数。
--   これらの変数をどのように設定すれば、望ましい結果が得られるか。
--   オーディオのアーチファクトを避けるために、パラメーターの変化を滑らかにする方法。
+- 正弦波発振器の状態を維持するために必要不可欠な変数。
+- これらの変数をどのように設定すれば、望ましい結果が得られるか。
+- オーディオ・アーティファクトを避けるためにパラメーターの変化を滑らかにする方法。
 
-# 関連項目
+# こちらも参照
 
--   [チュートリアルスライダークラス](../tutorial_slider_values/)
--   [チュートリアルホワイトノイズ・ジェネレーターを作る](../tutorial_simple_synth_noise/)
--   [チュートリアルデシベルを使ってオーディオレベルをコントロールする](../tutorial_synth_db_level_control/)
--   [チュートリアルオーディオレベルのコントロール](../tutorial_synth_level_control/)
--   [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/)
--   [チュートリアルウェーブテーブルシンセシス](../tutorial_wavetable_synth/)
+- [Tutorial: The Slider class](../../interface-design/tutorial_slider_values/)
+- [Tutorial: Build a white noise generator](../tutorial_simple_synth_noise/)
+- [Tutorial: Control audio levels using decibels](../tutorial_synth_db_level_control/)
+- [Tutorial: Control audio levels](../tutorial_synth_level_control/)
+- [Tutorial: Build a MIDI synthesiser](../tutorial_synth_using_midi_input/)
+- [Tutorial: Wavetable synthesis](../tutorial_wavetable_synth/)

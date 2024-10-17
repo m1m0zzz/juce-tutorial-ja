@@ -1,140 +1,143 @@
 ---
 title: AudioSampleBufferクラスを使ったオーディオのループ（上級者向け）
 sidebar_position: 4
+tags: [上級]
 ---
 
 # チュートリアルAudioSampleBufferクラスを使ったオーディオのループ（上級者向け）
 
-This tutorial shows how to play and loop audio stored in an [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object using thread-safe techniques. A technique for loading the audio data on a background thread is also introduced.
+<SourcePageLink path="tutorial_looping_audio_sample_buffer_advanced" />
 
-レベル：Advanced
+このチュートリアルでは、オーディオファイルを再生してループさせる方法を説明します。[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトをスレッドセーフな手法でロードする。バックグラウンド・スレッドでオーディオ・データをロードするテクニックも紹介する。
 
-プラットフォーム：Windows, macOS, Linux
+レベル上級
 
-クラス： [参照カウントオブジェクト](https://docs.juce.com/master/classReferenceCountedObject "A base class which provides methods for reference-counting."), [参照カウント配列](https://docs.juce.com/master/classReferenceCountedArray "Holds a list of objects derived from ReferenceCountedObject, or which implement basic reference-count..."), [スレッド](https://docs.juce.com/master/classThread "Encapsulates a thread."), [オーディオバッファ](https://docs.juce.com/master/classAudioBuffer "A multi-channel buffer containing floating point audio samples.")
+プラットフォームWindows , macOS , Linux
 
-## はじめる
+クラス： [ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。"),[ReferenceCountedArray](https://docs.juce.com/master/classReferenceCountedArray.html "ReferenceCountedObjectから派生したオブジェクトや、基本的な参照カウントを実装したオブジェクトのリストを保持します。"),[Thread](https://docs.juce.com/master/classThread.html "スレッドをカプセル化する。"),[AudioBuffer](https://docs.juce.com/master/classAudioBuffer.html "浮動小数点オーディオサンプルを含むマルチチャンネルバッファ。")
 
-This tutorial leads on from [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ再生](../tutorial_looping_audio_sample_buffer/). If you haven't done so already, you should read that tutorial first.
+# スタート
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/LoopingAudioSampleBufferAdvancedTutorial.zip) | [ジップ](/tutorials/ZIPs/LoopingAudioSampleBufferAdvancedTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このチュートリアルは[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/).もしまだなら、まずそのチュートリアルを読むべきだ。
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/LoopingAudioSampleBufferAdvancedTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/LoopingAudioSampleBufferAdvancedTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-# The demo project
+このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-The demo project implements similar behaviour to the demo project from [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ再生](../tutorial_looping_audio_sample_buffer/). It allows the user to open an audio file that is loaded into a buffer and played in a loop. One major difference in this tutorial is that the audio system is kept running, rather than shutting it down each time we browse for a file. This is achieved by using some helpful classes for communicating between threads in a thread-safe manner.
+# デモ・プロジェクト
 
-# Thread-safe techniques
+のデモ・プロジェクトと同様の動作を実装している。[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/).バッファにロードされたオーディオファイルを開き、ループで再生することができます。このチュートリアルで大きく異なる点は、ファイルを参照するたびにシャットダウンするのではなく、オーディオシステムを実行し続けることです。これは、スレッドセーフな方法でスレッド間の通信を行うためのいくつかの便利なクラスを使用することで実現されています。
 
-You should recall in [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ再生](../tutorial_looping_audio_sample_buffer/) how we solved the potential problem of the audio thread and the message thread accessing potentially incomplete or corrupted data. Just before we browsed for a file we shut down the audio system. Then, once a file was selected, we opened the file and restarted the audio system. This is clearly an impractical and cumbersome method in a real application!
+# スレッドセーフ・テクニック
 
-## Reference-counted objects
+を思い出してほしい。[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/)オーディオスレッドとメッセージスレッドが不完全または破損したデータにアクセスする可能性があるという潜在的な問題をどのように解決したか。ファイルをブラウズする直前に、オーディオシステムをシャットダウンした。そして、ファイルを選択したら、ファイルを開き、オーディオシステムを再起動した。これは、実際のアプリケーションでは明らかに非現実的で面倒な方法である！
 
-The [参照カウントオブジェクト](https://docs.juce.com/master/classReferenceCountedObject "A base class which provides methods for reference-counting.") class is a useful tool for passing messages and data between threads. Here, we store our [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object and the playback position in a [参照カウントオブジェクト](https://docs.juce.com/master/classReferenceCountedObject "A base class which provides methods for reference-counting.") class. To help with debugging, and to help illustrate how the class works, we also include `名称` member (although this isn't strictly necessary for the class to function):
+## 参照カウントされるオブジェクト
 
-```
+について[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスは、スレッド間でメッセージやデータを受け渡すのに便利なツールだ。ここでは[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトの再生位置と[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスを作成しました。デバッグの助けとなるように、また、このクラスがどのように動作するかを説明するのに役立つように、次のようなものもあります。`name`メンバ（ただし、これはクラスが機能するために厳密には必要ではない）：
+
+```cpp
     class ReferenceCountedBuffer  : public juce::ReferenceCountedObject
     {
     public:
-        typedef juce::ReferenceCountedObjectPtrPtr；
+        typedef juce::ReferenceCountedObjectPtr Ptr;
  
-        ReferenceCountedBuffer (const juce::String& nameToUse、
-                                int numChannels、
+        ReferenceCountedBuffer (const juce::String& nameToUse,
+                                int numChannels,
                                 int numSamples)
-            : name (nameToUse)、
-              バッファ (numChannels, numSamples)
+            : name (nameToUse),
+              buffer (numChannels, numSamples)
         {
-            DBG (juce::String ("Buffer named '") + name + "' built. numChannels = " + juce::String (numChannels) + ", numSamples = " + juce::String (numSamples))；
+            DBG (juce::String ("Buffer named '") + name + "' constructed. numChannels = " + juce::String (numChannels) + ", numSamples = " + juce::String (numSamples));
         }
  
         ~ReferenceCountedBuffer()
         {
-            DBG (juce::String ("Buffer named '") + name + "' 破壊されました")；
+            DBG (juce::String ("Buffer named '") + name + "' destroyed");
         }
  
         juce::AudioSampleBuffer* getAudioSampleBuffer()
         {
-            return &buffer；
+            return &buffer;
         }
  
-        int position = 0；
+        int position = 0;
  
-    private：
-        juce::String name；
-        juce::AudioSampleBuffer buffer；
+    private:
+        juce::String name;
+        juce::AudioSampleBuffer buffer;
  
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReferenceCountedBuffer).
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReferenceCountedBuffer)
     };
 ```
 
-The `typedef` at the top of the class is an important part in implementing a [参照カウントオブジェクト](https://docs.juce.com/master/classReferenceCountedObject "A base class which provides methods for reference-counting.") subclass. Rather than storing our `リファレンスカウントバッファー` object in a raw pointer, we store it in a `ReferenceCountedBuffer::Ptr` type. It is this that manages the reference count of the object (incrementing and decrementing as necessary) and its lifetime (deleting the object when the reference count reaches zero). We can also store an array of `リファレンスカウントバッファー` objects using the [参照カウント配列](https://docs.juce.com/master/classReferenceCountedArray "Holds a list of objects derived from ReferenceCountedObject, or which implement basic reference-count...") class.
+について`typedef`を実施する上で重要な役割を果たす。[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")のサブクラスを使用します。私たちの`ReferenceCountedBuffer`オブジェクトを生ポインタに格納する。`ReferenceCountedBuffer::Ptr`型がある。これは、オブジェクトの参照カウント（必要に応じてインクリメントとデクリメントを行う）とライフタイム（参照カウントがゼロになったときにオブジェクトを削除する）を管理するものである。の配列を格納することもできる。`ReferenceCountedBuffer`オブジェクトを使用する。[ReferenceCountedArray](https://docs.juce.com/master/classReferenceCountedArray.html "ReferenceCountedObjectから派生したオブジェクトや、基本的な参照カウントを実装したオブジェクトのリストを保持します。")クラスである。
 
-In our `メインコンテンツコンポーネント` class we store both an array and a single instance:
+我々の`MainContentComponent`クラスでは、配列と単一のインスタンスの両方を格納します：
 
-```
+```cpp
     juce::SpinLock mutex;
-    juce::ReferenceCountedArrayバッファー
-    ReferenceCountedBuffer::Ptr currentBuffer；
+    juce::ReferenceCountedArray buffers;
+    ReferenceCountedBuffer::Ptr currentBuffer;
 ```
 
-The `バッファ` member keeps hold of our buffers in the array until we are absolutely sure they are no longer needed by the audio thread. The `カレントバッファ` member holds the currently selected buffer.
+について`buffers`メンバは、オーディオスレッドがバッファを必要としないと確信するまで、バッファを配列に保持する。この`currentBuffer`メンバは現在選択されているバッファを保持する。
 
-## Implementing the background thread
+## バックグラウンド・スレッドの実装
 
-Our `メインコンテンツコンポーネント` class inherits from the [スレッド](https://docs.juce.com/master/classThread "Encapsulates a thread.") class:
+私たちの`MainContentComponent`クラスは[Thread](https://docs.juce.com/master/classThread.html "スレッドをカプセル化する。")クラスである：
 
-```
-class MainContentComponent : public juce::AudioAppComponent、
+```cpp
+class MainContentComponent   : public juce::AudioAppComponent,
                                private juce::Thread
 {
-public：
+public:
 ```
 
-This is used to implement our background thread. Our overridden [スレッド::run()](classThread.html#aae90dfabab3e1776cf01a26e7ee3a620 "Must be implemented to perform the thread's actual code.") function is as follows:
+これはバックグラウンド・スレッドの実装に使われる。オーバーライドされた[Thread::run()](https://docs.juce.com/master/classThread.html#aae90dfabab3e1776cf01a26e7ee3a620 "スレッドの実際のコードを実行するために実装されなければならない。")関数は以下の通りである：
 
-```
-void run() オーバーライド
+```cpp
+    void run() override
     {
         while (! threadShouldExit())
         {
-            checkForBuffersToFree()；
-            wait (500)；
+            checkForBuffersToFree();
+            wait (500);
         }
     }
 ```
 
-Here, we check whether there are any buffers to be freed, then our thread waits for 500ms or to be woken up (using the [スレッド::notify()](classThread.html#a0b4d5a1ffaa35cc13f323a0524012a2b "Wakes up the thread.") function). Essentially, this means that the check will occur at least every 500ms. The `checkForBuffersToFree()` function searches through our `バッファ` array to see if any buffers can be freed:
+ここでは、解放すべきバッファがあるかどうかをチェックし、スレッドは500ミリ秒待機するか、ウェイクアップされるのを待つ。[Thread::notify()](https://docs.juce.com/master/classThread.html#a0b4d5a1ffaa35cc13f323a0524012a2b "スレッドを目覚めさせる。")関数)。基本的に、これは少なくとも500ミリ秒ごとにチェックが行われることを意味する。つまり`checkForBuffersToFree()`関数は`buffers`配列で、バッファが解放できるかどうかを確認する：
 
-```
-void checkForBuffersToFree()
+```cpp
+    void checkForBuffersToFree()
     {
         for (auto i = buffers.size(); --i >= 0;)                           // [1]
         {
-            ReferenceCountedBuffer::Ptr buffer (buffers.getUnchecked (i)); // [2].
+            ReferenceCountedBuffer::Ptr buffer (buffers.getUnchecked (i)); // [2]
  
-            if (buffer->getReferenceCount() == 2) // [3].
-                buffers.remove (i)；
+            if (buffer->getReferenceCount() == 2)                          // [3]
+                buffers.remove (i);
         }
     }
 ```
 
--   \[1\]: It is useful to remember to iterate over the array in reverse in these situations. It is easier to avoid corrupting the array index access if we remove items as we iterate over the array.
--   \[2\]: This retains a copy of a buffer at the specified index.
--   \[3\]: If the reference count at this point is equal to 2 then we know that the audio thread can't be using the buffer and we can remove it from the array. One of these two references will be in the `バッファ` and the other will be in the local `バッファ` variable. The removed buffer will delete itself as the `バッファ` variable goes out of scope (as this will be the last remaining reference).
+- \[1\]このような状況では、配列を逆に反復処理することを覚えておくと便利である。配列を繰り返しながら項目を削除していけば、配列のインデックス・アクセスが壊れるのを防ぐことができる。
+- \[2\]指定されたインデックスのバッファのコピーを保持する。
+- \[3\]この時点での参照カウントが2であれば、オーディオスレッドがバッファを使用していないことがわかるので、バッファを配列から削除することができる。この2つの参照のうち1つは`buffers`もう一方はローカル`buffer`変数として削除されます。削除されたバッファは`buffer`変数がスコープ外になる（これが最後に残った参照となるため）。
 
-Of course, we need to start the thread as our application starts, which we do in our `メインコンテンツコンポーネント` constructor:
+もちろん、アプリケーションの起動と同時にスレッドを開始する必要がある。`MainContentComponent`ビルダー
 
-```
-startThread()；
+```cpp
+        startThread();
     }
 ```
 
-## Opening the file
+## ファイルを開く
 
-Our `openButtonClicked()` function is similar to the `openButtonClicked()` function from [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ再生](../tutorial_looping_audio_sample_buffer/) with some minor differences:
+私たちの`openButtonClicked()`関数は`openButtonClicked()`関数[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/)若干の違いはあるが：
 
-```
+```cpp
     void openButtonClicked()
     {
         chooser = std::make_unique ("Select a Wave file shorter than 2 seconds to play...",
@@ -150,30 +153,30 @@ Our `openButtonClicked()` function is similar to the `openButtonClicked()` funct
             if (file == juce::File{})
                 return;
  
-            std::unique_ptrreader (formatManager.createReaderFor (file))；
+            std::unique_ptr reader (formatManager.createReaderFor (file));
  
             if (reader != nullptr)
             {
-                auto duration = (float) reader->lengthInSamples / reader->sampleRate；
+                auto duration = (float) reader->lengthInSamples / reader->sampleRate;
  
                 if (duration < 2)
                 {
-                    ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer (file.getFileName()、
-                                                                                        (int) reader->numChannels、
-                                                                                        (int) reader->lengthInSamples)；
+                    ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer (file.getFileName(),
+                                                                                        (int) reader->numChannels,
+                                                                                        (int) reader->lengthInSamples);
  
-                    reader->read (newBuffer->getAudioSampleBuffer(), 0, (int) reader->lengthInSamples, 0, true, true)；
+                    reader->read (newBuffer->getAudioSampleBuffer(), 0, (int) reader->lengthInSamples, 0, true, true);
  
                     {
-                        const juce::SpinLock::ScopedLockType lock (mutex)；
-                        currentBuffer = newBuffer；
+                        const juce::SpinLock::ScopedLockType lock (mutex);
+                        currentBuffer = newBuffer;
                     }
  
-                    buffers.add (newBuffer)；
+                    buffers.add (newBuffer);
                 }
-                その他
+                else
                 {
-                    // ファイルが2秒以上あるというエラーを処理する。
+                    // handle the error that the file is 2 seconds or longer..
                 }
             }
         });
@@ -182,155 +185,155 @@ Our `openButtonClicked()` function is similar to the `openButtonClicked()` funct
 
 以下はその違いである：
 
--   Allocate a new instance of our `リファレンスカウントバッファー` class.
--   Read the audio data into the [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object that it contains.
--   現在のバッファにする。
--   これをバッファの配列に追加する。
+- の新しいインスタンスを割り当てる。`ReferenceCountedBuffer`クラスである。
+- オーディオデータを[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを含む。
+- 現在のバッファにする。
+- これをバッファの配列に追加する。
 
-To clear the current buffer we can just set its value to `ヌルプトル`:
+現在のバッファをクリアするには、その値を`nullptr`:
 
-```
-void clearButtonClicked()
+```cpp
+    void clearButtonClicked()
     {
-        const juce::SpinLock::ScopedLockType lock (mutex)；
-        currentBuffer = nullptr；
+        const juce::SpinLock::ScopedLockType lock (mutex);
+        currentBuffer = nullptr;
     }
 ```
 
-## Playing the buffer
+## バッファーの再生
 
-Our `getNextAudioBlock()` function is similar to the `getNextAudioBlock()` function from [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ再生](../tutorial_looping_audio_sample_buffer/) except we need to access our current `リファレンスカウントバッファー` object and the [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object it contains.
+私たちの`getNextAudioBlock()`関数は`getNextAudioBlock()`関数[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/)ただし、現在の`ReferenceCountedBuffer`オブジェクトと[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを含む。
 
-```
-void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+```cpp
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
     {
-        auto retainedCurrentBuffer = [&]() -> ReferenceCountedBuffer::Ptr // [4].
+        auto retainedCurrentBuffer = [&]() -> ReferenceCountedBuffer::Ptr               // [4]
         {
-            const juce::SpinLock::ScopedTryLockType ロック (mutex)；
+            const juce::SpinLock::ScopedTryLockType lock (mutex);
  
             if (lock.isLocked())
-                return currentBuffer；
+                return currentBuffer;
  
-            return nullptr；
+            return nullptr;
         }();
  
-        if (retainedCurrentBuffer == nullptr) // [5].
+        if (retainedCurrentBuffer == nullptr)                                           // [5]
         {
-            bufferToFill.clearActiveBufferRegion()；
-            を返します；
+            bufferToFill.clearActiveBufferRegion();
+            return;
         }
  
-        auto* currentAudioSampleBuffer = retainedCurrentBuffer->getAudioSampleBuffer(); // [6].
-        auto position = retainedCurrentBuffer->position; // [7].
+        auto* currentAudioSampleBuffer = retainedCurrentBuffer->getAudioSampleBuffer(); // [6]
+        auto position = retainedCurrentBuffer->position;                                // [7]
  
-        auto numInputChannels = currentAudioSampleBuffer->getNumChannels()；
-        auto numOutputChannels = bufferToFill.buffer->getNumChannels()；
+        auto numInputChannels = currentAudioSampleBuffer->getNumChannels();
+        auto numOutputChannels = bufferToFill.buffer->getNumChannels();
  
-        auto outputSamplesRemaining = bufferToFill.numSamples；
-        auto outputSamplesOffset = 0；
+        auto outputSamplesRemaining = bufferToFill.numSamples;
+        auto outputSamplesOffset = 0;
  
         while (outputSamplesRemaining > 0)
         {
-            auto bufferSamplesRemaining = currentAudioSampleBuffer->getNumSamples() - position；
-            auto samplesThisTime = juce::jmin (outputSamplesRemaining, bufferSamplesRemaining)；
+            auto bufferSamplesRemaining = currentAudioSampleBuffer->getNumSamples() - position;
+            auto samplesThisTime = juce::jmin (outputSamplesRemaining, bufferSamplesRemaining);
  
             for (auto channel = 0; channel < numOutputChannels; ++channel)
             {
-                bufferToFill.buffer->copyFrom (channel、
-                                               bufferToFill.startSample + outputSamplesOffset、
-                                               *currentAudioSampleBuffer、
-                                               channel % numInputChannels、
-                                               position、
-                                               samplesThisTime)；
+                bufferToFill.buffer->copyFrom (channel,
+                                               bufferToFill.startSample + outputSamplesOffset,
+                                               *currentAudioSampleBuffer,
+                                               channel % numInputChannels,
+                                               position,
+                                               samplesThisTime);
             }
  
-            outputSamplesRemaining -= samplesThisTime；
-            outputSamplesOffset += samplesThisTime；
-            position += samplesThisTime；
+            outputSamplesRemaining -= samplesThisTime;
+            outputSamplesOffset += samplesThisTime;
+            position += samplesThisTime;
  
             if (position == currentAudioSampleBuffer->getNumSamples())
-                position = 0；
+                position = 0;
         }
  
-        retainedCurrentBuffer->position = position; // [8].
+        retainedCurrentBuffer->position = position;                                     // [8]
     }
 ```
 
 重要な変更点は以下の通りだ：
 
--   \[4\]: We retain a copy of the `カレントバッファ` member. After this point in the function it doesn't matter if the `カレントバッファ` member is changed on another thread since we have taken a local copy. Note that we use a try lock here, so that the audio thread doesn't get stuck waiting to access the `カレントバッファ` in the case that another thread is currently modifying it.
--   \[5\]: We output silence if the `カレントバッファ` member was null when we took a copy.
--   \[6\]: We access the [オーディオサンプルバッファ](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2) object within the `リファレンスカウントバッファー` object.
--   \[7\]: We get the current playback position for the buffer.
--   \[8\]: After modifying the current playback position, we store it back in the `リファレンスカウントバッファー` object.
+- \[4\]私たちはそのコピーを保管します。`currentBuffer`のメンバーでなければならない。この関数では、この時点で`currentBuffer`メンバが別のスレッドで変更された場合、ローカル・コピーを取っているので、このようなことは起こりません。へのアクセス待ちでオーディオ・スレッドが立ち往生しないように、ここではtryロックを使用していることに注意してください。`currentBuffer`他のスレッドが現在修正中である場合。
+- \[5\]の場合は無音を出力する。`currentBuffer`コピーを取ったとき、メンバーはNULLだった。
+- \[6\]にアクセスする。[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを`ReferenceCountedBuffer`オブジェクトがある。
+- \[7\]バッファの現在の再生位置を得る。
+- \[8\]現在の再生位置を変更した後、その位置を`ReferenceCountedBuffer`オブジェクトがある。
 
-This algorithm ensures that `リファレンスカウントバッファー` objects aren't deleted on the the audio thread. It is not a good idea to allocate or free memory on the audio thread. The `リファレンスカウントバッファー` objects will only be deleted on our background thread.
+このアルゴリズムは`ReferenceCountedBuffer`オブジェクトはオーディオスレッド上では削除されません。オーディオ・スレッドでメモリを確保したり解放したりするのは良い考えとは言えません。そのため`ReferenceCountedBuffer`オブジェクトはバックグラウンドのスレッドでのみ削除される。
 
-# Reading the audio on the background thread
+# バックグラウンド・スレッドで音声を読む
 
 私たちのアプリケーションは、依然としてメッセージスレッドでオーディオデータを読み込んでいます。メッセージスレッドがブロックされ、大きなファイルはロードに時間がかかる可能性があるため、これは理想的ではありません。実際、バックグラウンドスレッドを使ってこのタスクを実行することもできます。
 
-## Passing the file path to the background thread
+## バックグラウンド・スレッドにファイル・パスを渡す
 
-First, add the following member to the `メインコンテンツコンポーネント` class:
+まず、以下のメンバーを`MainContentComponent`クラスである：
 
+```cpp
+    juce::CriticalSection pathMutex;
+    juce::String chosenPath;
 ```
-juce::CriticalSection pathMutex；
-    juce::String chosenPath；
-```
 
-Now change the `openButtonClicked()` function to *スワップ* the full path of the file into this member. Swapping strings is not technically thread-safe, so we also need to take a lock to ensure that no other threads try to modify `chosenPath` while this thread is using it.
+を変更する。`openButtonClicked()`関数を*スワップ*ファイルのフル・パスをこのメンバに渡す。文字列の入れ替えは技術的にスレッドセーフではないので、他のスレッドがファイルを変更しようとしないようにロックをかける必要がある。`chosenPath`このスレッドが使っている間は。
 
-```
+```cpp
     void openButtonClicked()
     {
-        chooser = std::make_unique("Select a Wave file shorter than 2 seconds to play..."、
-                                                       juce::File{}、
-                                                       "*.wav")；
+        chooser = std::make_unique ("Select a Wave file shorter than 2 seconds to play...",
+                                                       juce::File{},
+                                                       "*.wav");
         auto chooserFlags = juce::FileBrowserComponent::openMode
-                          | juce::FileBrowserComponent::canSelectFiles；
+                          | juce::FileBrowserComponent::canSelectFiles;
  
-        chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc))
+        chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
         {
-            auto file = fc.getResult()；
+            auto file = fc.getResult();
  
             if (file == juce::File{})
-                を返します；
+                return;
  
-            auto path = file.getFullPathName()；
+            auto path = file.getFullPathName();
  
  
             {
-                const juce::ScopedLock lock (pathMutex)；
-                chosenPath.swapWith (path)；
+                const juce::ScopedLock lock (pathMutex);
+                chosenPath.swapWith (path);
             }
  
-            notify()；
+            notify();
         });
     }
 ```
 
 ここでは、ファイルを開くためにバックグラウンド・スレッドで関数を呼び出すので、バックグラウンド・スレッドもウェイクアップする。
 
-## Accessing the path from the background thread
+## バックグラウンド・スレッドからのパスへのアクセス
 
-Our `実行()` function should be updated as follows:
+私たちの`run()`関数を以下のように更新する必要がある：
 
-```
-void run() オーバーライド
+```cpp
+    void run() override
     {
         while (! threadShouldExit())
         {
-            checkForPathToOpen()；
-            checkForBuffersToFree()；
-            wait (500)；
+            checkForPathToOpen();
+            checkForBuffersToFree();
+            wait (500);
         }
     }
 ```
 
-The `checkForPathToOpen()` function checks the `chosenPath` member by swapping it into a local variable. Again, swapping is not thread-safe, so we must take a lock before accessing `chosenPath`.
+について`checkForPathToOpen()`関数は`chosenPath`メンバーをローカル変数にスワップする。繰り返すが、スワップはスレッドセーフではない。`chosenPath`.
 
-```
+```cpp
     void checkForPathToOpen()
     {
         juce::String pathToOpen;
@@ -343,43 +346,43 @@ The `checkForPathToOpen()` function checks the `chosenPath` member by swapping i
         if (pathToOpen.isNotEmpty())
         {
             juce::File file (pathToOpen);
-            std::unique_ptrreader (formatManager.createReaderFor (file))；
+            std::unique_ptr reader (formatManager.createReaderFor (file));
  
             if (reader.get() != nullptr)
             {
-                auto duration = (float) reader->lengthInSamples / reader->sampleRate；
+                auto duration = (float) reader->lengthInSamples / reader->sampleRate;
  
                 if (duration < 2)
                 {
-                    ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer (file.getFileName()、
-                                                                                        (int) reader->numChannels、
-                                                                                        (int) reader->lengthInSamples)；
+                    ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer (file.getFileName(),
+                                                                                        (int) reader->numChannels,
+                                                                                        (int) reader->lengthInSamples);
  
-                    reader->read (newBuffer->getAudioSampleBuffer(), 0, (int) reader->lengthInSamples, 0, true, true)；
+                    reader->read (newBuffer->getAudioSampleBuffer(), 0, (int) reader->lengthInSamples, 0, true, true);
  
                     {
-                        const juce::SpinLock::ScopedLockType lock (mutex)；
-                        currentBuffer = newBuffer；
+                        const juce::SpinLock::ScopedLockType lock (mutex);
+                        currentBuffer = newBuffer;
                     }
  
-                    buffers.add (newBuffer)；
+                    buffers.add (newBuffer);
                 }
-                その他
+                else
                 {
-                    // ファイルが2秒以上あるというエラーを処理する。
+                    // handle the error that the file is 2 seconds or longer..
                 }
             }
-        
-    
+        }
+    }
 ```
 
-If the `パスを開く` variable is an empty string then we know there isn't a new file to open. The remainder of the code in this function should be familiar to you.
+もし`pathToOpen`変数が空文字列であれば、開くべき新しいファイルがないことがわかる。この関数の残りのコードはお馴染みのものだろう。
 
 アプリケーションを再度実行すれば、正しく機能するはずです。
 
 :::note
 
-The final code for this section can be found in the `LoopingAudioSampleBufferAdvancedTutorial_02.h` file of the demo project.
+このセクションの最終的なコードは`LoopingAudioSampleBufferAdvancedTutorial_02.h`ファイルにある。
 
 :::
 
@@ -387,13 +390,13 @@ The final code for this section can be found in the `LoopingAudioSampleBufferAdv
 
 このチュートリアルでは、特にオーディオアプリケーションにおいて、スレッド間でデータを受け渡すための便利なテクニックを紹介しました。このチュートリアルを読めば、以下のことができるようになるでしょう：
 
--   Implement a subclass of the [参照カウントオブジェクト](https://docs.juce.com/master/classReferenceCountedObject "A base class which provides methods for reference-counting.") class.
--   Maintain the lifetime of a [参照カウントオブジェクト](https://docs.juce.com/master/classReferenceCountedObject "A base class which provides methods for reference-counting.") in a multi-threaded application.
--   不要になったオブジェクトの削除や、ファイルの読み取り操作などのタスクを実行するバックグラウンド・スレッドを実装する。
+- のサブクラスを実装する。[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスである。
+- の寿命を維持する。[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")マルチスレッド・アプリケーションで。
+- 不要になったオブジェクトの削除や、ファイルの読み取り操作などのタスクを実行するバックグラウンド・スレッドを実装する。
 
-# 関連項目
+# こちらも参照
 
--   [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/)
--   [チュートリアルオーディオ入力を処理する](../tutorial_processing_audio_input/)
--   [チュートリアルオーディオ波形を描く](../tutorial_audio_thumbnail/)
--   [チュートリアルAudioSampleBufferクラスを使ったオーディオのループ再生](../tutorial_looping_audio_sample_buffer/)
+- [Tutorial: Build an audio player](../tutorial_playing_sound_files/)
+- [Tutorial: Processing audio input](../tutorial_processing_audio_input/)
+- [Tutorial: Draw audio waveforms](../tutorial_audio_thumbnail/)
+- [Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/)
