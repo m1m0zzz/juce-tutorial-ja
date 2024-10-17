@@ -35,7 +35,7 @@ tags: [中級]
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_synth_level_control_screenshot1.png"
   caption="レベル・コントロール・スライダーを表示したデモ・プロジェクトのメイン・ウィンドウ。"
->
+/>
 
 IDEからプロジェクトを実行し、発生するホワイトノイズのレベルを実際にコントロールできることを確認してください。
 
@@ -62,14 +62,14 @@ IDEからプロジェクトを実行し、発生するホワイトノイズの�
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_synth_level_control_graph1.png"
   caption="0.0から1.0の間で生成された乱数"
->
+/>
 
 これにアプローチする簡単な方法は、まずノイズをスケーリングし、常に-1.0から1.0の間でスケーリングされるようにすることである。これを行うには、2.0を掛け、1.0を引く。そうすると、下図のような信号になります：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_synth_level_control_graph2.png"
   caption="1.0～1.0の間で生成された乱数"
->
+/>
 
 これは`getNextAudioBlock()`関数は次のようになる：
 
@@ -98,14 +98,14 @@ IDEからプロジェクトを実行し、発生するホワイトノイズの�
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_synth_level_control_graph3.png"
   caption="0.0から0.5の間でスケーリングされた乱数"
->
+/>
 
 最後に、乱数値がゼロを中心とするようにオフセットする必要がある。これを行うには、乗算した値の半分に相当する値を引く。これはもちろん元のレベル値である。最終結果はこのようになる：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_synth_level_control_graph4.png"
   caption="乱数を-0.25から0.25の間でスケーリングしオフセットする。"
->
+/>
 
 これは`getNextAudioBlock()`関数で、1サンプルあたりの乗算演算が1回減ったことがわかるはずだ：
 

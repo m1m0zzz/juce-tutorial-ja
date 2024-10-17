@@ -67,7 +67,7 @@ export default class CustomTurndownService extends TurndownService {
           `\n<CaptionImage\n` +
           `  src="${src}"\n` +
           (caption ? `  caption="${caption}"\n` : '') +
-          `>\n`
+          `/>\n`
         )
       }
     })
