@@ -10,15 +10,15 @@ import { ensureDir, kebabCase } from "./src/file";
 import { color, Yellow } from "./src/colors";
 
 // options
-const OUTPUT_DIR = "out";
-// const OUTPUT_DIR = "../docs";
+// const OUTPUT_DIR = "out";
+const OUTPUT_DIR = "../docs";
 const LOG = true;
 const DO_TRANSLATE = true;
 const CATEGORY_FILTER_FLAG = true
 const CATEGORY_FILTER: string[] = [
   // "Getting Started",
-  "Audio",
-  "Synth",
+  // "Audio",
+  // "Synth",
   "MIDI",
   // "Plugins",
   "DSP",
@@ -252,9 +252,8 @@ tags: [${tags.join(", ")}]
   log("")
 
   const groups = await readListPage();
-  // log(JSON.stringify(groups, null, 2));
-  // for (let i = 0; i < 1; i++) {
-  fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
+  // TODO
+  fs.rmSync(OUTPUT_DIR, { recursive: true });
   ensureDir(OUTPUT_DIR);
 
   for (let i = 0; i < groups.length; i++) {
@@ -275,7 +274,7 @@ tags: [${tags.join(", ")}]
     "type": "generated-index"
   }
 }`
-    const categoryPath = path.join(dir, "_category.json")
+    const categoryPath = path.join(dir, "_category_.json")
     fs.writeFile(categoryPath, json + "\n", (err) => {
       if (err) throw err;
       log(`write: ${categoryPath}`);
