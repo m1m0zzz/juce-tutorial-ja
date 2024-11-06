@@ -74,7 +74,7 @@ void paint (juce::Graphics& g) override
 }
 ```
 
-これは正方形を描画する方法としては非常によく似ているが、元のサイズを保ったまま、正方形をコンポーネント境界の周囲に移動させることが非常に簡単にできるようになった。これは[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスはテンプレート・クラスです。この例では`int`テンプレート・パラメータを使用します。JUCEの描画コードでは、一般的に次のどちらかを使用します。[Rectangle<int>](https://docs.juce.com/master/classRectangle.html)または[Rectangle<float>](https://docs.juce.com/master/classRectangle.html)オブジェクトその[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")そして[Line](https://docs.juce.com/master/classLine.html "線を表す。")クラスもテンプレート・クラスです。`int`または`float`テンプレート・パラメータ。
+これは正方形を描画する方法としては非常によく似ているが、元のサイズを保ったまま、正方形をコンポーネント境界の周囲に移動させることが非常に簡単にできるようになった。これは[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスはテンプレート・クラスです。この例では`int`テンプレート・パラメータを使用します。JUCEの描画コードでは、一般的に次のどちらかを使用します。[Rectangle\<int\>](https://docs.juce.com/master/classRectangle.html)または[Rectangle\<float\>](https://docs.juce.com/master/classRectangle.html)オブジェクトその[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")そして[Line](https://docs.juce.com/master/classLine.html "線を表す。")クラスもテンプレート・クラスです。`int`または`float`テンプレート・パラメータ。
 
 長方形を作る方法は他にもある。例えば、幅と高さを指定するのではなく、矩形の角として使いたい点が2つあるとする。この場合[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")クラスと[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")ビルダー
 
@@ -120,7 +120,7 @@ void paint (juce::Graphics& g) override
 
 :::note
 
-この場合[Point<float>](https://docs.juce.com/master/classPoint.html)クラスは[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスを使う必要がある。しかし、Point<int>::toFloat()関数とPoint<float>::toInt()関数を使えば、2種類のポイントを変換することができる。
+この場合[Point\<float\>](https://docs.juce.com/master/classPoint.html)クラスは[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスを使う必要がある。しかし、Point\<int\>::toFloat()関数とPoint\<float\>::toInt()関数を使えば、2種類のポイントを変換することができる。
 
 :::
 
@@ -148,7 +148,7 @@ void paint (juce::Graphics& g) override
 
 :::note
 
-を使うこともできた。[Rectangle<int>](https://docs.juce.com/master/classRectangle.html)この場合[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスが代わりに浮動小数点数に変換してくれる。
+を使うこともできた。[Rectangle\<int\>](https://docs.juce.com/master/classRectangle.html)この場合[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスが代わりに浮動小数点数に変換してくれる。
 
 :::
 
