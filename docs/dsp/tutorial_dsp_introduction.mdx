@@ -4,49 +4,50 @@ sidebar_position: 1
 tags: [上級]
 ---
 
-# チュートリアルDSP入門
+# チュートリアル：DSP入門
 
 <SourcePageLink path="tutorial_dsp_introduction" />
 
-デジタル信号処理とオーディオバッファ操作の領域を発見してください。JUCE DSPモジュールの基礎と、そのクラスを自分のオーディオ・アプリケーションやプラグインに組み込む方法を学びます。
+デジタル信号処理とオーディオバッファ操作の領域を理解してください。
+JUCE DSPモジュールの基礎、そして、そのクラスを自分のオーディオアプリケーションやプラグインに組み込む方法を学びます。
 
-レベル上級
+レベル：Advanced
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
-プラグイン形式：VST , AU , スタンドアロン
+プラグイン形式：VST, AU, Standalone
 
-クラス： [dsp::ProcessorChain](https://docs.juce.com/master/classdsp_1_1ProcessorChain.html "この変種テンプレート化されたクラスを使用すると、任意の数のプロセッサー・クラスを1つにまとめることができます。"),[dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html "単一のサンプルまたは AudioBlock としてオーディオサンプルにゲインを適用します。"),[dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html "ユーザーが指定した関数に基づいて信号を生成する。"),[dsp::LadderFilter](https://docs.juce.com/master/classdsp_1_1LadderFilter.html "ムーグのラダー・フィルターをベースにしたマルチモード・フィルター。"),[dsp::Reverb](https://docs.juce.com/master/classdsp_1_1Reverb.html "ProcessorChain に簡単に統合できる juce::Reverb の Processor ラッパー。")
+クラス： [dsp::ProcessorChain](https://docs.juce.com/master/classdsp_1_1ProcessorChain.html),
+[dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html),
+[dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html)
+
 
 :::warning
 
-このプロジェクトには、C++14の機能をサポートするコンパイラが必要です。XcodeとVisual Studioの最近のバージョンには、このサポートが含まれています。
+このプロジェクトには、C++14 の機能をサポートするコンパイラが必要です。
+Xcode と Visual Studio の最近のバージョンには、このサポートが含まれています。
 
 :::
 
-# スタート
 
-このチュートリアルを読む前に、シンセシスの基本を理解し、MPEに入門していることを確認してください。MPEについてもっと知りたい方は、こちらのチュートリアルをご覧ください。[Tutorial: Build a multi-polyphonic synthesiser](../../midi/tutorial_mpe_introduction/).
+## はじめる
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/DSPIntroductionTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/DSPIntroductionTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このチュートリアルを読む前に、シンセシスの基本を理解し、MPEに入門していることを確認してください。
+MPEについてもっと知りたい方は、こちらのチュートリアルをご覧ください：[マルチ・ポリフォニック・シンセサイザーを作る](../../midi/tutorial_mpe_introduction)
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+このチュートリアルのデモプロジェクトはこちらからダウンロードしてください： [PIP](https://docs.juce.com/tutorials/PIPs/DSPIntroductionTutorial.zip) | [ZIP](https://docs.juce.com/tutorials/ZIPs/DSPIntroductionTutorial.zip) プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開きます。
 
-# デモ・プロジェクト
+このステップで助けが必要な場合は、チュートリアルを参照してください： [Projucerパート1：Projucerを使い始める](../../getting-started/tutorial_new_projucer_project/)
+
+## デモプロジェクト
 
 プロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメント・ターゲットを選択することで、スタンドアロン・アプリケーションとして実行することができます。Xcodeでは、以下のスクリーンショットのように、メインウィンドウの左上でターゲットを変更することができます：
 
-<CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_standalone_screenshot1.png"
-  caption="Xcodeでデプロイメント・ターゲットを変更する"
-/>
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_standalone_screenshot1.png" caption="Changing the deployment target in Xcode" />
 
 デモ・プロジェクトでは、プラグインの上半分にMIDIキーボードが画面上に表示され、下半分にはオシロスコープを通して信号が視覚的に表示されます。現在のところ、鍵盤が押されても、オシレーターの実装を提供しない限り、プラグインは音を出力しません。
 
-<CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot1.png"
-  caption="デモプロジェクトのプラグインウィンドウ"
-/>
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot1.png" caption="The demo project plugin window" />
 
 :::note
 
@@ -54,63 +55,63 @@ MIDIコントローラーをお持ちの場合は、このチュートリアル�
 
 :::
 
-# DSPとは？
+## DSPとは?
 
-デジタル信号処理では、デジタルデータを操作して、信号に対して特定の処理を行います。デジタルオーディオ処理では、異なるドメインのオーディオデータを扱うことができる：
+デジタル信号処理では、デジタルデータを操作して、信号に対して特定の処理を行います。デジタルオーディオ処理では、異なるドメインのオーディオデータを扱うことができます：
 
-- 時間領域：時間に関して分析が行われる一次元信号。
-- 空間領域：ある空間に関して分析が行われる多次元信号。
-- 周波数領域：時間または空間を周波数で表す特定の領域。
+- 時間領域：時間に関して分析が行われる一次元信号
+- 空間領域：ある空間に関して分析が行われる多次元信号
+- 周波数領域：時間または空間を周波数で表す特定の領域
 
-## 高速フーリエ変換（FFT
+### 高速フーリエ変換（FFT）
 
-時間領域または空間領域の信号は、フーリエ変換と呼ばれる変換式を用いて周波数領域に変換することができます。この変換関数の一般的で効率的な実装は高速フーリエ変換（FFT）であり、JUCE DSPモジュールで目にすることがあります。
+時間領域または空間領域の信号は、フーリエ変換と呼ばれる変換式を用いて周波数領域に変換することができます。この変換関数の一般的な効率的実装は高速フーリエ変換（FFT）であり、JUCE DSPモジュールで遭遇することがあります。
 
 FFTは、オーディオ信号を周波数に分解し、それぞれの周波数の大きさと位相情報を表現することができます。逆関数を使用すると、信号を元のドメインに戻すことができるため、フィルタリングなど個々の周波数成分を処理するのに非常に便利です。
 
-## 有限/無限インパルス応答（FIR/IIR
+### 有限/無限インパルス応答（FIR/IIR）
 
-dspには主に2つのデジタル・フィルター設計がある：
+DSP には主に2つのデジタル・フィルター設計がある：
 
-- 有限インパルス応答フィルター（FIR）：各出力サンプルを以前の入力サンプルの関数として処理する安定した設計。FIRフィルタは線形位相にすることができ、多くの場合、設計は単純だが、IIRフィルタより効率は劣る。
+- 有限インパルス応答フィルター（FIR）：各出力サンプルを以前の入力サンプルの関数として処理する安定した設計。FIRフィルタは線形位相にすることができ、多くの場合、設計は単純だがIIRフィルタより効率は低い。
 - 無限インパルス応答フィルター（IIR）：各出力サンプルを以前の入力サンプルと出力サンプルの関数として処理する、不安定な設計の可能性がある。IIRフィルタは以前の出力サンプルを使用するため内部フィードバックが発生し、設計は難しいがFIRフィルタよりも効率的である。
 
 これらのフィルター設計の中には、フィルターの鋭さや遷移周波数で発生するリップルの量を決定する多くの異なる伝達関数がある。これらの設計の多くは、アナログ・フィルターにインスパイアされたものであり、異なる伝達関数は、異なるアナログ対応をエミュレートしようとしている。
 
-JUCE DSPモジュールには、以下のような転送機能があります：
+JUCE DSP モジュールには、以下のような転送機能があります：
 
 - FIR伝達関数ウィンドウ、カイザー、トランジション、最小二乗法、ハーフバンドイコライザップル。
 - IIR伝達関数：バターワース、チェビシェフ・タイプ1、チェビシェフ・タイプ2、楕円、ハーフバンド・ポリフェーズ・オールパス。
 
 このようなフィルター設計に興味がある方は、このトピックについてより深く解説した資料をオンラインでたくさん見つけることができますが、このチュートリアルの目的上、私たちが始めるための基本的なこと以上のことを取り上げました。
 
-# 信号処理のライフサイクル
+## 信号処理のライフサイクル
 
-のオーディオ・アプリケーションのライフサイクルと同様に、オーディオ・アプリケーションのライフサイクルも、そのライフサイクルによって変化する。[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "オーディオ処理クラスやプラグインの基本クラス。")その`prepareToPlay()`そして`getNextAudioBlock()`関数を実装しなければならない。`prepare()`そして`renderNextBlock()`私たちの機能`AudioEngine`から派生したクラスです。[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。").
+`prepareToPlay()` 関数と `getNextAudioBlock()` 関数を持つ [AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html) のオーディオ・アプリケーション・ライフサイクルと同様に、[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html) から派生したAudioEngineクラスの `prepare()` 関数と `renderNextBlock()` 関数を実装する必要があります。 また、各dspプロセッサが適切に機能するように、以下のメソッドを実装する必要があります：
 
-各dspプロセッサーはまた、適切に機能するよう、以下の方法を実装しなければならない：
 
-- `prepare()`サンプル・レートとブロック・サイズを設定する。
-- `process()`処理コンテキストで与えられた入力バッファと出力バッファを処理する。
-- `reset()`必要に応じて、プロセッサーの内部状態をリセットする。
+- `prepare()`：処理を開始する前に呼び出され、サンプル・レートとブロック・サイズを設定する
+- `process()`：処理コンテキストで供給された入力バッファと出力バッファを処理する
+- `reset()`：必要に応じて平滑化を行い、プロセッサの内部状態をリセットする
 
-## プロセッサー・チェーン
+### プロセッサー・チェーン
 
-DSPモジュールの便利なテンプレート・クラスは`juce::dsp::ProcessorChain`を呼び出すことで、異なるプロセスを直列に適用できる。`prepare()`,`process()`そして`reset()`メソッドを次々と自動的に実行する。
+DSPモジュールの便利なテンプレートクラスは `juce::dsp::ProcessorChain`で, `prepare()`, `process()`, `reset()`メソッドを次々に自動的に呼び出すことで、異なる処理を直列に適用することができます。 
 
-このように、プロセッサーをテンプレート型として宣言する：
+プロセッサをテンプレート型として次のように宣言します：
 
 ```cpp
-juce::dsp::ProcessorChain, juce::dsp::Gain> processorChain;
+juce::dsp::ProcessorChain<juce::dsp::Oscillator<Type>, juce::dsp::Gain<Type>> processorChain;
 ```
 
-そして`processorChain`インスタンスを直接作成する。
+そうすれば、`processorChain` インスタンスにすべての処理を直接適用することができます。
 
 dspモジュールがどのように動作するかについての基本的な知識を得たところで、いくつかの信号処理を始めてみよう！
 
-# オシレーターの作成
 
-の中で`CustomOscillator`クラスでは、juce::dsp::ProcessorChain に juce::dsp::Oscillator と juce::dsp::Gain プロセッサをトップダウンの順序で定義します。\[1\].ゲイン処理がオシレーターの出力に影響し、出てくるレベルをトリミングできるようにしたい。また、プロセッサー・インデックスでenumを定義する\[2\]これは、後でそのインデックスから対応するプロセスを明確に参照できるようにするためである。
+## オシレーターの作成
+
+`CustomOscillator` クラスで、`juce::dsp::ProcessorChain`を定義し、juce::dsp::Oscillatorとjuce::dsp::Gainプロセッサをトップダウンの順序で並べます [1] 。 ゲイン処理がオシレータの出力に影響し、出力されるレベルをトリミングできるようにしたいのです。 また、プロセッサー・インデックス[2]でenumを定義し、後でそのインデックスから対応する処理を明確に参照できるようにします。
 
 ```cpp
     enum
@@ -119,11 +120,11 @@ dspモジュールがどのように動作するかについての基本的な�
         gainIndex   // [2]
     };
  
-    juce::dsp::ProcessorChain, juce::dsp::Gain> processorChain; // [1]
+    juce::dsp::ProcessorChain<juce::dsp::Oscillator<Type>, juce::dsp::Gain<Type>> processorChain; // [1]
 };
 ```
 
-の中で`prepare()`関数を呼び出し、プロセッサー・チェーンの各プロセッサーが持つ準備関数を順次呼び出す。\[3\].
+prepare()関数の中で、プロセッサ・チェイン内の各プロセッサのprepare関数を順次呼び出す [3]。
 
 ```cpp
     void prepare (const juce::dsp::ProcessSpec& spec)
@@ -132,7 +133,7 @@ dspモジュールがどのように動作するかについての基本的な�
     }
 ```
 
-の中で`reset()`関数を呼び出し、プロセッサ・チェーンの各プロセッサのリセット関数を順次呼び出します。\[4\].
+reset()関数の中で、プロセッサ・チェーンの各プロセッサのリセット関数を順次呼び出す [4]。
 
 ```cpp
     void reset() noexcept
@@ -141,77 +142,73 @@ dspモジュールがどのように動作するかについての基本的な�
     }
 ```
 
-次に、オシレーターがオーディオ信号を生成するのに使う周期関数を定義します。簡単な例として、サイン波から始めます。
+次に、オシレーターがオーディオ信号を生成する周期関数を定義します。
 
-コンストラクタで、プロセスのインデックスを指定してオシレータへのリファレンスを取得し`processorChain.get<>()`方法\[5\].ラムダ関数と`std::sin`発振器に正弦波を供給する機能\[6\].
+コンストラクタでプロセスのインデックスを指定してオシレータへの参照を取得し、processorChain.get\<\>()メソッドを使います[5]。 ラムダ関数とstd::sin関数を使用してオシレータを初期化し、オシレータに正弦波を供給します[6]。
 
-ルックアップテーブルは、供給される離散点の数に応じて、高価な算術演算を近似する。ここでは128点を使用する。
+ルックアップテーブルは、供給された離散点の数に応じて高価な算術演算を近似します。 ここでは128点を使用する。
 
 ```cpp
 public:
     //==============================================================================
     CustomOscillator()
     {
-        auto& osc = processorChain.template get();        // [5]
+        auto& osc = processorChain.template get<oscIndex>();        // [5]
         osc.initialise ([] (Type x) { return std::sin (x); }, 128); // [6]
     }
-xfloat xDefinition juce_UnityPluginInterface.h:200
 ```
 
-オシレーターの周波数を設定するには、前のステップと同様に、もう一度オシレーターのリファレンスを取得して`setFrequency()`メソッド\[7\].
+発振器の周波数を設定するには、前のステップと同様に、もう一度発振器への参照を取得し、その上でsetFrequency()メソッドを呼び出す必要がある[7]。
 
 ```cpp
     void setFrequency (Type newValue, bool force = false)
     {
-        auto& osc = processorChain.template get();
+        auto& osc = processorChain.template get<oscIndex>();
         osc.setFrequency (newValue, force);     // [7]
     }
 ```
 
-ゲイン・プロセッサーと同じプロセス`setGainLinear()`方法\[8\].
+ゲイン・プロセッサとそのsetGainLinear()メソッドで同じ処理を行う[8]。
 
 ```cpp
     void setLevel (Type newValue)
     {
-        auto& gain = processorChain.template get();
+        auto& gain = processorChain.template get<gainIndex>();
         gain.setGainLinear (newValue);          // [8]
     }
 ```
 
-の中で`process()`関数を呼び出せば、プロセッサー・チェーンの各プロセッサーが持つプロセス関数を順次呼び出すことができる。\[9\].
+process()関数では、プロセッサー・チェーン内の各プロセッサー のプロセス関数を順次呼び出すことができる[9]。
 
 ```cpp
-    template 
+    template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
         processorChain.process (context);       // [9]
     }
 ```
 
-で上記の変更を行った後にこのコードを実行すると、次のようになる。`CustomOscillator`クラスでは、JUCE DSPモジュールを使ったシンプルなサイン波シンセサイザーを聴くことができるはずだ。
+CustomOscillatorクラスで上記の変更を実装した後にこのコードを実行すると、JUCE DSPモジュールを使った簡単なサイン波合成を聞くことができるはずです。
 
-<CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot2.png"
-  caption="JUCE DSPモジュールを搭載したサイン波シンセサイザー"
-/>
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot2.png" caption="Sine wave synthesiser with the JUCE DSP module" />
 
-# オシレーター波形の変更
+## オシレーター波形の変更
 
-オシレーターの波形をノコギリ波にして、シンセサイザーをもう少しエキサイティングにしてみよう。
+シンセサイザーのオシレーター波形をノコギリ波にして、少しエキサイティングにしてみよう。
 
-にアクセスできない。`std`ノコギリ波関数のバージョンでは、次のように手動で値のマッピングを行う必要がある。`jmap`関数を使用する。そのためには\-円周率 ... 円周率への\-1 ..1ノコギリ波には2つのブレークポイントしかないので、ルックアップテーブルに必要なのは2つの離散点だけである。
+ノコギリ波関数の標準バージョンは使えないので、jmap関数を使って手動で値をマッピングする必要がある。 そのためには、-Pi . ノコギリ歯には2つのブレークポイントしかないので、ルックアップテーブルに必要なのは2つの離散点だけである。
 
 ```cpp
 public:
     //==============================================================================
     CustomOscillator()
     {
-        auto& osc = processorChain.template get();
+        auto& osc = processorChain.template get<oscIndex>();
         osc.initialise ([] (Type x)
         {
             return juce::jmap (x,
-                               Type (-juce::MathConstants::pi),
-                               Type (juce::MathConstants::pi),
+                               Type (-juce::MathConstants<double>::pi),
+                               Type (juce::MathConstants<double>::pi),
                                Type (-1),
                                Type (1));
         }, 2);
@@ -220,10 +217,7 @@ public:
 
 このプログラムを実行することで、よりアグレッシブなサウンドが得られるはずだ。
 
-<CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot3.png"
-  caption="JUCE DSPモジュールを搭載したノコギリ波シンセサイザー"
-/>
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot3.png" caption="Sawtooth synthesiser with the JUCE DSP module" />
 
 :::danger[エクササイズ]
 
@@ -231,17 +225,18 @@ public:
 
 :::
 
-# セカンド・オシレーターの追加
+## 2つ目のオシレーターの追加
 
-ほとんどのアナログ・シンセサイザーには複数のオシレーターが搭載されており、太いサウンドを得るための一般的なトリックは、周波数を少しデチューンした2つ目のオシレーターを追加することだ。そこで`Voice`クラスである。
+ほとんどのアナログシンセサイザーには複数のオシレーターがあり、太いサウンドを得るための一般的なトリックは、わずかにデチューンされた周波数を持つ2つ目のオシレーターを追加することです。 そこで、Voiceクラスを修正することでそれを試してみましょう。
 
-プロセッサー・チェインに2つ目のCustomOscillatorテンプレート・タイプを追加する。\[1\]に対応するインデックスを追加する。\[2\].
+プロセッサー・チェインに2つ目のCustomOscillatorテンプレート・タイプを追加し[1]、enumに対応するインデックスを追加します[2]。
+
 
 ```cpp
 private:
     //==============================================================================
-    juce::HeapBlock heapBlock;
-    juce::dsp::AudioBlock tempBlock;
+    juce::HeapBlock<char> heapBlock;
+    juce::dsp::AudioBlock<float> tempBlock;
  
     enum
     {
@@ -250,12 +245,12 @@ private:
         masterGainIndex
     };
  
-    juce::dsp::ProcessorChain, CustomOscillator, juce::dsp::Gain> processorChain; // [1]
+    juce::dsp::ProcessorChain<CustomOscillator<float>, CustomOscillator<float>, juce::dsp::Gain<float>> processorChain; // [1]
     //...
 };
 ```
 
-で、2番目のオシレーターの周波数を現在演奏している音に設定し、ピッチを1%上げてみよう。`noteStarted()`機能\[3\].速度を最初の振動子と同じレベルに保つことができる。\[4\].
+`noteStarted()` 関数で、2番目のオシレーターの周波数を現在演奏している音に設定し、ピッチを1%上げてみましょう [3] 。 ベロシティは、1つ目のオシレーターと同じラヴェルに保つことができます [4] 。
 
 ```cpp
     void noteStarted() override
@@ -263,158 +258,154 @@ private:
         auto velocity = getCurrentlyPlayingNote().noteOnVelocity.asUnsignedFloat();
         auto freqHz = (float) getCurrentlyPlayingNote().getFrequencyInHertz();
  
-        processorChain.get().setFrequency (freqHz, true);
-        processorChain.get().setLevel (velocity);
+        processorChain.get<osc1Index>().setFrequency (freqHz, true);
+        processorChain.get<osc1Index>().setLevel (velocity);
  
-        processorChain.get().setFrequency (freqHz * 1.01f, true);    // [3]
-        processorChain.get().setLevel (velocity);                    // [4]
+        processorChain.get<osc2Index>().setFrequency (freqHz * 1.01f, true);    // [3]
+        processorChain.get<osc2Index>().setLevel (velocity);                    // [4]
     }
 ```
 
-でピッチベンドをかけたとき、デチューンされた周波数が変わらないことを確認しよう。`notePitchbendChanged()`機能\[5\].
+`notePitchbendChanged()`関数[5]でピッチベンドが適用されても、デチューンされた周波数が変わらないことを確認しよう。
 
 ```cpp
     void notePitchbendChanged() override
     {
         auto freqHz = (float) getCurrentlyPlayingNote().getFrequencyInHertz();
-        processorChain.get().setFrequency (freqHz);
-        processorChain.get().setFrequency (freqHz * 1.01f);          // [5]
+        processorChain.get<osc1Index>().setFrequency (freqHz);
+        processorChain.get<osc2Index>().setFrequency (freqHz * 1.01f);          // [5]
     }
 ```
 
 プログラムを実行し、どのように聞こえるか見てみよう。
 
-<CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot4.png"
-  caption="2基目のノコギリ波オシレーターを備えたシンセサイザー"
-/>
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot4.png" caption="Synthesiser with a second sawtooth oscillator" />
 
 :::danger[エクササイズ]
 
-周波数を1％下げた3つ目のオシレーターを追加します。音は太くなりますか？
+周波数を1%下げた3つ目のオシレーターを追加します。 音は太くなりますか？
 
 :::
 
-# ラダーフィルターの追加
 
-シンセサイザーにフィルター・デザインを導入しよう。ラダー・フィルター・プロセッサーは、Moogシンセサイザーの有名なアナログ・デザインにインスパイアされたもので、私たちのプロジェクトではこれを使います。ここまでで、プロセッサー・チェーンにプロセッサーを追加する作業には慣れたはずです。
+## ラダーフィルターの追加
 
-を追加する。`juce::dsp::LadderFilter`プロセッサチェーンへ\[1\]に対応するインデックスを追加する。\[2\]での`Voice`クラスである。
+シンセサイザーにフィルター・デザインを導入しよう。 ラダー・フィルター・プロセッサーは、Moogシンセサイザーの有名なアナログ・デザインにインスパイアされたもので、私たちのプロジェクトではこれを使います。 ここまでで、プロセッサー・チェーンにプロセッサーを追加する作業には慣れたはずです。
+
+`juce::dsp::LadderFilter` をプロセッサチェイン [1] に追加し、対応するインデックスを Voice クラスの enum [2] に追加します。
+
 
 ```cpp
-    juce::HeapBlock heapBlock;
-    juce::dsp::AudioBlock tempBlock;
- 
-    enum
-    {
-        osc1Index,
-        osc2Index,
-        filterIndex,        // [2]
-        masterGainIndex
-    };
- 
-    juce::dsp::ProcessorChain, CustomOscillator,
-                              juce::dsp::LadderFilter, juce::dsp::Gain> processorChain; // [1]
+juce::HeapBlock<char> heapBlock;
+juce::dsp::AudioBlock<float> tempBlock;
+
+enum
+{
+    osc1Index,
+    osc2Index,
+    filterIndex,        // [2]
+    masterGainIndex
+};
+
+juce::dsp::ProcessorChain<CustomOscillator<float>, CustomOscillator<float>,
+    juce::dsp::LadderFilter<float>, juce::dsp::Gain<float>> processorChain; // [1]
 ```
 
-先に説明したように、フィルター・プロセッサーのリファレンスを取得し、そのカットオフ周波数を1kHzに設定する。\[3\]で共鳴し、0.7\[4\].
+先に説明したように、フィルター・プロセッサーのリファレンスを取得し、そのカットオフ周波数を1kHz [3]、共振を0.7 [4]に設定する。
 
 ```cpp
-    Voice()
-    {
-        auto& masterGain = processorChain.get();
-        masterGain.setGainLinear (0.7f);
- 
-        auto& filter = processorChain.get();
-        filter.setCutoffFrequencyHz (1000.0f);          // [3]
-        filter.setResonance (0.7f);                     // [4]
+Voice()
+{
+    auto& masterGain = processorChain.get<masterGainIndex>();
+    masterGain.setGainLinear (0.7f);
+
+    auto& filter = processorChain.get<filterIndex>();
+    filter.setCutoffFrequencyHz (1000.0f);          // [3]
+    filter.setResonance (0.7f);                     // [4]
 ```
 
 信号の高域が減衰し、よりこもった音になるはずです。
 
-<CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot5.png"
-  caption="ラダー・フィルター付きシンセサイザー"
-/>
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot5.png" caption="Synthesiser with a ladder filter" />
 
 :::danger[エクササイズ]
 
-レゾナンス値やカットオフ周波数を変えてみて、出力を聴いてみてください。現時点では、フィルターは12dB/octaveの減衰を持つローパスフィルターです。24dB/オクターブ減衰のハイパスフィルターにすることはできますか？
+レゾナンス値やカットオフ周波数を変えてみて、出力を聴いてみてください。 現時点では、フィルターは12dB/octaveの減衰を持つローパスフィルターです。 24dB/オクターブ減衰のハイパスフィルターにすることはできますか？
 
 :::
 
-# LFOで信号を変調する
 
-クラシックなアナログ・シンセのサウンドに近づいた今、これ以上何があるだろうか？もちろん、モジュレーションLFOだ。
+## LFOで信号を変調する
 
-低周波オシレーターは、変調したい別のパラメーターのコントロール信号として機能します。その周波数は通常非常に低く、人間の可聴域を下回るため、これまでのオシレーターのようにプロセッサー・チェインにオシレーターを追加すべきではありません。今回は、新しいOscillatorを通常のメンバ変数として宣言します。\[1\]での`Voice`クラスである。
+クラシックなアナログ・シンセのサウンドに近づいた今、これ以上何があるだろうか？ もちろん、モジュレーションLFOだ。
+
+低周波オシレーターは、変調したい別のパラメーターのコントロール信号として機能します。 オシレーターの周波数は通常非常に低く、人間の可聴域を下回るため、これまでのオシレーターのようにプロセッサーチェーンに追加する必要はありません。 今回は、新しいOscillatorをVoiceクラスの通常のメンバ変数[1]として宣言します。
+
 
 ```cpp
-    static constexpr size_t lfoUpdateRate = 100;
-    size_t lfoUpdateCounter = lfoUpdateRate;
-    juce::dsp::Oscillator lfo;   // [1]
+static constexpr size_t lfoUpdateRate = 100;
+size_t lfoUpdateCounter = lfoUpdateRate;
+juce::dsp::Oscillator<float> lfo;   // [1]
 ```
 
-ラダー・フィルターのカットオフ周波数にゆっくりとした滑らかなモジュレーションを加えるには、LFOをサイン波として初期化します。\[2\]レートは3Hz\[3\]での`Voice`ビルダー
+ラダー・フィルターのカットオフ周波数にゆっくりとした滑らかなモジュレーション変化を与えるには、VoiceコンストラクタでLFOを3Hzの正弦波[2]として初期化します[3]。
+
 
 ```cpp
-        lfo.initialise ([] (float x) { return std::sin(x); }, 128);
-        lfo.setFrequency (3.0f);
-    }
+    lfo.initialise ([] (float x) { return std::sin(x); }, 128);
+    lfo.setFrequency (3.0f);
+}
 ```
 
-オーディオ処理のサンプルレートほど頻繁にLFOを更新する必要はないので、サンプルレートをLFOの更新レートで割って、LFOのサンプルレートを`prepare()`機能\[4\].この場合、LFOの更新頻度を100回減らすことにする。
+オーディオ処理のサンプルレートほど頻繁にLFOを更新する必要はないので、サンプルレートをLFOの更新レートで割って、`prepare()` 関数でLFOのサンプルレートを設定する[4]。 この場合、LFOの更新頻度を100回減らすことにします。
 
 ```cpp
-    void prepare (const juce::dsp::ProcessSpec& spec)
+void prepare (const juce::dsp::ProcessSpec& spec)
+{
+    tempBlock = juce::dsp::AudioBlock<float> (heapBlock, spec.numChannels, spec.maximumBlockSize);
+    processorChain.prepare (spec);
+
+    lfo.prepare ({ spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels }); // [4]
+}
+```
+
+以下のfor()ループでは、100サンプルごとにカットオフ周波数を変更するだけです。 まずprocessSample()関数を呼び出してLFOの1サンプルを処理し[5]、その戻り値を目的の変調範囲にマッピングします[6]。 この場合、カットオフ周波数を100Hzから2kHzに変調したい。 最後に、新しいカットオフ周波数をラダー・フィルターに適用する[7]。
+
+```cpp
+void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override
+{
+    auto output = tempBlock.getSubBlock (0, (size_t) numSamples);
+    output.clear();
+
+    for (size_t pos = 0; pos < (size_t) numSamples;)
     {
-        tempBlock = juce::dsp::AudioBlock (heapBlock, spec.numChannels, spec.maximumBlockSize);
-        processorChain.prepare (spec);
- 
-        lfo.prepare ({ spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels }); // [4]
-    }
-```
+        auto max = juce::jmin ((size_t) numSamples - pos, lfoUpdateCounter);
+        auto block = output.getSubBlock (pos, max);
 
-以下のように`for()`ループで、100サンプルごとにカットオフ周波数を変更するだけである。最初に`processSample()`関数を使用して、LFO の単一サンプルを処理します。\[5\]そして、その返り値を希望の変調範囲にマッピングする。\[6\].この場合、カットオフ周波数を100Hzから2kHzに変調したい。最後に、新しいカットオフ周波数をラダー・フィルターに適用する\[7\].
+        juce::dsp::ProcessContextReplacing<float> context (block);
+        processorChain.process (context);
 
-```cpp
-    void renderNextBlock (juce::AudioBuffer& outputBuffer, int startSample, int numSamples) override
-    {
-        auto output = tempBlock.getSubBlock (0, (size_t) numSamples);
-        output.clear();
- 
-        for (size_t pos = 0; pos < (size_t) numSamples;)
+        pos += max;
+        lfoUpdateCounter -= max;
+
+        if (lfoUpdateCounter == 0)
         {
-            auto max = juce::jmin ((size_t) numSamples - pos, lfoUpdateCounter);
-            auto block = output.getSubBlock (pos, max);
- 
-            juce::dsp::ProcessContextReplacing context (block);
-            processorChain.process (context);
- 
-            pos += max;
-            lfoUpdateCounter -= max;
- 
-            if (lfoUpdateCounter == 0)
-            {
-                lfoUpdateCounter = lfoUpdateRate;
-                auto lfoOut = lfo.processSample (0.0f);                                 // [5]
-                auto curoffFreqHz = juce::jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);  // [6]
-                processorChain.get().setCutoffFrequencyHz (curoffFreqHz);  // [7]
-            }
+            lfoUpdateCounter = lfoUpdateRate;
+            auto lfoOut = lfo.processSample (0.0f);                                 // [5]
+            auto curoffFreqHz = juce::jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);  // [6]
+            processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);  // [7]
         }
- 
-        juce::dsp::AudioBlock (outputBuffer)
-            .getSubBlock ((size_t) startSample, (size_t) numSamples)
-            .add (tempBlock);
     }
+
+    juce::dsp::AudioBlock<float> (outputBuffer)
+        .getSubBlock ((size_t) startSample, (size_t) numSamples)
+        .add (tempBlock);
+}
 ```
 
 UFO型のサイレン音が聞こえるはずだ。
 
-<CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot6.png"
-  caption="LFO付きシンセサイザー"
-/>
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot6.png" caption="Synthesiser with an LFO" />
 
 :::danger[エクササイズ]
 
@@ -422,9 +413,10 @@ UFO型のサイレン音が聞こえるはずだ。
 
 :::
 
-# シンプルなリバーブの追加
+## シンプルなリバーブの追加
 
-シンセサイザーを再生すると、サウンドが非常にドライであることにお気づきでしょう。そこで、シンプルなリバーブを追加して、信号に深みを加えましょう。シンセサウンド全体にリバーブをかけるには、エフェクトチェーンを`AudioEngine`クラスを追加し`juce::dsp::Reverb`テンプレート・タイプをエフェクト・チェインに\[1\]とそのインデックス\[2\].
+シンセサイザーを再生すると、サウンドが非常にドライであることにお気づきかもしれませんので、シンプルなリバーブを追加して信号に深みを加えましょう。 シンセサウンド全体にリバーブを適用するには、AudioEngineクラスでエフェクトチェーンを作成し、juce::dsp::Reverbテンプレートタイプを、インデックス[2]とともにエフェクトチェーンに追加します[1]。
+
 
 ```cpp
     enum
@@ -432,11 +424,11 @@ UFO型のサイレン音が聞こえるはずだ。
         reverbIndex // [2]
     };
  
-    juce::dsp::ProcessorChain fxChain;   // [1]
+    juce::dsp::ProcessorChain<juce::dsp::Reverb> fxChain;   // [1]
 };
 ```
 
-に電話する。`prepare()`プロセッサチェーン上の関数\[3\].
+プロセッサ・チェインでprepare()関数を呼び出す[3]。
 
 ```cpp
     void prepare (const juce::dsp::ProcessSpec& spec) noexcept
@@ -444,66 +436,68 @@ UFO型のサイレン音が聞こえるはずだ。
         setCurrentPlaybackSampleRate (spec.sampleRate);
  
         for (auto* v : voices)
-            dynamic_cast (v)->prepare (spec);
+            dynamic_cast<Voice*> (v)->prepare (spec);
  
         fxChain.prepare (spec);     // [3]
     }
 ```
 
-エフェクト・チェインを処理するには、正しいAudioBlockを[AudioBuffer](https://docs.juce.com/master/classAudioBuffer.html "浮動小数点オーディオサンプルを含むマルチチャンネルバッファ。")に変換して、処理チェーンにコンテキストを渡す。まず[AudioBuffer](https://docs.juce.com/master/classAudioBuffer.html "浮動小数点オーディオサンプルを含むマルチチャンネルバッファ。")を使用可能なAudioBlockに変換する。\[4\]を使って操作する。`getSubBlock()`方法\[5\].これで、この AudioBlock から処理コンテキストを取得できます。\[6\]でエフェクト・チェーンを処理する。\[7\].
+エフェクト・チェーンを処理するためには、AudioBufferから正しいAudioBlockを取得して、処理チェーンにコンテキストを渡す必要があります。 まず、AudioBufferを使用可能なAudioBlockに変換し[4]、getSubBlock()メソッド[5]を使って操作するサンプルの正しい部分を参照します。 これで、このAudioBlockから処理コンテキストを取得し[6]、エフェクトチェインを処理することができます[7]。
+
 
 ```cpp
-    void renderNextSubBlock (juce::AudioBuffer& outputAudio, int startSample, int numSamples) override
+    void renderNextSubBlock (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override
     {
         MPESynthesiser::renderNextSubBlock (outputAudio, startSample, numSamples);
  
-        auto block = juce::dsp::AudioBlock (outputAudio);                            // [4]
+        auto block = juce::dsp::AudioBlock<float> (outputAudio);                            // [4]
         auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);    // [5]
-        auto contextToUse = juce::dsp::ProcessContextReplacing (blockToUse);         // [6]
+        auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);         // [6]
         fxChain.process (contextToUse);                                                     // [7]
     }
 ```
 
 これでシンセは、信号の最後にスムースなリバーブのテールが追加されるはずです。
 
-<CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot7.png"
-  caption="リバーブ付きシンセサイザー"
-/>
+<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot7.png" caption="Synthesiser with reverb" />
 
 :::note
 
-この修正版のソースコードは`DSPIntroductionTutorial_02.h`ファイルにある。
+この修正版のソース・コードは、デモ・プロジェクトの`DSPIntroductionTutorial_02.h` ファイルにあります。
 
 :::
 
-# 概要
+## 概要
 
-このチュートリアルでは、JUCE DSP モジュールを使ってオーディオバッファを操作し、信号を処理する方法を学びました。特に
+このチュートリアルでは、JUCE DSP モジュールを使ってオーディオバッファを操作し、信号を処理する方法を学びました。 特に
 
-- 複数のオシレーターを使ってウェーブテーブル・シンセを作成。
-- ノコギリ波やサイン波など、さまざまな波形で遊んだ。
-- フィルターを実装し、そのカットオフ周波数をLFOで操作。
-- シンプルなリバーブを追加し、信号に広がりを持たせた。
+
+
+- 複数のオシレーターを使ってウェーブテーブル・シンセを作成
+- ノコギリ波やサイン波など、さまざまな波形で演奏
+- フィルターを実装し、LFOでカットオフ周波数を操作
+- 信号に広がりを持たせるためにシンプルなリバーブを追加
 
 :::note
 
-ディストーションとコンボリューションを加えるこのチュートリアルのパート2をここでチェックしよう：[Tutorial: Add distortion through waveshaping and convolution](../tutorial_dsp_convolution/)
+ディストーションとコンボリューションを加えるこのチュートリアルのパート2をご覧ください：[チュートリアル ウェーブシェイピングとコンボリューションで歪みを加える](../tutorial_dsp_convolution/)
 
-ディレイラインを追加するには、このチュートリアルのパート3に進んでください：[Tutorial: Create a string model with delay lines](../tutorial_dsp_delay_line/)
+ディレイ・ラインを追加するには、このチュートリアルのパート3に進んでください：[チュートリアル ディレイラインを使ったストリング・モデルの作成](../tutorial_dsp_delay_line/)
+
+
 
 :::
 
-# こちらも参照
+## 関連項目
 
-- [Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)
-- [Tutorial: Build a sine wave synthesiser](../../synth/tutorial_sine_synth/)
-- [Tutorial: Control audio levels using decibels](../../synth/tutorial_synth_db_level_control/)
-- [Tutorial: Control audio levels](../../synth/tutorial_synth_level_control/)
-- [Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/)
-- [Tutorial: Build a multi-polyphonic synthesiser](../../midi/tutorial_mpe_introduction/)
-- [Tutorial: The fast Fourier transform](../tutorial_simple_fft/)
-- [Tutorial: Visualise the frequencies of a signal in real time](../tutorial_spectrum_analyser/)
-- [Tutorial: Optimisation using the SIMDRegister class](../tutorial_simd_register_optimisation/)
-- [Tutorial: Add distortion through waveshaping and convolution](../tutorial_dsp_convolution/)
-- [Tutorial: Create a string model with delay lines](../tutorial_dsp_delay_line/)
+- [チュートリアル：ホワイトノイズ・ジェネレーターを作る](../../synth/tutorial_simple_synth_noise/)
+- [チュートリアル：サイン波シンセサイザーを作る](../../synth/tutorial_sine_synth/)
+- [チュートリアル：デシベルを使ってオーディオレベルをコントロールする](../../synth/tutorial_synth_db_level_control/)
+- [チュートリアル：オーディオレベルのコントロール](../../synth/tutorial_synth_level_control/)
+- [チュートリアル：MIDIシンセサイザーを作る](../../synth/tutorial_synth_using_midi_input/)
+- [チュートリアル：マルチ・ポリフォニック・シンセサイザーを作る](../../midi/tutorial_mpe_introduction/)
+- [チュートリアル：高速フーリエ変換](../tutorial_simple_fft/)
+- [チュートリアル：信号の周波数をリアルタイムで可視化する](../tutorial_spectrum_analyser/)
+- [チュートリアル：SIMDRegisterクラスを使用した最適化](../tutorial_simd_register_optimisation/)
+- [チュートリアル：ウェーブシェイピングとコンボリューションで歪みを加える](../tutorial_dsp_convolution/)
+- [チュートリアル：ディレイラインを使ったストリング・モデルの作成](../tutorial_dsp_delay_line/)
