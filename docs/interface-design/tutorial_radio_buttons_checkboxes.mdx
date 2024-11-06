@@ -1,163 +1,174 @@
 ---
 title: ラジオボタンとチェックボックス
 sidebar_position: 11
+tags: [初級]
 ---
 
 # チュートリアルラジオボタンとチェックボックス
 
+<SourcePageLink path="tutorial_radio_buttons_checkboxes" />
+
 ラジオボタンとチェックボックスを使用して、アプリケーションに選択可能なオプションを追加します。
 
-レベル：初級
+レベル初心者
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+プラットフォームWindows , macOS , Linux , iOS , Android
 
-クラス： [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off."), [ボタン](https://docs.juce.com/master/classButton "A base class for buttons."), [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked."), [ストリング](https://docs.juce.com/master/classString "The JUCE String class!")
+クラス： [ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。"),[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。"),[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。"),[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")
 
-## はじめる
+# スタート
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/RadioButtonsAndCheckboxesTutorial.zip) | [ジップ](/tutorials/ZIPs/RadioButtonsAndCheckboxesTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/RadioButtonsAndCheckboxesTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/RadioButtonsAndCheckboxesTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# The demo project
+# デモ・プロジェクト
 
-The demo project illustrates the use of radio buttons and checkboxes in JUCE. These are normally implemented using the [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") class, although any JUCE [ボタン](https://docs.juce.com/master/classButton "A base class for buttons.") component can be used as an individual toggle button or as part of a "radio group". The demo application presents some headings (using the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class) and a series of [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") components:
+このデモ・プロジェクトは、JUCEにおけるラジオ・ボタンとチェック・ボックスの使い方を説明しています。これらは通常[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")クラスでは、どのJUCE[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")コンポーネントは、個別のトグル・ボタンとしても、「ラジオ・グループ」の一部としても使用できます。デモ・アプリケーションでは、いくつかの見出しを表示しています。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラス）と[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")コンポーネントを使用している：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_radio_buttons_checkboxes_screenshot1.png"
+  caption="デモ・アプリケーション"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_radio_buttons_checkboxes_screenshot1.png" caption="The demo application" />
+# ラジオボタンとチェックボックス
 
+このチュートリアルでは[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスを使用します。通常は[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")クラスを使うことができるが、前述のように、どんなボタンでもトグル・タイプのボタンに設定することができる。標準の[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")コンポーネントは、テキストとテキストの左側にある "バブル "で構成され、このバブルには目盛りが入っているか、入っていないかのどちらかである。(この外観は、必要に応じて[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラス)。この2つの状態は、前のセクションのスクリーンショットで見ることができる。
 
-# Radio buttons and checkboxes
+の中で`MainContentComponent`のコンストラクタでは、"male "と "female "のボタンは以下のように設定される：
 
-This tutorial examines the use of the [ボタン](https://docs.juce.com/master/classButton "A base class for buttons.") class for creating on/off style options. Normally you will use the [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") class for this, but as mentioned above, any button can be set up to be a toggle-type button. The standard [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") component comprises a piece of text and a "bubble" to the left of the text that either contains a tick, or not. (And this appearance can be customised, if you wish, using the [ルックアンドフィール](https://docs.juce.com/master/classLookAndFeel "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...") class.) These two states can be seen in the screenshot in the previous section.
-
-In the `メインコンテンツコンポーネント` constructor, the "male" and "female" buttons are set up as follows:
-
+```cpp
+        addAndMakeVisible (maleButton);
+        addAndMakeVisible (femaleButton);
+        maleButton  .onClick = [this] { updateToggleState (&maleButton,   "Male");   };
+        femaleButton.onClick = [this] { updateToggleState (&femaleButton, "Female"); };
 ```
-addAndMakeVisible (maleButton)；
-        addAndMakeVisible (femaleButton)；
-        maleButton .onClick = [this] { updateToggleState (&maleButton, "Male"); }；
-        femaleButton.onClick = [this] { updateToggleState (&femaleButton, "Female"); }；
-```
 
-Here you can see that [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") objects are configured in the same way as [テキストボタン](https://docs.juce.com/master/classTextButton "A button that uses the standard lozenge-shaped background with a line of text on it.") objects (as seen in [チュートリアルリスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)). To make these two toggle buttons mutually exclusive, we need to add them to the same "radio group". This will allow only one of these buttons to be toggled on at any one time (and toggling the other button on will, in turn, switch the other one off). A *無線グループID* is a non-zero integer that is used to identify the group of buttons than must be mutually exclusive. In addition to this, all buttons with the same *無線グループID* must be child components of the same parent component for this to work. (You would need to implement this mutually exclusive behaviour yourself if the buttons are within different parent components or different windows.)
+ここでは[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトは[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトがあります。[Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)).この2つのトグルボタンを相互に排他的にするには、同じ「ラジオグループ」に追加する必要がある。こうすることで、一度にトグルできるのはどちらか一方だけになります（もう一方のボタンをオンにすると、今度はもう一方のボタンがオフになります）。A*無線グループID*はゼロ以外の整数で、相互に排他的でなければならないボタンのグループを識別するために使用される。これに加えて、同じ*無線グループID*が同じ親コンポーネントの子コンポーネントでなければ動作しません。(ボタンが異なる親コンポーネントや異なるウィンドウ内にある場合は、この相互排他的な動作を自分で実装する必要があります)。
 
-We use an enumerated value (`性別ボタン`) as our *無線グループID* in this example:
+列挙値 (`GenderButtons`)を私たちの*無線グループID*この例では
 
-```
-enum RadioButtonIds
+```cpp
+    enum RadioButtonIds
     {
-        性別ボタン = 1001
+        GenderButtons = 1001
     };
 ```
 
-Then we use the [ボタン::setRadioGroupId()](classButton.html#a29adebc6ed27829f75b69c6ba40ef958 "Enables the button to act as a member of a mutually-exclusive group of 'radio buttons'.") function to set the *無線グループID*.
+そして[Button::setRadioGroupId()](https://docs.juce.com/master/classButton.html#a29adebc6ed27829f75b69c6ba40ef958 "ボタンが相互に排他的な「ラジオボタン」グループのメンバーとして動作するようにします。")関数を使用して*無線グループID*.
 
-```
-maleButton .setRadioGroupId (GenderButtons)；
-        femaleButton.setRadioGroupId (GenderButtons)；
-```
-
-:::note
-
-Notice that the `setRadioGroupId()` function is a member of the [ボタン](https://docs.juce.com/master/classButton "A base class for buttons.") class, not just the [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") class. Any button can be part of a radio group, but it probably only makes sense if that button is set up to expect to be toggled on and off (rather than simply intercept click events).
-
-:::
-
-The other three [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") objects are configured without adding them to a radio group:
-
-```
-addAndMakeVisible (sportButton)；
-        addAndMakeVisible (artButton)；
-        addAndMakeVisible (filmButton)；
-        sportButton.onClick = [this] { updateToggleState (&sportButton, "Sport"); }；
-        artButton .onClick = [this] { updateToggleState (&artButton, "Art"); }；
-        filmButton .onClick = [this] { updateToggleState (&filmButton, "Film"); }；
+```cpp
+        maleButton  .setRadioGroupId (GenderButtons);
+        femaleButton.setRadioGroupId (GenderButtons);
 ```
 
 :::note
 
-[ボタン](https://docs.juce.com/master/classButton "A base class for buttons.") objects can be removed from a radio group by calling the [ボタン::setRadioGroupId()](classButton.html#a29adebc6ed27829f75b69c6ba40ef958 "Enables the button to act as a member of a mutually-exclusive group of 'radio buttons'.") function with a zero argument.
+に注目してほしい。`setRadioGroupId()`関数は[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスだけでなく[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")クラスに追加することができます。どのようなボタンでもラジオグループの一部にすることができますが、それはおそらく、そのボタンが（単にクリックイベントをインターセプトするのではなく）オンとオフの切り替えを期待するように設定されている場合にのみ意味があります。
 
 :::
 
-## Responding to toggle state changes
+他の3人[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトは、無線グループに追加することなく設定される：
 
-Responding to buttons that can be toggled on or off is similar to responding to regular button clicks. We need to specify the function we want to call when the button is toggled by assigning a lambda function to the [ボタン::onClick](classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "You can assign a lambda to this callback object to have it called when the button is clicked.") helper object (as you can see in the code snippets above).
-
-The difference is that we also need to check the toggle state of the button in our updateToggleState() function. To do this we can call the [ボタン::getToggleState()](classButton.html#ae1723837340c174f0f212855d247b626 "Returns true if the button is 'on'.") function. Again this is a member of the [ボタン](https://docs.juce.com/master/classButton "A base class for buttons.") class, so this is valid for any button (but again, probably only makes sense if you expect the button to be toggled on and off, as it will return `擬似` in other cases).
-
+```cpp
+        addAndMakeVisible (sportButton);
+        addAndMakeVisible (artButton);
+        addAndMakeVisible (filmButton);
+        sportButton.onClick = [this] { updateToggleState (&sportButton, "Sport"); };
+        artButton  .onClick = [this] { updateToggleState (&artButton,   "Art");   };
+        filmButton .onClick = [this] { updateToggleState (&filmButton,  "Film");  };
 ```
-void updateToggleState (juce::Button* button, juce::String name)
+
+:::note
+
+[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")オブジェクトを無線グループから削除するには[Button::setRadioGroupId()](https://docs.juce.com/master/classButton.html#a29adebc6ed27829f75b69c6ba40ef958 "ボタンが相互に排他的な「ラジオボタン」グループのメンバーとして機能するようにします。")関数の引数をゼロにする。
+
+:::
+
+## トグル状態の変化への対応
+
+オン・オフを切り替えられるボタンへの反応は、通常のボタンクリックへの反応と似ている。ボタンがトグルされたときに呼び出したい関数を指定する必要があります。[Button::onClick](https://docs.juce.com/master/classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "このコールバック・オブジェクトにラムダを代入すると、ボタンがクリックされたときに呼び出されるようになります。")ヘルパー・オブジェクト（上のコード・スニペットでわかる）。
+
+違いは、updateToggleState()関数でボタンのトグル状態をチェックする必要があることです。そのために[Button::getToggleState()](https://docs.juce.com/master/classButton.html#ae1723837340c174f0f212855d247b626 "ボタンが'on'の場合にtrueを返す。")関数のメンバーである。これも[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスを返すので、これはどんなボタンにも有効です。`false`その他の場合）。
+
+```cpp
+    void updateToggleState (juce::Button* button, juce::String name)
     {
-        auto state = button->getToggleState()；
+        auto state = button->getToggleState();
 ```
 
 この例では、トグルの変更をロガーにポストしています：
 
-```
-juce::String stateString = state ?"ON" : "OFF"；
+```cpp
+        juce::String stateString = state ? "ON" : "OFF";
  
-        juce::Logger::outputDebugString (name + " Button changed to " + stateString)；
+        juce::Logger::outputDebugString (name + " Button changed to " + stateString);
     }
 ```
 
-Notice in particular, that when you toggle on either the "Male" or "Female" button that the other button turns "off" *そして* this is reported by the `updateToggleState()` function.
+特に、"男性 "か "女性 "のどちらかのボタンをオンにすると、もう一方のボタンは "オフ "になることに注意してください。*そして*で報告されている。`updateToggleState()`関数である。
 
-Add some additional [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") objects, of course you can easily add more hobbies. But you could also add more options under the gender category, for example "Prefer not to say" or "Other".
+:::danger[エクササイズ]
 
-## Using other buttons as toggles
+さらに[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")もちろん、趣味は簡単に追加できる。例えば、「言いたくない」とか「その他」とか。
 
-As hinted at above, *いずれも* button can be used as a toggle button. To illustrate, let's convert all of the [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") objects in the demo project into [テキストボタン](https://docs.juce.com/master/classTextButton "A button that uses the standard lozenge-shaped background with a line of text on it.") objects. The obvious thing that we need to do here is change the type of the member variables to the [テキストボタン](https://docs.juce.com/master/classTextButton "A button that uses the standard lozenge-shaped background with a line of text on it.") class:
+:::
 
-```
-juce::Label genderLabel { {}, "I identify my gender as..." }；
-    juce::ToggleButton maleButton { "男性" }、
-                       femaleButton { "Female" }；
+## 他のボタンをトグルとして使う
+
+前述したとおりだ、*いずれも*ボタンをトグル・ボタンとして使うことができる。説明のために、すべての[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトを[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトの型を変更する必要があります。ここで必要なのは、メンバ変数の型を[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスである：
+
+```cpp
+    juce::Label genderLabel         { {}, "I identify my gender as..."};
+    juce::ToggleButton maleButton   { "Male" },
+                       femaleButton { "Female" };
  
-    juce::Label hobbiesLabel { {}, "私の趣味は..."};
-    juce::ToggleButton sportButton { "Sport" }、
-                       artButton { "Art" }、
-                       filmButton { "Film"}；
+    juce::Label hobbiesLabel        { {}, "My hobbies are..." };
+    juce::ToggleButton sportButton  { "Sport" },
+                       artButton    { "Art" },
+                       filmButton   { "Film"};
  
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-But in order to make the buttons toggle-able using mouse clicks, we need to call the [Button::setClickingTogglesState()](classButton.html#a675d6848c16e265ff334b2d51328d8d2 "This tells the button to automatically flip the toggle state when the button is clicked.") function. To do this, add the following code anywhere within the `メインコンテンツコンポーネント` constructor:
+しかし、マウスクリックでボタンを切り替えられるようにするためには[Button::setClickingTogglesState()](https://docs.juce.com/master/classButton.html#a675d6848c16e265ff334b2d51328d8d2 "これは、ボタンがクリックされると自動的にトグルの状態が反転するように指示する。")関数を使用する。これを行うには、以下のコードを`MainContentComponent`ビルダー
 
-```
-maleButton .setClickingTogglesState (true)；
-        femaleButton .setClickingTogglesState (true)；
-        sportButton .setClickingTogglesState (true)；
-        artButton .setClickingTogglesState (true)；
-        filmButton .setClickingTogglesState (true)；
+```cpp
+        maleButton  .setClickingTogglesState (true);
+        femaleButton.setClickingTogglesState (true);
+        sportButton .setClickingTogglesState (true);
+        artButton   .setClickingTogglesState (true);
+        filmButton  .setClickingTogglesState (true);
 ```
 
 このコードを実行すると、元のアプリケーションと同じように使えるが、外観が異なるものが出来上がる：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_radio_buttons_checkboxes_screenshot2.png"
+  caption="テキストボタンをトグルボタンとして使用する"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_radio_buttons_checkboxes_screenshot2.png" caption="Using text buttons as toggle buttons" />
 :::note
 
-See [チュートリアルJUCEの色](../tutorial_colours/) for guidance on customising the colours of the text button in its on and off states.
+参照[Tutorial: Colours in JUCE](../tutorial_colours/)テキストボタンのオンとオフの状態の色をカスタマイズするためのガイダンスを参照してください。
 
 :::
 
-## Using text to display button toggle state
+## テキストを使用してボタンのトグル状態を表示する
 
-There may be cases where you want to change the text displayed depending on the button's toggle state, too. To do this, you can simply call the [Button::setButtonText()](classButton.html#a96f4185a0a716d10309f1081f0af2f91 "Changes the button's text.") function within your `updateToggleState()` function. To try this, revise the `updateToggleState()` function as follows:
+ボタンのトグル状態によって表示されるテキストを変えたい場合もあるだろう。これを行うには、単純に[Button::setButtonText()](https://docs.juce.com/master/classButton.html#a96f4185a0a716d10309f1081f0af2f91 "ボタンのテキストを変更します。")関数を使用する。`updateToggleState()`関数を使います。これを試すには`updateToggleState()`関数は次のようになる：
 
-```
-void updateToggleState (juce::Button* button, juce::String name)
+```cpp
+    void updateToggleState (juce::Button* button, juce::String name)
     {
-        auto state = button->getToggleState()；
-        juce::String stateString = state ?"ON" : "OFF"；
-        juce::String selectedString = state ?" (selected)" : ""；
+        auto state = button->getToggleState();
+        juce::String stateString    = state ? "ON" : "OFF";
+        juce::String selectedString = state ? " (selected)" : "";
  
-        juce::Logger::outputDebugString (name + " Button changed to " + stateString)；
-        button->setButtonText (name + selectedString)；
+        juce::Logger::outputDebugString (name + " Button changed to " + stateString);
+        button->setButtonText (name + selectedString);
     }
 ```
 
@@ -165,29 +176,30 @@ void updateToggleState (juce::Button* button, juce::String name)
 
 :::note
 
-This technique will work with both [テキストボタン](https://docs.juce.com/master/classTextButton "A button that uses the standard lozenge-shaped background with a line of text on it.") components, as shown here, and [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") components.
+このテクニックは[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")このように[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")コンポーネントを使用している。
 
 :::
 
 これで我々のアプリケーションは以下のスクリーンショットのようになる：
 
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_radio_buttons_checkboxes_screenshot3.png" caption="Changing button text based on toggle state" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_radio_buttons_checkboxes_screenshot3.png"
+  caption="トグルの状態に応じてボタンのテキストを変更する"
+/>
 
 # 概要
 
 このチュートリアルでは、チェックボックスとラジオボタン形式のコントロールの使い方を紹介しました。特に、自分のアプリケーションで以下のようなことができるようになるはずです：
 
--   Use [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") objects and respond to changes in state.
--   Change a [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") object's text, depending on its state.
--   Group [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") objects to form "radio groups" when only one button within a group may be on at any one time.
--   Use other [ボタン](https://docs.juce.com/master/classButton "A base class for buttons.") components as toggles.
+- 用途[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトの状態の変化に対応する。
+- 変更[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトのテキストは、その状態によって変わる。
+- グループ[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトを "ラジオ・グループ "を形成する。
+- その他[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")コンポーネントをトグルとして使用する。
 
-# 関連項目
+# 参照
 
--   [チュートリアルリスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)
--   [チュートリアルJUCEの色](../tutorial_colours/)
--   [チュートリアルLabelクラス](../tutorial_label/)
--   [チュートリアルComboBoxクラス](../tutorial_combo_box/)
--   [チュートリアルスライダークラス](../tutorial_slider_values/)
+- [Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)
+- [Tutorial: Colours in JUCE](../tutorial_colours/)
+- [Tutorial: The Label class](../tutorial_label/)
+- [Tutorial: The ComboBox class](../tutorial_combo_box/)
+- [Tutorial: The Slider class](../tutorial_slider_values/)

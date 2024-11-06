@@ -1,67 +1,72 @@
 ---
 title: ジオメトリのアニメーション
 sidebar_position: 4
-tags: ["初級"]
+tags: [初級]
 ---
 
-# チュートリアル：ジオメトリのアニメーション
+# チュートリアルジオメトリのアニメーション
 
-Create simple animations in your JUCE applications. Bring static geometry shapes to life using the [アニメーションAppコンポーネント](https://docs.juce.com/master/classAnimatedAppComponent "A base class for writing simple one-page graphical apps.") class.
+<SourcePageLink path="tutorial_animation" />
 
-レベル：初級
+JUCE アプリケーションで簡単なアニメーションを作成できます。静的なジオメトリ形状に生命を吹き込むには[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスである。
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+レベル初心者
 
-クラス： [アニメーションAppコンポーネント](https://docs.juce.com/master/classAnimatedAppComponent "A base class for writing simple one-page graphical apps."), [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended."), [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.")
+プラットフォームWindows , macOS , Linux , iOS , Android
 
-## はじめる
+クラス： [AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。"),[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。"),[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/AnimationTutorial.zip) | [ジップ](/tutorials/ZIPs/AnimationTutorial.zip). Unzip the project and open the first header file in the Projucer.
+# スタート
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AnimationTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AnimationTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-# The demo project
+このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-When completed, the demo project will display a continuous and smooth animation of a fish on the screen made of multiple [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") and [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") objects.
+# デモ・プロジェクト
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_animation_screenshot1.png" caption="The demo project window" />
+このデモ・プロジェクトが完成すると、画面上に複数の魚の連続的で滑らかなアニメーションが表示される。[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")そして[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")オブジェクトがある。
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_animation_screenshot1.png"
+  caption="デモプロジェクトのウィンドウ"
+/>
 
 :::note
 
-The code presented here is broadly similar to the **アニメーションの例** from the JUCE Examples.
+ここで紹介するコードは、大まかに以下のものと似ている。**アニメーションの例**JUCE Examplesより。
 
 :::
 
-# The AnimatedAppComponent class
+# AnimatedAppComponentクラス
 
-When creating a simple animated JUCE application, a useful class to inherit from is the [アニメーションAppコンポーネント](https://docs.juce.com/master/classAnimatedAppComponent "A base class for writing simple one-page graphical apps.") class. Just as the [オーディオコンポーネント](https://docs.juce.com/master/classAudioAppComponent "A base class for writing audio apps that stream from the audio i/o devices.") or [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent "A base class for writing simple one-page graphical apps.") classes are useful for audio applications and OpenGL applications respectively, the [アニメーションAppコンポーネント](https://docs.juce.com/master/classAnimatedAppComponent "A base class for writing simple one-page graphical apps.") offers functions that are beneficial to animation making namely:
+単純なアニメーションJUCEアプリケーションを作成する場合、継承すると便利なクラスがあります。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスである。ちょうど[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")または[OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスは、それぞれオーディオ・アプリケーションとOpenGLアプリケーションに役立ちます。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")というアニメーション制作に有益な機能を提供している：
 
--   setFramesPerSecond()：この関数を使うと、アニメーションをできるだけスムーズに動かすために、アプリケーションの最初の段階でFPSを設定することができます。また、この関数が呼び出されると、指定された頻度で再描画処理が開始されます。
--   update()：この関数は、setFramesPerSecond() 関数で設定された割合で呼び出され、アニメーションのパラメータを段階的に進めていきます。
--   getFrameCounter()：定義された FPS レートでアニメーションを開始して以来、update() 関数が呼び出された回数の合計を返します。これは、アニメーションを計算するための周期的な数学関数で有用です。
--   getMillisecondsSinceLastUpdate()：フレームレートに関係なく正確なタイミングでアニメーションを作成するために、最後のupdate()関数呼び出しからの所要時間をミリ秒で返すもう1つの便利な関数です。
+- setFramesPerSecond()：この関数を使うと、アニメーションをできるだけスムーズに実行するために、アプリケーションの開始時にFPSを設定することができます。また、この関数が呼び出されると、指定された頻度で再描画処理が開始されます。
+- update()：この関数は、setFramesPerSecond() 関数で設定された割合で呼び出され、アニメーションのパラメータを段階的に進めていきます。
+- getFrameCounter()：定義された FPS レートでアニメーションを開始して以来、update() 関数が呼び出された回数の合計を返します。これは、アニメーションを計算するための周期的な数学関数で有用です。
+- getMillisecondsSinceLastUpdate()：フレームレートに関係なく正確なタイミングでアニメーションを作成するために、最後のupdate()関数呼び出しからの所要時間をミリ秒で返すもう1つの便利な関数です。
 
-By using these functions along with the paint() function of the parent [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") class, we can start creating simple animations.
+これらの関数と親のpaint()関数を併用することで、以下のようになる。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスを使えば、簡単なアニメーションを作ることができる。
 
-# Animating a Circle
+# 円のアニメーション
 
-As we can see in the `メインコンテンツコンポーネント` class, the MainContentComponent inherits from the [アニメーションAppコンポーネント](https://docs.juce.com/master/classAnimatedAppComponent "A base class for writing simple one-page graphical apps.").
+を見ればわかるように`MainContentComponent`クラスを継承しています。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。").
 
-The first step to creating an animation is to set the frame rate of our animation. We do this in the MainContentComponent constructor like so \[1\] by calling the setFramesPerSecond() function:
+アニメーションを作成する最初のステップは、アニメーションのフレームレートを設定することです。これをMainContentComponentコンストラクタで次のように行います。\[1\]setFramesPerSecond() 関数を呼び出す：
 
-```
-MainContentComponent()
+```cpp
+    MainContentComponent()
     {
-        setSize (800, 600)；
-        setFramesPerSecond (60); // [1].
+        setSize (800, 600);
+        setFramesPerSecond (60);    // [1]
     }
 ```
 
 ここではFPSを60に設定し、アニメーションを1秒間に60回更新するために、内部的に60Hzの周波数でタイマーを呼び出します。これはほとんどのスクリーンのリフレッシュ・レートにほぼ等しく、スムーズなアニメーションになります。
 
-Let's start by animating a simple circle in a circular motion. In the paint() function, first set the colour in which we want to draw the circle by calling the setColour() function of the [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") class \[2\]. Next define the radius of the circular path that the shape will follow \[3\] as shown here:
+まず、単純な円を円運動でアニメーションさせることから始めよう。paint()関数で、まず円を描く色を設定します。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラス\[2\].次に、形状がたどる円形の経路の半径を定義します。\[3\]この通りである：
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     //...
@@ -70,26 +75,28 @@ void paint (juce::Graphics& g) override
  
     int radius = 150;                                                        // [3]
  
-    juce::Pointp (getWidth() / 2.0f + 1.0f * radius、
-                          getHeight() / 2.0f + 1.0f * 半径); // [4].
+    juce::Point p (getWidth()  / 2.0f + 1.0f * radius,
+                          getHeight() / 2.0f + 1.0f * radius);               // [4]
  
-    g.fillEllipse (p.x, p.y, 30.0f, 30.0f); // [5].
+    g.fillEllipse (p.x, p.y, 30.0f, 30.0f);                                  // [5]
 }
-スライダー::thumbColourId@ thumbColourId親指を描画する色定義 juce_Slider.h:873
+Slider::thumbColourId@ thumbColourIdThe colour to draw the thumb with.Definition juce_Slider.h:888
 ```
 
-Then create a [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") that represents the position of the center of our shape at the given time frame \[4\]. Here, in order to create a circular motion first find the center of the screen by dividing the width and height of the screen by two. Then offset the x and y coordinates of the shape by adding the radius value to both of them.
+そして、次のようにする。[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")与えられた時間枠における形状の中心の位置を表す\[4\].ここでは、円形の動きを作るために、まず画面の幅と高さを2で割って画面の中心を見つける。次に、半径の値を足して、図形のx座標とy座標をオフセットする。
 
-Lastly, paint the actual circle by using the fillEllipse() function by providing the previously defined [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") coordinates and a diameter of 30 as arguments.
+最後に、fillEllipse() 関数を使って実際の円を描きます。[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")座標と直径30を引数に取る。
 
 今、アプリケーションを実行すると、円がどうなるかわかりますか？座標系が左上から始まっているため、円は半径の値だけ反対方向に押されるのだ：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_animation_screenshot2.png" caption="The static circle" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_animation_screenshot2.png"
+  caption="スタティック・サークル"
+/>
 
+の宣言を修正しよう。[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")実際のモーションを作成する。
 
-Let's modify our declaration of our [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") to create the actual motion.
-
-```
+```cpp
     void paint (juce::Graphics& g) override
     {
         // (Our component is opaque, so we must completely fill the background with a solid colour)
@@ -99,30 +106,30 @@ Let's modify our declaration of our [ポイント](https://docs.juce.com/master/
  
         int radius = 150;
  
-        juce::Pointp ((float) getWidth() / 2.0f + 1.0f * (float) radius * std::sin ((float) getFrameCounter() * 0.04f)、
-                              (float) getHeight() / 2.0f + 1.0f * (float) radius * std::cos ((float) getFrameCounter() * 0.04f))；
+        juce::Point p ((float) getWidth()  / 2.0f + 1.0f * (float) radius * std::sin ((float) getFrameCounter() * 0.04f),
+                              (float) getHeight() / 2.0f + 1.0f * (float) radius * std::cos ((float) getFrameCounter() * 0.04f));
  
-        g.fillEllipse (p.x, p.y, 30.0f, 30.0f)；
+        g.fillEllipse (p.x, p.y, 30.0f, 30.0f);
     }
 ```
 
-Here we use the getFrameCounter() function to retrieve the counter on the number of frames since the start of our animation and use its value to compute a value between \-1 ..1 using the sine and cosine functions for the width and height respectively. The scalar multiplication of 0.04 on the frame counter controls the speed at which the periodic functions will alternate to create circular motion.
+ここでは、getFrameCounter()関数を使用して、アニメーションの開始からのフレーム数のカウンターを取得し、その値を使用して、次の間の値を計算します。\-1 ..1幅と高さにはそれぞれサイン関数とコサイン関数を使用する。フレームカウンターの0.04のスカラー倍は、周期関数が交互に円運動を作り出す速度を制御する。
 
 アプリケーションを実行すると、円運動が現れるはずだ。
 
 :::note
 
-The source code for this modified version of the code can be found in the `アニメーションチュートリアル_02.h` file of the demo project.
+この修正版のソースコードは`AnimationTutorial_02.h`ファイルにある。
 
 :::
 
-# Animating a Path
+# パスのアニメーション
 
 円の代わりに、次は円形のパスに沿って線をアニメートしてみよう。
 
-Using the same code base as the previous section we are going to create multiple [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") objects along which a [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") will be created instead of just a single animated [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates."). Modify the paint() function as follows:
+前のセクションと同じコードベースを使って、複数の[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")に沿ったオブジェクトである。[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")が作成されます。[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。").paint()関数を以下のように修正する：
 
-```
+```cpp
     void paint (juce::Graphics& g) override
     {
         // (Our component is opaque, so we must completely fill the background with a solid colour)
@@ -138,45 +145,51 @@ Using the same code base as the previous section we are going to create multiple
         {
             int radius = 150;
  
-            juce::Pointp ((float) getWidth() / 2.0f + 1.0f * (float) radius * std::sin ((float) getFrameCounter() * 0.04f + (float) i * 0.12f)、
-                                  (float) getHeight() / 2.0f + 1.0f * (float) radius * std::cos ((float) getFrameCounter() * 0.04f + (float) i * 0.12f))；
+            juce::Point p ((float) getWidth()  / 2.0f + 1.0f * (float) radius * std::sin ((float) getFrameCounter() * 0.04f + (float) i * 0.12f),
+                                  (float) getHeight() / 2.0f + 1.0f * (float) radius * std::cos ((float) getFrameCounter() * 0.04f + (float) i * 0.12f));
  
             if (i == 0)
-                spinePath.startNewSubPath (p); // これが最初の点の場合、新しいパスを開始します。
+                spinePath.startNewSubPath (p);  // if this is the first point, start a new path..
             else
-                spinePath.lineTo (p); // ...そうでなければ、次の点を追加する。
+                spinePath.lineTo (p);           // ...otherwise add the next point
         }
  
-        // 作成したパスの周囲に輪郭を描く
-        g.strokePath (spinePath, juce::PathStrokeType (4.0f)); // [4].
+        // draw an outline around the path that we have created
+        g.strokePath (spinePath, juce::PathStrokeType (4.0f)); // [4]
     }
 ```
 
--   \[1\]: First define the number of dots to create along the path.
--   \[2\]: Next create a [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") object to draw the line that will connect the dots.
--   \[3\]: Now for every dot, create the same [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") object as before but this time we are going to offset the animation for every subsequent iteration in the loop. Notice the addition of an offset of 0.12 between every dot in the circular motion. If the iteration is the first one, we create a new sub path by calling the startNewSubPath() function on the [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") object, otherwise we connect the current dot to the previously defined dots on the [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.").
--   \[4\]: Finally, draw an outline around the created [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") along the [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") objects.
+- \[1\]最初に、パスに沿って作成するドットの数を定義します。
+- \[2\]次に[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")オブジェクトを使って点を結ぶ線を引く。
+- \[3\]今度は、すべてのドットに同じ[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")しかし今回は、ループの反復ごとにアニメーションをオフセットする。円形の動きの各ドットの間に0.12のオフセットが追加されていることに注目してください。反復が最初のものである場合、startNewSubPath()関数を呼び出して新しいサブパスを作成します。[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")そうでない場合は、現在のドットを以前に定義された[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。").
+- \[4\]最後に、作成した[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")に沿っている。[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")オブジェクトがある。
 
 アプリケーションを実行すると、円形に引かれた線を見ることができる。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_animation_screenshot3.png" caption="The circular path" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_animation_screenshot3.png"
+  caption="円軌道"
+/>
 
+:::danger[エクササイズ]
 
-アプリケーションのFPSを変更してみて、アニメーションの滑らかさがどのように変化するかに注目してください。映画アニメーションの標準的な24FPSではどうなるでしょうか？
-
-:::note
-
-The source code for this modified version of the code can be found in the `アニメーションチュートリアル_03.h` file of the demo project.
+アプリケーションのFPSを変えてみて、アニメーションの滑らかさがどのように変化するかに注目してください。映画アニメーションの標準的な24FPSではどうなるでしょうか？
 
 :::
 
-# Animating a Fish
+:::note
 
-Let's try something a little more interesting by animating a fish from the [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") and [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") objects we have created so far.
+この修正版のソースコードは`AnimationTutorial_03.h`ファイルにある。
 
-In order to show the actual points drawn along the circular path and create the body of the fish, let's add a line in our for loop that draws the circles by using the fillEllipse() function and by specifying an increasing width and height for each dot along the line \[1\] like so:
+:::
 
-```
+# 魚のアニメーション
+
+の魚をアニメーション化して、もう少し面白いことをやってみよう。[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")そして[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")オブジェクトを作成した。
+
+円形パスに沿って描かれた実際の点を表示し、魚の胴体を作成するために、fillEllipse()関数を使用して円を描き、線に沿って各点の幅と高さを増加させるように指定する行をforループに追加してみましょう。\[1\]このように：
+
+```cpp
 void paint (juce::Graphics& g) override
 {
     //...
@@ -190,31 +203,33 @@ void paint (juce::Graphics& g) override
     {
         int radius = 150;
  
-        juce::Pointp (getWidth() / 2.0f + 1.0f * radius * std::sin (getFrameCounter() * 0.04f + i * 0.12f)、
-                              getHeight() / 2.0f + 1.0f * radius * std::cos (getFrameCounter() * 0.04f + i * 0.12f))；
+        juce::Point p (getWidth()  / 2.0f + 1.0f * radius * std::sin (getFrameCounter() * 0.04f + i * 0.12f),
+                              getHeight() / 2.0f + 1.0f * radius * std::cos (getFrameCounter() * 0.04f + i * 0.12f));
  
-        // 魚に沿って円を描く
-        g.fillEllipse (p.x - i, p.y - i, 2.0f + 2.0f * i, 2.0f + 2.0f * i); // [1].
+        // draw the circles along the fish
+        g.fillEllipse (p.x - i, p.y - i, 2.0f + 2.0f * i, 2.0f + 2.0f * i); // [1]
  
         if (i == 0)
-            spinePath.startNewSubPath (p); // これが最初の点の場合、新しいパスを開始します。
+            spinePath.startNewSubPath (p);  // if this is the first point, start a new path..
         else
-            spinePath.lineTo (p); // ...そうでなければ、次の点を追加する。
+            spinePath.lineTo (p);           // ...otherwise add the next point
     }
  
-    // 作成したパスの周囲に輪郭を描く
-    g.strokePath (spinePath, juce::PathStrokeType (4.0f))；
+    // draw an outline around the path that we have created
+    g.strokePath (spinePath, juce::PathStrokeType (4.0f));
 }
 ```
 
 さて、アプリケーションを実行すると、魚のように見え始めるが、まだ魚のようには動かないものが見えるはずだ。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_animation_screenshot4.png" caption="The body of the fish" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_animation_screenshot4.png"
+  caption="魚体"
+/>
 
 そこで、魚の動きを模倣するためにアニメーションを少し変えてみよう。
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     //...
@@ -223,8 +238,8 @@ void paint (juce::Graphics& g) override
     {
         auto radius = 100 + 10 * std::sin (getFrameCounter() * 0.1f + i * 0.5f); // [2]
  
-        juce::Pointp (getWidth() / 2.0f + 1.0f * radius * std::sin (getFrameCounter() * 0.04f + i * 0.12f)、
-                              getHeight() / 2.0f + 1.0f * radius * std::cos (getFrameCounter() * 0.04f + i * 0.12f))；
+        juce::Point p (getWidth()  / 2.0f + 1.0f * radius * std::sin (getFrameCounter() * 0.04f + i * 0.12f),
+                              getHeight() / 2.0f + 1.0f * radius * std::cos (getFrameCounter() * 0.04f + i * 0.12f));
  
         //...
     }
@@ -232,11 +247,11 @@ void paint (juce::Graphics& g) override
 }
 ```
 
-Here we apply modulation to the radius of the circle using a sine function and the frame counter by using the same getFrameCounter() function along with a scalar and a slightly different offset for every dot along the line \[2\]. This should provide us with a snake like motion if we run the application.
+ここでは、正弦関数を使用して円の半径に変調を加え、同じgetFrameCounter()関数とスカラーを使用してフレーム・カウンターに変調を加えている。\[2\].これでアプリケーションを実行すると、蛇のような動きが得られるはずだ。
 
 その動きは説得力があるように見えるが、驚きがなく、最初の円軌道のまま、かなり速く繰り返されるため、少し単調な印象を受ける。
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     //...
@@ -245,8 +260,8 @@ void paint (juce::Graphics& g) override
     {
         auto radius = 100 + 10 * std::sin (getFrameCounter() * 0.1f + i * 0.5f);
  
-        juce::Pointp (getWidth() / 2.0f + 1.5f * radius * std::sin (getFrameCounter() * 0.02f + i * 0.12f)、
-                              getHeight() / 2.0f + 1.0f * radius * std::cos (getFrameCounter() * 0.04f + i * 0.12f)); // [3].
+        juce::Point p (getWidth()  / 2.0f + 1.5f * radius * std::sin (getFrameCounter() * 0.02f + i * 0.12f),
+                              getHeight() / 2.0f + 1.0f * radius * std::cos (getFrameCounter() * 0.04f + i * 0.12f)); // [3]
  
         //...
     }
@@ -254,15 +269,19 @@ void paint (juce::Graphics& g) override
 }
 ```
 
-If we offset the rate of our sine and cosine functions in the [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") creation and provide a different ratio for the width and height of the radius \[3\], we can get much more convincing results.
+の正弦関数と余弦関数のレートをオフセットすると、次のようになる。[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")を作成し、半径の幅と高さに異なる比率を与える。\[3\]より説得力のある結果を得ることができる。
 
 最後にもう一度アプリケーションを実行し、動きのランダム性が改善されていることに気づく。
 
+:::danger[エクササイズ]
+
 同様の方法で、魚の長さを変更したり、独自のアニメーション形状を作成することができます。
+
+:::
 
 :::note
 
-The source code for this modified version of the code can be found in the `アニメーションチュートリアル_04.h` file of the demo project.
+この修正版のソースコードは`AnimationTutorial_04.h`ファイルにある。
 
 :::
 
@@ -270,13 +289,13 @@ The source code for this modified version of the code can be found in the `ア�
 
 このチュートリアルでは、JUCE アプリケーションでジオメトリ形状をアニメートする方法を学びました。特に
 
--   Explored the mechanics of the [アニメーションAppコンポーネント](https://docs.juce.com/master/classAnimatedAppComponent "A base class for writing simple one-page graphical apps.") class.
--   Painted shapes using the [グラフィック](https://docs.juce.com/master/classGraphics "A graphics context, used for drawing a component or image.") class.
--   フレームごとに図形をアニメーションさせる。
+- のメカニズムを探った。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスである。
+- を使用して描かれた図形。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスである。
+- フレームごとに図形をアニメーションさせる。
 
-# 関連項目
+# 参照
 
--   [チュートリアルGraphicsクラス](../tutorial_graphics_class/)
--   [チュートリアル点、線、矩形クラス](../tutorial_point_line_rectangle/)
--   [チュートリアル高度なGUIレイアウトテクニック](../tutorial_rectangle_advanced/)
--   [チュートリアルOpenGLアプリケーションのビルド](../tutorial_open_gl_application/)
+- [Tutorial: The Graphics class](../tutorial_graphics_class/)
+- [Tutorial: The Point, Line, and Rectangle classes](../../interface-design/tutorial_point_line_rectangle/)
+- [Tutorial: Advanced GUI layout techniques](../../interface-design/tutorial_rectangle_advanced/)
+- [Tutorial: Build an OpenGL application](../tutorial_open_gl_application/)

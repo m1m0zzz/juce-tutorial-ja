@@ -1,37 +1,41 @@
 ---
 title: ウェーブテーブル・シンセシス
 sidebar_position: 6
+tags: [初級]
 ---
 
 # チュートリアルProjucerパート1：Projucerを始める
 
+<SourcePageLink path="tutorial_new_projucer_project" />
+
 このチュートリアルでは、JUCE のインストール方法と、Projucer を使用して新しいクロスプラットフォーム JUCE プロジェクトを作成する方法を説明します。また、JUCE アプリケーションを開発、実行、デバッグするために、プロジェクトを Xcode や Visual Studio などの IDE にエクスポートする方法も学びます。
 
-レベル：初級
+レベル初心者
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+プラットフォームWindows , macOS , Linux , iOS , Android
 
-## はじめる
+# スタート
 
-[JUCEをダウンロード](https://www.juce.com/get-juce). Unpack the JUCE folder and place it to some location on your computer. Your user home folder is a convenient place.
+[Download JUCE](https://www.juce.com/get-juce).JUCEフォルダを解凍し、コンピュータの任意の場所に置きます。ユーザのホームフォルダが便利です。
 
 先ほどインストールしたJUCEフォルダに入ります。そこにあるProjucerを起動します。
 
-# The new project window
+# 新しいプロジェクト・ウィンドウ
 
-The first time you launch Projucer, you are presented with the new project window. (You can also launch this later by selecting **新プロジェクト** from the Projucer's main menu.):
+Projucerを初めて起動すると、新しいプロジェクト・ウィンドウが表示されます。(後で**新プロジェクト**Projucerのメインメニューから）：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_new_projucer_project_screenshot1.png"
+  caption="Projucer - 新しいプロジェクト・ウィンドウ。"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_new_projucer_project_screenshot1.png" caption="Projucer - new project window." />
-
-
-## Select your project type
+## プロジェクトタイプを選択
 
 ウィンドウの左側で、作成したいプロジェクトのタイプを選択します。
 
 プロジェクト・タイプごとに、Projucerはすべてのプロジェクト・ファイルを生成し、すべてをセットアップする適切な最小限のコードを追加します。このようにして、プロジェクトを作成した後、すぐに実際の機能の開発に取り掛かることができます。
 
-初めてJUCEを使う場合で、何から始めたらよいかわからない場合は、GUIアプリケーションを使いましょう。
+初めてJUCEを使う場合で、何から始めたらよいかわからない場合は、GUIアプリケーションを試してみてください。
 
 以下は、現在サポートされているすべてのプロジェクトタイプの概要です。
 
@@ -39,28 +43,28 @@ The first time you launch Projucer, you are presented with the new project windo
 | --- | --- |
 | **アプリケーション/ブランク** | これにより、空白のJUCEアプリケーションが作成されます。 |
 | **アプリケーション/GUI** | これにより、空のアプリケーション・ウィンドウを持つ最小限のJUCEアプリケーションが作成されます。ここから始めて、JUCEが提供する様々なクラスを使って、より多くのGUIコンポーネントなどの機能を追加することができます。 |
-| **アプリケーション/オーディオ** | This creates a minimal JUCE application, like **アプリケーション/GUI**, but automatically adds all the setup code that you need to easily get audio input and output. You can use this for games, multimedia applications, and much more. |
+| **アプリケーション/オーディオ** | これは、次のような最小限のJUCEアプリケーションを作成します。**アプリケーション/GUI**しかし、オーディオ入出力を簡単に行うために必要なすべてのセットアップコードを自動的に追加します。ゲームやマルチメディア・アプリケーションなど、様々な用途にお使いいただけます。 |
 | **アプリケーション/コンソール** | JUCEは、GUIを全く持たないコマンドラインアプリケーションを開発するのにも非常に便利です。そのようなアプリケーションを作成するには、このプロジェクト・タイプを使ってください。 |
-| **アプリケーション/アニメーション** | これは、アニメーションのグラフィック表示を描画するアプリケーションを作成します。ここから始めて、例えばアニメーション・モバイル・アプリケーションを作成することができる。 |
-| **アプリケーション/OpenGL** | This creates a blank JUCE application, like **アプリケーション/GUI**, but adds support for OpenGL to draw features including 3D model import and GLSL shaders. |
-| **プラグイン/ベーシック** | This creates a basic audio plug-in. All the code to support VST, AudioUnit and AAX plug-in formats, is added automatically. Depending on your setup, this project type may require some additional preparation steps to work correctly. See [チュートリアル基本的なAudio/MIDIプラグインを作る, パート1：セットアップ](../tutorial_create_projucer_basic_plugin/) for more information. |
+| **アプリケーション/アニメーション** | これは、アニメーションのグラフィック表示を描画するアプリケーションを作成します。例えば、アニメーション・モバイル・アプリケーションを作成するには、ここから始めることができる。 |
+| **アプリケーション/OpenGL** | これは、次のような空白のJUCEアプリケーションを作成します。**アプリケーション/GUI**しかし、3DモデルのインポートやGLSLシェーダーを含む描画機能にはOpenGLのサポートが追加されています。 |
+| **プラグイン/ベーシック** | これは基本的なオーディオプラグインを作成します。VST、AudioUnit、AAXプラグインフォーマットをサポートするすべてのコードが自動的に追加されます。セットアップによっては、このプロジェクトタイプを正しく動作させるために、追加の準備手順が必要になる場合があります。参照[Tutorial: Create a basic Audio/MIDI plugin, Part 1: Setting up](../../getting-started/tutorial_create_projucer_basic_plugin/)をご覧ください。 |
 | **ライブラリ/静的, ライブラリ/動的** | このプロジェクト・タイプは、JUCEの上に構築する再利用可能なソフトウェア・ライブラリを作成するのに便利です。Projucerは、静的リンクと動的リンクの両方のライブラリの作成をサポートしています。 |
 
-There are also many example projects which can serve as an alternative starting point for your project, They are located in the subfolder `JUCE/例` and can be browsed by clicking the **オープン例** tab.
+また、プロジェクトの出発点として使用できるサンプル・プロジェクトも数多くあります。`JUCE/examples`をクリックして閲覧できます。**オープン例**タブ
 
 :::note
 
-You are not limited by the project type you choose; for example, if you selected **アプリケーション/GUI**, you can always add animations and OpenGL later. However, you cannot easily convert an Application to a Library or an Audio Plug-In later.
+選択したプロジェクトタイプによって制限されることはありません。**アプリケーション/GUI**アニメーションやOpenGLはいつでも後から追加できます。しかし、アプリケーションをライブラリやオーディオプラグインに後から簡単に変換することはできません。
 
 :::
 
-## Create your new project
+## 新しいプロジェクトを作成する
 
 適切なプロジェクトタイプを選択した後、ウィンドウの右側にある追加のプロジェクト設定を入力することができます：
 
--   **プロジェクト名** - Here, you choose a name for your app.
--   **モジュール** - The JUCE framework code is organised into *モジュール*. Here, you can select which modules are included in your project and in the section below you can specify the location of the `モジュール` subfolder located inside the JUCE folder you installed earlier.
--   **輸出業者** - Here, you select which native IDEs you want to use to build and debug your app. This also defines the desktop and mobile platforms that your app will support. Don't worry, this is not a final choice — with the Projucer, you can add additional platforms and IDEs later.
+- **プロジェクト名**\- ここでアプリの名前を決めます。
+- **モジュール**\- JUCEフレームワークのコードは以下のように構成されています。*モジュール*.ここで、どのモジュールをプロジェクトに含めるかを選択し、その下のセクションで`modules`サブフォルダは、先にインストールした JUCE フォルダの中にあります。
+- **輸出業者**\- ここで、アプリのビルドとデバッグに使用するネイティブIDEを選択します。また、アプリがサポートするデスクトップとモバイルのプラットフォームも定義します。Projucerでは、後からプラットフォームやIDEを追加することができます。
 
 Projucerには現在、以下のIDE、ビルド・システム、プラットフォーム用のエクスポータがあります：
 
@@ -72,16 +76,17 @@ Projucerには現在、以下のIDE、ビルド・システム、プラットフ
 | iOS | エックスコード |
 | アンドロイド | アンドロイドスタジオ |
 
--   **[ファイル](https://docs.juce.com/master/classFile "Represents a local file or directory.") Creation Options** - Depending on the project type, this field may offer some options on what code to auto-generate. If you are new to JUCE, the default selection is usually the best way to go to auto-generate everything you need and get you going quickly.
--   When you have reviewed all your settings, click the **プロジェクトを作成...** button to generate the project at a specified location.
+- **[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。")制作オプション**\- プロジェクトの種類によっては、このフィールドに自動生成するコードの選択肢があります。JUCEに慣れていない場合、必要なものをすべて自動生成し、すぐに使い始めるには、通常デフォルトの選択が最適です。
+- すべての設定を確認したら**プロジェクトを作成...**ボタンをクリックすると、指定した場所にプロジェクトが生成されます。
 
-## Export the project and open in your native IDE
+## プロジェクトをエクスポートし、ネイティブIDEで開きます。
 
 プロジェクトを作成したら、Projucerから直接ネイティブIDEを起動することができます。一番上のボタンを使ってください：
 
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_new_projucer_project_screenshot2.png" caption="Projucer - save and open project in IDE" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_new_projucer_project_screenshot2.png"
+  caption="Projucer - IDEでプロジェクトを保存して開く"
+/>
 
 IDE（Xcode、Visual Studioなど）を開いたので、JUCEアプリをコンパイルして実行し、コーディングを始めることができます！
 
@@ -91,30 +96,30 @@ IDE（Xcode、Visual Studioなど）を開いたので、JUCEアプリをコン�
 
 :::
 
-All export targets (which are the native IDE projects) are generated when you create your Projucer project. They are also updated every time you save it in the Projucer. At any time, you can create new export targets to add support for more IDEs and platforms to your project. You can read about this and more features for managing your Projucer project in [チュートリアルProjucerパート2：Projucerプロジェクトを管理する](../tutorial_manage_projucer_project/).
+すべてのエクスポートターゲット（ネイティブIDEプロジェクト）は、Projucerプロジェクトを作成するときに生成されます。また、Projucerで保存するたびに更新されます。いつでも新しいエクスポート・ターゲットを作成して、プロジェクトにさらに多くのIDEやプラットフォームのサポートを追加できます。Projucerプロジェクトを管理するためのこの他の機能については、以下を参照してください。[Tutorial: Projucer Part 2: Manage your Projucer projects](../../getting-started/tutorial_manage_projucer_project/).
 
-# Open an existing project
+# 既存のプロジェクトを開く
 
-To open up an existing Projucer project, you can either double-click on the `ジュセール` file contained in the project folder or click on **既存のプロジェクトを開く** from the wizard. (You can also navigate to **オープン...** from the Projucer's main menu.)
+既存のProjucerプロジェクトを開くには、次のいずれかをダブルクリックします。`.jucer`ファイルをクリックするか、プロジェクトフォルダ内の**既存のプロジェクトを開く**をウィザードから選択します。(に移動することもできます。**オープン...**Projucerのメインメニューから)。
 
-## Opening PIP files
+## PIPファイルを開く
 
-You may come across *Projucerインスタント・プロジェクト* (PIP) files when following other JUCE tutorials. These are essentially header files with the usual `.h` extension that provide metadata to the Projucer in order to automatically create a project with the correct modules and exporters from a single file.
+あなたは次のような場面に出くわすかもしれない。*Projucerインスタント・プロジェクト*(PIP)ファイルです。これらは基本的にヘッダファイルで、通常の`.h`この拡張機能は、Projucerにメタデータを提供し、1つのファイルから正しいモジュールとエクスポータを持つプロジェクトを自動的に作成します。
 
-PIP files can be opened similarly by either selecting the file from the **オープン...** dialog of the Projucer's main menu or a simple drag-and-drop onto the Projucer interface window.
+PIPファイルを開くには、同様に**オープン...**ダイアログを開くか、Projucerのインターフェイスウィンドウにドラッグ・アンド・ドロップする。
 
 # 概要
 
 このチュートリアルを読めば、次のことができるようになるはずだ：
 
--   JUCEをインストールする。
--   Projucerを使って新しいプロジェクトを作成する。
--   このプロジェクトをOSXのXcodeやWindowsのVisual StudioなどのネイティブIDEにエクスポートします。
--   ターゲットとするプラットフォームのネイティブIDEでアプリをコンパイル、実行、デバッグする。
--   既存のプロジェクトとPIPファイルをProjucerで開きます。
+- JUCEをインストールする。
+- Projucerを使って新しいプロジェクトを作成する。
+- このプロジェクトをOSXのXcodeやWindowsのVisual StudioなどのネイティブIDEにエクスポートします。
+- ターゲットとするプラットフォームのネイティブIDEでアプリをコンパイル、実行、デバッグする。
+- 既存のプロジェクトとPIPファイルをProjucerで開きます。
 
-# 関連項目
+# こちらも参照
 
--   [チュートリアルProjucerパート2：Projucerプロジェクトを管理する](../tutorial_manage_projucer_project/)
--   [チュートリアル基本的なAudio/MIDIプラグインを作る, パート1：セットアップ](../tutorial_create_projucer_basic_plugin/)
--   [チュートリアルProjucer Part 3: アプリケーションに適したProjucerテンプレートの選択](../tutorial_choosing_projucer_template/)
+- [Tutorial: Projucer Part 2: Manage your Projucer projects](../../getting-started/tutorial_manage_projucer_project/)
+- [Tutorial: Create a basic Audio/MIDI plugin, Part 1: Setting up](../../getting-started/tutorial_create_projucer_basic_plugin/)
+- [Tutorial: Projucer Part 3: Choosing the right Projucer template for your application](../../getting-started/tutorial_choosing_projucer_template/)

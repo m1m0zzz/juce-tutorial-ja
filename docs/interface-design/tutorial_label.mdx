@@ -1,208 +1,244 @@
 ---
 title: ラベルクラス
 sidebar_position: 9
+tags: [初級]
 ---
 
 # チュートリアルLabelクラス
 
-This tutorial introduces the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class, which is a component for displaying text. A [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") component can also be set to be editable so it's really useful for displaying text and simple text entry.
+<SourcePageLink path="tutorial_label" />
 
-レベル：初級
+このチュートリアルでは[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは、テキストを表示するためのコンポーネントです。A[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")コンポーネントは編集可能にも設定できるので、テキストの表示や簡単なテキスト入力にとても便利です。
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+レベル初心者
 
-クラス： [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked."), [テキストエディター](https://docs.juce.com/master/classTextEditor "An editable text box."), [フォント](https://docs.juce.com/master/classFont "Represents a particular font, including its size, style, etc."), [カラー](https://docs.juce.com/master/namespaceColours "Contains a set of predefined named colours (mostly standard HTML colours)")
+プラットフォームWindows , macOS , Linux , iOS , Android
 
-## はじめる
+クラス： [Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。"),[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。"),[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。"),[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/LabelTutorial.zip) | [ジップ](/tutorials/ZIPs/LabelTutorial.zip). Unzip the project and open the first header file in the Projucer.
+# スタート
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/LabelTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/LabelTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-# The demo project
+このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+
+# デモ・プロジェクト
 
 デモ・プロジェクトには多くのラベルが含まれている。そのうちのいくつかはテキストを表示するためのものですが、1つはテキストを入力するためのものです。デモ・プロジェクトを実行すると、次のスクリーンショットのようになるはずです：
 
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_label_screenshot1.png" caption="The initial appearance of the application" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_label_screenshot1.png"
+  caption="アプリケーションの初登場"
+/>
 
 白い背景のラベルをクリックすると編集可能になり、ラベルに微妙なボーダーが表示され、キャレットが表示される。これを次のスクリーンショットに示す。
 
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_label_screenshot2.png" caption="The application with the text entry label focused" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_label_screenshot2.png"
+  caption="テキスト入力ラベルがフォーカスされたアプリケーション"
+/>
 
 このラベルには、以下のようにテキストを入力することができる：
 
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_label_screenshot3.png" caption="Entering text into the text entry label" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_label_screenshot3.png"
+  caption="テキスト入力ラベルにテキストを入力する"
+/>
 
 リターンキーを押すか、ラベルから離れるようにクリックすると、編集可能な状態から外れます。これはリスナーにブロードキャストされる変更をコミットします。この場合、テキストを大文字に変換し、別のラベルに表示します：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_label_screenshot4.png"
+  caption="テキストは大文字に変換され、別のラベルに表示されます。"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_label_screenshot4.png" caption="The text is converted to uppercase and displayed in another label" />
+これは、いくつかの異なる使い方を示している。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは、テキストの表示と入力の両方に使用される。ここには5つのラベルがあり、それぞれ微妙に異なる方法で使われている：
 
-
-This illustrates several different uses of the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class for both displaying and entering text. There are actually five labels here that are used in slightly different ways:
-
--   見出しとして使われる上部の緑色のラベル。
--   他の固定テキストを表示するために使用される2つのオレンジ色のラベル。
--   動的に変化するテキストを表示するために使用される2つの長方形のボックス（そのうちの1つは、ユーザーからのテキスト入力を許可するためのもの）。
+- 見出しとして使われる上部の緑色のラベル。
+- 他の固定テキストを表示するために使用される2つのオレンジ色のラベル。
+- 動的に変化するテキストを表示するために使用される2つの長方形のボックス（そのうちの1つは、ユーザーからのテキスト入力を許可するためのもの）。
 
 長方形のボックスの2つ目は、テキスト入力ボックスと区別するため、ごくわずかにグレーアウトされている。
 
-# Displaying text
+# テキストの表示
 
-This tutorial covers most of the main features of the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class. The most fundamental feature of a label is that it displays some text! While you can draw your own text in your component's `ペイント` function (see [チュートリアルGraphicsクラス](../tutorial_graphics_class/)) it is usually much more convenient to manage the layout of text using [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") objects (or [テキストエディター](https://docs.juce.com/master/classTextEditor "An editable text box.") objects in some cases).
+このチュートリアルでは[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスがあります。ラベルの最も基本的な機能は、テキストを表示することです！コンポーネントの`paint()`関数 ([Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)を使用してテキストのレイアウトを管理する方がはるかに便利です。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクト（または[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")オブジェクトの場合もある）。
 
-As you would expect, the text within a [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") object can be displayed in any font, font size, bold, italics, and so on. The text can also be justified (aligned) within the component bounds to the left, right, centre, top, bottom, and using various other options.
+ご想像の通り[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトは、任意のフォント、フォントサイズ、太字、斜体などで表示することができます。また、テキストはコンポーネントの境界内で左、右、中央、上、下、その他様々なオプションを使ってジャスティファイ（整列）させることができます。
 
 :::note
 
-The [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class can only contain a single run of text in the same font, size, and justification. To display multiple runs of text in different styles (as you would find in a word processor application) see the [テキストエディター](https://docs.juce.com/master/classTextEditor "An editable text box.") class. The [テキストエディター](https://docs.juce.com/master/classTextEditor "An editable text box.") class can also include horizontal and vertical scroll bars to display large amounts of text.
+について[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは、同じフォント、サイズ、ジャスティフィケーションを持つ単一のテキストのみを含むことができます。ワープロ・アプリケーションで見られるような）異なるスタイルで複数のテキストを表示するには[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")クラスである。その[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")クラスには、大量のテキストを表示するための水平および垂直スクロールバーを含めることもできます。
 
 :::
 
-If the bounds of the component are too small to display all of the text requested then the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class will try a few things to make the text fit. First, it will make the glyphs of the font a little narrower. If the glyphs are too narrow then the text will be unreadable, so beyond a certain point it gives up. In this case it truncates the text showing an ellipsis (...) at the end to show that this has been done. You can try this now by typing in the text "The quick brown fox jumps over the lazy dog" in the text entry label. In fact you can copy the text ("CMD-C" to copy on Mac OS X or "Ctrl-C" on Windows) from this page and paste it into the label using keyboard shortcuts ("CMD-V" to paste on Mac OS X or "Ctrl-V" on Windows). This capability is built in without you needing to add any code!
+コンポーネントの境界が小さすぎて、要求されたテキストをすべて表示できない場合は[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスはテキストをフィットさせるためにいくつかのことを試みます。まず、フォントのグリフを少し狭くします。グリフが狭すぎるとテキストが読めなくなるので、ある点を超えるとあきらめます。この場合、テキストは切り捨てられ、最後に省略記号 (...) が表示される。テキスト入力ラベルに "The quick brown fox jumps over the lazy dog "と入力して試してみてください。実際、このページからテキストをコピーし（Mac OS Xでは "CMD-C "でコピー、Windowsでは "Ctrl-C "でコピー）、キーボードショートカット（Mac OS Xでは "CMD-V "で貼り付け、Windowsでは "Ctrl-V "で貼り付け）を使ってラベルに貼り付けることができる。この機能は、コードを追加することなく組み込まれています！
 
 結果はこのようになるはずだ：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_label_screenshot5.png"
+  caption="Labelクラスが多すぎるテキストに対処する2つの方法"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_label_screenshot5.png" caption="Two ways that the Label class copes with too much text" />
-
-
-The original text just about fits but it is slightly squashed in the horizontal axis. The uppercase version is going to be a little wider since uppercase glyphs are usually wider than lowercase glyphs. The [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class decided that the uppercase version is too wide for it to squash the text in the horizontal axis and keep it readable. In this case it has truncated the text at the "L" in "LAZY" and added the ellipsis.
+元のテキストはぎりぎり収まるが、横軸が少しつぶれている。大文字のグリフは小文字のグリフよりも幅が広いのが普通なので、大文字のバージョンは少し幅が広くなる。その[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは、横軸のテキストをつぶして読みやすくするためには、大文字のバージョンは幅が広すぎると判断した。この場合、"LAZY "の "L "でテキストを切り捨て、省略記号を追加した。
 
 :::note
 
-You can change the amount by which the text will be scaled using the [Label::setMinimumHorizontalScale()](classLabel.html#a3529019ec38b097daec0fb97fe7218d1 "Specifies the minimum amount that the font can be squashed horizontally before it starts using ellips...") function for each [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") object. Using a value of `1.0f` will disable the scaling. You can measure the height required for a single line in a particular font using the [フォント::getHeight()](classFont.html#a96e4ccc975ce4180c10107aa77ea8c7d "Returns the total height of this font, in pixels.") function. To measure the width that an entire string would require to fit on a single line you can use the [フォント::getStringWidth()](classFont.html#a23539f1990fd39341b84566a413c051d "Returns the total width of a string as it would be drawn using this font.") function.
+テキストを拡大縮小する量は[Label::setMinimumHorizontalScale()](https://docs.juce.com/master/classLabel.html#a3529019ec38b097daec0fb97fe7218d1 "楕円を使い始める前にフォントを水平方向につぶすことができる最小量を指定する。")関数を使用する。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトを使用する。の値を使用する。`1.0f`はスケーリングを無効にします。特定のフォントの1行に必要な高さは[Font::getHeight()](https://docs.juce.com/master/classFont.html#a96e4ccc975ce4180c10107aa77ea8c7d "このフォントの高さの合計をピクセル単位で返します。")関数を使います。文字列全体が1行に収まる幅を測定するには[Font::getStringWidth()](https://docs.juce.com/master/classFont.html#a23539f1990fd39341b84566a413c051d "このフォントを使用して描画される文字列の幅の合計を返します。")関数である。
 
 :::
 
-## Basic label configuration
+## ラベルの基本構成
 
-In the `メインコンテンツコンポーネント` constructor each of the labels in our application is configured. First we set up the title with a 16-point bold font, the text it should contain, the colour of the text, and we justify the text to the centre.
+の中で`MainContentComponent`コンストラクタで、アプリケーションの各ラベルを設定します。まず、タイトルを16ポイントの太字フォントで設定し、そこに含まれるテキスト、テキストの色を設定し、テキストを中央揃えにしている。
 
 親コンポーネントにラベルを追加する：
 
+```cpp
+        addAndMakeVisible (titleLabel);
+```
+
 ラベルのフォントを設定する：
+
+```cpp
+        titleLabel.setFont (juce::Font (16.0f, juce::Font::bold));
+```
 
 ラベル内に表示するテキストを設定する：
 
+```cpp
+        titleLabel.setText ("Click in the white box to enter some text...", juce::dontSendNotification);
+```
+
 ラベルテキストの色を設定する：
+
+```cpp
+        titleLabel.setColour (juce::Label::textColourId, juce::Colours::lightgreen);
+```
 
 ラベルテキストの表示を正当化する：
 
+```cpp
+        titleLabel.setJustificationType (juce::Justification::centred);
+```
+
 :::note
 
-The [ジャスティフィケーション::中央揃え](classJustification.html#a1f8c07756c56fe8f31ed44964e51bfbcaf9d9adde20dce1aa38ff9a69be2b4384 "Indicates that the item should be centred vertically and horizontally.") value centres the text in both vertical and horizontal axes. Have a look at the [正当化](https://docs.juce.com/master/classJustification "Represents a type of justification to be used when positioning graphical items.") class for more options.
+について[Justification::centred](https://docs.juce.com/master/classJustification.html#a1f8c07756c56fe8f31ed44964e51bfbcaf9d9adde20dce1aa38ff9a69be2b4384 "項目が縦と横の中央に配置されることを示す。")値は、縦軸と横軸の両方でテキストを中央に配置します。をご覧ください。[Justification](https://docs.juce.com/master/classJustification.html "グラフィカルアイテムを配置するときに使用されるジャスティフィケーションのタイプを表す。")クラスは、より多くのオプションを提供する。
 
 :::
 
-## Attaching a label to another component
+## 別のコンポーネントにラベルを貼り付ける
 
-As its name suggests, a [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") component is often used as a label for another component. In this case a [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") object can be *付属* to another component. Once a label is attached only the *所有者* component needs to be positioned. The attached label will follow its owner around the parent component. In our case we want the `入力ラベル` object (that displays the text **テキスト入力：**) to be attached to the `入力テキスト` object. The second argument to the [ラベル::attachToComponent()](classLabel.html#a3c2397c0da1249f9e27e2279e0f2d4eb "Makes this label "stick to" another component.") function states whether the label should be attached to the left or above the owner. The `真の` argument means that it should be attached to the left:
+その名の通り[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")コンポーネントは別のコンポーネントのラベルとして使われることが多い。この場合[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトは*付属*を別のコンポーネントに貼り付けることができる。ラベルが貼られると*所有者*コンポーネントを配置する必要があります。添付されたラベルは、親コンポーネントの周りにその所有者に従います。私たちの場合は`inputLabel`オブジェクト（テキストを表示する**テキスト入力：**)に取り付けられる。`inputText`オブジェクトの第2引数。の第2引数は[Label::attachToComponent()](https://docs.juce.com/master/classLabel.html#a3c2397c0da1249f9e27e2279e0f2d4eb "このラベルを別のコンポーネントに「くっつける」。")関数は、ラベルをオーナーの左側に付けるか、上側に付けるかを指定する。この関数は`true`引数は、左側に付けることを意味する：
 
-```
-addAndMakeVisible (inputLabel)；
-        inputLabel.setText ("テキスト入力:", juce::dontSendNotification)；
-        inputLabel.attachToComponent (&inputText, true)；
-        inputLabel.setColour (juce::Label::textColourId, juce::Colours::orange)；
-        inputLabel.setJustificationType (juce::Justification::right)；
+```cpp
+        addAndMakeVisible (inputLabel);
+        inputLabel.setText ("Text input:", juce::dontSendNotification);
+        inputLabel.attachToComponent (&inputText, true);
+        inputLabel.setColour (juce::Label::textColourId, juce::Colours::orange);
+        inputLabel.setJustificationType (juce::Justification::right);
 ```
 
 大文字のテキストを表示するラベルも同様に設定する：
 
-```
-addAndMakeVisible (uppercaseLabel)；
-        uppercaseLabel.setText ("Uppercase:", juce::dontSendNotification)；
-        uppercaseLabel.attachToComponent (&uppercaseText, true)；
-        uppercaseLabel.setColour (juce::Label::textColourId, juce::Colours::orange)；
-        uppercaseLabel.setJustificationType (juce::Justification::right)；
+```cpp
+        addAndMakeVisible (uppercaseLabel);
+        uppercaseLabel.setText ("Uppercase:", juce::dontSendNotification);
+        uppercaseLabel.attachToComponent (&uppercaseText, true);
+        uppercaseLabel.setColour (juce::Label::textColourId, juce::Colours::orange);
+        uppercaseLabel.setJustificationType (juce::Justification::right);
  
-        addAndMakeVisible (uppercaseText)；
-        uppercaseText.setColour (juce::Label::backgroundColourId, juce::Colours::darkblue)；
+        addAndMakeVisible (uppercaseText);
+        uppercaseText.setColour (juce::Label::backgroundColourId, juce::Colours::darkblue);
 ```
 
-In the `リサイズ` function we need to position only three of our five labels:
+の中で`resized()`関数では、5つのラベルのうち3つだけを配置する必要がある：
 
-```
-void resized() override
+```cpp
+    void resized() override
     {
-        titleLabel .setBounds (10, 10, getWidth() - 20, 30)；
-        inputText .setBounds (100, 50, getWidth() - 110, 20)；
-        uppercaseText.setBounds (100, 80, getWidth() - 110, 20)；
+        titleLabel   .setBounds (10,  10, getWidth() - 20,  30);
+        inputText    .setBounds (100, 50, getWidth() - 110, 20);
+        uppercaseText.setBounds (100, 80, getWidth() - 110, 20);
     }
 ```
 
-## Making a label editable
+## ラベルを編集可能にする
 
-The final label that we set up in the `メインコンテンツコンポーネント` constructor is the editable text field.
+最後のラベルは`MainContentComponent`コンストラクタは編集可能なテキスト・フィールドである。
 
-```
-addAndMakeVisible (inputText)；
-        inputText.setEditable (true)；
-        inputText.setColour (juce::Label::backgroundColourId, juce::Colours::darkblue)；
-        inputText.onTextChange = [this] { uppercaseText.setText (inputText.getText().toUpperCase(), juce::dontSendNotification); }；
-```
-
-:::note
-
-The default behaviour when setting the label to editable using the [Label::setEditable()](classLabel.html#a9342a397932d82bb1d196ebf9a8969d8 "Makes the label turn into a TextEditor when clicked.") function is to show the editor on a single click. The label can be set up to be editable on a double-click instead. If the user clicks off the label after entering some text then this will be confirmed even if the user doesn't hit the "Return" key. You can also changes this to make sure that users must hit the "Return" key to confirm data entry, if you prefer. See the API reference for this function for more information.
-
-:::
-
-Add a button to the interface and use this to clear the text entry label. (See [チュートリアルリスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/).)
-
-## Responding to changes
-
-The lambda function is the callback for the [Label::onTextChange](classLabel.html#a5ba80ea5ea965a001e2eacf75fc0314b "You can assign a lambda to this callback object to have it called when the label text is changed.") helper object. Here we get the entered text, convert it to uppercase using the [ストリング](https://docs.juce.com/master/classString "The JUCE String class!") class, and set the text of the `大文字テキスト` label.
-
-```
-inputText.onTextChange = [this] { uppercaseText.setText (inputText.getText().toUpperCase(), dontSendNotification); }；
-dontSendNotification@dontSendNotification通知メッセージは送信されるべきではありません定義 juce_NotificationType.h:36
+```cpp
+        addAndMakeVisible (inputText);
+        inputText.setEditable (true);
+        inputText.setColour (juce::Label::backgroundColourId, juce::Colours::darkblue);
+        inputText.onTextChange = [this] { uppercaseText.setText (inputText.getText().toUpperCase(), juce::dontSendNotification); };
 ```
 
 :::note
 
-We can use `送信通知` instead of `通知を送信しない` when calling [Label::setText()](classLabel.html#a3f0ca22cb63e924d3db23da48c210790 "Changes the label text."). This will cause a label's listeners to be notified of the change (if the text is different from its current contents) in addition to the user changing the text from the user interface.
+を使用してラベルを編集可能に設定した場合のデフォルトの動作は次のとおりです。[Label::setEditable()](https://docs.juce.com/master/classLabel.html#a9342a397932d82bb1d196ebf9a8969d8 "クリックするとラベルがテキストエディタに変わります。")の機能はシングルクリックでエディターを表示することです。ラベルはダブルクリックで編集できるように設定できます。ユーザーがテキストを入力した後にラベルをクリックすると、"Return "キーを押さなくても確定されます。ユーザーがデータ入力を確定するために "Return "キーを押さなければならないように変更することもできます。詳細については、この関数のAPIリファレンスを参照してください。
 
 :::
+
+:::danger[エクササイズ]
+
+インターフェイスにボタンを追加し、これを使ってテキスト入力ラベルをクリアする。参照[Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/).)
+
+:::
+
+## 変化への対応
+
+ラムダ関数は[Label::onTextChange](https://docs.juce.com/master/classLabel.html#a5ba80ea5ea965a001e2eacf75fc0314b "このコールバック・オブジェクトにラムダを割り当てて、ラベルのテキストが変更されたときに呼び出させることができます。")ヘルパー・オブジェクトを使います。ここでは入力されたテキストを取得し、大文字に変換するために[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスのテキストを設定する。`uppercaseText`のラベルが貼られている。
+
+```cpp
+inputText.onTextChange = [this] { uppercaseText.setText (inputText.getText().toUpperCase(), dontSendNotification); };
+dontSendNotification@ dontSendNotificationNo notification message should be sent.Definition juce_NotificationType.h:48
+```
+
+:::note
+
+を使うことができる。`sendNotification`の代わりに`dontSendNotification`を呼び出すと[Label::setText()](https://docs.juce.com/master/classLabel.html#a3f0ca22cb63e924d3db23da48c210790 "ラベルテキストを変更します。").これにより、ユーザーがユーザーインターフェイスからテキストを変更するだけでなく、ラベルのリスナーにも変更が通知されます（テキストが現在の内容と異なる場合）。
+
+:::
+
+:::danger[エクササイズ]
 
 入力されたテキストを小文字で表示する別のラベルを追加する。
 
-# Other customisations
+:::
+
+# その他のカスタマイズ
 
 他にもいくつかカスタマイズが可能です。特にラベルは複数行のテキストを表示することができます。また、編集可能なラベル用にエディターをカスタマイズすることもできます。
 
-## Displaying multiline text
+## 複数行テキストの表示
 
-While the [テキストエディター](https://docs.juce.com/master/classTextEditor "An editable text box.") class is more flexible for large amounts of text, the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class can display multiple lines of text. To do this, you just need to ensure that the height of the component is large enough to display more than one line of text.
+一方[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")クラスは大量のテキストに対してより柔軟です。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは複数行のテキストを表示することができます。これを行うには、コンポーネントの高さが1行以上のテキストを表示するのに十分な大きさであることを確認すればよい。
 
-To illustrate this, add the following member to the `メインコンテンツコンポーネント` class:
+これを説明するために、以下のメンバーを`MainContentComponent`クラスである：
 
-```
-juce::Label infoLabel；
-```
-
-And add the following code to the `メインコンテンツコンポーネント` constructor:
-
-```
-addAndMakeVisible (infoLabel)；
-juce::String infoText；
-infoText << "このシンプルなアプリケーションは、ユーザーからテキスト入力を受け取り、"；
-infoText << "大文字に変換し、別のラベルに表示します。";
-infoText << "このアプリケーションは、Labelクラスのいくつかの便利な機能を示しています；
-infoLabel.setText (infoText, juce::dontSendNotification)；
-infoLabel.setColour (juce::Label::backgroundColourId, juce::Colours::darkblue)；
+```cpp
+juce::Label infoLabel;
 ```
 
-Finally, set the bounds of the `情報ラベル` component in the `リサイズ` function:
+そして、以下のコードを`MainContentComponent`ビルダー
 
+```cpp
+addAndMakeVisible (infoLabel);
+juce::String infoText;
+infoText << "This simple application takes some text input from the user, ";
+infoText << "converts it to uppercase, and displays this in another label. ";
+infoText << "The application demonstrates a number of useful features of the Label class.";
+infoLabel.setText (infoText, juce::dontSendNotification);
+infoLabel.setColour (juce::Label::backgroundColourId, juce::Colours::darkblue);
 ```
-infoLabel.setBounds (10, 110, getWidth() - 20, getHeight() - 120)；
+
+最後に`infoLabel`コンポーネントの`resized()`関数である：
+
+```cpp
+infoLabel.setBounds (10, 110, getWidth() - 20, getHeight() - 120);
 ```
 
 :::note
@@ -213,52 +249,53 @@ infoLabel.setBounds (10, 110, getWidth() - 20, getHeight() - 120)；
 
 アプリケーションを実行すると、次のようになるはずです：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_label_screenshot6.png"
+  caption="複数行テキストの表示"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_label_screenshot6.png" caption="Displaying multiline text" />
+## エディタの外観を変更する
 
+エディター機能の一部は[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスそのものです。エディタが作成されると[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスはフォントのスタイルと色をエディタにコピーします。いくつかの[Label::ColourIds](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701 "ラベルの様々な部分の色を変更するために使用する色IDのセット。")値はエディタに関連します。例えば、編集中のラベルの境界線を変更するには[Label::outlineWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6c7adfce6c830c9faa94efd3445f78cf "ラベルが編集されているときのオプションの枠色。")Component::setColour() 関数の値：
 
-## Changing the editor appearance
-
-Some of the editor features can be set via the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class itself. When the editor is created the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class copies the font style and colours to the editor. Some of the [Label::ColourIds](classLabel.html#a41756012394513222e1323bb432fa701 "A set of colour IDs to use to change the colour of various aspects of the label.") values relate to the editor. For example, to change the border around the label when it is being edited you can use the [Label::outlineWhenEditingColourId](classLabel.html#a41756012394513222e1323bb432fa701a6c7adfce6c830c9faa94efd3445f78cf "An optional border colour when the label is being edited.") value for the Component::setColour() function:
-
+```cpp
+addAndMakeVisible (inputText);
+inputText.setEditable (true);
+inputText.setColour (juce::Label::backgroundColourId, juce::Colours::darkblue);
+inputText.setColour (juce::Label::outlineWhenEditingColourId, juce::Colours::orangered);
 ```
-addAndMakeVisible (inputText)；
-inputText.setEditable (true)；
-inputText.setColour (juce::Label::backgroundColourId, juce::Colours::darkblue)；
-inputText.setColour (juce::Label::outlineWhenEditingColourId, juce::Colours::orangered)；
-```
 
-Other customisations can be achieved by implementing the [Label::onEditorShow](classLabel.html#ae8e66977501dc15f678cc1b80fa218ce "You can assign a lambda to this callback object to have it called when the label's editor is shown.") helper object. For example, you could make the text italic when being edited like this:
+その他のカスタマイズは[Label::onEditorShow](https://docs.juce.com/master/classLabel.html#ae8e66977501dc15f678cc1b80fa218ce "このコールバック・オブジェクトにラムダを代入すると、ラベルのエディタが表示されたときにコールされるようになります。")ヘルパー・オブジェクトを使います。例えば、このように編集中のテキストを斜体にすることができる：
 
-```
-inputText.onEditorShow = [this].
+```cpp
+inputText.onEditorShow = [this]
 {
-    auto* editor = inputText.getCurrentTextEditor()；
+    auto* editor = inputText.getCurrentTextEditor();
  
-    auto editorFont = editor->getFont()；
-    editorFont.setItalic (true)；
-    editor->setFont (editorFont)；
+    auto editorFont = editor->getFont();
+    editorFont.setItalic (true);
+    editor->setFont (editorFont);
 };
 ```
 
 :::note
 
-In practice — especially for large-scale applications — you would probably use the [ルックアンドフィール](https://docs.juce.com/master/classLookAndFeel "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...") class to customise the appearance of all of your components for consistency across your application.
+実際には、特に大規模なアプリケーションでは、おそらく[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスを使用して、アプリケーション全体の一貫性を保つために、すべてのコンポーネントの外観をカスタマイズすることができます。
 
 :::
 
 # 概要
 
-This tutorial has examined the [ラベル](https://docs.juce.com/master/classLabel "A component that displays a text string, and can optionally become a text editor when clicked.") class. While it is very easy to use, there are a number of useful features that make it powerful. We have covered:
+このチュートリアルでは[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスである。使い方はとても簡単だが、強力な便利な機能がいくつもある。私たちはそれを取り上げてきた：
 
--   ラベルに表示されるテキストのフォントを変更する。
--   ラベルに表示されるテキストの色を変更する。
--   ラベルをシンプルなテキストエディタとして使用し、その外観をカスタマイズする。
--   複数行のテキストを表示する
+- ラベルに表示されるテキストのフォントを変更する。
+- ラベルに表示されるテキストの色を変更する。
+- ラベルをシンプルなテキストエディタとして使用し、その外観をカスタマイズする。
+- 複数行のテキストを表示する
 
-# 関連項目
+# こちらも参照
 
--   [チュートリアルJUCEの色](../tutorial_colours/)
--   [チュートリアルGraphicsクラス](../tutorial_graphics_class/)
--   [チュートリアルリスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)
--   [チュートリアルTableListBoxクラス](../tutorial_table_list_box/)
+- [Tutorial: Colours in JUCE](../tutorial_colours/)
+- [Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)
+- [Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)
+- [Tutorial: The TableListBox class](../tutorial_table_list_box/)

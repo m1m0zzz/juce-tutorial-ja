@@ -1,103 +1,107 @@
 ---
 title: 点、線、矩形クラス
 sidebar_position: 4
+tags: [初級]
 ---
 
 # チュートリアル点、線、矩形クラス
 
-Use the [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates."), [ライン](https://docs.juce.com/master/classLine "Represents a line."), and [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") classes to simplify your geometry calculations.
+<SourcePageLink path="tutorial_point_line_rectangle" />
 
-レベル：初級
+を使用する。[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。"),[Line](https://docs.juce.com/master/classLine.html "線を表す。")そして[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスを使用すると、ジオメトリの計算が簡単になります。
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+レベル初心者
 
-クラス： [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates."), [ライン](https://docs.juce.com/master/classLine "Represents a line."), [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it."), [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended."), [ランダム](https://docs.juce.com/master/classRandom "A random number generator."), [レンジ](https://docs.juce.com/master/classRange "A general-purpose range object, that simply represents any linear range with a start and end point.")
+プラットフォームWindows , macOS , Linux , iOS , Android
 
-## はじめる
+クラス： [Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。"),[Line](https://docs.juce.com/master/classLine.html "線を表す。"),[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。"),[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。"),[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。"),[Range](https://docs.juce.com/master/classRange.html "汎用の範囲オブジェクトで、始点と終点を持つ任意の線形範囲を単純に表します。")
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/PointLineRectangleTutorial.zip) | [ジップ](/tutorials/ZIPs/PointLineRectangleTutorial.zip). Unzip the project and open the first header file in the Projucer.
+# スタート
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/PointLineRectangleTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/PointLineRectangleTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-# The demo project
+このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+
+# デモ・プロジェクト
 
 このデモ・プロジェクトは、いくつかの簡単な描画操作を行います。デフォルトの状態では、左上に小さなオレンジ色の四角がある灰色の背景を描画します：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot1.png" caption="Simple drawing of a square" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot1.png"
+  caption="正方形のシンプルな図面"
+/>
 
+線と長方形のさまざまな描画方法と、線と長方形がどのように描画されるかを見ていきます。[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。"),[Line](https://docs.juce.com/master/classLine.html "線を表す。")そして[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスは、JUCEでの描画操作（およびコンポーネントの位置）に関する考え方を単純化します。
 
-We are going to look at different ways of drawing lines and rectangles, and how the [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates."), [ライン](https://docs.juce.com/master/classLine "Represents a line."), and [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") classes can simplify the way you think about drawing operations (and component positions) in JUCE.
+# 長方形の基本
 
-# Rectangle basics
+グラフィックス描画やコンポーネント・レイアウトのコードの多くは、矩形を扱う必要があります。このチュートリアルでは、塗りつぶされた正方形の単純な描画から始めます。これから[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。"),[Line](https://docs.juce.com/master/classLine.html "線を表す。")そして[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスは描画操作に役立ちます。これらのテクニックは、子コンポーネントの配置にも応用できます（Component::resized()関数の中で）。私たちの`paint()`関数はこうだ：
 
-A great deal of graphics drawing and component layout code needs to deal with rectangles. This tutorial starts with the simple drawing of a filled square. We are now going to explore how the [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates."), [ライン](https://docs.juce.com/master/classLine "Represents a line."), and [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") classes can help us with drawing operations. We can also apply these techniques to the positioning of child components (in your Component::resized() function). Our starter code in the `ペイント` function is this:
-
-```
-void paint (juce::Graphics& g) override
+```cpp
+    void paint (juce::Graphics& g) override
     {
-        g.fillAll (juce::Colours::darkgrey)；
-        g.setColour (juce::Colours::orange)；
+        g.fillAll (juce::Colours::darkgrey);
+        g.setColour (juce::Colours::orange);
  
-        g.fillRect (10, 10, 40, 40)；
+        g.fillRect (10, 10, 40, 40);
     }
 ```
 
-Here we specify the bounds of the rectangle directly to the [Graphics::fillRect()](classGraphics.html#a747de9976729f72d9f6188104e6b2215 "Fills a rectangle with the current colour or brush.") function as separate integers:
+ここでは、矩形の境界を直接[Graphics::fillRect()](https://docs.juce.com/master/classGraphics.html#a747de9976729f72d9f6188104e6b2215 "矩形を現在の色またはブラシで塗りつぶす。")関数を別々の整数として扱う：
 
+```cpp
+g.fillRect (10,  // x
+            10,  // y
+            40,  // width
+            40); // height
 ```
-g.fillRect (10, // x
-            10, // y
-            40, // 幅
-            40); // 高さ
-```
 
-While this is straightforward, if we specify the bounds as a [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") object, it becomes much easier to perform manipulations of the rectangle.
+これは簡単だが、もし境界を[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")オブジェクトを使えば、矩形の操作がずっと簡単になる。
 
-## Using the Rectangle and Point classes
+## RectangleクラスとPointクラスの使用
 
-It is easy to replace these separate coordinates, width, and height values with a [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") object, like so \[1\]:
+これらの別々の座標、幅、高さの値を[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")オブジェクトを作成します。\[1\]:
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     g.fillAll (juce::Colours::darkgrey);
  
-    juce::Rectangle領域 (10, 10, 40, 40); // [1].
+    juce::Rectangle area (10, 10, 40, 40); // [1]
  
-    g.setColour (juce::Colours::orange)；
-    g.fillRect (area)；
+    g.setColour (juce::Colours::orange);
+    g.fillRect (area);
 }
 ```
 
-{/* TODO */}
-{/* While this is a very similar way of drawing the square, we can now very easily move the square around the component bounds, keeping its original size. The [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") class is a template class, as you can see above. In this example we use an `イント` template parameter. In JUCE drawing code we will commonly use either [長方形<int](https://docs.juce.com/master/classRectangle) or [長方形<float](https://docs.juce.com/master/classRectangle) objects. The [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") and [ライン](https://docs.juce.com/master/classLine "Represents a line.") classes are also template classes, and again we commonly use either `イント` or `フロート` template parameters. */}
+これは正方形を描画する方法としては非常によく似ているが、元のサイズを保ったまま、正方形をコンポーネント境界の周囲に移動させることが非常に簡単にできるようになった。これは[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスはテンプレート・クラスです。この例では`int`テンプレート・パラメータを使用します。JUCEの描画コードでは、一般的に次のどちらかを使用します。[Rectangle<int>](https://docs.juce.com/master/classRectangle.html)または[Rectangle<float>](https://docs.juce.com/master/classRectangle.html)オブジェクトその[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")そして[Line](https://docs.juce.com/master/classLine.html "線を表す。")クラスもテンプレート・クラスです。`int`または`float`テンプレート・パラメータ。
 
-There are other ways to create rectangles. For example, rather than specifying width and height, we might have two points that we want to use as corners of the rectangle. We can use the [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates.") class and a different [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") constructor:
+長方形を作る方法は他にもある。例えば、幅と高さを指定するのではなく、矩形の角として使いたい点が2つあるとする。この場合[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")クラスと[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")ビルダー
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     g.fillAll (juce::Colours::darkgrey);
     g.setColour (juce::Colours::orange);
     juce::Rectangle area (juce::Point (10, 10),
-                               juce::Point(50, 50));
+                               juce::Point (50, 50));
  
-    g.fillRect (area)；
+    g.fillRect (area);
 }
 ```
 
 このテクニックの素晴らしい点のひとつは、任意の2点を指定できることだ。これらの点は矩形の左上と右下の角を表す必要はない。従って、これに相当するものは次のようになる：
 
-```
+```cpp
 juce::Rectangle area (juce::Point (10, 50),
-                           juce::Point(50, 10));
+                           juce::Point (50, 10));
 ```
 
-## Using the Point and Path classes
+## Point クラスと Path クラスの使用
 
-In fact, using a [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") object we can specify a rectangle with four points defining each corner:
+実際、このような[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")オブジェクトの各コーナーを定義する4点を持つ矩形を指定することができる：
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     g.fillAll (juce::Colours::darkgrey);
@@ -107,260 +111,282 @@ void paint (juce::Graphics& g) override
     path.startNewSubPath (juce::Point (10, 10));
     path.lineTo (juce::Point (50, 10));
     path.lineTo (juce::Point (50, 50));
-    path.lineTo (juce::Point(10, 50));
-    path.closeSubPath()；
+    path.lineTo (juce::Point (10, 50));
+    path.closeSubPath();
  
-    g.fillPath (path)；
+    g.fillPath (path);
 }
 ```
 
 :::note
 
-{/* TODO */}
-{/* In this case we need to use the [ポイント<フロート](https://docs.juce.com/master/classPoint) class, since that is what the [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") class requires us to use. Although we can use the Point<int>::toFloat() and Point<float>::toInt() functions to convert between the two types of point. */}
+この場合[Point<float>](https://docs.juce.com/master/classPoint.html)クラスは[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスを使う必要がある。しかし、Point<int>::toFloat()関数とPoint<float>::toInt()関数を使えば、2種類のポイントを変換することができる。
 
 :::
 
+:::danger[エクササイズ]
+
 パスのポイントを変えて、他の四角形形状を作ってみてください。
+
+:::
 
 パスに直接矩形を追加することもできる：
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     g.fillAll (juce::Colours::darkgrey);
     g.setColour (juce::Colours::orange);
  
     juce::Path path;
-    juce::Rectangle領域 (10, 10, 40, 40)；
-    path.addRectangle (area)；
+    juce::Rectangle area (10, 10, 40, 40);
+    path.addRectangle (area);
  
-    g.fillPath (path)；
+    g.fillPath (path);
 }
 ```
 
 :::note
 
-{/* TODO */}
-{/* We could have used a [長方形<int](https://docs.juce.com/master/classRectangle) object in this case, as the [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") class will convert this to the floating-point version on our behalf. */}
+を使うこともできた。[Rectangle<int>](https://docs.juce.com/master/classRectangle.html)この場合[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスが代わりに浮動小数点数に変換してくれる。
 
 :::
 
-## Testing points within rectangles
+## 矩形内の点のテスト
 
-Another useful feature of a [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") object is that it can test whether it contains a specified point. To test this out, we are going to get our component to repaint itself each time we click the mouse. To do this, add the following function:
+のもう1つの便利な機能である。[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")オブジェクトは、指定された点を含むかどうかをテストできる。これをテストするために、マウスをクリックするたびにコンポーネントが再描画されるようにする。これを行うには、次の関数を追加します：
 
-```
-void mouseDown (const juce::MouseEvent&) override
+```cpp
+    void mouseDown (const juce::MouseEvent&) override
     {
-        repaint()；
+        repaint();
     }
 ```
 
-Now let's write our `ペイント` function such that it randomly generates a rectangle and a point. Then it will draw the rectangle and then a smaller rectangle located around the point. This smaller rectangle will be drawn in a different colour depending upon whether the randomly-generated point is within the larger rectangle or not. Our `ペイント` function should start as before, but we're going to generate some random values so let's cache a reference of the system [ランダム](https://docs.juce.com/master/classRandom "A random number generator.") object too.
+それでは`paint()`関数はランダムに矩形と点を生成する。そして、その矩形を描画し、さらにその点を囲むように小さな矩形を描画する。この小さな矩形は、ランダムに生成された点が大きな矩形内にあるかどうかによって、異なる色で描かれる。私たちの`paint()`関数は前と同じように始めるべきだが、ランダムな値を生成するつもりなので、システムの参照をキャッシュしておこう。[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")のオブジェクトもある。
 
-```
-void paint (juce::Graphics& g) override
+```cpp
+    void paint (juce::Graphics& g) override
     {
-        g.fillAll (juce::Colours::darkgrey)；
-        g.setColour (juce::Colours::orange)；
+        g.fillAll (juce::Colours::darkgrey);
+        g.setColour (juce::Colours::orange);
  
-        auto& random = juce::Random::getSystemRandom()；
+        auto& random = juce::Random::getSystemRandom();
 ```
 
 次に、ランダムな長方形を作成します。以下のコードを追加する：
 
-```
+```cpp
         juce::Range rectRange (20, getWidth() / 2);
-        juce::RectanglerectArea (random.nextInt (rectRange)、
-                                       random.nextInt (rectRange)、
-                                       random.nextInt (rectRange)、
-                                       random.nextInt (rectRange))；
+        juce::Rectangle rectArea (random.nextInt (rectRange),
+                                       random.nextInt (rectRange),
+                                       random.nextInt (rectRange),
+                                       random.nextInt (rectRange));
  
-        g.drawRect (rectArea, 2)；
+        g.drawRect (rectArea, 2);
 ```
 
-We limit the range of random values for each of the rectangle elements using a [レンジ](https://docs.juce.com/master/classRange "A general-purpose range object, that simply represents any linear range with a start and end point.") object. We also draw (rather than fill) the rectangle with a thickness of 2 points. To draw the smaller rectangle we are going to need another [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") object. If we use only two arguments to the [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") constructor, it creates a [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") object with the specified width and height (in that order) at a position of zero (0, 0). Add this line:
+を使用して、各矩形要素のランダム値の範囲を制限する。[Range](https://docs.juce.com/master/classRange.html "汎用の範囲オブジェクトで、始点と終点を持つ任意の線形範囲を単純に表します。")オブジェクトを描画します。また、長方形を（塗りつぶしではなく）2ポイントの太さで描画する。小さい矩形を描くには、もう1つの[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")オブジェクトを使用する。もし[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")コンストラクタは[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")オブジェクトを、指定された幅と高さ（この順）でゼロ（0, 0）の位置に置く。次の行を追加する：
 
-Now let's randomly-generate a point and position the centre of the `点面積` rectangle at that point. Add the following code:
-
+```cpp
+        juce::Rectangle pointArea (10, 10);
 ```
+
+では、ランダムに点を生成し、その中心を`pointArea`その点に矩形を描く。次のコードを追加する：
+
+```cpp
         juce::Point point (random.nextInt (juce::Range (0, getWidth())),
-                                random.nextInt (juce::Range(0, getHeight()))；
-        pointArea.setCentre (point)；
+                                random.nextInt (juce::Range (0, getHeight())));
+        pointArea.setCentre (point);
 ```
 
-This demonstrates another useful feature of the [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") class as we can position its centre if we wish. This is sometimes preferable to considering a rectangle's position to be its top-left corner. Now we can use the [矩形::contains()](classRectangle.html#a48d94ffec18b4b4755b316c3b223c645 "Returns true if this coordinate is inside the rectangle.") function to determine whether the `ポイント` object is within the bounds of the `矩形領域` object. Add this code:
+これは[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスの中心を位置づけることができるからだ。これは、矩形の位置を左上隅と考えるよりも好ましい場合がある。これで[Rectangle::contains()](https://docs.juce.com/master/classRectangle.html#a48d94ffec18b4b4755b316c3b223c645 "こ の座標が矩形の内側にあ る と き は true を返 し ます。")関数を使用して`point`オブジェクトが`rectArea`オブジェクトを追加します。次のコードを追加する：
 
-```
-g.setColour (rectArea.contains (point) ? juce::Colours::limegreen
-                                               : juce::Colours::cornflowerblue)；
+```cpp
+        g.setColour (rectArea.contains (point) ? juce::Colours::limegreen
+                                               : juce::Colours::cornflowerblue);
  
-        g.fillRect (pointArea)；
+        g.fillRect (pointArea);
 ```
 
-アプリケーションを実行すると、以下のスクリーンショットのようになるはずです。コンポーネントを再描画するには、コンポーネントをクリックすることを忘れないでください：
+アプリケーションを実行すると、次のスクリーンショットのようになるはずです。コンポーネントを再描画するには、コンポーネントをクリックすることを忘れないでください：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot4.png" caption="Testing points within rectangles" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot4.png"
+  caption="矩形内の点のテスト"
+/>
+
 :::note
 
-The code for this example can be found in the `PointLineRectangleTutorial_02.h` file of the demo project.
+この例のコードは`PointLineRectangleTutorial_02.h`ファイルにある。
 
 :::
 
-# Dealing with lines
+# ラインの処理
 
 線の描画と処理も同様に簡単だ。次のコードは対角線を描画する：
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     g.fillAll (juce::Colours::darkgrey);
     g.setColour (juce::Colours::orange);
  
     juce::Line line (juce::Point (10, 10),
-                            juce::Point(50, 50));
+                            juce::Point (50, 50));
  
-    g.drawLine (line, 2.0f)；
+    g.drawLine (line, 2.0f);
 }
 ```
 
-## Line intersections
+## ライン交差点
 
-The [ライン](https://docs.juce.com/master/classLine "Represents a line.") class can also perform line intersection tests. To test this out we are going to generate several randomly-generated lines, then we are going to draw a circle at the points where any of these lines intersect with any of the other lines. First let's set up our `ペイント` function with a background and get ready for generating some random numbers:
+について[Line](https://docs.juce.com/master/classLine.html "線を表す。")クラスは線の交差テストも行うことができる。これをテストするために、ランダムにいくつかの線を生成し、これらの線のいずれかが他の線と交差する点に円を描くことにする。まず`paint()`関数の背景を指定して、乱数生成の準備をする：
 
-```
-void paint (juce::Graphics& g) override
+```cpp
+    void paint (juce::Graphics& g) override
     {
-        g.fillAll (juce::Colours::darkgrey)；
-        g.setColour (juce::Colours::orange)；
+        g.fillAll (juce::Colours::darkgrey);
+        g.setColour (juce::Colours::orange);
  
-        auto& random = juce::Random::getSystemRandom()；
+        auto& random = juce::Random::getSystemRandom();
 ```
 
 では、ランダムな線を生成し、描画するだけでなく、配列に格納してみよう。次のコードを追加する：
 
-```
+```cpp
         juce::Range lineRange (0, getWidth());
         juce::Array> lines;
         auto numLines = 10;
  
         for (auto i = 0; i < numLines; ++i)
         {
-            juce::Lineline ((float) random.nextInt (lineRange)、
-                                    (float) random.nextInt (lineRange)、
-                                    (float) random.nextInt (lineRange)、
-                                    (float) random.nextInt (lineRange))；
+            juce::Line line ((float) random.nextInt (lineRange),
+                                    (float) random.nextInt (lineRange),
+                                    (float) random.nextInt (lineRange),
+                                    (float) random.nextInt (lineRange));
  
-            lines.add (line)；
-            g.drawLine (line, 2.0f)；
+            lines.add (line);
+            g.drawLine (line, 2.0f);
         }
 ```
 
 次に色を変え、円を描く境界となる正方形を用意する。これを加える：
 
-```
+```cpp
         g.setColour (juce::Colours::palegreen);
-        juce::RectanglepointArea (8, 8)；
+        juce::Rectangle pointArea (8, 8);
 ```
 
-Finally, we'll iterate over the array of lines checking for intersections with any of the other lines using the [Line::intersects()](classLine.html#ab65eb5685ecd0cfa39bee23c3d4f36d7 "Finds the intersection between two lines.") function. We then move the centre of the `点面積` rectangle to this point and paint a circle. To do this, add the following code:
+最後に、線の配列を繰り返し、他の線との交差をチェックする。[Line::intersects()](https://docs.juce.com/master/classLine.html#ab65eb5685ecd0cfa39bee23c3d4f36d7 "2本の直線の交点を求めます。")関数を使用する。次に`pointArea`この点に矩形を置き、円を描く。これを行うには、以下のコードを追加する：
 
-```
+```cpp
         for (auto lineI : lines)
         {
             for (auto lineJ : lines)
             {
                 if (lines.indexOf (lineI) != lines.indexOf (lineJ))
                 {
-                    juce::Point交差点だ；
+                    juce::Point intersection;
  
-                    if (lineI.intersects (lineJ, intersection))// [2]
+                    if (lineI.intersects (lineJ, intersection)) // [2]
                     {
-                        pointArea.setCentre (intersection)；
-                        g.fillEllipse (pointArea)；
+                        pointArea.setCentre (intersection);
+                        g.fillEllipse (pointArea);
                     }
                 }
             }
         }
-    
+    }
 ```
 
-The piece of code that checks for the intersection \[2\], calls the [Line::intersects()](classLine.html#ab65eb5685ecd0cfa39bee23c3d4f36d7 "Finds the intersection between two lines.") function. This not only returns `真の` if the lines actually intersect, but also returns the point at which they intersect in the `交差点` argument.
+交差点をチェックするコード\[2\]を呼び出す。[Line::intersects()](https://docs.juce.com/master/classLine.html#ab65eb5685ecd0cfa39bee23c3d4f36d7 "2本の直線の交点を求めます。")関数を使用します。これは`true`が実際に交差している場合は、交差している点を返す。`intersection`という議論になる。
 
 今すぐアプリケーションを実行してください。マウスのクリックに反応して再描画するコードを残しておけば、コンポーネントをクリックすることで新しい線のセットを生成することができます。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot5.png" caption="Line intersections" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot5.png"
+  caption="ライン交差点"
+/>
+
 :::note
 
-The code for this example can be found in the `PointLineRectangleチュートリアル_03.h` file of the demo project.
+この例のコードは`PointLineRectangleTutorial_03.h`ファイルにある。
 
 :::
 
-If we didn't check the `ブール` returned by the [Line::intersects()](classLine.html#ab65eb5685ecd0cfa39bee23c3d4f36d7 "Finds the intersection between two lines.") function, or we used the [Line::getIntersection()](classLine.html#a7d4ae6edb918339e3dad61a7bae179d0 "Finds the intersection between two lines.") instead, then points would be drawn in places where the lines *だろう* intersect should they be extended in each direction to an infinite length. For example, look at the following code:
+もし`bool`によって返される。[Line::intersects()](https://docs.juce.com/master/classLine.html#ab65eb5685ecd0cfa39bee23c3d4f36d7 "2本の直線の交点を求めます。")関数を使うか、あるいは[Line::getIntersection()](https://docs.juce.com/master/classLine.html#a7d4ae6edb918339e3dad61a7bae179d0 "2本の直線の交点を求めます。")の代わりに、点が描かれることになる。*だろう*が交差する場合、それぞれの方向に無限の長さまで延長する必要がある。例えば、次のコードを見てほしい：
 
-```
+```cpp
 //..
     if (lines.indexOf (lineI) != lines.indexOf (lineJ))
     {
-        juce::Point交差点；
-        pointArea.setCentre (lineI.getIntersection (lineJ))；
-        g.fillEllipse (pointArea)；
+        juce::Point intersection;
+        pointArea.setCentre (lineI.getIntersection (lineJ));
+        g.fillEllipse (pointArea);
     }
 //..
 ```
 
 そうすると、以下のスクリーンショットのようなものが生成される：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot6.png" caption="Line intersections beyond the endpoints" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot6.png"
+  caption="終点から先の線の交点"
+/>
 
+:::danger[エクササイズ]
 
-The final `for()` loop in the code for this example is simple, but not ideal. The problem is that it checks each line against every other line *倍*. Rewrite this code such that it only checks each pair of lines once. You should be able to remove the `if (lines.indexOf (lineI) != lines.indexOf (lineJ))` statement as part of this rewrite.
+最後の`for()`この例のコードのループは単純だが、理想的なものではない。問題は、各行を他のすべての行と照合していることだ。*倍*.このコードを、各行のペアを一度だけチェックするように書き直してください。を削除できるはずだ。`if (lines.indexOf (lineI) != lines.indexOf (lineJ))`ステートメントを書き直した。
 
-# Manipulating rectangles
+:::
 
-Now let's look at some more manipulations of rectangles that we can perform. Before we start, let's add a simple function to generate a random colour (see [チュートリアルランダム・クラス](../tutorial_random/)) as we're going to be doing this quite a number of times in the following examples:
+# 長方形の操作
 
-```
-静的 juce::Colour getRandomColour()
+では、矩形の操作についてもう少し見てみよう。始める前に、ランダムな色を生成する簡単な関数を追加してみよう ([Tutorial: The Random class](../../utility-classes/tutorial_random/)以下の例ではこれを何度も行うことになる）：
+
+```cpp
+    static juce::Colour getRandomColour()
     {
-        auto& random = juce::Random::getSystemRandom()；
+        auto& random = juce::Random::getSystemRandom();
  
-        return juce::Colour ((juce::uint8) random.nextInt (256)、
-                             (juce::uint8) random.nextInt (256)、
-                             (juce::uint8) random.nextInt (256))；
+        return juce::Colour ((juce::uint8) random.nextInt (256),
+                             (juce::uint8) random.nextInt (256),
+                             (juce::uint8) random.nextInt (256));
     }
 ```
 
-Now, let's extend the code for drawing the rectangle by using the [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") class, by drawing ten squares in a diagonal pattern, and using a randomly-generated colour:
+では、矩形を描画するコードを[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスでは、10個の正方形を対角線上に描き、ランダムに生成された色を使う：
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     g.fillAll (juce::Colours::darkgrey);
  
-    juce::Rectangleエリア（10, 10, 40, 40）；
+    juce::Rectangle area (10, 10, 40, 40);
  
-    auto numSquares = 10；
+    auto numSquares = 10;
  
     for (auto i = 0; i < numSquares; ++i)
     {
-        g.setColour (getRandomColour())；
-        g.fillRect (area)；
+        g.setColour (getRandomColour());
+        g.fillRect (area);
  
-        area.translate (30, 30); // [3].
+        area.translate (30, 30); // [3]
     }
 }
 ```
 
-The [矩形::translate()](classRectangle.html#aa13dfd466078c2710fdea6ff2f7b263b "Moves the rectangle's position by adding amount to its x and y coordinates.") function \[3\] moves the given rectangle by the horizontal and vertical offsets provided. The result should look something like the following screenshot:
+について[Rectangle::translate()](https://docs.juce.com/master/classRectangle.html#aa13dfd466078c2710fdea6ff2f7b263b "矩形の x 座標と y 座標に量を加算して、矩形の位置を移動する。")機能\[3\]は、与えられた矩形を指定された水平方向と垂直方向のオフセットだけ移動させる。結果は次のスクリーンショットのようになるはずです：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot2.png" caption="Diagonal pattern of squares" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot2.png"
+  caption="正方形の対角線パターン"
+/>
 
 ここではそのコードを拡張して、次の描画操作の前に矩形のサイズを変更する。これに加えて、平行移動は矩形の幅と高さに等しくなるように行われる。
 
-```
+```cpp
 void paint (juce::Graphics& g) override
 {
     g.fillAll (juce::Colours::darkgrey);
@@ -377,27 +403,29 @@ void paint (juce::Graphics& g) override
  
         area.translate (area.getWidth(), area.getHeight());        // [4]
         area.setSize (random.nextInt (juce::Range (20, 40)),  // width
-                      random.nextInt (juce::Range(20, 40)); // 高さ
+                      random.nextInt (juce::Range (20, 40))); // height
     }
 }
 ```
 
 これにより、以下のスクリーンショットに示すように、矩形はその角で「結合」される：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot3.png" caption="Rectangles joined at the corners" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot3.png"
+  caption="角で結ばれた長方形"
+/>
 
+の代わりに[Rectangle::translate()](https://docs.juce.com/master/classRectangle.html#aa13dfd466078c2710fdea6ff2f7b263b "矩形の x 座標と y 座標に量を加算して、矩形の位置を移動する。")関数を使う代わりに、足し算を使って矩形に点を「追加」して平行移動させることができる。つまり\[4\]上記の行に次の行を加える：
 
-As an alternative to using the [矩形::translate()](classRectangle.html#aa13dfd466078c2710fdea6ff2f7b263b "Moves the rectangle's position by adding amount to its x and y coordinates.") function, we could instead use addition to "add" points to rectangle in order to translate them. This means we could replace \[4\] above with the following line:
-
+```cpp
+area += juce::Point (area.getWidth(), area.getHeight());
 ```
-area += juce::Point(area.getWidth(),area.getHeight())；
-```
 
-## Rectangle intersections
+## 長方形の交差点
 
-If we have rectangles that overlap, we can determine the intersecting area using the [矩形::getIntersection()](classRectangle.html#a50e80bae322913e844bc628a99fa3166 "Returns the region that is the overlap between this and another rectangle.") function. In the following example we calculate the intersecting rectangle between the current and next rectangles in the series. To make this clear, we draw outlines for each rectangle in the series and highlight the intersecting areas by drawing them as filled rectangles.
+重なり合う長方形がある場合、交差する面積は[Rectangle::getIntersection()](https://docs.juce.com/master/classRectangle.html#a50e80bae322913e844bc628a99fa3166 "この矩形と別の矩形が重なる領域を返します。")関数を使用する。次の例では、直列の現在の矩形と次の矩形の間の交差矩形を計算する。これを明確にするために、直列の各矩形の輪郭を描き、交差する領域を塗りつぶされた矩形として描くことで強調する。
 
-```
+```cpp
     void paint (juce::Graphics& g) override
     {
         g.fillAll (juce::Colours::darkgrey);
@@ -410,42 +438,46 @@ If we have rectangles that overlap, we can determine the intersecting area using
  
         for (auto i = 0; i < numSquares; ++i)
         {
-            auto nextArea = area + juce::Point(random.nextInt (rectRandomRange), // [5].
-                                                     random.nextInt (rectRandomRange))；
+            auto nextArea = area + juce::Point (random.nextInt (rectRandomRange),  // [5]
+                                                     random.nextInt (rectRandomRange));
  
-            g.setColour (getRandomColour())；
-            g.fillRect (area.getIntersection (nextArea)); // [6].
+            g.setColour (getRandomColour());
+            g.fillRect (area.getIntersection (nextArea));                               // [6]
  
-            g.setColour (getRandomColour())；
-            g.drawRect (area, 2); // [7].
+            g.setColour (getRandomColour());
+            g.drawRect (area, 2);                                                       // [7]
  
-            area = nextArea；
+            area = nextArea;
         }
     }
 ```
 
-Notice that we use the `+` operator to offset the rectangle \[5\]. We also fill the intersecting areas first \[6\] before drawing the rectangle outlines \[7\]. This causes the last intersecting area to be drawn without its final corresponding rectangle.
+を使用していることに注意してください。`+`演算子で矩形をオフセット\[5\].また、交差する領域を最初に埋めます。\[6\]矩形の輪郭を描く前に\[7\].これにより、最後に交差する領域は、最終的に対応する矩形なしで描画される。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot7.png" caption="Rectangle intersections" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot7.png"
+  caption="長方形の交差点"
+/>
+
 :::note
 
-The code for this final example can be found in the `PointLineRectangleチュートリアル_04.h` file of the demo project.
+この最後の例のコードは`PointLineRectangleTutorial_04.h`ファイルにある。
 
 :::
 
 # 概要
 
-In this tutorial we have introduced the template classes [ポイント](https://docs.juce.com/master/classPoint "A pair of (x, y) coordinates."), [ライン](https://docs.juce.com/master/classLine "Represents a line."), and [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it."). In particular, we have covered the following techniques:
+このチュートリアルでは、テンプレート・クラス[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。"),[Line](https://docs.juce.com/master/classLine.html "線を表す。")そして[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。").特に以下のテクニックを取り上げた：
 
--   Creating and manipulating [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") objects and using them in drawing code.
--   Creating [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") objects from corner points or by intersections of two rectangles.
--   Creating [パス](https://docs.juce.com/master/classPath "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.") objects containing rectangles.
--   Creating [ライン](https://docs.juce.com/master/classLine "Represents a line.") objects, drawing lines, and finding points where lines intersect.
+- 創造と操作[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")オブジェクトを作成し、それを描画コードで使用する。
+- 創造する[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")角の点から、または2つの長方形の交点からオブジェクトを見つける。
+- 創造する[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")オブジェクトは矩形を含む。
+- 創造する[Line](https://docs.juce.com/master/classLine.html "線を表す。")オブジェクトに線を引き、線が交差する点を見つける。
 
-# 関連項目
+# 参照
 
--   [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)
--   [チュートリアルGraphicsクラス](../tutorial_graphics_class/)
--   [チュートリアルランダム・クラス](../tutorial_random/)
--   [チュートリアル高度なGUIレイアウトテクニック](../tutorial_rectangle_advanced/)
--   [チュートリアルFlexBoxとGridを使ったレスポンシブGUIレイアウト](../tutorial_flex_box_grid/)
+- [Tutorial: Parent and child components](../tutorial_component_parents_children/)
+- [Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)
+- [Tutorial: The Random class](../../utility-classes/tutorial_random/)
+- [Tutorial: Advanced GUI layout techniques](../tutorial_rectangle_advanced/)
+- [Tutorial: Responsive GUI layouts using FlexBox and Grid](../tutorial_flex_box_grid/)

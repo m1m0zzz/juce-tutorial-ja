@@ -1,50 +1,53 @@
 ---
 title: アンドロイドの画面サイズの管理
 sidebar_position: 2
+tags: [中級]
 ---
 
 # チュートリアルAndroidの画面サイズを管理する
 
+<SourcePageLink path="tutorial_android_screen_sizes" />
+
 さまざまな画面サイズに対応するアプリケーションを作成しましょう。このチュートリアルでは、Androidで利用可能な画面サイズは数多くありますが、これを管理するためのいくつかの戦略を検討します。
 
-レベル：中級
+レベル中級
 
-プラットフォーム：Android, macOS, Windows
+プラットフォームアンドロイド , macOS , Windows
 
-クラス： [デスクトップ](https://docs.juce.com/master/classDesktop "Describes and controls aspects of the computer's desktop."), [アフィン変換](https://docs.juce.com/master/classAffineTransform "Represents a 2D affine-transformation matrix."), [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.")
+クラス： [Desktop](https://docs.juce.com/master/classDesktop.html "コンピュータのデスクトップについて説明し、制御する。"),[AffineTransform](https://docs.juce.com/master/classAffineTransform.html "2次元アフィン変換行列を表す．"),[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")
 
-## はじめる
+# スタート
 
 このチュートリアルでは、JUCEを使用してAndroidプラットフォーム上で異なる画面サイズを管理するためのいくつかの戦略を説明します。このチュートリアルには、いくつかのデモプロジェクトがあります。これらのプロジェクトのダウンロード・リンクは、チュートリアルの関連するセクションにあります。
 
-If you need help with this step in each of these sections, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+各セクションのこのステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# The demo projects
+# デモ・プロジェクト
 
 このチュートリアルで提供されるデモ・プロジェクトは、JUCEを使用してAndroidプラットフォーム上で異なる画面サイズを管理するためのいくつかの異なる方法を示しています。大まかに、これらの方法は以下の通りです：
 
--   メインコンポーネント内の子コンポーネントのサイズ変更。
--   トランスフォームを使用したメインコンポーネントのサイズ変更。
--   方向によって異なるコンポーネントのレイアウトを設計する。
--   サイズごとに異なるコンポーネントレイアウトを設計。
+- メインコンポーネント内の子コンポーネントのサイズ変更。
+- トランスフォームを使用したメインコンポーネントのサイズ変更。
+- 方向によって異なるコンポーネントのレイアウトを設計する。
+- サイズごとに異なるコンポーネントレイアウトを設計。
 
-# Android screen sizes
+# アンドロイドの画面サイズ
 
-特にフルスクリーンでの操作を期待するデバイス（モバイルデバイスなど）では、すべての画面サイズとさまざまなデバイスの向きで効果的なユーザーインターフェイスをデザインすることが課題となります。これは、多くの画面サイズと解像度が存在するアンドロイド・プラットフォームでは特に難しいことです。ここでは主に3つの問題がある：
+特にフルスクリーン操作を期待するデバイス（モバイルデバイスなど）では、すべての画面サイズとさまざまなデバイスの向きに効果的なユーザーインターフェイスをデザインすることが課題となります。これは、多くの画面サイズと解像度が存在するアンドロイド・プラットフォームでは特に難しいことです。ここでは主に3つの問題がある：
 
--   *物理的サイズ*: The physical size of the screen measure in standard units of measure (the common measure being the distance across the diagonal of the screen, measured in inches).
--   *決議*: The screen resolution measured in pixels.
--   *オリエンテーション*: The device orientation, whether landscape or portrait.
+- *物理的サイズ*:画面の物理的な大きさを標準単位で表したもの（一般的な単位は画面の対角線上の距離で、単位はインチ）。
+- *決議*:ピクセル単位の画面解像度。
+- *オリエンテーション*:デバイスの向き（横向きか縦向きか）。
 
-The relationship between the physical size and the resolution is important. It is especially important when considering high resolution screens where the physical pixels are smaller, and more densely packed, than standard resolution screens. The combination of a particular physical screen size and its resolution results in the screen's *ドット・パー・インチ* (DPI). This is related to the screen *ピクセル密度*. This is how many physical pixels take up the space of a "software" pixel, in each dimension, as a pixel on a standard density screen.
+物理的なサイズと解像度の関係は重要である。特に、物理的なピクセルが標準的な解像度のスクリーンよりも小さく、高密度に配置されている高解像度スクリーンを考える際には重要です。特定の物理的な画面サイズと解像度の組み合わせは、画面の*ドット・パー・インチ*(DPI）。これはスクリーン*ピクセル密度*.これは、標準的な密度の画面上のピクセルとして、各次元で、「ソフトウェア」ピクセルのスペースを占める物理的なピクセルの数である。
 
 アプリケーションによっては、物理的な大きさが最も重要な場合もある。例えば、繊細な指の動きからなる複雑なインタラクションを使用するアプリケーションなどです。この場合、画面サイズと典型的なユーザーの手の大きさが重要です。他のアプリケーションでは、画面のDPIがより重要です。例えば、DPIが高くてもフォントサイズが小さければテキストは読みやすくなります。しかし、スクリーン上の物理的なサイズで測定した場合、テキストの可読性には限界があります。アプリケーションを設計する際には、物理的なサイズと解像度（したがってDPI）の両方を考慮に入れる必要がある場合があります。
 
-By default, JUCE scales its coordinate system based on the pixel density of the screen. This means that shapes and text drawn on a high density screen should appear roughly the same physical size as they do on standard density screens. In JUCE, you can access information about a particular display via the [デスクトップ](https://docs.juce.com/master/classDesktop "Describes and controls aspects of the computer's desktop.") class. Here you can find the available displays and which one is marked as the "main display" (especially if there are multiple displays).
+デフォルトでは、JUCEはその座標系をスクリーンのピクセル密度に基づいてスケーリングします。これは、高密度のスクリーンで描かれた図形やテキストは、標準的な密度のスクリーンで描かれたものとほぼ同じ物理的サイズに見えるはずであることを意味します。JUCEでは、特定のディスプレイに関する情報に[Desktop](https://docs.juce.com/master/classDesktop.html "コンピュータのデスクトップについて説明し、制御する。")クラスがあります。ここでは、利用可能なディスプレイと、どのディスプレイが「メインディスプレイ」としてマークされているかを確認することができます（特に複数のディスプレイがある場合）。
 
-Unfortunately, the value that JUCE can access to obtain the display's DPI is only an approximation (since not all screen devices report this information properly). This means we can't measure the physical size of the user's screen accurately. But the information provided by the [デスクトップ](https://docs.juce.com/master/classDesktop "Describes and controls aspects of the computer's desktop.") class should be good enough as a guide for scaling your user interface depending on the needs of your application.
+残念ながら、JUCEがディスプレイのDPIを取得するためにアクセスできる値は近似値に過ぎません（すべてのスクリーンデバイスがこの情報を適切に報告するわけではないため）。つまり、ユーザーの画面の物理的なサイズを正確に測定することはできません。しかし[Desktop](https://docs.juce.com/master/classDesktop.html "コンピュータのデスクトップについて説明し、制御する。")クラスは、アプリケーションのニーズに応じてユーザー・インターフェースを拡張するためのガイドとして十分なはずだ。
 
-In each of the examples that follow we use a child component, called `リサイジングコンプ`, that is managed and resized by the parent component (`メインコンテンツコンポーネント`).
+この後の各例では、子コンポーネントとして`ResizingComp`これは、親コンポーネント(`MainContentComponent`).
 
 :::note
 
@@ -52,31 +55,33 @@ In each of the examples that follow we use a child component, called `リサイ�
 
 :::
 
-# Resizing child components (simple resize)
+# 子コンポーネントのサイズ変更（単純なサイズ変更）
 
-Download the demo project for this section here: [ピップ](/tutorials/PIPs/AndroidScreenSizesTutorialSimpleResize.zip) | [ジップ](/tutorials/ZIPs/AndroidScreenSizesTutorialSimpleResize.zip). Unzip the project and open the first header file in the Projucer.
+このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialSimpleResize.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialSimpleResize.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-この例では、スライダーとボタンのコレクションを含む単純なインターフェイスを使用します。これらの子コンポーネントには、それぞれ画面の高さ（端の小さな境界線を除く）の割合が与えられている。水平方向でも同様のアプローチが可能です。簡単にするために、スライダーとボタンは、画面の幅全体を占めるだけです（ここでも、小さなボーダーを除きます）。画面が縦向きで、サイズが数百ピクセルの場合、以下のスクリーンショットのようになります：
+この例では、スライダーとボタンのコレクションを含む単純なインターフェイスを使用します。これらの子コンポーネントには、それぞれ画面の高さ（端の小さな枠を除く）の割合が与えられている。水平方向でも同様のアプローチが可能です。簡単にするために、スライダーとボタンは、画面の幅全体を占めるだけです（ここでも、小さなボーダーを除きます）。画面が縦向きで、サイズが数百ピクセルの場合、以下のスクリーンショットのようになります：
 
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot1.png" caption="Simple resizing of child components: Portrait" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot1.png"
+  caption="子コンポーネントの簡単なサイズ変更：ポートレート"
+/>
 
 横向きの場合は、以下のスクリーンショットのようになります：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot2.png"
+  caption="子コンポーネントの簡単なサイズ変更ランドスケープ"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot2.png" caption="Simple resizing of child components: Landscape" />
+## コンポーネントの配列
 
+ボタンとスライダーを`ResizingComp`クラスでは[OwnedArray](https://docs.juce.com/master/classOwnedArray.html "オブジェクトを保持するために設計された配列。")テンプレート・クラスでは、これらの子コンポーネントは自動的に削除されます。`ResizingComp`デストラクタ)。まず`ResizingComp`コンストラクタで[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。")オブジェクトの色を設定します。これらは、ボタン、スライダーの親指、スライダートラックの色を設定するために使用されます：
 
-## Arrays of components
-
-To store the buttons and sliders in the `リサイジングコンプ` class we use the [所有配列](https://docs.juce.com/master/classOwnedArray "An array designed for holding objects.") template class (which means that these child components will be deleted automatically in the `リサイジングコンプ` destructor). First, in the `リサイジングコンプ` constructor, we build an array of [カラー](https://docs.juce.com/master/classColour "Represents a colour, also including a transparency value.") objects. These are used to set the colours of the buttons, the slider thumbs, and the slider tracks:
-
-```
+```cpp
         ResizingComp()
         {
-            juce::Arraycolours { juce::Colour (0xffb3c3Da), juce::Colour (0xff5973b8), juce::Colour (0xffd65667), juce::Colour (0xffd99154)、
-                                                juce::Colour (0xffe5ad6c), juce::Colour (0xffecc664), juce::Colour (0xffefe369), juce::Colour (0xffdddB74) }；
+            juce::Array colours { juce::Colour (0xffb3c3Da), juce::Colour (0xff5973b8), juce::Colour (0xffd65667), juce::Colour (0xffd99154),
+                                                juce::Colour (0xffe5ad6c), juce::Colour (0xffecc664), juce::Colour (0xffefe369), juce::Colour (0xffdddB74) };
 ```
 
 :::note
@@ -85,295 +90,312 @@ To store the buttons and sliders in the `リサイジングコンプ` class we u
 
 :::
 
-We then use a `for()` loop to allocate and configure the multiple buttons:
+そして`for()`ループで複数のボタンを割り当て、設定する：
 
-```
-for (auto i = 0; i < 6; ++i)
+```cpp
+            for (auto i = 0; i < 6; ++i)
             {
-                auto* button = buttons.add (new juce::TextButton (juce::String ("Button ") + juce::String (i + 1)))；
-                addAndMakeVisible (button)；
+                auto* button = buttons.add (new juce::TextButton (juce::String ("Button ") + juce::String (i + 1)));
+                addAndMakeVisible (button);
  
-                button->setColour (juce::TextButton::buttonColourId、
-                                   colours.getUnchecked (i % colors.size()))；
+                button->setColour (juce::TextButton::buttonColourId,
+                                   colours.getUnchecked (i % colours.size()));
             }
 ```
 
 スライダーも同じように設定されている（ただし、面白さを保つために、色の配列を使って色の選択を混ぜている）。
 
-```
-for (auto i = 0; i < 6; ++i)
+```cpp
+            for (auto i = 0; i < 6; ++i)
             {
-                auto* slider = sliders.add (new juce::Slider())；
-                addAndMakeVisible (slider)；
+                auto* slider = sliders.add (new juce::Slider());
+                addAndMakeVisible (slider);
  
-                slider->setColour (juce::Slider::thumbColourId、
-                                   colours.getUnchecked ((buttons.size() + i) % colors.size()))；
-                slider->setColour (juce::Slider::backgroundColourId、
-                                   colours.getUnchecked ((buttons.size() + i + 2) % colors.size()).withAlpha (0.4f))；
-                slider->setColour (juce::Slider::trackColourId、
-                                   colors.getUnchecked ((buttons.size() + i + 2) % colors.size()))；
-                slider->setColour (juce::Slider::textBoxTextColourId, juce::Colours::black)；
+                slider->setColour (juce::Slider::thumbColourId,
+                                   colours.getUnchecked ((buttons.size() + i) % colours.size()));
+                slider->setColour (juce::Slider::backgroundColourId,
+                                   colours.getUnchecked ((buttons.size() + i + 2) % colours.size()).withAlpha (0.4f));
+                slider->setColour (juce::Slider::trackColourId,
+                                   colours.getUnchecked ((buttons.size() + i + 2) % colours.size()));
+                slider->setColour (juce::Slider::textBoxTextColourId, juce::Colours::black);
             }
 ```
 
-## Using a custom slider thumb size
+## カスタムスライダーのサムサイズを使用する
 
-In order to be more usable with a touchscreen interface the slider thumb has been customised so that it is usually larger than the standard size. To do this we have added a subclass of the [LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4 "The latest JUCE look-and-feel style, as introduced in 2017.") and overridden the [LookAndFeel::getSliderThumbRadius()](structSlider_1_1LookAndFeelMethods.html#a71905c89182698a67da8929077e768f8) function.
+タッチスクリーン・インターフェイスでより使いやすくするため、スライダーの親指は通常標準サイズより大きくなるようにカスタマイズされています。そのために[LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "2017年に登場した最新のJUCEルック＆フィールスタイル。")をオーバーライドした。[LookAndFeel::getSliderThumbRadius()](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html#a71905c89182698a67da8929077e768f8)関数である。
 
-```
-class CustomLookAndFeel : public juce::LookAndFeel_V4
+```cpp
+        class CustomLookAndFeel : public juce::LookAndFeel_V4
         {
-        public：
+        public:
             int getSliderThumbRadius (juce::Slider& slider) override
             {
-                return juce::jmin (slider.getWidth(), slider.getHeight()) / 2；
+                return juce::jmin (slider.getWidth(), slider.getHeight()) / 2;
             }
         };
 ```
 
-We add an instance of this class as a member of our `リサイジングコンプ` class:
+このクラスのインスタンスを`ResizingComp`クラスである：
 
-```
+```cpp
         juce::OwnedArray buttons;
-        juce::OwnedArrayスライダー
-        CustomLookAndFeel lf；
+        juce::OwnedArray sliders;
+        CustomLookAndFeel lf;
     };
 ```
 
-And at the end of our `リサイジングコンプ` constructor we set this as our look-and-feel for this component and all of its children.
+そして、最後に`ResizingComp`コンストラクタで、このコンポーネントとそのすべての子コンポーネントのルック＆フィールを設定します。
 
-And in our `リサイジングコンプ` destructor we set this to nullptr.
-
+```cpp
+            setLookAndFeel (&lf);
 ```
-~オーバーライド
+
+そして、我々の`ResizingComp`デストラクタでは、これをnullptrに設定する。
+
+```cpp
+        ~ResizingComp() override
         {
-            setLookAndFeel (nullptr)；
+            setLookAndFeel (nullptr);
         }
 ```
 
-## Resizing the buttons and sliders
+## ボタンとスライダーのサイズ変更
 
-In the `ResizingComp::resized()` function we iterate over the arrays of buttons and sliders and set their bounds:
+の中で`ResizingComp::resized()`関数では、ボタンとスライダーの配列を繰り返し処理し、その境界を設定する：
 
-```
-void resized() override
+```cpp
+        void resized() override
         {
-            auto space = 8；
-            auto widgetHeight = (getHeight() - space) / (buttons.size() + sliders.size()) - space；
+            auto space = 8;
+            auto widgetHeight = (getHeight() - space) / (buttons.size() + sliders.size()) - space;
  
             for (auto* button : buttons)
-                button->setBounds (space, space + (widgetHeight + space) * buttons.indexOf (button)、
-                                   getWidth() - space - space, widgetHeight)；
+                button->setBounds (space, space + (widgetHeight + space) * buttons.indexOf (button),
+                                   getWidth() - space - space, widgetHeight);
  
             for (auto* slider : sliders)
-                slider->setBounds (space, space + (widgetHeight + space) * (sliders.indexOf (slider) + buttons.size())、
-                                   getWidth() - space - space, widgetHeight)；
+                slider->setBounds (space, space + (widgetHeight + space) * (sliders.indexOf (slider) + buttons.size()),
+                                   getWidth() - space - space, widgetHeight);
         }
 ```
 
-ここでは、定数値(8)を使用してコンポーネントを分離します。そして、利用可能な高さと "ウィジェット"（ボタンとスライダー）の数に基づいて "ウィジェットの高さ "を計算します。
+ここでは、定数値（8）を使用してコンポーネントを分離します。そして、利用可能な高さと "ウィジェット"（ボタンとスライダー）の数に基づいて "ウィジェットの高さ "を計算します。
 
 画面サイズが小さすぎると、以下のスクリーンショットのようにインターフェイスが使用できなくなり、読めなくなる：
 
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot3.png" caption="Simple resizing when the screen is too small" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot3.png"
+  caption="画面が小さすぎる場合のシンプルなリサイズ"
+/>
 
 とはいえ、ほとんどのアンドロイド端末ではそれなりに見えるはずだ。
 
+:::danger[エクササイズ]
+
 インターフェイスのスライダーやボタンの数を変える。
 
-# Resizing the main component using a transform
+:::
 
-Download the demo project for this section here: [ピップ](/tutorials/PIPs/AndroidScreenSizesTutorialTransform.zip) | [ジップ](/tutorials/ZIPs/AndroidScreenSizesTutorialTransform.zip). Unzip the project and open the first header file in the Projucer.
+# トランスフォームを使用したメインコンポーネントのサイズ変更
 
-This example uses an alternative to resizing the child components. Instead, the `リサイジングコンプ` component is set to a nominal size (480 by 640 pixels) and then the `メインコンテンツコンポーネント` object applies an affine transform to scale this up or down to match the screen size. This is done while keeping the same aspect ratio (leaving whitespace to the side or above and below the sliders and buttons). The code for the `リサイジングコンプ` class is the same as for the [シンプル・リサイズ](#tutorial_android_screen_sizes_resizing_child_components) example. But in the `MainContentComponent::resized()` function we set the size of the `リサイジングコンプ` component then calculate the required transform:
+このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialTransform.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialTransform.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-```
+この例では、子コンポーネントのサイズ変更に代わる方法を使用しています。代わりに`ResizingComp`コンポーネントは公称サイズ（480×640ピクセル）に設定され、次に`MainContentComponent`オブジェクトはアフィン変換を適用し、これをスクリーンサイズに合わせて拡大縮小します。これは、同じアスペクト比を保ちながら行われます（スライダーやボタンの横や上下に空白を残します）。のコードは`ResizingComp`クラスは[simple resize](https://docs.juce.com/master/#tutorial_android_screen_sizes_resizing_child_components)の例だ。しかし`MainContentComponent::resized()`関数のサイズを設定する。`ResizingComp`コンポーネントが必要な変換を計算する：
+
+```cpp
     void resized() override
     {
         auto contentWidth  = 480;
         auto contentHeight = 640;
  
         auto scaleX = (float) getWidth()  / static_cast (contentWidth);
-        auto scaleY = (float) getHeight() / static_cast(contentHeight)；
-        auto scale = juce::jmin (scaleX, scaleY)；
+        auto scaleY = (float) getHeight() / static_cast (contentHeight);
+        auto scale  = juce::jmin (scaleX, scaleY);
  
-        resizingComp->setTransform (juce::AffineTransform::scale (scale, scale))；
-        resizingComp->centreWithSize (contentWidth, contentHeight)；
+        resizingComp->setTransform (juce::AffineTransform::scale (scale, scale));
+        resizingComp->centreWithSize (contentWidth, contentHeight);
     }
 ```
 
-This code calculates the ratio between our nominal size and the actual size of the screen in software pixels. It then chooses the smallest of these ratios in order to maintain the aspect ratio, while keeping all of the content onscreen. We then create an instance of the [アフィン変換](https://docs.juce.com/master/classAffineTransform "Represents a 2D affine-transformation matrix.") class using the [AffineTransform::scale()](classAffineTransform.html#a43665170b0ec3ef0d1afef4053e77a24 "Returns a new transform which is a re-scale about the origin.") function and centre the scale transform around the centre of the screen. The transform is applied to the component using the Component::setTransform() function. The result is quite different from the [シンプル・リサイズ](#tutorial_android_screen_sizes_resizing_child_components) method.
+このコードは、公称サイズと実際の画面サイズの比率をソフトウェア・ピクセルで計算します。そして、アスペクト比を維持し、すべてのコンテンツを画面に表示するために、これらの比率のうち最小のものを選択します。次に[AffineTransform](https://docs.juce.com/master/classAffineTransform.html "2次元アフィン変換行列を表す．")クラスを使用しています。[AffineTransform::scale()](https://docs.juce.com/master/classAffineTransform.html#a43665170b0ec3ef0d1afef4053e77a24 "原点に対して再縮小した新しい変換を返します。")関数を使用して、スケール変換を画面の中央に配置します。このトランスフォームは、Component::setTransform()関数を使用してコンポーネントに適用されます。結果は[simple resize](https://docs.juce.com/master/#tutorial_android_screen_sizes_resizing_child_components)メソッドを使用する。
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot4.png"
+  caption="縦向きと横向きの両方を表示するトランスフォームを使用して、UI全体を拡大縮小する。"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot4.png" caption="Scaling the whole UI using a transform showing both portrait and landscape orientations" />
 :::note
 
 コンポーネントにトランスフォームを適用すると、ユーザーインターフェイスの描画が変換されるだけでなく、タッチ（およびマウス）アクティビティの位置も変換されます。
 
 :::
 
-# Designing different layouts for different orientations
+# 異なる方向性に対して異なるレイアウトをデザインする
 
-Download the demo project for this section here: [ピップ](/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip) | [ジップ](/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip). Unzip the project and open the first header file in the Projucer.
+このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-This example looks at one method of displaying a different layout depending on the orientation of the screen (or device). The [Desktop::getCurrentOrientation()](classDesktop.html#a02ae21e312faf1715e8311f1f53e5e00 "In a tablet device which can be turned around, this returns the current orientation.") function provides means of accessing the device orientation. In fact, there are four possible orientations:
+この例では、スクリーン（またはデバイス）の向きによって異なるレイアウトを表示する方法のひとつを紹介する。ここでは[Desktop::getCurrentOrientation()](https://docs.juce.com/master/classDesktop.html#a02ae21e312faf1715e8311f1f53e5e00 "向きを変えられるタブレット端末では、これは現在の向きを返す。")関数は、デバイスの向きにアクセスする手段を提供する。実際には、4つの可能な方向があります：
 
--   アップライト（ポートレート）。
--   逆さま（ポートレートを180度回転させたもの）。
--   デバイスを時計回りに90度回転（横向きの1バージョン）。
--   デバイスを反時計回りに90度回転（横向きの別バージョン）。
+- アップライト（ポートレート）。
+- 逆さま（ポートレートを180度回転させたもの）。
+- デバイスを時計回りに90度回転（横向きの1バージョン）。
+- デバイスを反時計回りに90度回転（横向きの別バージョン）。
 
 簡単のため、このチュートリアルでは、縦長の画面を横長の画面として扱います（横長の画面を縦長の画面として扱います）。
 
-This example uses the same technique for scaling the user interface [トランスフォーム](#tutorial_android_screen_sizes_resizing_main_component_transform) that we saw earlier. The differences are that this `リサイジングコンプ` class uses a different layout depending on the orientation, and the `メインコンテンツコンポーネント` class has two nominal sizes (one for landscape orientation and one for portrait orientation). The orientation is determined in the `MainContentComponent::resized()` function:
+この例では、ユーザー・インターフェースのスケーリングに同じテクニックを使っている。[using a transform](https://docs.juce.com/master/#tutorial_android_screen_sizes_resizing_main_component_transform)先ほど見たように。違いは`ResizingComp`クラスは、向きによって異なるレイアウトを使用します。`MainContentComponent`クラスには2つの公称サイズ（横向き用と縦向き用）があります。向きは`MainContentComponent::resized()`関数である：
 
-```
-void resized() override
+```cpp
+    void resized() override
     {
-        auto isLandscape = getWidth() > getHeight()；
-        auto contentWidth = isLandscape ?640 : 480;
-        auto contentHeight = isLandscape ?480 : 640;
+        auto isLandscape = getWidth() > getHeight();
+        auto contentWidth  = isLandscape ? 640 : 480;
+        auto contentHeight = isLandscape ? 480 : 640;
 ```
 
-Then, in the `ResizingComp::resized()` function we select from two resizing functions depending on the orientation:
+そして`ResizingComp::resized()`関数では、向きに応じて2つのリサイズ関数から選択する：
 
-```
-void resized() override
+```cpp
+        void resized() override
         {
             if (getHeight() > getWidth())
-                resizedPortrait()；
-            さもなければ
-                resizedLandscape()；
+                resizedPortrait();
+            else
+                resizedLandscape();
         }
 ```
 
-The `リサイズポートレイト()` and `リサイズランドスケープ()` functions then use different arithmetic to layout the buttons and sliders.
+について`resizedPortrait()`そして`resizedLandscape()`関数は、ボタンとスライダーのレイアウトに異なる演算を使用する。
 
 横向きの場合、ボタンとスライダーは1列ではなく2列で表示されます。これは以下のスクリーンショットに示されています：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot5.png"
+  caption="横向きで別のレイアウトを使う"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot5.png" caption="Using a different layout in landscape orientation" />
+:::danger[エクササイズ]
 
+を使用するようにコードを変更する。[Desktop::getCurrentOrientation()](https://docs.juce.com/master/classDesktop.html#a02ae21e312faf1715e8311f1f53e5e00 "向きを変えられるタブレット端末では、これは現在の向きを返す。")関数を使用して、画面の幅と高さを比較するのではなく、画面の向きを決定する。
 
-Change the code to use the [Desktop::getCurrentOrientation()](classDesktop.html#a02ae21e312faf1715e8311f1f53e5e00 "In a tablet device which can be turned around, this returns the current orientation.") function to determine the screen orientation, rather than comparing the width and height of the screen.
+:::
 
-# Designing different layouts for different screen sizes
+# 画面サイズごとに異なるレイアウトをデザインする
 
-Download the demo project for this section here: [ピップ](/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsSize.zip) | [ジップ](/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsSize.zip). Unzip the project and open the first header file in the Projucer.
+このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsSize.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsSize.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-This final example uses different layouts for different screen orientations and screen sizes. This kind of technique might be especially useful if you want to use a totally different layout for screen orientations or even make a universal application for Android phones and tablets. The method employed here is to use the [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.") class to arrange pages of components if they won't fit onto a single page.
+この最後の例では、画面の向きや画面サイズごとに異なるレイアウトを使用しています。このようなテクニックは、画面の向きによってまったく異なるレイアウトを使いたい場合や、Android携帯やタブレット用のユニバーサルアプリケーションを作りたい場合に特に有効です。ここで採用されている方法は[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")クラスを使用すると、コンポーネントのページが1ページに収まらない場合に、そのページを並べることができる。
 
-The responsibility of the `リサイジングコンプ` class changes a little in this project compared to the three earlier projects. In particular, we don't add the buttons and sliders as direct child components. Notice the lack of calls to the Component::addAndMakeVisible() function in the following code for the constructor:
+の責任である。`ResizingComp`クラスは、先の3つのプロジェクトと比べて、このプロジェクトでは少し変更されています。特に、ボタンとスライダーを直接の子コンポーネントとして追加していません。次のコンストラクタのコードで、Component::addAndMakeVisible()関数を呼び出していないことに注目してください：
 
-```
+```cpp
         ResizingComp()
         {
-            juce::Arraycolours { juce::Colour (0xffb3c3Da), juce::Colour (0xff5973b8), juce::Colour (0xffd65667), juce::Colour (0xffd99154)、
-                                                juce::Colour (0xffe5ad6c), juce::Colour (0xffecc664), juce::Colour (0xffefe369), juce::Colour (0xffdddB74) }；
+            juce::Array colours { juce::Colour (0xffb3c3Da), juce::Colour (0xff5973b8), juce::Colour (0xffd65667), juce::Colour (0xffd99154),
+                                                juce::Colour (0xffe5ad6c), juce::Colour (0xffecc664), juce::Colour (0xffefe369), juce::Colour (0xffdddB74) };
  
             for (auto i = 0; i < 6; ++i)
             {
-                auto* button = buttons.add (new juce::TextButton (juce::String ("Button ") + juce::String (i + 1)))；
+                auto* button = buttons.add (new juce::TextButton (juce::String ("Button ") + juce::String (i + 1)));
  
-                button->setColour (juce::TextButton::buttonColourId、
-                                   colours.getUnchecked (i % colors.size()))；
+                button->setColour (juce::TextButton::buttonColourId,
+                                   colours.getUnchecked (i % colours.size()));
             }
  
             for (auto i = 0; i < 6; ++i)
             {
-                auto* slider = sliders.add (new juce::Slider())；
+                auto* slider = sliders.add (new juce::Slider());
  
-                slider->setColour (juce::Slider::thumbColourId、
-                                   colours.getUnchecked ((buttons.size() + i) % colors.size()))；
-                slider->setColour (juce::Slider::backgroundColourId、
-                                   colours.getUnchecked ((buttons.size() + i + 2) % colors.size()).withAlpha (0.4f))；
-                slider->setColour (juce::Slider::trackColourId、
-                                   colors.getUnchecked ((buttons.size() + i + 2) % colors.size()))；
-                slider->setColour (juce::Slider::textBoxTextColourId, juce::Colours::black)；
+                slider->setColour (juce::Slider::thumbColourId,
+                                   colours.getUnchecked ((buttons.size() + i) % colours.size()));
+                slider->setColour (juce::Slider::backgroundColourId,
+                                   colours.getUnchecked ((buttons.size() + i + 2) % colours.size()).withAlpha (0.4f));
+                slider->setColour (juce::Slider::trackColourId,
+                                   colours.getUnchecked ((buttons.size() + i + 2) % colours.size()));
+                slider->setColour (juce::Slider::textBoxTextColourId, juce::Colours::black);
             }
  
-            setLookAndFeel (&lf)；
+            setLookAndFeel (&lf);
         }
 ```
 
-The `リサイジングコンプ` class manages the lifetime of the buttons and sliders but in terms of component hierarchy they are added to one or more instances of another component class called `コンポーネントホルダー`.
+について`ResizingComp`クラスはボタンとスライダーのライフタイムを管理するが、コンポーネントの階層構造から見ると、それらは`ComponentHolder`.
 
-## Laying out the components
+## コンポーネントのレイアウト
 
-The `コンポーネントホルダー` class holds an array of [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") pointers and lays the components out in one or two columns depending on the orientation. (The technique for achieving this layout was covered earlier when looking at different [画面の向き](#tutorial_android_screen_sizes_different_layouts_orientation).) There is a single function—(`ComponentHolder::addComp()`—for adding a component that adds it to the internal array and calls Component::addAndMakeVisible():
+について`ComponentHolder`クラスは[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")ポインターを使い、向きによってコンポーネントを1列または2列に並べる。(このレイアウトを実現するテクニックは、以前、さまざまな[screen orientations](https://docs.juce.com/master/#tutorial_android_screen_sizes_different_layouts_orientation).)一つの関数がある。`ComponentHolder::addComp()`\-内部配列に追加し、Component::addAndMakeVisible()を呼び出します：
 
-```
-void addComp (Component* comp)
+```cpp
+            void addComp (Component* comp)
             {
-                comps.add (comp)；
-                addAndMakeVisible (comp)；
+                comps.add (comp);
+                addAndMakeVisible (comp);
             }
 ```
 
-The layout functions—`ResizingComp::resizedPortrait()` and `ResizingComp::resizedLandscape()`—should look familiar. Although these need to be slightly different since we no longer have separate arrays of sliders and buttons:
+レイアウト機能`ResizingComp::resizedPortrait()`そして`ResizingComp::resizedLandscape()`\-見覚えがあるはずだ。しかし、スライダーとボタンを別々に配列する必要がなくなったので、これらは少し異なるものにする必要がある：
 
-```
-void resizedPortrait()
+```cpp
+            void resizedPortrait()
             {
-                auto space = 8；
-                auto widgetHeight = (getHeight() - space) / comps.size() - space；
+                auto space = 8;
+                auto widgetHeight = (getHeight() - space) / comps.size() - space;
  
                 for (auto* comp : comps)
-                    comp->setBounds (space, space + (widgetHeight + space) * comps.indexOf (comp)、
-                                     getWidth() - space - space, widgetHeight)；
+                    comp->setBounds (space, space + (widgetHeight + space) * comps.indexOf (comp),
+                                     getWidth() - space - space, widgetHeight);
             }
  
             void resizedLandscape()
             {
-                auto space = 8；
-                auto halfComps = comps.size() / 2；
-                auto widgetHeight = (getHeight() - space) / halfComps - space；
+                auto space = 8;
+                auto halfComps = comps.size() / 2;
+                auto widgetHeight = (getHeight() - space) / halfComps - space;
  
                 for (auto* comp : comps)
                 {
-                    auto index = comps.indexOf (comp)；
+                    auto index = comps.indexOf (comp);
  
                     if (index < halfComps)
                     {
-                        comp->setBounds (space, space + (widgetHeight + space) * index、
-                                         getWidth() / 2 - space - space, widgetHeight)；
+                        comp->setBounds (space, space + (widgetHeight + space) * index,
+                                         getWidth() / 2 - space - space, widgetHeight);
                     }
                     else
                     {
-                        comp->setBounds (getWidth() / 2 + space, space + (widgetHeight + space) * (index - halfComps)、
-                                         getWidth() / 2 - space - space, widgetHeight)；
+                        comp->setBounds (getWidth() / 2 + space, space + (widgetHeight + space) * (index - halfComps),
+                                         getWidth() / 2 - space - space, widgetHeight);
                     }
                 }
             }
 ```
 
-## Choosing single or multiple pages
+## 単一ページまたは複数ページの選択
 
-If the screen size is large, then only one of these `コンポーネントホルダー` components is created and all of the buttons and sliders are added to it. If the screen size is small then the `リサイジングコンプ` class uses a [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.") object and adds two instances of the `コンポーネントホルダー` class to form the tabs of the [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides."). This decision to use a single page or multiple pages is managed by the `リサイジングコンプ` class in the `ResizingComp::resized()` function.
+画面サイズが大きい場合は、以下のいずれか1つのみとなる。`ComponentHolder`コンポーネントが作成され、すべてのボタンとスライダーがそこに追加される。画面サイズが小さい場合は`ResizingComp`クラスは[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")オブジェクトのインスタンスを2つ追加する。`ComponentHolder`クラスのタブを形成する。[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。").この単一ページか複数ページかの判断は、次のように管理される。`ResizingComp`クラスの`ResizingComp::resized()`関数である。
 
-```
-void resized() override
+```cpp
+        void resized() override
         {
             if (holder.get() != nullptr)
             {
-                removeChildComponent (holder.get())；
-                holder.reset()；
+                removeChildComponent (holder.get());
+                holder.reset();
             }
  
-            auto minimumDimension = juce::jmin (getWidth(), getHeight())；
+            auto minimumDimension = juce::jmin (getWidth(), getHeight());
  
             if (minimumDimension >= 480)
-                layoutSinglePage()；
+                layoutSinglePage();
             else
-                layoutTabs()；
+                layoutTabs();
         }
 ```
 
-Here you can see that we're saying a "large" screen is one that has one of its dimensions greater than or equal to 480 software pixels. Of course, you can choose a different value for your applications. The `ResizingComp::layoutSinglePage()` function is straightforward:
+ここでは、"大型 "スクリーンとは、その寸法の1つが480ソフトウエア・ピクセル以上であるものを指していることがわかります。もちろん、用途に応じて別の値を選択することもできます。この`ResizingComp::layoutSinglePage()`関数は簡単だ：
 
-```
+```cpp
         void layoutSinglePage()
         {
             holder.reset (new ComponentHolder());
@@ -382,16 +404,16 @@ Here you can see that we're saying a "large" screen is one that has one of its d
                 dynamic_cast (holder.get())->addComp (button);
  
             for (auto* slider : sliders)
-                dynamic_cast(holder.get())->addComp (スライダー)；
+                dynamic_cast (holder.get())->addComp (slider);
  
-            addAndMakeVisible (holder.get())；
-            holder->setBounds (getLocalBounds())；
+            addAndMakeVisible (holder.get());
+            holder->setBounds (getLocalBounds());
         }
 ```
 
-Here you can see that we add all of the buttons and sliders to the `コンポーネントホルダー` instance and add it as a child component of our `リサイジングコンプ` object. The `ResizingComp::layoutTabs()` function is only a little more involved:
+ここでは、すべてのボタンとスライダーを`ComponentHolder`インスタンスの子コンポーネントとして追加します。`ResizingComp`オブジェクトになる。その`ResizingComp::layoutTabs()`関数はもう少し複雑だ：
 
-```
+```cpp
         void layoutTabs()
         {
             auto orientation = getWidth() < getHeight() ? juce::TabbedButtonBar::TabsAtBottom
@@ -404,45 +426,50 @@ Here you can see that we add all of the buttons and sliders to the `コンポー
             auto* sliderTab = new ComponentHolder();
  
             dynamic_cast (holder.get())->addTab ("Buttons", juce::Colours::white, buttonTab, true); // [4]
-            dynamic_cast(holder.get())->addTab ("Sliders", juce::Colours::white, sliderTab, true)；
+            dynamic_cast (holder.get())->addTab ("Sliders", juce::Colours::white, sliderTab, true);
  
-            for (auto* button : buttons) // [5].
-                buttonTab->addComp (button)；
+            for (auto* button : buttons)                                    // [5]
+                buttonTab->addComp (button);
  
-            for (auto* slider : sliders) // [6] スライダを追加する。
-                sliderTab->addComp (slider)；
+            for (auto* slider : sliders)                                    // [6]
+                sliderTab->addComp (slider);
  
-            holder->setBounds (getLocalBounds()); // [7].
+            holder->setBounds (getLocalBounds());                           // [7]
         }
 ```
 
--   \[1\]: We create the [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.") object and store it in our `ホールド` member using the orientation of the screen to position the tab buttons.
--   \[2\]: We add the [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.") object as a child component.
--   \[3\]: We create the `コンポーネントホルダー` objects.
--   \[4\]: We add these as tabs to the [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.") object (the final `真の` arguments tell the [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.") objects that they can delete the `コンポーネントホルダー` objects when they are no longer needed).
--   \[5\]: We add the buttons to the "Buttons" tab.
--   \[6\]: And the sliders to the "Sliders" tab.
--   \[7\]: We set the size of the [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.") object to fill the bounds of the `リサイジングコンプ` object.
+- \[1\]を作成する。[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")オブジェクトを作成し`holder`画面の向きを利用してタブボタンを配置するメンバー。
+- \[2\]を追加する。[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")オブジェクトを子コンポーネントとする。
+- \[3\]を作成する。`ComponentHolder`オブジェクトがある。
+- \[4\]にタブとして追加する。[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")オブジェクト（最後の`true`引数は[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")オブジェクトを削除することができる。`ComponentHolder`オブジェクトが不要になったとき）。
+- \[5\]ボタンを "Buttons "タブに追加します。
+- \[6\]スライダーは "Sliders "タブへ。
+- \[7\]のサイズを設定する。[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")オブジェクトの境界を埋める。`ResizingComp`オブジェクトがある。
 
-When the size of the screen is determined as "small" then the [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.") is used as shown in the following screenshot.
+スクリーンのサイズが "small "と判断された場合[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")は以下のスクリーンショットのように使用される。
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot6.png"
+  caption="タブ付きインターフェイス"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot6.png" caption="The tabbed interface" />
-
+:::danger[エクササイズ]
 
 インターフェイスのスライダーやボタンの数を増やし、必要であればこれらのコントロールを2つ以上のタブに分散させる工夫をする。
 
+:::
+
 # 概要
 
-このチュートリアルでは、Androidデバイスの画面サイズと向きに関する様々な問題を検討しました。特に
+このチュートリアルでは、Androidデバイスの画面サイズや向きに関する様々な問題を検証してきました。特に
 
--   親コンポーネントの寸法に基づいてコンポーネントを拡大縮小する基本的な方法を示す。
--   Shown how to use the [アフィン変換](https://docs.juce.com/master/classAffineTransform "Represents a 2D affine-transformation matrix.") class to scale components.
--   デバイスの向きによって異なるコンテンツを表示する方法を紹介。
--   Shown how to use the [タブコンポーネント](https://docs.juce.com/master/classTabbedComponent "A component with a TabbedButtonBar along one of its sides.") class to distribute a user interface across several pages.
+- 親コンポーネントの寸法に基づいてコンポーネントを拡大縮小する基本的な方法を示す。
+- の使い方を紹介する。[AffineTransform](https://docs.juce.com/master/classAffineTransform.html "2次元アフィン変換行列を表す．")クラスを使用してコンポーネントを拡大縮小します。
+- デバイスの向きによって異なるコンテンツを表示する方法を紹介。
+- の使い方を紹介する。[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")クラスを使用して、ユーザー・インターフェースを複数のページに分散させることができます。
 
-# 関連項目
+# こちらも参照
 
--   [チュートリアルアンドロイドを始めよう](../tutorial_android_studio/)
--   [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)
--   [チュートリアルFlexBoxとGridを使ったレスポンシブGUIレイアウト](../tutorial_flex_box_grid/)
+- [Tutorial: Getting started with Android](../tutorial_android_studio/)
+- [Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)
+- [Tutorial: Responsive GUI layouts using FlexBox and Grid](../../interface-design/tutorial_flex_box_grid/)

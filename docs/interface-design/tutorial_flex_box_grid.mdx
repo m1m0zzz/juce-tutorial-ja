@@ -1,237 +1,252 @@
 ---
 title: FlexBoxとGridを使ったレスポンシブGUIレイアウト
 sidebar_position: 6
+tags: [中級]
 ---
 
 # チュートリアルFlexBoxとGridを使ったレスポンシブGUIレイアウト
 
-Build responsive GUI layouts that work across different screen sizes and orientations using the [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") and [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") classes.
+<SourcePageLink path="tutorial_flex_box_grid" />
 
-レベル：中級
+を使用して、さまざまな画面サイズや方向で動作するレスポンシブGUIレイアウトを構築します。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。")クラスである。
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+レベル中級
 
-クラス： [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects."), [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container."), [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ..."), [グリッドアイテム](https://docs.juce.com/master/classGridItem "Defines an item in a Grid.")
+プラットフォームWindows , macOS , Linux , iOS , Android
 
-## はじめる
+クラス： [FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。"),[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。"),[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。"),[GridItem](https://docs.juce.com/master/classGridItem.html "グリッド内の項目を定義します。")
 
-This tutorial assumes understanding of simple layout techniques using the [長方形](https://docs.juce.com/master/classRectangle "Manages a rectangle and allows geometric operations to be performed on it.") class as explained in [チュートリアル高度なGUIレイアウトテクニック](../tutorial_rectangle_advanced/). If you haven't done so already, you should read that tutorial first.
+# スタート
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/FlexBoxGridTutorial.zip) | [ジップ](/tutorials/ZIPs/FlexBoxGridTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このチュートリアルは、以下のような簡単なレイアウトテクニックを理解していることを前提としています。[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスで説明されている。[Tutorial: Advanced GUI layout techniques](../tutorial_rectangle_advanced/).もしまだなら、まずそのチュートリアルを読むべきだ。
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/FlexBoxGridTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/FlexBoxGridTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-# The demo project
+このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-The demo project demonstrates different responsive layout techniques using [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") and [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") objects when dealing with variable screen sizes and resolutions. If we first run the project in its initial state, it should look something like this:
+# デモ・プロジェクト
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_flex_box_grid_screenshot1.png" caption="The demo project application window" />
+デモ・プロジェクトでは、次のようなさまざまなレスポンシブ・レイアウトのテクニックを紹介しています。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定された列と行）のジオメトリを扱うコンテナ。")オブジェクトは、画面サイズや解像度が変化する場合に使用される。最初にプロジェクトを初期状態で実行すると、次のようになるはずだ：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_flex_box_grid_screenshot1.png"
+  caption="デモプロジェクトのアプリケーション・ウィンドウ"
+/>
 
-Right now, the layout uses common non-responsive techniques to lay out the components on the screen and does not accomodate for orientation changes. We will make use of the [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") and [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") items to eradicate these problems.
+今のところ、レイアウトは一般的な非レスポンシブ・テクニックを使って画面上にコンポーネントをレイアウトしており、向きの変化には対応していません。私たちは[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。")これらの問題を根絶するためのアイテムだ。
 
-# The FlexBox and Grid layout systems
+# FlexBoxとGridレイアウトシステム
 
-The [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") and [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") classes are highly inspired by the responsive layout practices used in CSS web development. If you have designed a responsive website before, you should be familiar with the layout systems described in this section.
+について[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定された列と行）のジオメトリを扱うコンテナ。")クラスは、CSSウェブ開発で使用されているレスポンシブ・レイアウトの実践から大きな影響を受けています。以前にレスポンシブ・ウェブサイトをデザインしたことがあれば、このセクションで説明するレイアウト・システムに慣れているはずです。
 
-When using [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects."), we first need to define the direction of layout as horizontal or vertical and every subsequent computation will be executed on this basis. We call this direction the *主軸* and its perpendicular counterpart the *横軸*. Based on this information the following properties will affect the layout as follows:
+使用時[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そのため、まずレイアウトの方向を水平か垂直かを定義する必要がある。この方向を*主軸*と、その垂直に対をなす*横軸*.この情報に基づき、以下のプロパティがレイアウトに影響を与える：
 
--   ジャスティフィケーションは、主軸に沿った項目の位置に影響する。
--   アライメントは、十字軸に沿ったアイテムの位置に影響する。
--   ラッピングは、主軸上のアイテムが横軸上にこぼれることによってオーバーフローした場合に行われる。
+- ジャスティフィケーションは、主軸に沿った項目の位置に影響する。
+- アライメントは、十字軸に沿ったアイテムの位置に影響する。
+- ラッピングは、主軸上のアイテムが横軸上にこぼれることによってオーバーフローした場合に行われる。
 
-The items inside the container are defined by the [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container.") class and have 3 flexible properties that affect its dynamic resizing:
+コンテナ内のアイテムは[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。")クラスがあり、その動的なサイズ変更に影響する3つの柔軟なプロパティを持っている：
 
--   フレックス・グロウは、必要であればアイテムを成長させる能力を定義する。
--   フレックスシュリンクとは、必要に応じて収縮する機能を定義したものである。
--   Flex-basisは、動的なサイズ変更前のアイテムのデフォルトサイズを定義します。
+- フレックス・グロウは、必要であればアイテムを成長させる能力を定義する。
+- フレックスシュリンクとは、必要に応じて収縮する機能を定義したものである。
+- Flex-basisは、動的なサイズ変更前のアイテムのデフォルトサイズを定義します。
 
-As a two-dimensional layout system, [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") works on both the *行* axis and the *列* axis. Similarly to [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects."), the following properties will affect the layout as follows:
+二次元レイアウトシステムとして、[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。")の両方で動作する。*行*軸と*列*軸である。同様に[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")以下のプロパティは、レイアウトに以下のような影響を与える：
 
--   ジャスティフィケーションは、行軸に沿った項目の位置に影響します。
--   Alignmentは、列の軸に沿ったアイテムの位置に影響します。
--   ラッピングは、行または列の項目がオーバーフローしたときに実行できる。
+- ジャスティフィケーションは、行軸に沿った項目の位置に影響します。
+- Alignmentは、列の軸に沿ったアイテムの位置に影響します。
+- ラッピングは、行または列の項目がオーバーフローしたときに実行できる。
 
-[グリッドアイテム](https://docs.juce.com/master/classGridItem "Defines an item in a Grid.") objects are contained within the [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") and have useful properties that affect its size:
+[GridItem](https://docs.juce.com/master/classGridItem.html "グリッド内の項目を定義します。")オブジェクトは[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定された列と行）のジオメトリを扱うコンテナ。")そして、そのサイズに影響を与える有用な特性を持っている：
 
--   マージンは、特定の項目に関するギャップを提供することができる。
--   [スパン](https://docs.juce.com/master/classSpan "A non-owning view over contiguous objects stored in an Array or vector or other similar container.") can extend items to fill more than one grid cell.
+- マージンは、特定の項目に関するギャップを提供することができる。
+- [Span](https://docs.juce.com/master/classSpan.html "Array（配列）、vector（ベクトル）、その他同様のコンテナに格納された連続するオブジェクトに対する非所有ビュー。")は、複数のグリッドセルを埋めるために項目を拡張することができます。
 
 特定のプロパティがこれらのレイアウト・システムにどのような影響を与えるかがわかったので、デモ・プロジェクトでこれらの変更を実装し始めることができる。
 
-# Using FlexItem and GridItem objects
+# FlexItemオブジェクトとGridItemオブジェクトの使用
 
-Let's start by replacing the button layout in the `RightSidePanel::resized()` method using [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects."):
+のボタンレイアウトを置き換えることから始めよう。`RightSidePanel::resized()`を使用する方法です。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。"):
 
-```
-void resized() override
+```cpp
+        void resized() override
         {
-            juce::FlexBox fb; // [1].
-            fb.flexWrap = juce::FlexBox::Wrap::wrap; // [2].
-            fb.justifyContent = juce::FlexBox::JustifyContent::center; // [3].
-            fb.alignContent = juce::FlexBox::AlignContent::center; // [4].
+            juce::FlexBox fb;                                               // [1]
+            fb.flexWrap = juce::FlexBox::Wrap::wrap;                        // [2]
+            fb.justifyContent = juce::FlexBox::JustifyContent::center;      // [3]
+            fb.alignContent = juce::FlexBox::AlignContent::center;          // [4]
  
-            for (auto* b : buttons) // [5].
-                fb.items.add (juce::FlexItem (*b).withMinWidth (50.0f).withMinHeight (50.0f))；
+            for (auto* b : buttons)                                         // [5]
+                fb.items.add (juce::FlexItem (*b).withMinWidth (50.0f).withMinHeight (50.0f));
  
-            fb.performLayout (getLocalBounds()); // [6].
+            fb.performLayout (getLocalBounds());                            // [6]
         }
 ```
 
--   \[1\]: We create a [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") object.
--   \[2\]: We can specify whether we want our objects to wrap around in case of overflow.
--   \[3\]: We justify the content to the center of the bounds.
--   \[4\]: We specify the alignment of the content to the center.
--   \[5\]: We iterate over the [テキストボタン](https://docs.juce.com/master/classTextButton "A button that uses the standard lozenge-shaped background with a line of text on it.") components and add them as [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container.") objects to the items array of the [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") object. The [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container.") can be constrained as in this case where we set the minimum width and height of the button. We can alternatively set its maximum width and height using the `withMaxWidth()` and `withMaxHeight()` methods respectively.
--   \[6\]: We perform the layout logic on the [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container.") objects by specifying the bounds to the `performLayout()` method.
+- \[1\]を作成する。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")オブジェクトがある。
+- \[2\]: オブジェクトがオーバーフローした場合に、オブジェクトを折り返すかどうかを指定できます。
+- \[3\]コンテンツは枠の中央に揃える。
+- \[4\]コンテンツの中央への配置を指定します。
+- \[5\]を反復する。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")コンポーネントとして追加する。[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。")オブジェクトを[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")オブジェクトになる。その[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。")この場合、ボタンの幅と高さの最小値を設定します。代わりに、最大幅と最大高さを`withMaxWidth()`そして`withMaxHeight()`メソッドをそれぞれ使用する。
+- \[6\]レイアウトロジックは[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。")オブジェクトの境界を指定する。`performLayout()`メソッドを使用する。
 
-As for the rotary slider layout on the left side panel, we adjust our `LeftSidePanel::resized()` method accordingly:
+左サイドパネルの回転スライダーのレイアウトに関しては、次のように調整する。`LeftSidePanel::resized()`メソッドを使用する：
 
-```
-void resized() override
+```cpp
+        void resized() override
         {
             //==============================================================================
-            juce::FlexBox knobBox；
-            knobBox.flexWrap = juce::FlexBox::Wrap::wrap；
-            knobBox.justifyContent = juce::FlexBox::JustifyContent::spaceBetween; // [1].
+            juce::FlexBox knobBox;
+            knobBox.flexWrap = juce::FlexBox::Wrap::wrap;
+            knobBox.justifyContent = juce::FlexBox::JustifyContent::spaceBetween;                                   // [1]
  
             for (auto* k : knobs)
-                knobBox.items.add(juce::FlexItem(*k).withMinHeight(50.0f).withMinWidth(50.0f).withFlex(1)); // [2].
+                knobBox.items.add (juce::FlexItem (*k).withMinHeight (50.0f).withMinWidth (50.0f).withFlex (1));    // [2]
  
             //==============================================================================
-            juce::FlexBox fb; // [3] です。
-            fb.flexDirection = juce::FlexBox::Direction::column；
+            juce::FlexBox fb;                                                                                       // [3]
+            fb.flexDirection = juce::FlexBox::Direction::column;
  
-            fb.items.add(juce::FlexItem(knobBox).withFlex(2.5)); // [4].
+            fb.items.add (juce::FlexItem (knobBox).withFlex (2.5));                                                 // [4]
  
-            fb.performLayout(getLocalBounds())；
+            fb.performLayout (getLocalBounds());
         }
 ```
 
--   \[1\]: This time we specify that we want to have the items spaced out by specifying the `JustifyContent::spaceBetween` property.
--   \[2\]: The knobs are added in the same way to the items array with an additional flex-grow value of `1`. The flex-grow factor determines the amount of space inside the container that the item should take up.
--   \[3\]: Another [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") is created to act as a container for the previously created [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container.") objects and the main axis of the flex layout is set with the `ディレクション::カラム` property.
--   \[4\]: The previously defined [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") is added as a [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container.") to the container [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") with a flex-grow factor of `2.5`.
+- \[1\]今回は、項目の間隔を広げるために`JustifyContent::spaceBetween`財産である。
+- \[2\]ノブは同じようにアイテム配列に追加される。`1`.フレックス・グロー・ファクターは、コンテナ内のアイテムが占めるべきスペースの量を決定する。
+- \[3\]もうひとつ[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")のコンテナとして機能する。[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。")オブジェクトで、フレックスレイアウトの主軸は`Direction::column`財産である。
+- \[4\]:以前に定義された[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")として追加される。[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。")コンテナへ[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")のフレックス・グロース・ファクターを持つ。`2.5`.
 
-Nesting [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") objects allows us to create intricate responsive layouts with ease by encapsulating smaller groups of Components together.
+ネスティング[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")オブジェクトを使用すると、小さなコンポーネントグループをカプセル化することで、複雑なレスポンシブ・レイアウトを簡単に作成できます。
 
-Lastly, we can deal with the main panel sliders by making them responsive to orientation changes in the `メインパネル::リサイズ()` method:
+最後に、メインパネルのスライダーは`MainPanel::resized()`メソッドを使用する：
 
-```
-void resized() override
+```cpp
+        void resized() override
         {
-            auto isPortrait = getLocalBounds().getHeight() > getLocalBounds().getWidth(); // [1].
+            auto isPortrait = getLocalBounds().getHeight() > getLocalBounds().getWidth();                   // [1]
  
-            juce::FlexBox fb；
-            fb.flexDirection = isPortrait ? juce::FlexBox::Direction::column // [2].
-                                          : juce::FlexBox::Direction::row；
+            juce::FlexBox fb;
+            fb.flexDirection = isPortrait ? juce::FlexBox::Direction::column                                // [2]
+                                          : juce::FlexBox::Direction::row;
  
             for (auto* s : sliders)
             {
-                s->setSliderStyle (isPortrait ? juce::Slider::SliderStyle::LinearHorizontal // [3]) : juce::Slider::SliderStyle::LinearHorizontal // [3].
-                                              : juce::Slider::SliderStyle::LinearVertical)；
+                s->setSliderStyle (isPortrait ? juce::Slider::SliderStyle::LinearHorizontal                 // [3]
+                                              : juce::Slider::SliderStyle::LinearVertical);
  
-                fb.items.add (juce::FlexItem (*s).withFlex (0, 1, isPortrait ?(float) getHeight() / 5.0f // [4].
-                                                                             : (float) getWidth() / 5.0f))；
+                fb.items.add (juce::FlexItem (*s).withFlex (0, 1, isPortrait ? (float) getHeight() / 5.0f   // [4]
+                                                                             : (float) getWidth()  / 5.0f));
             }
  
-            fb.performLayout (getLocalBounds())；
+            fb.performLayout (getLocalBounds());
         }
 ```
 
--   \[1\]: First, we determine whether our device is in portrait or landscape by checking the width and height.
--   \[2\]: Next, we can decide on the main axis direction accordingly and set the appropriate property.
--   \[3\]: Similarly, we set the appropriate slider style to match the device orientation.
--   \[4\]: When adding the sliders to the items array, we provide a flex-basis by determining the proportion of each slider in the direction of flow.
+- \[1\]まず、デバイスの幅と高さをチェックして、縦長か横長かを判断します。
+- \[2\]次に、主軸の向きを決め、プロパティを設定する。
+- \[3\]同様に、デバイスの向きに合わせて適切なスライダーのスタイルを設定します。
+- \[4\]アイテム配列にスライダーを追加する際、それぞれのスライダーが流れる方向に占める割合を決定することで、フレックス・ベースを提供する。
 
 スライダーはデバイスの向きに対応し、それに応じて方向を調整します。
 
 最後に、パネルの全体的なレイアウトシステムもフレックスを使うように変更できる：
 
-```
-void resized() override
+```cpp
+    void resized() override
     {
-        juce::FlexBox fb；
+        juce::FlexBox fb;
  
-        juce::FlexItem left ((float) getWidth() / 4.0f, (float) getHeight(), leftPanel)；
-        juce::FlexItem right ((float) getWidth() / 4.0f, (float) getHeight(), rightPanel)；
-        juce::FlexItem main ((float) getWidth() / 2.0f, (float) getHeight(), mainPanel)；
+        juce::FlexItem left  ((float) getWidth() / 4.0f, (float) getHeight(), leftPanel);
+        juce::FlexItem right ((float) getWidth() / 4.0f, (float) getHeight(), rightPanel);
+        juce::FlexItem main  ((float) getWidth() / 2.0f, (float) getHeight(), mainPanel);
  
-        fb.items.addArray ( { left, main, right } )；
-        fb.performLayout (getLocalBounds())；
+        fb.items.addArray ( { left, main, right } );
+        fb.performLayout (getLocalBounds());
     }
 ```
 
-フレックスを使うように変更したコードを実行すると、次のようになるはずだ：
+フレックスを使うように新しく修正したコードを実行すると、次のようになるはずだ：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_flex_box_grid_screenshot2.png" caption="The demo project application window using flex" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_flex_box_grid_screenshot2.png"
+  caption="フレックスを使ったデモプロジェクトのアプリケーション・ウィンドウ"
+/>
+
 :::note
 
-The source code for this modified version of the code can be found in the `FlexBoxGridTutorial_02.h` file of the demo project.
+この修正版のソースコードは`FlexBoxGridTutorial_02.h`ファイルにある。
 
 :::
 
-Let's try to implement the last portion of code using the [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") class instead. Here we create a [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") object to perform our layout operations on, just like flex:
+最後の部分のコードを[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。")クラスを作成します。ここでは[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。")オブジェクトを使って、フレックスと同じようにレイアウト操作を行います：
 
-```
-void resized() override
+```cpp
+    void resized() override
     {
-        juce::Grid grid；
+        juce::Grid grid;
  
-        using Track = juce::Grid::TrackInfo；
-        using Fr = juce::Grid::Fr；
+        using Track = juce::Grid::TrackInfo;
+        using Fr = juce::Grid::Fr;
  
-        grid.templateRows = { Track (Fr (1)) }；
-        grid.templateColumns = { Track (Fr (1)), Track (Fr (2)), Track (Fr (1)) }；
+        grid.templateRows    = { Track (Fr (1)) };
+        grid.templateColumns = { Track (Fr (1)), Track (Fr (2)), Track (Fr (1)) };
  
-        grid.items = { juce::GridItem (leftPanel), juce::GridItem (mainPanel), juce::GridItem (rightPanel) }；
+        grid.items = { juce::GridItem (leftPanel), juce::GridItem (mainPanel), juce::GridItem (rightPanel) };
  
-        grid.performLayout (getLocalBounds())；
+        grid.performLayout (getLocalBounds());
     }
 ```
 
-However instead of specifying the flex-grow, flex-shrink and flex-basis values on the individual [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container.") objects, in this case we set the number of rows and columns on the [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") object using TrackInfo objects. The constraints can be specified in fractions or pixels by using the `(それは)` and `ックス` suffixes respectively. In this example we define a grid with 1 row and 3 columns with the center column taking twice as much space as the others.
+しかし、フレックス・グロー、フレックス・シュリンク、フレックス・ベースの値を個別に指定するのではなく、フレックス・グロー、フレックス・シュリンク、フレックス・ベースの値を個別に指定する。[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。")オブジェクトの行数と列数を設定する。[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定された列と行）のジオメトリを扱うコンテナ。")オブジェクトを使用する。制約を分数またはピクセルで指定するには`_fr`そして`_px`の接尾辞がある。この例では、1行3列のグリッドを定義し、中央の列は他の列の2倍のスペースを取る。
 
 :::warning
 
 JUCEのピクセルは物理的なピクセルと等価ではありません。内部計算により、画面のDPI解像度に応じてピクセル密度が変換されます。
 
-::::::note
+:::
 
-The source code for this modified version of the code can be found in the `FlexBoxGridTutorial_03.h` file of the demo project.
+:::note
+
+この修正版のソースコードは`FlexBoxGridTutorial_03.h`ファイルにある。
 
 :::
 
-# Pro and cons of FlexBox and Grid classes
+# FlexBoxとGridクラスの長所と短所
 
-レスポンシブ・レイアウトを作成するために、これらのクラスのいずれかを使用できるケースはたくさんあります。しかし、あるレイアウトの制約を解決するために、どちらかがより適しており、時には必要でさえあるシナリオもあります。
+レスポンシブ・レイアウトを作成するために、これらのクラスのいずれかを使用できるケースはたくさんあります。しかし、あるレイアウトの制約を解決するために、どちらか一方がより適しており、時には必要でさえあるシナリオもあります。
 
-Some of the advantages of the [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") class:
+の利点は以下の通りだ。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")クラスである：
 
--   主軸が必要な部品のレイアウトに適している。
--   コンテンツの折り返し、方向、配置は簡単に指定できます。
--   十字軸にアライメントが取れていないコンテンツにも対応できる。
+- 主軸が必要な部品のレイアウトに適している。
+- コンテンツの折り返し、方向、配置は簡単に指定できます。
+- 十字軸にアライメントが取れていないコンテンツにも対応できる。
 
-Some of the advantages of the [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") class:
+の利点は以下の通りである。[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定された列と行）のジオメトリを扱うコンテナ。")クラスである：
 
--   行と列が整列した2Dグリッドタイプのレイアウトに適しています。
--   成分の比率は、分数またはピクセルで指定できます。
--   複数の行または列にまたがるコンテンツに対応できます。
+- 行と列が整列した2Dグリッドタイプのレイアウトに適しています。
+- 成分の比率は、分数またはピクセルで指定できます。
+- 複数の行または列にまたがるコンテンツに対応できます。
 
-Implement the previous [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") layouts using the [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") class instead. Were there any inconvenient use cases where the [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") class was more suitable?
+:::danger[エクササイズ]
+
+前回の[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")を使用してレイアウトを作成します。[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。")クラスの代わりにという不都合な使用例はありましたか？[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")クラスの方が適していた？
+
+:::
 
 # 概要
 
-In this tutorial, we have learnt how to design responsive layouts using the [フレックスボックス](https://docs.juce.com/master/classFlexBox "Represents a FlexBox container, which contains and manages the layout of a set of FlexItem objects.") and [グリッド](https://docs.juce.com/master/classGrid "Container that handles geometry for grid layouts (fixed columns and rows) using a set of declarative ...") classes. In particular, we have:
+このチュートリアルでは、レスポンシブ・レイアウトをデザインする方法について学びました。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定された列と行）のジオメトリを扱うコンテナ。")クラスである。特に
 
--   Learnt the layout logic for [フレックスアイテム](https://docs.juce.com/master/classFlexItem "Describes the properties of an item inside a FlexBox container.") and [グリッドアイテム](https://docs.juce.com/master/classGridItem "Defines an item in a Grid.") objects.
--   オリエンテーションの変更に対応し、それに応じてインターフェイスを変更。
--   それぞれのクラスの長所と短所について話し合った。
+- のレイアウト・ロジックを学んだ。[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。")そして[GridItem](https://docs.juce.com/master/classGridItem.html "グリッド内の項目を定義します。")オブジェクトがある。
+- オリエンテーションの変更に対応し、それに応じてインターフェイスを変更。
+- それぞれのクラスの長所と短所について話し合った。
 
-# 関連項目
+# 参照
 
--   [チュートリアル親子コンポーネント](../tutorial_component_parents_children/)
--   [チュートリアルGraphicsクラス](../tutorial_graphics_class/)
--   [チュートリアル点、線、矩形クラス](../tutorial_point_line_rectangle/)
--   [チュートリアル高度なGUIレイアウトテクニック](../tutorial_rectangle_advanced/)
--   [チュートリアルAndroidの画面サイズを管理する](../tutorial_android_screen_sizes/)
+- [Tutorial: Parent and child components](../tutorial_component_parents_children/)
+- [Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)
+- [Tutorial: The Point, Line, and Rectangle classes](../tutorial_point_line_rectangle/)
+- [Tutorial: Advanced GUI layout techniques](../tutorial_rectangle_advanced/)
+- [Tutorial: Managing Android screen sizes](../../mobile/tutorial_android_screen_sizes/)

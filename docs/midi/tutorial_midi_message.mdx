@@ -216,7 +216,7 @@ addMessageToList (messageOff);
     int previousSampleNumber = 0;       // [3]
 ```
 
-- \[1\](その)[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトそのものである。
+- \[1\]:その[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトそのものである。
 - \[2\](その)[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")クラス使用*サンプル*をMIDIメッセージのタイムスタンプの単位とします。オーディオを生成するわけではありませんが、MIDIメッセージのタイムスタンプとして使うものを選ぶ必要があります。*サンプルレート*.このメンバを使ってサンプルレートを格納する。(一般的な値なので44,100を使用する）。
 - \[3\]の中でどのタイムスタンプに到達したかを追跡する必要がある。[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。").このメンバは、このタイムスタンプをサンプルとして保存するために使用します。
 
@@ -233,7 +233,7 @@ MIDIメッセージをメッセージ・リストに直接追加する代わり�
     }
 ```
 
-を修正する。`setNoteNumber()`関数と[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "このコールバックオブジェクトにラムダを代入して、スライダーの値が変更されたときにコールさせることができます。")ヘルパー・オブジェクトでこの機能を利用することができます。これにより、MIDIメッセージ・イベントを未来にスケジューリングすることができます：
+を修正する。`setNoteNumber()`関数と[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "このコールバックオブジェクトにラムダを代入して、スライダーの値が変更されたときにコールさせることができます。")ヘルパー・オブジェクトでこの関数を使用します。これにより、MIDIメッセージ・イベントを未来にスケジューリングすることができます：
 
 ```cpp
     void setNoteNumber (int noteNumber)
@@ -294,7 +294,7 @@ class MainContentComponent   : public juce::Component,
 - \[5\]バッファ内のメッセージを繰り返し処理する。
 - \[6\]から直近に取得されたMIDIメッセージのタイムスタンプが、そのMIDIメッセージのタイムスタンプと一致しない場合。[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトが未来にある場合は、処理を終了して`while()`走る。
 - \[7\]のタイムスタンプ。[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")オブジェクトのタイムスタンプは、サンプル数に基づいています。これを秒ベースのタイムスタンプシステムにリセットして、私たちの`addMessageToList()`関数を修正する必要はない。
-- \[8\](その)[MidiBuffer::clear()](https://docs.juce.com/master/classMidiBuffer.html#a220d909954450942ecd87a945a82e7aa "バッファからすべてのイベントを削除する。")関数はある範囲内のタイムスタンプを持つ MIDI メッセージをバッファからクリアします。この関数は、処理したばかりのメッセージを削除するために使います。
+- \[8\]:その[MidiBuffer::clear()](https://docs.juce.com/master/classMidiBuffer.html#a220d909954450942ecd87a945a82e7aa "バッファからすべてのイベントを削除する。")関数はある範囲内のタイムスタンプを持つ MIDI メッセージをバッファからクリアします。この関数は、処理したばかりのメッセージを削除するために使います。
 - \[9\]この関数が実行された時間を記録しておく。`timerCallback()`関数が呼び出される。
 
 最後に、タイマーを`MainContentComponent`ビルダー
@@ -326,7 +326,7 @@ class MainContentComponent   : public juce::Component,
 - MIDIメッセージを[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトがある。
 - でMIDIメッセージを反復処理する。[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトのタイムスタンプに基づく。
 
-# こちらも参照
+# 参照
 
 - [Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)
 - [Tutorial: Handling MIDI events](../tutorial_handling_midi_events/)

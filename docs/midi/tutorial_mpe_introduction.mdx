@@ -1,163 +1,168 @@
 ---
 title: マルチ・ポリフォニック・シンセサイザーを作る
 sidebar_position: 4
+tags: [中級]
 ---
 
 # チュートリアルマルチ・ポリフォニック・シンセサイザーを作る
 
-MPE規格の基礎とMPEに対応したシンセサイザーの実装方法を学びます。アプリケーションをROLI Seaboard Riseに接続します！
+<SourcePageLink path="tutorial_mpe_introduction" />
 
-レベル：中級
+MPE規格の基礎とMPEに対応したシンセサイザーの実装方法を学びます。アプリケーションをROLI Seaboard Riseに接続します！  
 
-プラットフォーム：Windows, macOS, Linux
+レベル中級
 
-クラス： [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds."), [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE."), [MPENote](https://docs.juce.com/master/structMPENote "This struct represents a playing MPE note."), [MPEValue](https://docs.juce.com/master/classMPEValue "This class represents a single value for any of the MPE dimensions of control."), [スムース値](https://docs.juce.com/master/classSmoothedValue "A utility class for values that need smoothing to avoid audio glitches.")
+プラットフォームWindows , macOS , Linux
 
-## はじめる
+クラス： [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。"),[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。"),[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。"),[MPEValue](https://docs.juce.com/master/classMPEValue.html "このクラスは、MPE の制御次元のいずれかの単一の値を表します。"),[SmoothedValue](https://docs.juce.com/master/classSmoothedValue.html "オーディオのグリッチを避けるためにスムージングが必要な値のためのユーティリティクラス。")
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/MPEIntroductionTutorial.zip) | [ジップ](/tutorials/ZIPs/MPEIntroductionTutorial.zip). Unzip the project and open the first header file in the Projucer.
+# スタート
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/MPEIntroductionTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/MPEIntroductionTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+
+このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
 :::note
 
-It would be helpful to read [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/) first, as this is used as a reference point in a number of places.
+を読むと役に立つだろう。[Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/)これは多くの場所で基準点として使われているからだ。
 
 :::
 
-# The demo project
+# デモ・プロジェクト
 
-The demo project is a simplified version of the `MPEDemo` project in the `JUCE/例` directory. In order to get the most out of this tutorial you will need an [MPE](https://support.roli.com/article/what-is-mpe/) compatible controller. [MPE](https://support.roli.com/article/what-is-mpe/) stands for *MIDIポリフォニック・エクスプレッション*, which is a new specification to allow multidimensional data to be communicated between audio products.
+デモ・プロジェクトは`MPEDemo`のプロジェクトである。`JUCE/examples`ディレクトリに移動します。このチュートリアルを最大限に活用するためには[MPE](https://support.roli.com/article/what-is-mpe/)互換性のあるコントローラー。[MPE](https://support.roli.com/article/what-is-mpe/)を表す。*MIDIポリフォニック・エクスプレッション*これは、オーディオ製品間で多次元データの通信を可能にする新しい仕様である。
 
-Some examples of such [MPE](https://support.roli.com/article/what-is-mpe/) compatible devices are ROLI's own Seaboard range (such as the [シーボード・ライズ](https://roli.com/products/seaboard-rise)).
+そのような例をいくつか挙げよう。[MPE](https://support.roli.com/article/what-is-mpe/)互換性のある機器は、ROLIのSeaboardシリーズ（例えば、以下のようなもの）である。[Seaboard RISE](https://roli.com/products/seaboard-rise)).
 
 :::warning
 
-The synthesiser may appear very quiet unless your controller transmits MIDI channel pressure and continuous controller 74 (*ベル*) in the way that the [シーボード・ライズ](https://roli.com/products/seaboard-rise) does.
+シンセサイザーは、コントローラーがMIDIチャンネル・プレッシャーとコンティニュアス・コントローラー74(*ベル*)のやり方で[Seaboard RISE](https://roli.com/products/seaboard-rise)はそうする。
 
 :::
 
-With a [シーボード・ライズ](https://roli.com/products/seaboard-rise) connected to your computer the window of the demo application should look something like the following screenshot:
+を持っている。[Seaboard RISE](https://roli.com/products/seaboard-rise)あなたのコンピューターに接続されたデモ・アプリケーションのウィンドウは、以下のスクリーンショットのようになっているはずです：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_mpe_introduction_screenshot1.png"
+  caption="デモ・アプリケーション"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_mpe_introduction_screenshot1.png" caption="The demo application" />
+MIDI入力を1つ有効にする必要があります。[Seaboard RISE](https://roli.com/products/seaboard-rise)はオプションとして表示される）。
 
+## ビジュアライザー
 
-You will need to enable one of the MIDI inputs (here you can see a [シーボード・ライズ](https://roli.com/products/seaboard-rise) is shown as an option).
+で演奏されたすべての音符は、その音符に対応する。[MPE](https://support.roli.com/article/what-is-mpe/)対応するデバイスがウィンドウの下部に表示されます。これは以下のスクリーンショットに示されています：
 
-## The visualiser
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_mpe_introduction_screenshot2.png"
+  caption="ビジュアライザー"
+/>
 
-Any notes played on your [MPE](https://support.roli.com/article/what-is-mpe/) compatible device will be visualised in the lower portion of the window. This is shown in the following screenshot:
+の重要な特徴のひとつである。[MPE](https://support.roli.com/article/what-is-mpe/)は、特定のコントローラー・キーボードからのすべてのノートが同じMIDI チャンネルに割り当てられるのではなく、それぞれの新しいMIDI ノート・イベントに独自のMIDI チャンネルが割り当てられます。これにより、コントロール・チェンジ・メッセージやピッチ・ベンド・メッセージなどによって、個々のノートを独立してコントロールできるようになります。JUCEの実装では[MPE](https://support.roli.com/article/what-is-mpe/)演奏音は[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")オブジェクト。或いは[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")オブジェクトは以下のデータをカプセル化する：
 
+- ノートのMIDIチャンネル。
+- MIDIノートの初期値。
+- ノートオン・ベロシティ*ストライキ*).
+- ノートのピッチベンド値：このノートのMIDIチャンネルで受信したMIDIピッチベンドメッセージから得られます。
+- ノートの音圧：このノートのMIDIチャンネルで受信したMIDIチャンネル音圧メッセージから得られます。
+- について*ベル*通常、このノートのMIDIチャンネルにあるコントローラー74のコントローラー・メッセージに由来する。
+- ノートオフ速度（または*リフト*)：ノート・オフ・イベントを受信した後、再生音が止まるまで有効。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_mpe_introduction_screenshot2.png" caption="The visualiser" />
+ノートを演奏していない状態では、ビジュアライザーが従来の MIDI キーボードレイアウトを表していることがわかります。デモアプリケーションのビジュアライザーでは、各ノートを以下のように表現しています：
 
+- 灰色で塗りつぶされた円はノートオンの速度を表す（速度が速いほど円は大きくなる）。
+- ノートのMIDIチャンネルは、この円内の "+"シンボルの上に表示されます；
+- 初期MIDIノート名は "+"記号の下に表示されます。
+- 重ねて表示されている白い円は、このノートの現在の圧力を表している（ここでも、圧力が高いほど円は大きくなる）。
+- ノートの水平位置は、元のノートと、このノートに適用されたピッチベンドから決定されます。
+- ノートの垂直方向の位置は*ベル*このノートのMIDIチャンネルのMIDIコントローラー74から）。
 
-One key feature of [MPE](https://support.roli.com/article/what-is-mpe/) is that each new MIDI note event is assigned its own MIDI channel, rather than all notes from a particular controller keyboard being assigned to the same MIDI channel. This allows each individual note to be controlled independently by control change messages, pitch bend message, and so on. In the JUCE implementation of [MPE](https://support.roli.com/article/what-is-mpe/), a playing note is represented by an [MPENote](https://docs.juce.com/master/structMPENote "This struct represents a playing MPE note.") object. An [MPENote](https://docs.juce.com/master/structMPENote "This struct represents a playing MPE note.") object encapsulates the following data:
+## その他の設定
 
--   ノートのMIDIチャンネル。
--   MIDIノートの初期値。
--   The note-on velocity (or *ストライキ*).
--   ノートのピッチベンド値：このノートのMIDIチャンネルで受信したMIDIピッチベンドメッセージから得られます。
--   ノートの音圧：このノートのMIDIチャンネルで受信したMIDIチャンネル音圧メッセージから得られます。
--   The *ベル* for the note: typically derived from any controller messages on this note's MIDI channel for controller 74.
--   The note-off velocity (or *リフト*): this is only valid after the note-off event has been received and until the playing sound has stopped.
+の他の側面をさらに掘り下げる前に。[MPE](https://support.roli.com/article/what-is-mpe/)このアプリケーションで実証されている仕様の他に、このアプリケーションが使っているものをいくつか見てみよう。
 
-ノートを演奏していない状態では、ビジュアライザーが従来の MIDI キーボードレイアウトを表していることがわかります。デモアプリケーションのビジュアライザーでは、各ノートが以下のように表現されています：
+まず第一に`MainComponent`クラスは[AudioIODeviceCallback](https://docs.juce.com/master/classAudioIODeviceCallback.html "そのうちの1つがAudioIODeviceオブジェクトに渡され、オーディオデータの入出力をストリーミングする。") \[1\]そして[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。") \[2\]クラスである：
 
--   灰色で塗りつぶされた円はノートオンの速度を表す（速度が速いほど円は大きくなる）。
--   ノートのMIDIチャンネルは、この円内の "+"シンボルの上に表示されます；
--   初期MIDIノート名は "+"記号の下に表示されます。
--   重ねて表示される白い円は、このノートの現在の圧力を表す（ここでも、圧力が高いほど円は大きくなる）。
--   ノートの水平位置は、元のノートと、このノートに適用されたピッチベンドから決定されます。
--   The vertical position of the note is derived from the *ベル* parameter for the note (from MIDI controller 74 on this note's MIDI channel).
-
-## Other setting up
-
-Before delving further into other aspects of the [MPE](https://support.roli.com/article/what-is-mpe/) specification, which are demonstrated by this application, let's look at some of the other things our application uses.
-
-First of all, our `メインコンポーネント` class inherits from the [AudioIODeviceCallback](https://docs.juce.com/master/classAudioIODeviceCallback "One of these is passed to an AudioIODevice object to stream the audio data in and out.") \[1\] and [MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback "Receives incoming messages from a physical MIDI input device.") \[2\] classes:
-
-```
-class MainComponent : public juce::Component、
-                      private juce::AudioIODeviceCallback, // [1].
-                      private juce::MidiInputCallback // [2].
+```cpp
+class MainComponent : public juce::Component,
+                      private juce::AudioIODeviceCallback,  // [1]
+                      private juce::MidiInputCallback       // [2]
 {
-public：
+public:
 ```
 
-We also have some important class members in our `メインコンポーネント` class:
+また、このクラスには重要なメンバーもいる。`MainComponent`クラスである：
 
-```
-juce::AudioDeviceManager audioDeviceManager; // [3].
-    juce::AudioDeviceSelectorComponent audioSetupComp; // [4].
+```cpp
+    juce::AudioDeviceManager audioDeviceManager;         // [3]
+    juce::AudioDeviceSelectorComponent audioSetupComp;   // [4]
  
-    ビジュアライザー visualiserComp；
-    juce::Viewport visualiserViewport；
+    Visualiser visualiserComp;
+    juce::Viewport visualiserViewport;
  
-    juce::MPEInstrument visualiserInstrument；
-    juce::MPESynthesiser synth；
-    juce::MidiMessageCollector midiCollector; // [5].
+    juce::MPEInstrument visualiserInstrument;
+    juce::MPESynthesiser synth;
+    juce::MidiMessageCollector midiCollector;            // [5]
  
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent).
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
 ```
 
-The [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") \[3\] class handles the audio and MIDI configuration on our computer, while the [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") \[4\] class gives us a means of configuring this from the graphical user interface (see [チュートリアルAudioDeviceManagerクラス](../tutorial_audio_device_manager/)). The [ミディメッセージコレクタ](https://docs.juce.com/master/classMidiMessageCollector "Collects incoming realtime MIDI messages and turns them into blocks suitable for processing by a bloc...") \[5\] class allow us to easily collect messages into blocks of timestamped MIDI messages in our audio callback (see [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/)).
+について[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。") \[3\]クラスはコンピュータのオーディオとMIDIのコンフィギュレーションを処理します。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。") \[4\]クラスは、グラフィカル・ユーザー・インターフェースからこれを設定する手段を与えてくれる ([Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)).その[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。") \[5\]クラスを使用すると、オーディオ・コールバックでタイムスタンプ付きMIDIメッセージのブロックにメッセージを簡単に集めることができます ([Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/)).
 
-It is important that the [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") object is listed first since we pass this to the constructor of the [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") object:
+が重要である。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")のコンストラクタに渡すので、オブジェクトが最初にリストされる。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")オブジェクトがある：
 
-```
-メインコンポーネント
-        : audioSetupComp (audioDeviceManager, 0, 0, 256、
-                          true, // showMidiInputOptionsはtrueでなければならない。
+```cpp
+    MainComponent()
+        : audioSetupComp (audioDeviceManager, 0, 0, 0, 256,
+                          true, // showMidiInputOptions must be true
                           true, true, false)
 ```
 
-Notice another important argument that is passed to the [オーディオデバイスセレクタコンポーネント](https://docs.juce.com/master/classAudioDeviceSelectorComponent "A component containing controls to let the user change the audio settings of an AudioDeviceManager ob...") constructor: the `ショーミディインプットオプション` must be `真の` to show our available MIDI inputs.
+に渡されるもう一つの重要な引数に注目してほしい。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")コンストラクタ`showMidiInputOptions`でなければならない。`true`をクリックして、使用可能なMIDI入力を表示します。
 
-We set up our [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") object in a similar way to [チュートリアルAudioDeviceManagerクラス](../tutorial_audio_device_manager/), but we need also to add a MIDI input callback \[6\]:
+をセットアップした。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトと同様の方法で[Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)しかし、MIDI入力コールバックも追加する必要がある。\[6\]:
 
+```cpp
+        audioDeviceManager.initialise (0, 2, nullptr, true, {}, nullptr);
+        audioDeviceManager.addMidiInputDeviceCallback ({}, this); // [6]
+        audioDeviceManager.addAudioCallback (this);
 ```
-audioDeviceManager.initialise (0, 2, nullptr, true, {}, nullptr)；
-        audioDeviceManager.addMidiInputDeviceCallback ({}, this); // [6].
-        audioDeviceManager.addAudioCallback (this)；
-```
 
-### The MIDI input callback
+### MIDI入力コールバック
 
-The `handleIncomingMidiMessage()` is called when each MIDI message is received from any of the active MIDI inputs in the user interface:
+について`handleIncomingMidiMessage()`は、ユーザーインターフェイスのアクティブなMIDI入力のいずれかからMIDIメッセージが受信されるたびに呼び出されます：
 
-```
-void handleIncomingMidiMessage (juce::MidiInput* /*source*/、
+```cpp
+    void handleIncomingMidiMessage (juce::MidiInput* /*source*/,
                                     const juce::MidiMessage& message) override
     {
-        visualiserInstrument.processNextMidiEvent (message)；
-        midiCollector.addMessageToQueue (message)；
+        visualiserInstrument.processNextMidiEvent (message);
+        midiCollector.addMessageToQueue (message);
     }
 ```
 
 ここでは、それぞれのMIDIメッセージを両方に渡す：
 
--   our `ビジュアライザー・インストゥルメント` member — which is used to drive the visualiser display; and
--   the `ミディコレクター` member — which in turn passes the messages to the synthesiser in the audio callback.
+- 私たちの`visualiserInstrument`ビジュアライザー・ディスプレイの駆動に使用されるメンバー。
+- その`midiCollector`メンバーは、オーディオ・コールバックでシンセサイザーにメッセージを渡す。
 
-### The audio callback
+### オーディオ・コールバック
 
-Before any audio callbacks are made, we need to inform the `シンセ` and `ミディコレクター` members of the device sample rate, in the `audioDeviceAboutToStart()` function:
+オーディオ・コールバックが行われる前に、次のことを知らせる必要がある。`synth`そして`midiCollector`デバイスのサンプルレートの`audioDeviceAboutToStart()`関数である：
 
-```
-void audioDeviceAboutToStart (juce::AudioIODevice* device) override
+```cpp
+    void audioDeviceAboutToStart (juce::AudioIODevice* device) override
     {
-        auto sampleRate = device->getCurrentSampleRate()；
-        midiCollector.reset (sampleRate)；
-        synth.setCurrentPlaybackSampleRate (sampleRate)；
+        auto sampleRate = device->getCurrentSampleRate();
+        midiCollector.reset (sampleRate);
+        synth.setCurrentPlaybackSampleRate (sampleRate);
     }
 ```
 
-The `audioDeviceIOCallbackWithContext()` function appears to do nothing MPE-specific:
+について`audioDeviceIOCallbackWithContext()`関数はMPEに特有なことは何もしないようだ：
 
-```
+```cpp
     void audioDeviceIOCallbackWithContext (const float* const* /*inputChannelData*/,
                                            int /*numInputChannels*/,
                                            float* const* outputChannelData,
@@ -166,102 +171,118 @@ The `audioDeviceIOCallbackWithContext()` function appears to do nothing MPE-spec
                                            const juce::AudioIODeviceCallbackContext& /*context*/) override
     {
         // make buffer
-        juce::AudioBufferbuffer（outputChannelData、numOutputChannels、numSamples）；
+        juce::AudioBuffer buffer (outputChannelData, numOutputChannels, numSamples);
  
-        // 無音にするためにクリアする
-        buffer.clear()；
+        // clear it to silence
+        buffer.clear();
  
-        juce::MidiBuffer incomingMidi；
+        juce::MidiBuffer incomingMidi;
  
-        // このオーディオ・ブロックのMIDIメッセージを取得する
-        midiCollector.removeNextBlockOfMessages (incomingMidi, numSamples)；
+        // get the MIDI messages for this audio block
+        midiCollector.removeNextBlockOfMessages (incomingMidi, numSamples);
  
-        // ブロックを合成する
-        synth.renderNextBlock (buffer, incomingMidi, 0, numSamples)；
+        // synthesise the block
+        synth.renderNextBlock (buffer, incomingMidi, 0, numSamples);
     }
 ```
 
 :::note
 
-In fact, this is rather similar to the `SynthAudioSource::getNextAudioBlock()` function in [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/).
+実際、これは`SynthAudioSource::getNextAudioBlock()`関数[Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/).
 
 :::
 
-# Core MPE classes
+# MPEコアクラス
 
-All of the [MPE](https://support.roli.com/article/what-is-mpe/) specific processing is handled by the [MPE](https://support.roli.com/article/what-is-mpe/) classes: [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE."), [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds."), [MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice "Represents an MPE voice that an MPESynthesiser can use to play a sound."), [MPEValue](https://docs.juce.com/master/classMPEValue "This class represents a single value for any of the MPE dimensions of control."), and [MPENote](https://docs.juce.com/master/structMPENote "This struct represents a playing MPE note.") (which we mentioned earlier).
+すべて[MPE](https://support.roli.com/article/what-is-mpe/)特定の処理は[MPE](https://support.roli.com/article/what-is-mpe/)クラスである：[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。"),[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。"),[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。"),[MPEValue](https://docs.juce.com/master/classMPEValue.html "このクラスは、MPE の制御次元のいずれかの単一の値を表します。")そして[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")(先に述べたように）。
 
-## The MPEInstrument class
+## MPEInstrument クラス
 
-The [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") class maintains the state of the currently playing notes according to the MPE specification. An [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") object can have one or more listeners attached and it can broadcast changes to notes as they occur. All you need to do is feed the [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") object the MIDI data and it handles the rest.
+について[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")クラスは、MPE仕様に従って、現在演奏中の音符の状態を保持する。このクラスは[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトには、1つ以上のリスナーをアタッチすることができ、ノートに変更が発生するとそれをブロードキャストすることができます。必要なことは[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトにMIDIデータを入力し、残りを処理する。
 
-In the `メインコンポーネント` constructor we configure the [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") in *レガシーモード* and set the default pitch bend range to 24 semitones:
+の中で`MainComponent`コンストラクタで[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")で*レガシーモード*を選択し、デフォルトのピッチベンド範囲を24半音に設定します：
+
+```cpp
+        visualiserInstrument.enableLegacyMode (24);
+```
 
 この特別なモードは、MPE以外のMIDI機器との後方互換性のためのもので、楽器は現在のMPEゾーン・レイアウトを無視します。
 
 :::note
 
-See [チュートリアルMPEゾーンの理解](../tutorial_mpe_zones/) for an introduction to more flexible approaches using *ゾーン* and *ゾーン・レイアウト*.
+参照[Tutorial: Understanding MPE zones](../tutorial_mpe_zones/)を使った、より柔軟なアプローチを紹介する。*ゾーン*そして*ゾーン・レイアウト*.
 
 :::
 
-In the `MainComponent::handleIncomingMidiMessage()` function we pass the MIDI messages on to our `ビジュアライザー・インストゥルメント` object:
+の中で`MainComponent::handleIncomingMidiMessage()`関数にMIDIメッセージを渡す。`visualiserInstrument`オブジェクトがある：
 
-In this example we are using an [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") object directly as we need it to update our visualiser display. For the purposes of audio synthesis we don't need to create a separate [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") object. The [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds.") object contains an [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") object that it uses to drive the synthesiser.
-
-## The MPESynthesiser class
-
-We set our [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds.") with the same configuration as our `ビジュアライザー・インストゥルメント` object (in legacy mode with a pitch bend range of 24 semitones):
-
-```
-synth.enableLegacyMode (24)；
-        synth.setVoiceStealingEnabled (false)；
+```cpp
+        visualiserInstrument.processNextMidiEvent (message);
 ```
 
-The [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds.") class can also handle voice stealing for us, but as you can see here, we turn this off. When voice stealing is enabled, the synth will try to take over an existing voice if it runs out of voices and needs to play another note.
+この例では[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトを直接作成する必要があります。音声合成を行うために、別に[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトになる。その[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。")オブジェクトには[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")このオブジェクトはシンセサイザーを駆動するために使用される。
 
-As we have already seen in the `メインコンポーネント::audioDeviceAboutToStart()` function we need to set the [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds.") object's sample rate to work correctly:
+## MPESynthesiser クラス
 
-And as we have also already seen in the `メインコンポーネント::audioDeviceIOCallback()` function, we simply pass it a [ミディバッファ](https://docs.juce.com/master/classMidiBuffer "Holds a sequence of time-stamped midi events.") object containing messages that we want it to use to perform its synthesis operation:
+を設定した。[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")と同じ構成で`visualiserInstrument`オブジェクト（レガシー・モード、ピッチベンド・レンジは24半音）：
 
-## The MPESynthesiserVoice class
+```cpp
+        synth.enableLegacyMode (24);
+        synth.setVoiceStealingEnabled (false);
+```
 
-You can generally use the [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds.") and [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") classes as they are (although both classes can be used as base classes if you need to override some behaviours). The most important class you *マスト* override in order to use the [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds.") class is the [MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice "Represents an MPE voice that an MPESynthesiser can use to play a sound.") class. This actually generates the audio signals from your synthesiser's voices.
+について[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")クラスはボイス・スティーリングを処理することもできますが、ここではこれをオフにしています。ボイス・スティーリングを有効にすると、シンセはボイスが足りなくなって別の音を演奏する必要がある場合、既存のボイスを引き継ごうとします。
+
+ですでに見てきたとおりである。`MainComponent::audioDeviceAboutToStart()`関数を設定する必要がある。[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。")オブジェクトのサンプル・レートを正しく動作させます：
+
+```cpp
+        synth.setCurrentPlaybackSampleRate (sampleRate);
+```
+
+そして、すでに見たように`MainComponent::audioDeviceIOCallback()`関数に渡すだけです。[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトに、合成処理を実行するために使用したいメッセージが格納されている：
+
+```cpp
+        synth.renderNextBlock (buffer, incomingMidi, 0, numSamples);
+```
+
+## MPESynthesiserVoice クラス
+
+一般的には[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")そして[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")クラスをそのまま使うことができる（ただし、いくつかの動作をオーバーライドする必要がある場合は、どちらのクラスも基本クラスとして使うことができる）。最も重要なクラスは*マスト*を使うためにオーバーライドする。[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")クラスは[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")クラスです。これは実際にシンセサイザーのボイスからオーディオ信号を生成する。
 
 :::note
 
-This is similar to the [シンセサイザー・ボイス](https://docs.juce.com/master/classSynthesiserVoice "Represents a voice that a Synthesiser can use to play a SynthesiserSound.") class that is used with the [シンセサイザー](https://docs.juce.com/master/classSynthesiser "Base class for a musical device that can play sounds.") class, but it is customised to implement the [MPE](https://support.roli.com/article/what-is-mpe/) specification. See [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/).
+これは[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "SynthesiserがSynthesiserSoundを再生するために使用できる音色を表します。")クラスで使用される。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスを実装するようにカスタマイズされている。[MPE](https://support.roli.com/article/what-is-mpe/)の仕様を参照してください。参照[Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/).
 
 :::
 
-The code for our voice class is in the `MPEDemoSynthVoice` class of the demo project. Here we implement the `MPEDemoSynthVoice` class to inherit from the [MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice "Represents an MPE voice that an MPESynthesiser can use to play a sound.") class:
+音声クラスのコードは`MPEDemoSynthVoice`クラスを実装しています。ここでは`MPEDemoSynthVoice`クラスを継承する。[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")クラスである：
 
-```
+```cpp
 class MPEDemoSynthVoice : public juce::MPESynthesiserVoice
 {
 ```
 
-We have some member variables to keep track of values to control the level, timbre, and frequency of the tone that we generate. In particular, we use the [スムース値](https://docs.juce.com/master/classSmoothedValue "A utility class for values that need smoothing to avoid audio glitches.") class, which is really useful for smoothing out discontinuities in the signal that would be otherwise caused by value changes (see [チュートリアルサイン波シンセサイザーを作る](../tutorial_sine_synth/)).
+生成する音色のレベル、音色、周波数をコントロールするための値を記録するためのメンバー変数がいくつかある。特に[SmoothedValue](https://docs.juce.com/master/classSmoothedValue.html "オーディオのグリッチを避けるためにスムージングが必要な値のためのユーティリティクラス。")このクラスは、値の変化に起因する信号の不連続性を平滑化するのに非常に便利である ([Tutorial: Build a sine wave synthesiser](../../synth/tutorial_sine_synth/)).
 
-```
-    juce::SmoothedValueレベル、音色、周波数；
+```cpp
+    juce::SmoothedValue level, timbre, frequency;
  
-    double phase = 0.0；
-    double phaseDelta = 0.0；
-    double tailOff = 0.0；
+    double phase      = 0.0;
+    double phaseDelta = 0.0;
+    double tailOff    = 0.0;
  
-    // いくつかの便利な定数
-    static constexpr auto maxLevel = 0.05；
-    static constexpr auto maxLevelDb = 31.0；
-    static constexpr auto smoothingLengthInSeconds = 0.01；
+    // some useful constants
+    static constexpr auto maxLevel = 0.05;
+    static constexpr auto maxLevelDb = 31.0;
+    static constexpr auto smoothingLengthInSeconds = 0.01;
 };
 ```
 
-### Starting and stopping voices
+### 声の開始と停止
 
-The key to using the [MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice "Represents an MPE voice that an MPESynthesiser can use to play a sound.") class is to access its [MPESynthesiserVoice::現在再生中の音符](classMPESynthesiserVoice.html#aea34fcbdb3fa0961f73d5f9a1f34e255) (protected) [MPENote](https://docs.juce.com/master/structMPENote "This struct represents a playing MPE note.") member to access the control information about the note during the various callbacks. For example, we override the [MPESynthesiserVoice::noteStarted()](classMPESynthesiserVoice.html#ae10c1cdfb37208b96b56863d47a3a193 "Called by the MPESynthesiser to let the voice know that a new note has started on it.") function like this:
+を使用する上で重要なことである。[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")クラスにアクセスすることである。[MPESynthesiserVoice::currentlyPlayingNote](https://docs.juce.com/master/classMPESynthesiserVoice.html#aea34fcbdb3fa0961f73d5f9a1f34e255)(保護されている)[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")メンバをオーバーライドして、さまざまなコールバック時にノートの制御情報にアクセスできるようにします。例えば[MPESynthesiserVoice::noteStarted()](https://docs.juce.com/master/classMPESynthesiserVoice.html#ae10c1cdfb37208b96b56863d47a3a193 "MPESynthesiserによって呼び出され、音声に新しいノートが始まったことを知らせる。")関数はこのようになる：
 
-```
+```cpp
     void noteStarted() override
     {
         jassert (currentlyPlayingNote.isValid());
@@ -275,92 +296,96 @@ The key to using the [MPESynthesiserVoice](https://docs.juce.com/master/classMPE
  
         phase = 0.0;
         auto cyclesPerSample = frequency.getNextValue() / currentSampleRate;
-        phaseDelta = 2.0 * juce::MathConstants::pi * cyclesPerSample；
+        phaseDelta = 2.0 * juce::MathConstants::pi * cyclesPerSample;
  
-        tailOff = 0.0；
+        tailOff = 0.0;
     }
 ```
 
-The following "five dimensions" are stored in the [MPENote](https://docs.juce.com/master/structMPENote "This struct represents a playing MPE note.") object as [MPEValue](https://docs.juce.com/master/classMPEValue "This class represents a single value for any of the MPE dimensions of control.") objects:
+以下の "5つの次元 "が[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")オブジェクトを[MPEValue](https://docs.juce.com/master/classMPEValue.html "このクラスは、MPE の制御次元のいずれかの単一の値を表します。")オブジェクトがある：
 
--   *ノートオン速度*: in the [MPENote::noteOnVelocity](structMPENote.html#a9322650db7f2e76cec724746d1a75c1a "The velocity ("strike") of the note-on.") member
--   *ピッチベンド*: in the [MPENote::ピッチベンド](structMPENote.html#aebfdbfc173bc19cc97b97659c412078f "Current per-note pitchbend of the note (in units of MIDI pitchwheel position).") member
--   *圧力*: in the [MPENote::圧力](structMPENote.html#af04939884198c48da9927e76e4f3ff90 "Current pressure with which the note is held down.") member
--   *ベル*: in the [MPENote::音色](structMPENote.html#aea15b7b7d5b9c55cbf7d479aa8e46a90 "Current value of the note's third expressive dimension, typically encoding some kind of timbre parame...") member
--   *ノートオフ速度*: in the [MPENote::ノートオフベロシティ](structMPENote.html#a9e46888c40a2d3eaf4b8c5129b21de6e "The release velocity ("lift") of the note after a note-off has been received.") member
+- *ノートオン速度*にある。[MPENote::noteOnVelocity](https://docs.juce.com/master/structMPENote.html#a9322650db7f2e76cec724746d1a75c1a "ノートオンのベロシティ（「ストライク」）。")メンバー
+- *ピッチベンド*にある。[MPENote::pitchbend](https://docs.juce.com/master/structMPENote.html#aebfdbfc173bc19cc97b97659c412078f "現在のノートのピッチベンド（MIDIピッチホイールポジション単位）。")メンバー
+- *圧力*にある。[MPENote::pressure](https://docs.juce.com/master/structMPENote.html#af04939884198c48da9927e76e4f3ff90 "音符を押さえる現在の圧力。")メンバー
+- *ベル*にある。[MPENote::timbre](https://docs.juce.com/master/structMPENote.html#aea15b7b7d5b9c55cbf7d479aa8e46a90 "音符の3つ目の表現次元の現在値で、通常、何らかの音色のパラメ...")メンバー
+- *ノートオフ速度*にある。[MPENote::noteOffVelocity](https://docs.juce.com/master/structMPENote.html#a9e46888c40a2d3eaf4b8c5129b21de6e "ノートオフを受信した後のノートのリリース・ベロシティ（「リフト」）。")メンバー
 
-[MPEValue](https://docs.juce.com/master/classMPEValue "This class represents a single value for any of the MPE dimensions of control.") objects make it easy to create values from 7-bit or 14-bit MIDI value sources, and to obtain these values as floating-point values in the range 0..1 or -1..+1.
+[MPEValue](https://docs.juce.com/master/classMPEValue.html "このクラスは、MPE の制御次元のいずれかの単一の値を表します。")オブジェクトを使用すると、7ビットまたは14ビットのMIDI値ソースから値を簡単に作成し、これらの値を0〜1または-1〜+1の範囲の浮動小数点値として取得することができます。
 
 :::note
 
-The [MPEValue](https://docs.juce.com/master/classMPEValue "This class represents a single value for any of the MPE dimensions of control.") class stores the value internally using the 14-bit range.
+について[MPEValue](https://docs.juce.com/master/classMPEValue.html "このクラスは、MPE の制御次元のいずれかの単一の値を表します。")クラスは、14ビットの範囲を使用して値を内部に格納します。
 
 :::
 
-The `メインコンポーネント::noteStopped()` function triggers the "release" of the note envelope (or stops it immediately, if requested):
+について`MainComponent::noteStopped()`関数は、ノート・エンベロープの「リリース」をトリガーする（または、要求があればすぐに止める）：
 
-```
-void noteStopped (bool allowTailOff) override
+```cpp
+    void noteStopped (bool allowTailOff) override
     {
-        jassert (currentlyPlayingNote.keyState == juce::MPENote::off)；
+        jassert (currentlyPlayingNote.keyState == juce::MPENote::off);
  
         if (allowTailOff)
         {
-            // このフラグを設定することで、テールオフを開始します。レンダリングコールバックは
-            // 終了したらclearCurrentNote()を呼び出します。
+            // start a tail-off by setting this flag. The render callback will pick up on
+            // this and do a fade out, calling clearCurrentNote() when it's finished.
  
-            if (tailOff == 0.0) // テールオフを開始する必要があるのは、まだそうしていない場合だけです。
-                                // stopNoteメソッドは複数回呼び出される可能性があります。
-                tailOff = 1.0；
+            if (tailOff == 0.0) // we only need to begin a tail-off if it's not already doing so - the
+                                // stopNote method could be called more than once.
+                tailOff = 1.0;
         }
         else
         {
-            // すぐに演奏を止めるように言われているので、すべてをリセットする。
-            clearCurrentNote()；
-            phaseDelta = 0.0；
+            // we're being told to stop playing immediately, so reset everything..
+            clearCurrentNote();
+            phaseDelta = 0.0;
         }
     }
 ```
 
 :::note
 
-This is very similar to `SineWaveVoice::stopNote()` function in [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/). There isn't anything MPE-specific here.
+とよく似ている。`SineWaveVoice::stopNote()`関数[Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/).ここにはMPE特有のものはない。
 
 :::
 
-Modify the `メインコンポーネント::noteStopped()` function to allow the note-off velocity (*リフト*) to modify the rate of release of the note. Faster lifts should result in a shorter release time.
+:::danger[エクササイズ]
 
-### Parameter changes
+を変更する。`MainComponent::noteStopped()`関数を使って、ノートオフ速度(*リフト*)でノートのリリース速度を変更することができます。リフトを速くすると、リリース時間が短くなります。
+
+:::
+
+### パラメータの変更
 
 この音符の音圧、ピッチベンド、音色のいずれかが変更されると、それを知らせるコールバックがある：
 
-```
-void notePressureChanged() オーバーライド
+```cpp
+    void notePressureChanged() override
     {
-        level.setTargetValue (currentlyPlayingNote.pressure.asUnsignedFloat())；
+        level.setTargetValue (currentlyPlayingNote.pressure.asUnsignedFloat());
     }
  
-    void notePitchbendChanged() オーバーライド
+    void notePitchbendChanged() override
     {
-        frequency.setTargetValue (currentlyPlayingNote.getFrequencyInHertz())；
+        frequency.setTargetValue (currentlyPlayingNote.getFrequencyInHertz());
     }
  
-    void noteTimbreChanged() オーバーライド
+    void noteTimbreChanged() override
     {
-        timbre.setTargetValue (currentlyPlayingNote.timbre.asUnsignedFloat())；
+        timbre.setTargetValue (currentlyPlayingNote.timbre.asUnsignedFloat());
     }
 ```
 
-Again, we access the [MPESynthesiserVoice::現在再生中の音符](classMPESynthesiserVoice.html#aea34fcbdb3fa0961f73d5f9a1f34e255) member to obtain the current value for each of these parameters.
+ここでも[MPESynthesiserVoice::currentlyPlayingNote](https://docs.juce.com/master/classMPESynthesiserVoice.html#aea34fcbdb3fa0961f73d5f9a1f34e255)メンバーを使用して、これらの各パラメーターの現在値を取得する。
 
-### Generating the audio
+### オーディオの生成
 
-The `MainComponent::renderNextBlock()` actually generates the audio signal, mixing this voice's signal into the buffer that is passed in:
+について`MainComponent::renderNextBlock()`実際にオーディオ信号を生成し、このボイスの信号を渡されたバッファにミックスする：
 
-```
-    void renderNextBlock (juce::AudioBuffer& outputBuffer、
-                          int startSample、
-                          int numSamples) オーバーライド
+```cpp
+    void renderNextBlock (juce::AudioBuffer& outputBuffer,
+                          int startSample,
+                          int numSamples) override
     {
         if (phaseDelta != 0.0)
         {
@@ -368,21 +393,21 @@ The `MainComponent::renderNextBlock()` actually generates the audio signal, mixi
             {
                 while (--numSamples >= 0)
                 {
-                    auto currentSample = getNextSample() * (float) tailOff；
+                    auto currentSample = getNextSample() * (float) tailOff;
  
                     for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample)；
+                        outputBuffer.addSample (i, startSample, currentSample);
  
-                    ++startSample；
+                    ++startSample;
  
-                    tailOff *= 0.99；
+                    tailOff *= 0.99;
  
                     if (tailOff <= 0.005)
                     {
-                        clearCurrentNote()；
+                        clearCurrentNote();
  
-                        phaseDelta = 0.0；
-                        break；
+                        phaseDelta = 0.0;
+                        break;
                     }
                 }
             }
@@ -390,21 +415,21 @@ The `MainComponent::renderNextBlock()` actually generates the audio signal, mixi
             {
                 while (--numSamples >= 0)
                 {
-                    auto currentSample = getNextSample()；
+                    auto currentSample = getNextSample();
  
                     for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample)；
+                        outputBuffer.addSample (i, startSample, currentSample);
  
-                    ++startSample；
+                    ++startSample;
                 }
             }
         }
     }
 ```
 
-It calls `メインコンポーネント::getNextSample()` to generate the waveform:
+それは次のようなものだ。`MainComponent::getNextSample()`で波形を生成する：
 
-```
+```cpp
     float getNextSample() noexcept
     {
         auto levelDb = (level.getNextValue() - 1.0) * maxLevelDb;
@@ -420,32 +445,36 @@ It calls `メインコンポーネント::getNextSample()` to generate the wavef
  
         auto cyclesPerSample = frequency.getNextValue() / currentSampleRate;
         phaseDelta = 2.0 * juce::MathConstants::pi * cyclesPerSample;
-        phase = std::fmod (phase + phaseDelta, 2.0 * juce::MathConstants:pi)である；
+        phase = std::fmod (phase + phaseDelta, 2.0 * juce::MathConstants::pi);
  
-        return nextSample；
+        return nextSample;
     }
 ```
 
 エンドコード
 
-This simply cross fades between a sine wave and a (non-bandlimited) square wave, based on the value of the *ベル* parameter.
+の値に基づいて、正弦波と（帯域制限のない）矩形波をクロスフェードさせるだけである。*ベル*パラメータが必要だ。
 
-Modify the `MPEDemoSynthVoice` class to crossfade between two sine waves, one octave appart, in response to the *ベル* parameter.
+:::danger[エクササイズ]
+
+を変更する。`MPEDemoSynthVoice`クラスは、1オクターブ離れた2つの正弦波の間をクロスフェードさせる。*ベル*パラメータが必要だ。
+
+:::
 
 # 概要
 
-In this tutorial we have introduced some of the [MPE](https://support.roli.com/article/what-is-mpe/) based classes in JUCE. You should now know:
+このチュートリアルでは[MPE](https://support.roli.com/article/what-is-mpe/)をベースとしたクラスがJUCEにあります。これでわかるはずです：
 
--   What [MPE](https://support.roli.com/article/what-is-mpe/) is.
--   That [MPE](https://support.roli.com/article/what-is-mpe/) compatible devices will allocate each note to their own MIDI channels.
--   How the [MPENote](https://docs.juce.com/master/structMPENote "This struct represents a playing MPE note.") class stores information about a note including its MIDI channel, the original note number, velocity, pitch bend, and so on.
--   That the [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") class maintains the state of the currently playing notes.
--   That the [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser "Base class for an MPE-compatible musical device that can play sounds.") class contains an [MPEインストゥルメント](https://docs.juce.com/master/classMPEInstrument "This class represents an instrument handling MPE.") object that it uses to drive the synthesiser.
--   That you must implement a class that inherits from the [MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice "Represents an MPE voice that an MPESynthesiser can use to play a sound.") class to implement your synthesiser's audio code.
+- 何[MPE](https://support.roli.com/article/what-is-mpe/)である。
+- それは[MPE](https://support.roli.com/article/what-is-mpe/)対応デバイスは各ノートをそれぞれのMIDIチャンネルに割り当てます。
+- どのように[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")クラスは、MIDIチャンネル、元のノート番号、ベロシティ、ピッチベンドなど、ノートに関する情報を保存します。
+- その[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")クラスは、現在演奏している音符の状態を保持する。
+- その[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")クラスには[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")このオブジェクトはシンセサイザーを駆動するために使用される。
+- を継承したクラスを実装しなければならない。[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")クラスを使って、シンセサイザーのオーディオ・コードを実装します。
 
-# 関連項目
+# こちらも参照
 
--   [チュートリアルMPEゾーンの理解](../tutorial_mpe_zones/)
--   [チュートリアル：MIDIイベントの処理](../tutorial_handling_midi_events/)
--   [チュートリアルMIDIデータの作成](../tutorial_midi_message/)
--   [チュートリアルMIDIシンセサイザーを作る](../tutorial_synth_using_midi_input/)
+- [Tutorial: Understanding MPE zones](../tutorial_mpe_zones/)
+- [Tutorial: Handling MIDI events](../tutorial_handling_midi_events/)
+- [Tutorial: Create MIDI data](../tutorial_midi_message/)
+- [Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/)

@@ -1,26 +1,26 @@
 ---
 title: 信号の周波数をリアルタイムで視覚化
 sidebar_position: 6
-tags: ["中級"]
+tags: [中級]
 ---
 
-# チュートリアル：信号の周波数をリアルタイムで可視化する
+# チュートリアル信号の周波数をリアルタイムで可視化する
 
 <SourcePageLink path="tutorial_spectrum_analyser" />
 
 DSPモジュールのFFTクラスを使用して、入力オーディオデータをスペクトラムアナライザーとして表示する方法を学びます。ウィンドウ関数を使用する利点を理解します。
 
-レベル：中級
+レベル中級
 
-プラットフォーム：Windows, macOS, Linux
+プラットフォームWindows , macOS , Linux
 
-クラス： [dsp::FFT](https://docs.juce.com/master/classdsp_1_1FFT "Performs a fast fourier transform."), [dsp::WindowingFunction](https://docs.juce.com/master/classdsp_1_1WindowingFunction "A class which provides multiple windowing functions useful for filter design and spectrum analyzers."), [デシベル](https://docs.juce.com/master/classDecibels "This class contains some helpful static methods for dealing with decibel values.")
+クラス： [dsp::FFT](https://docs.juce.com/master/classdsp_1_1FFT.html "高速フーリエ変換を行う。"),[dsp::WindowingFunction](https://docs.juce.com/master/classdsp_1_1WindowingFunction.html "フィルター設計やスペクトラム・アナライザーに有用な複数のウィンドウ機能を提供するクラス。"),[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")
 
-## はじめる
+# スタート
 
-This tutorial leads on from [チュートリアル高速フーリエ変換](../tutorial_simple_fft/). If you haven't done so already, you should read that tutorial first.
+このチュートリアルは[Tutorial: The fast Fourier transform](../tutorial_simple_fft/).もしまだなら、まずそのチュートリアルを読むべきだ。
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/SpectrumAnalyserTutorial.zip) | [ジップ](/tutorials/ZIPs/SpectrumAnalyserTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/SpectrumAnalyserTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/SpectrumAnalyserTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 :::note
 
@@ -28,17 +28,20 @@ Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/Sp
 
 :::
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# The demo project
+# デモ・プロジェクト
 
-完成すると、デモプロジェクトは、入力されたオーディオデータを、周波数（x軸）と振幅（y軸）の2次元スペクト ルアナライザーとして表示します。画面に表示される値は1秒間に30回更新され、任意の時間枠のウィンドウは次のようになります：
+完成すると、このデモプロジェクトは、入力されたオーディオデータを周波数（x軸）と振幅（y軸）の2次元スペクト ルアナライザーとして表示します。画面に表示される値は1秒間に30回更新され、任意の時間枠のウィンドウは次のようになります：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_spectrum_analyser_screenshot1.png" caption="The demo project window" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_spectrum_analyser_screenshot1.png"
+  caption="デモプロジェクトのウィンドウ"
+/>
 
-# Windowing functions
+# ウィンドウ機能
 
-As seen in [チュートリアル高速フーリエ変換](../tutorial_simple_fft/) the Fast Fourier Transform allows us to convert a time domain signal to the frequency domain in order to process the individual frequency components of a certain signal.
+で見たとおりだ。[Tutorial: The fast Fourier transform](../tutorial_simple_fft/)高速フーリエ変換は、ある信号の個々の周波数成分を処理するために、時間領域の信号を周波数領域に変換することができる。
 
 しかし、フーリエ変換の限界は、オーディオ・アプリケーションのオーディオ・バッファ・ブロックのように、有限の時間間隔の間に適用される場合、変換は、問題の周波数の両側に新しい周波数成分が出現し始める、スペクトル・リークと呼ばれる現象が現れることである。これは、サンプリングされた信号部分が波形の自然な周期に収まらないことがあり、本質的に信号が切り捨てられるためです。
 
@@ -46,184 +49,188 @@ As seen in [チュートリアル高速フーリエ変換](../tutorial_simple_ff
 
 スペクトル漏洩の影響を減らすために、フーリエ変換を行う前に信号に窓関数を適用することができ、窓関数の種類によって出力への影響が異なります。以下に、JUCE DSPモジュールで利用可能ないくつかの窓とその特徴を示します：
 
--   長方形：最も低いダイナミックレンジ、最も高い解像度。ウィンドウなしと同等。
--   ハミング良好なダイナミック・レンジ、良好な分解能。通常、狭帯域アプリケーションで使用される。
--   Hann：良好なダイナミック・レンジ、まずまずの解像度。通常、狭帯域のアプリケーションで使用される。
--   ブラックマン：最高のダイナミックレンジ、最低の解像度。通常、広帯域アプリケーションで使用される。
+- 長方形：最も低いダイナミックレンジ、最も高い解像度。ウィンドウなしと同等。
+- ハミング良好なダイナミック・レンジ、良好な分解能。通常、狭帯域アプリケーションで使用される。
+- Hann：良好なダイナミック・レンジ、まずまずの解像度。通常、狭帯域のアプリケーションで使用される。
+- ブラックマン：最高のダイナミックレンジ、最低の解像度。通常、広帯域アプリケーションで使用される。
 
-# Processing Audio Data
+# オーディオデータの処理
 
 現在、私たちのアプリケーションは、入力されるオーディオ信号を表示も処理もしないので、FFTを実装することから始めましょう。
 
-## FFT Initialisation
+## FFT初期化
 
-In the `アナライザーコンポーネント` class, start by declaring an enum as a public member to define useful constants for the FFT implementation:
+の中で`AnalyserComponent`クラスでは、まずenumをパブリック・メンバーとして宣言し、FFT実装に役立つ定数を定義する：
 
-```
-列挙
+```cpp
+    enum
     {
-        fftOrder = 11, // [1］
-        fftSize = 1 << fftOrder, // [2］
-        スコープサイズ = 512 // [3］
+        fftOrder  = 11,             // [1]
+        fftSize   = 1 << fftOrder,  // [2]
+        scopeSize = 512             // [3]
     };
 ```
 
--   \[1\]: The FFT order designates the size of the FFT window and the number of points on which it will operate corresponds to 2 to the power of the order. In this case, let's use an order of 11 which will produce an FFT with 2 ^ 11 = 2048 points.
--   \[2\]: To calculate the corresponding FFT size, we use the left bit shift operator which produces 2048 as binary number 100000000000.
--   \[3\]: We also set the number of points in the visual representation of the spectrum as a scope size of 512.
+- \[1\]FFTの次数はFFTウィンドウの大きさを表し、FFTの対象となるポイントの数は次数の2のべき乗に相当する。この場合、次数を11とすると、2 ^ 11 = 2048ポイントのFFTが生成される。
+- \[2\]対応するFFTサイズを計算するために、2048を2進数1000000000として生成する左ビットシフト演算子を使用する。
+- \[3\]また、スペクトルの視覚的表現のポイント数をスコープサイズ512とした。
 
 次に、FFT実装に必要なプライベート・メンバー変数を以下のように宣言する：
 
-```
+```cpp
 private:
     juce::dsp::FFT forwardFFT;                      // [4]
-    juce::dsp::WindowingFunctionウィンドウ; // [5］
+    juce::dsp::WindowingFunction window;     // [5]
  
-    float fifo [fftSize]; // [6］
-    float fftData [2 * fftSize]; // [7].
-    int fifoIndex = 0; // [8].
-    bool nextFFTBlockReady = false; // [9] 以下のようにします。
-    float scopeData [scopeSize]; // [10] 以下のようにする。
+    float fifo [fftSize];                           // [6]
+    float fftData [2 * fftSize];                    // [7]
+    int fifoIndex = 0;                              // [8]
+    bool nextFFTBlockReady = false;                 // [9]
+    float scopeData [scopeSize];                    // [10]
  
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AnalyserComponent)
 };
 ```
 
--   \[4\]: Declare a [dsp::FFT](https://docs.juce.com/master/classdsp_1_1FFT "Performs a fast fourier transform.") object to perform the forward FFT on.
--   \[5\]: Also declare a [dsp::WindowingFunction](https://docs.juce.com/master/classdsp_1_1WindowingFunction "A class which provides multiple windowing functions useful for filter design and spectrum analyzers.") object to apply the windowing function on the signal.
--   \[6\]: The fifo float array of size 2048 will contain our incoming audio data in samples.
--   \[7\]: The fftData float array of size 4096 will contain the results of our FFT calculations.
--   \[8\]: This temporary index keeps count of the amount of samples in the fifo.
--   \[9\]: This temporary boolean tells us whether the next FFT block is ready to be rendered.
--   \[10\]: The scopeData float array of size 512 will contain the points to display on the screen.
+- \[4\]:を宣言する。[dsp::FFT](https://docs.juce.com/master/classdsp_1_1FFT.html "高速フーリエ変換を行う。")オブジェクトに対して順方向FFTを実行する。
+- \[5\]を宣言する。[dsp::WindowingFunction](https://docs.juce.com/master/classdsp_1_1WindowingFunction.html "フィルター設計やスペクトラム・アナライザーに有用な複数のウィンドウ機能を提供するクラス。")オブジェクトにウィンドウ関数を適用する。
+- \[6\]サイズ2048のfifo float配列には、入力されるオーディオ・データがサンプルとして格納されます。
+- \[7\]サイズ4096のfloat配列には、FFT計算の結果が格納される。
+- \[8\]この一時的なインデックスは、fifo内のサンプル数をカウントします。
+- \[9\]この一時的なブール値は、次のFFTブロックがレンダリング可能かどうかを示す。
+- \[10\]scopeData float配列（サイズ512）には、画面に表示する点が格納される。
 
 では、コンストラクタのメンバ初期化リストでこれらの変数を初期化してみよう：
 
-```
+```cpp
     AnalyserComponent()
         : forwardFFT (fftOrder),
           window (fftSize, juce::dsp::WindowingFunction::hann)
     {
 ```
 
-FFTオブジェクトはこの時点で正しい次数で明示的に初期化する必要があり、ウィンドウ関数を選択することができます。この場合、Hann関数を使用することにしますが、他の関数を選択してもかまいません。
+この時点でFFTオブジェクトを正しい次数で明示的に初期化し、ウィンドウ関数を選択する必要があります。この場合、Hann関数を使用することにしますが、他の関数を選択してもかまいません。
 
-In the overriden `getNextAudioBlock()` function, we simply push all the samples contained in our current audio buffer block to the fifo to be processed at a later time:
+オーバーライド`getNextAudioBlock()`関数では、現在のオーディオバッファブロックに含まれるすべてのサンプルを、後で処理するために、単純にfifoにプッシュします：
 
-```
-void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+```cpp
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
     {
         if (bufferToFill.buffer->getNumChannels() > 0)
         {
-            auto* channelData = bufferToFill.buffer->getReadPointer (0, bufferToFill.startSample)；
+            auto* channelData = bufferToFill.buffer->getReadPointer (0, bufferToFill.startSample);
  
             for (auto i = 0; i < bufferToFill.numSamples; ++i)
-                pushNextSampleIntoFifo (channelData[i])；
+                pushNextSampleIntoFifo (channelData[i]);
         }
     }
 ```
 
-To push the sample into the fifo, implement the `pushNextSampleIntoFifo()` function as described below:
+サンプルをfifoにプッシュするには`pushNextSampleIntoFifo()`機能については後述する：
 
-```
-void pushNextSampleIntoFifo (float sample) noexcept
+```cpp
+    void pushNextSampleIntoFifo (float sample) noexcept
     {
-        // fifoに十分なデータがある場合、次のフレームをレンダリングするフラグを設定します。
-        // 次のフレームをレンダリングします。
-        if (fifoIndex == fftSize) // [11].
+        // if the fifo contains enough data, set a flag to say
+        // that the next frame should now be rendered..
+        if (fifoIndex == fftSize)               // [11]
         {
-            if (! nextFFTBlockReady) // [12] { 次のフレームをレンダリングします。
+            if (! nextFFTBlockReady)            // [12]
             {
-                juce::zeromem (fftData, sizeof (fftData))；
-                memcpy (fftData, fifo, sizeof (fifo))；
-                nextFFTBlockReady = true；
+                juce::zeromem (fftData, sizeof (fftData));
+                memcpy (fftData, fifo, sizeof (fifo));
+                nextFFTBlockReady = true;
             }
  
-            fifoIndex = 0；
+            fifoIndex = 0;
         }
  
-        fifo[fifoIndex++] = sample; // [12].
+        fifo[fifoIndex++] = sample;             // [12]
     }
 ```
 
--   \[11\]: If the fifo contains enough data in this case 2048 samples, we are ready to copy the data to the fftData array for it to be processed by the FFT. We also set a flag to say that the next frame should now be rendered and always reset the index to 0 to start filling the fifo again.
--   \[12\]: Every time this function gets called, a sample is stored in the fifo and the index is incremented.
+- \[11\]fifoに十分なデータ（この場合は2048サンプル）が格納されていれば、データをftData配列にコピーしてFFT処理する準備が整いました。また、次のフレームをレンダリングするフラグを設定し、常にインデックスを0にリセットして、fifoへのデータ入力を再開します。
+- \[12\]この関数が呼び出されるたびに、サンプルがfifoに格納され、インデックスがインクリメントされます。
 
 これでFIFOデータがFFT入力配列の前半を占め、処理と表示の準備が整った。
 
-## Displaying the analyser
+## 分析装置の表示
 
-In the `DrawNextFrameOfSpectrum()` function, insert the frame drawing implementation as explained below:
+の中で`drawNextFrameOfSpectrum()`関数で、以下に説明するフレーム描画の実装を挿入する：
 
-```
-void drawNextFrameOfSpectrum()
+```cpp
+    void drawNextFrameOfSpectrum()
     {
-        // まず、データにウィンドウ関数を適用します。
-        window.multiplyWithWindowingTable (fftData, fftSize); // [1].
+        // first apply a windowing function to our data
+        window.multiplyWithWindowingTable (fftData, fftSize);       // [1]
  
-        // 次に FFT データをレンダリングします。
-        forwardFFT.performFrequencyOnlyForwardTransform (fftData); // [2].
+        // then render our FFT data..
+        forwardFFT.performFrequencyOnlyForwardTransform (fftData);  // [2]
  
-        auto mindB = -100.0f；
-        auto maxdB = 0.0f；
+        auto mindB = -100.0f;
+        auto maxdB =    0.0f;
  
-        for (int i = 0; i < scopeSize; ++i) // [3].
+        for (int i = 0; i < scopeSize; ++i)                         // [3]
         {
-            auto skewedProportionX = 1.0f - std::exp (std::log (1.0f - (float) i / (float) scopeSize)) * 0.2f.* 0.2f);
-            auto fftDataIndex = juce::jlimit (0, fftSize / 2, (int) (skewedProportionX * (float) fftSize * 0.5f))；
-            auto level = juce::jmap (juce::jlimit (mindB, maxdB, juce::Decibels::gainToDecibels (fftData[fftDataIndex])))
-                                                               - juce::Decibels::gainToDecibels ((float) fftSize))、
-                                     mindB, maxdB, 0.0f, 1.0f)；
+            auto skewedProportionX = 1.0f - std::exp (std::log (1.0f - (float) i / (float) scopeSize) * 0.2f);
+            auto fftDataIndex = juce::jlimit (0, fftSize / 2, (int) (skewedProportionX * (float) fftSize * 0.5f));
+            auto level = juce::jmap (juce::jlimit (mindB, maxdB, juce::Decibels::gainToDecibels (fftData[fftDataIndex])
+                                                               - juce::Decibels::gainToDecibels ((float) fftSize)),
+                                     mindB, maxdB, 0.0f, 1.0f);
  
-            scopeData[i] = level; // [4].
+            scopeData[i] = level;                                   // [4]
         }
     }
 ```
 
--   \[1\]: First, apply the windowing function to the incoming data by calling the `multiplyWithWindowingTable()` function on the window object and passing the data as an argument.
--   \[2\]: Then, render the FFT data using the `performFrequencyOnlyForwardTransform()` function on the FFT object with the fftData array as an argument.
--   \[3\]: Now in the for loop for every point in the scope width, calculate the level proportionally to the desired minimum and maximum decibels. To do this, we first need to skew the x-axis to use a logarithmic scale to better represent our frequencies. We can then feed this scaling factor to retrieve the correct array index and use the amplitude value to map it to a range between 0.0 .. 1.0.
--   \[4\]: Finally set the appropriate point with the correct amplitude to prepare the drawing process.
+- \[1\]まず、受信データにウィンドウ関数を適用する。`multiplyWithWindowingTable()`関数を実行し、データを引数として渡す。
+- \[2\]を使用してFFTデータをレンダリングします。`performFrequencyOnlyForwardTransform()`関数は、ftData 配列を引数として FFT オブジェクトに渡します。
+- \[3\]次に、スコープ幅の各ポイントのforループで、希望する最小デシベルと最大デシベルに比例したレベルを計算します。これを行うには、まずX軸を歪ませて対数スケールを使用し、周波数をより適切に表現する必要があります。次に、このスケーリング係数を正しい配列インデックスを取得するために与え、振幅値を使ってそれを0.0 .. 1.0.
+- \[4\]最後に適切なポイントを適切な振幅で設定し、描画の準備をする。
 
-Update the analyser using the timer callback function by calling the `DrawNextFrameOfSpectrum()` only when the next FFT block is ready, reset the flag and update the GUI using the `再塗装()` function:
+タイマー・コールバック関数を使用して分析装置を更新する。`drawNextFrameOfSpectrum()`次のFFTブロックの準備ができたときにのみ、フラグをリセットし、GUIを更新します。`repaint()`関数である：
 
-```
-void timerCallback() override
+```cpp
+    void timerCallback() override
     {
         if (nextFFTBlockReady)
         {
-            drawNextFrameOfSpectrum()；
-            nextFFTBlockReady = false；
-            repaint()；
+            drawNextFrameOfSpectrum();
+            nextFFTBlockReady = false;
+            repaint();
         }
     }
 ```
 
-As a final step, the `ペイント` callback will call our helper function `drawFrame()` whenever a `再塗装()` request has been initiated and the frame can be drawn as follows:
+最終段階として`paint()`コールバックはヘルパー関数を呼び出します。`drawFrame()`の場合はいつでも`repaint()`リクエストが開始され、フレームは次のように描かれる：
 
-```
-void drawFrame (juce::Graphics& g)
+```cpp
+    void drawFrame (juce::Graphics& g)
     {
         for (int i = 1; i < scopeSize; ++i)
         {
-            auto width = getLocalBounds().getWidth()；
-            auto height = getLocalBounds().getHeight()；
+            auto width  = getLocalBounds().getWidth();
+            auto height = getLocalBounds().getHeight();
  
-            g.drawLine ({ (float) juce::jmap (i - 1, 0, scopeSize - 1, 0, width)、
-                                  juce::jmap (scopeData[i - 1], 0.0f, 1.0f, (float) height, 0.0f)、
-                          (float) juce::jmap (i, 0, scopeSize - 1, 0, width)、
-                                  juce::jmap (scopeData[i], 0.0f, 1.0f, (float) height, 0.0f) })；
+            g.drawLine ({ (float) juce::jmap (i - 1, 0, scopeSize - 1, 0, width),
+                                  juce::jmap (scopeData[i - 1], 0.0f, 1.0f, (float) height, 0.0f),
+                          (float) juce::jmap (i,     0, scopeSize - 1, 0, width),
+                                  juce::jmap (scopeData[i],     0.0f, 1.0f, (float) height, 0.0f) });
         }
     }
 ```
 
 ここでは、配列から最初の点を除いたすべての点に対して、スコープのサイズをスクリーン境界のサイズにマッピングすることによって、前の点と現在の点の間に線を引く。
 
+:::danger[エクササイズ]
+
 FFTで使用するウィンドウ関数を変更してみて、スペクトラムアナライザーの反応がどのように異なるかに注目してください。
+
+:::
 
 :::note
 
-The source code for this modified version of the code can be found in the `スペクトラムアナライザーチュートリアル_02.h` file of the demo project.
+この修正版のソースコードは`SpectrumAnalyserTutorial_02.h`ファイルにある。
 
 :::
 
@@ -231,14 +238,14 @@ The source code for this modified version of the code can be found in the `ス�
 
 このチュートリアルでは、スペクトルアナライザでオーディオデータを表示するために、ウィンドウ関数とFFTを使用する方法を学びました。特に
 
--   ウィンドウ関数の基礎を学ぶ。
--   FIFOを使ってオーディオをサンプルごとに処理。
--   サンプルポイント間に線を引いてデータを表示。
+- ウィンドウ関数の基礎を学ぶ。
+- fifoを使ってオーディオをサンプルごとに処理。
+- サンプルポイント間に線を引いてデータを表示。
 
-# 関連項目
+# 参照
 
--   [チュートリアルオーディオ波形を描く](../tutorial_audio_thumbnail/)
--   [チュートリアルオーディオプレーヤーの構築](../tutorial_playing_sound_files/)
--   [チュートリアルオーディオ入力を処理する](../tutorial_processing_audio_input/)
--   [チュートリアルDSP入門](../tutorial_dsp_introduction/)
--   [チュートリアル高速フーリエ変換](../tutorial_simple_fft/)
+- [Tutorial: Draw audio waveforms](../../audio/tutorial_audio_thumbnail/)
+- [Tutorial: Build an audio player](../../audio/tutorial_playing_sound_files/)
+- [Tutorial: Processing audio input](../../audio/tutorial_processing_audio_input/)
+- [Tutorial: Introduction to DSP](../tutorial_dsp_introduction/)
+- [Tutorial: The fast Fourier transform](../tutorial_simple_fft/)
