@@ -10,13 +10,13 @@ tags: [中級]
 
 DSPモジュールのFFTクラスを使用して、入力されたオーディオデータをスペクトログラムとして表示する方法を学びます。高速フーリエ変換を使用する利点を理解します。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [dsp::FFT](https://docs.juce.com/master/classdsp_1_1FFT.html "高速フーリエ変換を行う。"),[Image](https://docs.juce.com/master/classImage.html "固定サイズのビットマップを保持する。"),[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。"),[FloatVectorOperations](https://docs.juce.com/master/classFloatVectorOperations.html "浮動小数点数の配列に対する単純なベクトル演算を集めたもので、SIMD iで高速化されている。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/SimpleFFTTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/SimpleFFTTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -28,7 +28,7 @@ DSPモジュールのFFTクラスを使用して、入力されたオーディ�
 
 このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 完成すると、このデモプロジェクトは、入力されたオーディオデータを、時間（x軸）、周波数（y軸）、振幅（色）の3次元スペクトログラムとして表示します。画面に表示される値は1秒間に60回更新され、どの時間枠でもウィンドウは次のようになります：
 
@@ -43,7 +43,7 @@ DSPモジュールのFFTクラスを使用して、入力されたオーディ�
 
 :::
 
-# 高速フーリエ変換
+## 高速フーリエ変換
 
 時間領域または空間領域の信号は、フーリエ変換と呼ばれる変換式を用いて周波数領域に変換することができます。この変換関数の一般的な効率的実装は高速フーリエ変換（FFT）で、JUCE DSPモジュールに含まれており、このチュートリアルで使用します。
 
@@ -51,11 +51,11 @@ FFTは、オーディオ信号を周波数に分解し、それぞれの周波�
 
 このチュートリアルでは、実際の出力処理を行わずにオーディオデータを表示することだけを扱いますので、逆FFTではなく順FFTに焦点を当てます。
 
-# オーディオデータの処理
+## オーディオデータの処理
 
 現在、私たちのアプリケーションは、入力されるオーディオ信号を表示も処理もしないので、FFTを実装することから始めましょう。
 
-## FFT初期化
+### FFT初期化
 
 の中で`SpectrogramComponent`クラスでは、FFTの実装に役立つ定数を定義することから始めます：
 
@@ -144,7 +144,7 @@ FFTオブジェクトは、この時点で正しい次数で明示的に初期�
 
 これでFIFOデータがFFT入力配列の前半を占め、処理と表示の準備が整った。
 
-## スペクトログラムの表示
+### スペクトログラムの表示
 
 の中で`drawNextLineOfSpectrogram()`関数に、以下に説明するピクセル描画の実装を挿入する：
 
@@ -210,7 +210,7 @@ FFTの分解能を上げ、スペクトログラムの更新レートを変え�
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、FFT 関数を使ってオーディオデータをスペクトログラムで表示する方法を学びました。特に
 
@@ -218,7 +218,7 @@ FFTの分解能を上げ、スペクトログラムの更新レートを変え�
 - FIFOを使ってオーディオをサンプルごとに処理。
 - データを[Image](https://docs.juce.com/master/classImage.html "固定サイズのビットマップを保持する。")オブジェクトのピクセル単位。
 
-# 参照
+## 参照
 
 - [Tutorial: Draw audio waveforms](../../audio/tutorial_audio_thumbnail/)
 - [Tutorial: Build an audio player](../../audio/tutorial_playing_sound_files/)

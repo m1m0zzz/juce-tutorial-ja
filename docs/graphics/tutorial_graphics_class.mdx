@@ -12,15 +12,15 @@ tags: [初級]
 
 レベルビステン
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。"),[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。"),[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。"),[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。"),[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/GraphicsTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/GraphicsTutorial.zip)
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このチュートリアルのデモ・プロジェクトには、メイン・アプリケーション・ウィンドウとメイン・コンポーネントが含まれています。これらは前回のチュートリアルで慣れ親しんでいるはずです：[Tutorial: The application window](../tutorial_main_window/)そして[Tutorial: The main component](../tutorial_main_component/).
 
@@ -41,7 +41,7 @@ void paint (juce::Graphics& g)
 
 以下では、さらにグラフィックを描画するコードを`MainComponent`オブジェクトを使用する。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスを使用します。これは非常に強力なクラスであり、今後のチュートリアルで様々なJUCEコンポーネントのカスタム外観を実装するために多用する予定です。
 
-# Graphics クラス
+## Graphics クラス
 
 ペイント機能をもう一度見てみよう。ここで`paint()`関数は、レンダリング時にオペレーティング・システムから呼び出されるコールバックです。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")この関数を自分で呼んではいけない。
 
@@ -53,9 +53,9 @@ void paint (juce::Graphics& g)
 
 :::
 
-# テキストのレンダリング
+## テキストのレンダリング
 
-## フォントの設定
+### フォントの設定
 
 まずはテキストの続きから。行
 
@@ -95,7 +95,7 @@ g.setFont (juce::Font ("Times New Roman", 20.0f, juce::Font::italic));
 
 とはいえ、通常はステートメントを分離して名前付き変数を使った方が、コードの可読性と保守性は向上する。(最近のコンパイラーでは、このような追加変数を導入してもパフォーマンスには影響しません)。
 
-## ポジションの設定
+### ポジションの設定
 
 ここで、テキストの位置を変更します。その過程で、JUCEで位置決めがどのように処理されるかを学びます。
 
@@ -134,11 +134,11 @@ g.drawText ("Hello, World!", 20, 40, 200, 40, juce::Justification::centred, true
 
 :::
 
-# 幾何学的形状のレンダリング
+## 幾何学的形状のレンダリング
 
 このセクションでは、引き続き[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスである。
 
-## 線を引く
+### 線を引く
 
 以下の行を`paint()`関数である：
 
@@ -157,7 +157,7 @@ g.drawLine (10, 300, 590, 300, 5);
 
 :::
 
-## 長方形を描く
+### 長方形を描く
 
 を使った矩形の描画[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトは非常に簡単だ。以下の行を`paint()`関数本体：
 
@@ -212,7 +212,7 @@ g.fillCheckerBoard (house, 30, 10, juce::Colours::sandybrown, juce::Colours::sad
   caption="線と市松模様で塗りつぶされた長方形を加える。"
 />
 
-## 円を描く
+### 円を描く
 
 では[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスは円と楕円を描画します。関数[Graphics::drawEllipse()](https://docs.juce.com/master/classGraphics.html#ae4cce288a14b690ce0eb3dd514559887 "現在の色またはブラシを使って楕円形のストロークを描きます。")そして[Graphics::fillEllipse()](https://docs.juce.com/master/classGraphics.html#ae965bf1c5fadee50c665b6508eb3e8f4 "楕円を現在の色またはブラシで塗りつぶす。").と同じように機能する。[Graphics::drawRect()](https://docs.juce.com/master/classGraphics.html#a42dc569175294c1e20e8177031a761af "現在の色またはブラシを使用して、長方形の輪郭を描画します。")そして[Graphics::fillRect()](https://docs.juce.com/master/classGraphics.html#a747de9976729f72d9f6188104e6b2215 "矩形を現在の色またはブラシで塗りつぶす。")の機能がある。
 
@@ -238,7 +238,7 @@ g.drawEllipse (getWidth() - 70, 10, 60, 60, 3);
 
 :::
 
-## 他のポリゴンを描く
+### 他のポリゴンを描く
 
 最後に、家に屋根をつけよう。これは赤い三角形になる。
 
@@ -271,7 +271,7 @@ Path::addTrianglevoid addTriangle(float x1, float y1, float x2, float y2, float 
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトを`paint()`コールバック[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスを使用して、コンポーネントの内部に描画することができます。これで、あなたは
 
@@ -281,11 +281,11 @@ Path::addTrianglevoid addTriangle(float x1, float y1, float x2, float y2, float 
 
 また[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトは、基礎となるフレームワークによって提供される描画コンテキストであり`paint()`コールバック。
 
-# 備考
+## 備考
 
 について[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスは、このチュートリアルで説明する以上のグラフィカルなレンダリング機能を備えています。特に、このクラスを使って（画像ファイルから）画像を画面に描画することができます。を使ってできることは他にもたくさんあります。[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスである。その他に[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスには、カラーグラデーション、透明レイヤー、トランスフォームなどがあります。これらのいくつかは今後のチュートリアルで取り上げます。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Colours in JUCE](../../interface-design/tutorial_colours/)
 - [Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)

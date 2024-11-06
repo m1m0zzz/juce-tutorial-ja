@@ -10,13 +10,13 @@ tags: [中級]
 
 このチュートリアルでは、AudioSampleBuffer オブジェクトに格納されたオーディオを再生し、ループさせる方法を説明します。これは、録音されたオーディオデータを操作するサンプリングアプリケーションの基礎として役立ちます。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [AudioBuffer](https://docs.juce.com/master/classAudioBuffer.html "浮動小数点オーディオサンプルを含むマルチチャンネルバッファ。"),[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。"),[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")
 
-# スタート
+## スタート
 
 :::note
 
@@ -28,19 +28,19 @@ tags: [中級]
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このチュートリアルのデモプロジェクトでは、サウンドファイルを開き、ファイル全体を[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを作成し、それをループ再生する。で[Tutorial: Build an audio player](../tutorial_playing_sound_files/)を使ってサウンドファイルを再生した。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトに接続された[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトでサウンドを再生します。を有効にすれば、この方法でループ再生が可能です。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトのループフラグ[AudioFormatReaderSource::setLooping()](https://docs.juce.com/master/classAudioFormatReaderSource.html#a15d8af211ce8cfcbc0c4aaac143b303e "ループモードを切り替える。")関数である。
 
 このチュートリアルの議論に関連するコードはすべて`MainContentComponent`クラスがある。
 
-# サンプルデータをメモリにロードする
+## サンプルデータをメモリにロードする
 
 サウンドファイルの再生には、組み込みのクラスを使った方が良い場合が多いでしょう。このチュートリアルでは、いくつかのテクニックを紹介します。サンプラーアプリケーションは、特にサウンドが比較的短い場合、このようにサウンドファイルのデータをメモリにロードするのが一般的です（詳しくは[SamplerSound](https://docs.juce.com/master/classSamplerSound.html "サンプリングされたオーディオクリップを表すSynthesiserSoundのサブクラス。")クラスの例)。サウンドを合成するには、ウェーブテーブルを[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを適切な速度でループさせ、必要な音高を作り出す。これは[Tutorial: Wavetable synthesis](../../synth/tutorial_wavetable_synth/).
 
 また、このチュートリアルでは、ファイルへのアクセスとオーディオ処理をオーディオスレッドで 組み合わせるときに遭遇する可能性のある、マルチスレッドの問題をいくつか取り上げます。これらの問題のいくつかは、表面的には単純に見えますが、クラッシュやオーディオの不具合を避けるために、注意深く適用するテクニックが必要になることがよくあります。これらのテクニックについては[Tutorial: Looping audio using the AudioSampleBuffer class (advanced)](../tutorial_looping_audio_sample_buffer_advanced/).
 
-## なぜ長さに制限があるのですか？
+### なぜ長さに制限があるのですか？
 
 デモ・プロジェクトでは、読み込めるサウンドファイルの長さを2秒未満に制限しています。この制限はかなり恣意的ですが、これには大まかに2つの理由があります：
 
@@ -57,7 +57,7 @@ tags: [中級]
 
 :::
 
-## サウンドファイルの読み込み
+### サウンドファイルの読み込み
 
 ユーザーが**オープン...**ボタンをクリックすると、ファイル・セレクタが表示される。ファイル全体が[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)メンバー`fileBuffer`私たちの`MainContentComponent`クラスである。
 
@@ -120,7 +120,7 @@ tags: [中級]
 - \[6\]バッファ内の最新の読み取り位置を、再生しながら保存する必要がある。これにより`position`メンバーをゼロにする。
 - \[7\]これでオーディオシステムが再び起動します。ここで、サウンドファイルのチャンネル数を使って、オーディオデバイスを同じチャンネル数で構成してみる機会があります。
 
-# オーディオの処理
+## オーディオの処理
 
 の中で`getNextAudioBlock()`関数から適切なサンプル数が読み込まれる。`fileBuffer` [AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)を書き出す。[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。")構造体
 
@@ -182,7 +182,7 @@ tags: [中級]
 
 :::
 
-# マルチスレッドの問題
+## マルチスレッドの問題
 
 前述したように、このチュートリアルでは、ユーザーが**オープン...**ボタンだ。しかし、もしそうしなかったらどうなるだろうか？うまくいかないことはたくさんある。`getNextAudioBlock()`そして`openButtonClicked()`関数は異なるスレッドで同時に実行される可能性がある。以下はその例である：
 
@@ -196,7 +196,7 @@ tags: [中級]
 
 :::
 
-# 備考
+## 備考
 
 44.1kHzの2秒間のステレオ・オーディオは、AudioSampleBufferオブジェクトに705,600バイトを使用します：
 
@@ -207,7 +207,7 @@ tags: [中級]
 
 これらを掛け合わせるとこうなる：2 x 2 x 44100 x 4 = 705600
 
-# 概要
+## 概要
 
 このチュートリアルでは、次のことを紹介した：
 
@@ -216,7 +216,7 @@ tags: [中級]
 - シンプルなサンプラー・アプリケーションや、ウェーブテーブル・バッファを使ったシンセサイザーの基礎となる。
 - オーディオアプリケーションに存在する潜在的なマルチスレッド問題のいくつか。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Build an audio player](../tutorial_playing_sound_files/)
 - [Tutorial: Processing audio input](../tutorial_processing_audio_input/)

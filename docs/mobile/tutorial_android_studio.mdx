@@ -14,15 +14,15 @@ tags: [初級]
 
 プラットフォームアンドロイド
 
-# スタート
+## スタート
 
 このチュートリアルでは、Android Studioアプリケーションを使用してJUCEベースのアプリケーションをビルドするために必要なツールをインストールし、設定します。
 
-# ツールと開発キットのインストール
+## ツールと開発キットのインストール
 
 Android用のJUCEアプリケーションを作成する前に、いくつかの標準ツール、Android SDK、Android NDK（Native Development Kit）が必要です。
 
-## Android Studioのインストール
+### Android Studioのインストール
 
 以下のURLからAndroid Studioをダウンロードしてください：[https://developer.android.com/sdk/index.html](https://developer.android.com/sdk/index.html)
 
@@ -54,7 +54,7 @@ Android Studioの標準インストールを行う。これはWindowsではイ�
 
 インストールプロセス中、クリックし続ける**次のページ**)が終了するまで。
 
-## 追加SDKのインストール
+### 追加SDKのインストール
 
 Android Studio自体がインストールされたので、追加のツールが必要だ。そのツールは**Android Studioへようこそ**ウィンドウで**設定**ボタンをクリックする。
 
@@ -86,7 +86,7 @@ Android Studio自体がインストールされたので、追加のツールが
 
 であることを確認する。*最低*上のスクリーンショットで選択されている項目は、お使いのシステム（WindowsまたはMac OS X）で選択されています。お望みであれば、追加の項目をインストールしてもかまいません。をクリックしてください。**応募する**ボタンをクリックする。
 
-# プロジューサーを使う
+## プロジューサーを使う
 
 Android Studio、Android SDK、Android NDK がインストールされたので、JUCE ベースの Android Studio プロジェクトを作成するように Projucer を設定します。(Projucer に慣れていない方は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).)そのためには、Android SDK（とNDK）がどこにインストールされているかを知る必要がある。
 
@@ -120,7 +120,7 @@ SDKのパスを`ndk-bundle`ディレクトリを追加した。**アンドロイ
 
 この場合も、パスが正しくNDKが正しくインストールされていれば白で表示されるはずです（そうでない場合は赤で表示されます）。
 
-## Projucerプロジェクトの作成
+### Projucerプロジェクトの作成
 
 それでは、新しいプロジェクトを作成してみよう。メニュー**ファイル > 新規プロジェクト...**を選択する。**GUIアプリケーション**プロジェクトの種類を選択し、プロジェクトの場所を選択します。**アンドロイド**ターゲット・プラットフォーム。これは以下のスクリーンショットに示されている：
 
@@ -138,7 +138,7 @@ SDKのパスを`ndk-bundle`ディレクトリを追加した。**アンドロイ
   caption="最小SDKバージョンの設定"
 />
 
-## アプリケーション・コードの修正
+### アプリケーション・コードの修正
 
 アンドロイド・デバイスでうまく動作するように、アプリケーション・コードに、画面レイアウトの点で若干の変更を加えることができます。プロジューサーで**ファイル**タブで`Main.cpp`.を更新する。`MainWindow`コンストラクタを次のように使用する：
 
@@ -163,7 +163,7 @@ juceDefinition juce_AudioWorkgroup_mac.h:36
 
 これにより、アプリケーションは（デスクトップ・プラットフォームで一般的な）ウィンドウ内ではなく、フルスクリーンで実行されるようになる。
 
-## Android Studioで開く
+### Android Studioで開く
 
 をクリックしてAndroid Studioでプロジェクトを開くことができます。**プロジェクトを保存してIDEで開く...**ボタンをクリックします。Android Studioが開き、このウィンドウが表示されるはずです：
 
@@ -199,7 +199,7 @@ Android Studioが、どのデバイスを使用するか尋ねてきます。ア
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、以下のトピックを取り上げました：
 
@@ -209,7 +209,7 @@ Android Studioが、どのデバイスを使用するか尋ねてきます。ア
 - Projucer で生成したプロジェクトを Android Studio で開く。
 - 仮想（または実）デバイス上でプロジェクトを実行する。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/)
 - [Tutorial: Managing Android screen sizes](../tutorial_android_screen_sizes/)

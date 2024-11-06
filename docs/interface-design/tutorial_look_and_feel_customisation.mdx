@@ -12,17 +12,17 @@ tags: [初級]
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。"),[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。"),[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。"),[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。"),[AffineTransform](https://docs.juce.com/master/classAffineTransform.html "2次元アフィン変換行列を表す．")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/LookAndFeelCustomisationTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/LookAndFeelCustomisationTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトは、標準的なJUCEのルック＆フィールを用いて、2つのボタンと2つの回転スライダを持つGUIを作成します：
 
@@ -33,7 +33,7 @@ tags: [初級]
 
 について[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスは、JUCEでカスタマイズされたGUIを作成するための基本です。クラスを使って[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスでは、特定のコンポーネントのデフォルト・カラーを変更するなどの簡単なカスタマイズを行うことができます。しかし、多くの種類のコンポーネントの描画をカスタマイズすることもできます。例えば、ボタンやスライダーを独自の外観で作成することができます。
 
-# 色のカスタマイズ
+## 色のカスタマイズ
 
 という場合[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")オブジェクトがコンポーネントに適用されると、そのコンポーネントに適用されます。*そして*その子コンポーネント ([Tutorial: Parent and child components](../tutorial_component_parents_children/)ただし、子コンポーネントに特別に別のルック＆フィールが割り当てられている場合を除く）。
 
@@ -84,7 +84,7 @@ otherLookAndFeel.setColour (juce::Slider::thumbColourId, juce::Colours::red);
 
 このアプローチの利点は、実際の描画コードをカスタマイズし始めるとはっきりする。特に、カスタム・ルック＆フィール・クラスを作成する必要がある。
 
-# カスタム・ルック＆フィール
+## カスタム・ルック＆フィール
 
 特定のコンポーネントの描画をカスタマイズするためには、以下のクラスを継承した新しいクラスを作成する必要がある。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスを継承しています。もし[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスを実装する必要がある。*すべて*純粋仮想関数のこれらの関数がすでに定義されているクラスを継承する方がはるかに現実的だ。必要なものだけをオーバーライドすればいい。デフォルトのルック＆フィールと比較して、この1つの色の変更だけが定義されたシンプルなカスタム・ルック＆フィールを作成してみましょう。
 
@@ -119,11 +119,11 @@ private:
 
 アプリケーションをビルドして実行すると、前のスクリーンショットと同じ結果が表示されるはずです。
 
-## 図面のカスタマイズ
+### 図面のカスタマイズ
 
 には多くの機能がある。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスは、さまざまなタイプのコンポーネントに対応している。特定のコンポーネント・タイプに指定された関数は、すべて`LookAndFeelMethods`関連するコンポーネント・クラス内の
 
-## スライダーのカスタマイズ
+### スライダーのカスタマイズ
 
 例えば[Slider::LookAndFeelMethods](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html "この抽象基底クラスはLookAndFeelクラスによって実装され、スライダー描画機能を提供する。")JUCE API ドキュメントの中にあります。このリストの中に[Slider::LookAndFeelMethods::drawRotarySlider()](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html#ae63a9d8adce084cd5dbe02b960c73a9a).
 
@@ -220,7 +220,7 @@ x、y、width、heightの引数は、すべての*テキストボックス*ス�
 
 :::
 
-## ボタンのカスタマイズ
+### ボタンのカスタマイズ
 
 ボタンのカスタマイズを見てみましょう。まず`OtherLookAndFeel`クラスのルック＆フィールである。`MainContentComponent`この行をコンストラクタで使用する：
 
@@ -350,7 +350,7 @@ juceDefinition juce_AudioWorkgroup_mac.h:36
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、JUCEコンポーネントのルック＆フィールをカスタマイズする概念を紹介しました。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスで使用されます。特に以下のことができるようになるはずだ：
 
@@ -359,7 +359,7 @@ juceDefinition juce_AudioWorkgroup_mac.h:36
 - スライダーとボタンの描画コードをカスタマイズ
 - JUCEコンポーネントをカスタマイズできるように、他のコンポーネントのルック＆フィールのメソッドを検索します。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Colours in JUCE](../tutorial_colours/)
 - [Tutorial: The Slider class](../tutorial_slider_values/)

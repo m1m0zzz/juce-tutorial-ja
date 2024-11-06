@@ -12,11 +12,11 @@ tags: [初級]
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。"),[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a),[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")
 
-# スタート
+## スタート
 
 :::note
 
@@ -28,7 +28,7 @@ tags: [初級]
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトでは、2つの直線的な水平スライダーを示しています。一方のスライダーには**頻度**もうひとつは**期間**次のスクリーンショットのように：
 
@@ -43,11 +43,11 @@ f =1⁄d
 
 どちらかのスライダーを動かすと、もう一方のスライダーも更新され、変更が反映される。
 
-# JUCE Sliderクラス。
+## JUCE Sliderクラス。
 
 このチュートリアルでは、スライダを作成し、その範囲を設定し、値の変化をリッスンし、スライダの値をプログラムで更新する方法を示します。デモ・アプリケーションを実行すると、両方のスライダにテキスト・ボックスが含まれ、このテキスト・ボックスには周波数の単位 (**ヘルツ**ヘルツ）と持続時間(**s**秒）。
 
-## スライダーの追加
+### スライダーの追加
 
 このスライダーは、プライベート・メンバーとして我々のチームに加えられている。`MainContentComponent`クラスである：
 
@@ -113,7 +113,7 @@ public:
         durationLabel.attachToComponent (&durationSlider, true);
 ```
 
-## スライダーの位置
+### スライダーの位置
 
 スライダーは`MainContentComponent::resized()`関数を使用した。私たちは[Label::attachToComponent()](https://docs.juce.com/master/classLabel.html#a3c2397c0da1249f9e27e2279e0f2d4eb "このラベルを別のコンポーネントに「くっつける」。")関数を使用してラベルをスライダーに貼り付けると、ラベルは自動的にスライダーの左側に配置されます。
 
@@ -126,7 +126,7 @@ public:
     }
 ```
 
-## スライダーの変化への対応
+### スライダーの変化への対応
 
 次のコードは、スライダーのリスナーがスライダーの値の変化に反応するようにします。
 
@@ -142,7 +142,7 @@ public:
 
 これは[Slider::Listener::sliderValueChanged()](https://docs.juce.com/master/classSliderListener.html#aa43e257ace7dd4a61399b30cb3285e75 "スライダーの値が変更されたときに呼び出される。")関数を追加する場合は、オーバーライドする必要があります。[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)を基本クラスとする。を呼び出すことで、スライダーの逆数をもう一方のスライダーに渡すだけです。[Slider::setValue()](https://docs.juce.com/master/classSlider.html#a430a5c4e56b39dd622f5800f787e0822 "スライダーの現在値を変更する。")関数を使います。また、スライダーにその変化をブロードキャストしないように指示する。これは、このように2つのスライダーが互いに依存している場合、無限のフィードバックループが発生する可能性があるからです。スライダーの[dontSendNotification](https://docs.juce.com/master/group__juce__events-messages.html#gga25a31a4bdc02a0d0adb743e26dd14ba9a057928146704d53dfee6f4ac33c92629)値はこのループの可能性を断ち切る。演算が正確で、両方向の変換が同じ結果を生むと仮定すると、これは必要ないはずです。というのも、スライダーがリスナーにブロードキャストするのは、値が実際に変化した場合だけだからです。(このような状況では、変換にわずかな丸め誤差がある場合に問題が発生することがあります)。を省略することもできます。[dontSendNotification](https://docs.juce.com/master/group__juce__events-messages.html#gga25a31a4bdc02a0d0adb743e26dd14ba9a057928146704d53dfee6f4ac33c92629)この値は、スライダーのデフォルト動作である*意志*放送が変わる。を使うかどうかは、本当に慎重に考える必要がある。[dontSendNotification](https://docs.juce.com/master/group__juce__events-messages.html#gga25a31a4bdc02a0d0adb743e26dd14ba9a057928146704d53dfee6f4ac33c92629)あるいは、そうでなくても、あなた自身のアプリケーションにおける特定のユースケースに対応できる。
 
-## 初期値の設定
+### 初期値の設定
 
 コンストラクタでは`frequencySlider`スライダーは500に設定されている。これにより`durationSlider`スライダーを更新する。[dontSendNotification](https://docs.juce.com/master/group__juce__events-messages.html#gga25a31a4bdc02a0d0adb743e26dd14ba9a057928146704d53dfee6f4ac33c92629)今回は価値がある：
 
@@ -150,11 +150,11 @@ public:
         frequencySlider.setValue (500.0); // [5]
 ```
 
-# いくつかのカスタマイズ
+## いくつかのカスタマイズ
 
 インターフェイスをより効果的にするために、ここにいくつかの簡単なカスタマイズを加えることができる。
 
-## テキストボックスを広くする
+### テキストボックスを広くする
 
 のテキストボックス`durationSlider`特にスライダーは、その値を満足に表示するために多くの桁を必要とする。そのために[Slider::setTextBoxStyle()](https://docs.juce.com/master/classSlider.html#a5bc748a21e72fe14153bc9fe5ac03e77 "テキスト入力ボックスの位置とプロパティを変更する。")関数に追加する。以下の2行のコードを`MainContentComponent`ビルダー
 
@@ -170,7 +170,7 @@ public:
   caption="テキストボックスの幅が広くなったスライダー。"
 />
 
-## スライダー値の歪み
+### スライダー値の歪み
 
 デフォルトでは、スライダートラックはリニアで、スライダーの値はスライダートラックに沿ったスライダーサムの位置に比例します。インターフェイスを操作してみると、これがどうもしっくりこないのは明らかだ。スライダーを調整する*スキュー*を使ってスライダーの軌跡を対数にすることができます。これを行うには[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "値の分布方法を変更するためのスキュー係数を設定する。")関数に追加します。以下の2行のコードを`MainContentComponent`のコンストラクタは、スライダが設定された後に使用します：
 
@@ -193,7 +193,7 @@ public:
 
 :::
 
-## スライダー・コールバックの簡素化
+### スライダー・コールバックの簡素化
 
 このチュートリアルで示したようなリスナーやブロードキャスターのパラダイムを使う代わりに、最新の C++ 標準のラムダ関数を使うことで、スライダーのコールバックを単純化することができます。これは、複雑な実装を必要としない単純なコールバックには特に効果的です。
 
@@ -234,7 +234,7 @@ public:
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")クラスで学んだ。特に私たちは学んだ：
 
@@ -242,7 +242,7 @@ public:
 - スライダーの値の変化にどう対応するか。
 - 対数目盛りを使用するようにスライダーの傾きを設定する方法。
 
-# 参照
+## 参照
 
 - [Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)
 - [Tutorial: The ComboBox class](../tutorial_combo_box/)

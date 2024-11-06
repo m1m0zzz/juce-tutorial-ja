@@ -10,13 +10,13 @@ tags: [中級]
 
 JUCEユーザー・インターフェースにテーブルを組み込む。XMLファイルから読み込んだデータを表示し、テーブルのフォーマットをカスタマイズできます。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。"),[TableListBoxModel](https://docs.juce.com/master/classTableListBoxModel.html "これらのうちの1つは、テーブルの内容のデータモデルとしてTableListBoxで使用されます。"),[ListBox](https://docs.juce.com/master/classListBox.html "縦にスクロールできる項目のリスト。"),[ListBoxModel](https://docs.juce.com/master/classListBoxModel.html "このサブクラスはListBoxを駆動するために使用されます。"),[TableHeaderComponent](https://docs.juce.com/master/classTableHeaderComponent.html "テーブルの列見出しを表示するコンポーネント。"),[XmlDocument](https://docs.juce.com/master/classXmlDocument.html "テキストベースの XML ドキュメントを解析し、XmlElement オブジェクトを作成します。"),[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/TableListBoxTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/TableListBoxTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -28,7 +28,7 @@ JUCEユーザー・インターフェースにテーブルを組み込む。XML�
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトは、JUCE モジュールに関する情報を含む XML ファイルから読み込まれたテーブルを表示します。この表は、好きな列でソートしたり、特定の項目を編集したり、列を非表示にしたりすることができます。
 
@@ -37,7 +37,7 @@ JUCEユーザー・インターフェースにテーブルを組み込む。XML�
   caption="アプリのウィンドウ"
 />
 
-# ListBox クラス
+## ListBox クラス
 
 ベース[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")JUCEでテーブルを表示するためのクラスは[ListBox](https://docs.juce.com/master/classListBox.html "縦にスクロールできる項目のリスト。")クラスである。その[ListBox](https://docs.juce.com/master/classListBox.html "縦にスクロールできる項目のリスト。")によって管理される。[ListBoxModel](https://docs.juce.com/master/classListBoxModel.html "このサブクラスはListBoxを駆動するために使用されます。")クラスを使うことができます。これはスクロール可能なビューポートにアイテムのリストを表示するのに便利ですが、これをカラムを記述するヘッダーを持つ適切なテーブルに変えるには、それぞれ[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")そして[TableListBoxModel](https://docs.juce.com/master/classTableListBoxModel.html "これらのうちの1つは、テーブルのコンテンツのデータモデルとしてTableListBoxで使用されます。")クラスがある。これらのクラスは、対応するクラスと同じ振る舞いをカプセル化しますが、代わりに[TableHeaderComponent](https://docs.juce.com/master/classTableHeaderComponent.html "テーブルの列見出しを表示するコンポーネント。")でカラムヘッダーを表示します。
 
@@ -52,7 +52,7 @@ JUCEユーザー・インターフェースにテーブルを組み込む。XML�
 
 オプションでオーバーライドして機能を追加できる関数は他にもあるが、このチュートリアルではここで紹介する関数を実装する。
 
-# XMLからデータを読み込む
+## XMLからデータを読み込む
 
 まず、XMLドキュメントからテーブルに表示したいデータをロードすることから始めよう。
 
@@ -156,11 +156,11 @@ class TableTutorialComponent    : public juce::Component,
 
 ここでは、子XML要素を繰り返し処理し、一致するカラムIDを見つけてそのname属性を返します。
 
-# カスタムセルコンポーネント
+## カスタムセルコンポーネント
 
 A[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")は、テキスト以外のカスタム・コンポーネントをセルに保持することができる。以下のセクションで[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")をカラムの1つに入れ、編集可能な[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")ユーザーの入力をリッスンする。
 
-## 編集可能なラベル
+### 編集可能なラベル
 
 の中で`EditableTextCustomComponent`クラスを継承する。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスをダブルクリックすると編集可能になるように設定します：
 
@@ -237,7 +237,7 @@ A[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeader
 
 ここでは、テキストを[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")行番号と列番号から。
 
-## 選択可能なボタン
+### 選択可能なボタン
 
 の中で`SelectionColumnCustomComponent`クラスを継承する。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスを設定する。[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")幼いころ[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")にコールバック関数を割り当てて、ユーザがその関数を操作したときに呼び出されるようにします：
 
@@ -310,7 +310,7 @@ A[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeader
 
 :::
 
-# データの並べ替え
+## データの並べ替え
 
 テーブルが選択されたカラムに基づいて要素をソートするためには、コンパレータ・クラスを定義しなければならない。`sortChildElements()`の機能である。[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")オブジェクトがある。
 
@@ -357,7 +357,7 @@ A[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeader
 
 したがって、上記の関数では、両方のXmlElementの文字列属性を比較するために`compareNatural()`のメソッドを使用する。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスは、同じ規則で int を返す。\[1\].もし2つの文字列が問題の属性に対して等価であれば、これら2つの要素のID列を比較します。\[2\].最後に、ソートの方向が逆の場合は、結果を反転させる必要がある。\[3\].
 
-# モデルの設定
+## モデルの設定
 
 を実装して、すべてのピースを組み立てよう。[TableListBoxModel](https://docs.juce.com/master/classTableListBoxModel.html "これらのうちの1つは、テーブルのコンテンツのデータモデルとしてTableListBoxで使用されます。").
 
@@ -533,7 +533,7 @@ private:
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、情報を表に表示する方法を学びました。特に
 
@@ -541,7 +541,7 @@ private:
 - カスタムコンポーネントをテーブルセルに組み込みました。
 - カスタム・ソート動作に従ってテーブル・データをソートした。
 
-# 参照
+## 参照
 
 - [Tutorial: The Label class](../tutorial_label/)
 - [Tutorial: The ComboBox class](../tutorial_combo_box/)

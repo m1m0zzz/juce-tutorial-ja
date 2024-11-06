@@ -10,13 +10,13 @@ tags: [中級]
 
 このチュートリアルでは、オーディオを処理して出力レベルを変える方法を説明します。これは、低レベルのオーディオサンプルデータを処理することで実現します。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。"),[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。"),[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。"),[AudioBuffer](https://docs.juce.com/master/classAudioBuffer.html "浮動小数点オーディオサンプルを含むマルチチャンネルバッファ。"),[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")
 
-# スタート
+## スタート
 
 :::note
 
@@ -28,7 +28,7 @@ tags: [中級]
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトでは、ホワイト・ノイズ・ジェネレーターの出力レベルを制御するために使用できるスライダーを1つ含むウィンドウが表示されます。これは次のスクリーンショットに示されています。
 
@@ -39,7 +39,7 @@ tags: [中級]
 
 IDEからプロジェクトを実行し、発生するホワイトノイズのレベルを実際にコントロールできることを確認してください。
 
-# 乗算としてのレベルコントロール
+## 乗算としてのレベルコントロール
 
 コードを見て、次のことに気づくかもしれない。`MainContentComponent`クラスは*ない*を継承する。[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスの値を取得します。実際、スライダーの値は`getNextAudioBlock()`関数が呼び出される：
 
@@ -91,7 +91,7 @@ IDEからプロジェクトを実行し、発生するホワイトノイズの�
     }
 ```
 
-## ちょっとした最適化
+### ちょっとした最適化
 
 算術演算の回数を減らすことは、しばしばDSPの目標である。これは、1サンプルにつき1回の乗算演算を行わずに済むケースの1つである。これを実現するには、まず、0.0と1.0の間の値に、次の値を掛け合わせればよい。*ダブル*必要な出力レベル。例えば、レベルを0.25にしたいとしよう。ランダムな値に0.5を掛けると次のようになる：
 
@@ -139,14 +139,14 @@ IDEからプロジェクトを実行し、発生するホワイトノイズの�
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、オーディオ信号のレベルをコントロールする方法を説明しました。以下のトピックを取り上げました：
 
 - 信号値に必要な出力レベルを乗じることによって、信号のレベルを変更すること。
 - スライダーを使ってオーディオレベルをコントロールする。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: The Slider class](../../interface-design/tutorial_slider_values/)
 - [Tutorial: Build a white noise generator](../tutorial_simple_synth_noise/)

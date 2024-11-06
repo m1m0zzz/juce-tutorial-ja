@@ -12,17 +12,17 @@ JUCE アプリケーションで簡単なアニメーションを作成できま
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。"),[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。"),[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AnimationTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AnimationTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このデモ・プロジェクトが完成すると、画面上に複数の魚の連続的で滑らかなアニメーションが表示される。[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")そして[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")オブジェクトがある。
 
@@ -37,7 +37,7 @@ JUCE アプリケーションで簡単なアニメーションを作成できま
 
 :::
 
-# AnimatedAppComponentクラス
+## AnimatedAppComponentクラス
 
 単純なアニメーションJUCEアプリケーションを作成する場合、継承すると便利なクラスがあります。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスである。ちょうど[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")または[OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスは、それぞれオーディオ・アプリケーションとOpenGLアプリケーションに役立ちます。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")というアニメーション制作に有益な機能を提供している：
 
@@ -48,7 +48,7 @@ JUCE アプリケーションで簡単なアニメーションを作成できま
 
 これらの関数と親のpaint()関数を併用することで、以下のようになる。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスを使えば、簡単なアニメーションを作ることができる。
 
-# 円のアニメーション
+## 円のアニメーション
 
 を見ればわかるように`MainContentComponent`クラスを継承しています。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。").
 
@@ -123,7 +123,7 @@ Slider::thumbColourId@ thumbColourIdThe colour to draw the thumb with.Definition
 
 :::
 
-# パスのアニメーション
+## パスのアニメーション
 
 円の代わりに、次は円形のパスに沿って線をアニメートしてみよう。
 
@@ -183,7 +183,7 @@ Slider::thumbColourId@ thumbColourIdThe colour to draw the thumb with.Definition
 
 :::
 
-# 魚のアニメーション
+## 魚のアニメーション
 
 の魚をアニメーション化して、もう少し面白いことをやってみよう。[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")そして[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")オブジェクトを作成した。
 
@@ -285,7 +285,7 @@ void paint (juce::Graphics& g) override
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、JUCE アプリケーションでジオメトリ形状をアニメートする方法を学びました。特に
 
@@ -293,7 +293,7 @@ void paint (juce::Graphics& g) override
 - を使用して描かれた図形。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスである。
 - フレームごとに図形をアニメーションさせる。
 
-# 参照
+## 参照
 
 - [Tutorial: The Graphics class](../tutorial_graphics_class/)
 - [Tutorial: The Point, Line, and Rectangle classes](../../interface-design/tutorial_point_line_rectangle/)

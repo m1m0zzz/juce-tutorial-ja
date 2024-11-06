@@ -10,13 +10,13 @@ tags: [中級]
 
 を使ったオーディオ波形の表示について紹介します。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスを使用します。これによって、オーディオ・アプリケーション内で任意の数の波形を簡単に描画できるようになります。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。"),[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。"),[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。"),[ChangeListener](https://docs.juce.com/master/classChangeListener.html "ChangeBroadcasterから発信される変更イベントコールバックを受信する。")
 
-# スタート
+## スタート
 
 :::note
 
@@ -28,7 +28,7 @@ tags: [中級]
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトでは、次のように3つのボタンが表示される。[Tutorial: Build an audio player](../tutorial_playing_sound_files/)(サウンドファイルを開く、再生する、停止する）。
 
@@ -48,11 +48,11 @@ tags: [中級]
 
 オーディオ波形の描画は、特に長いファイルの場合、一般的に、波形の描画が効率的で、ユーザーにもわかりやすいフォーマットで、オーディオデータの低解像度バージョンを保存する必要があります。そのため[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスがこの低解像度バージョンを処理し、必要に応じて作成・更新されます。
 
-# AudioThumbnailの設定
+## AudioThumbnailの設定
 
 まず重要な点は[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラス**ではない**のサブクラスです。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスである。その[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスは、オーディオ波形を`paint()`別の関数[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")オブジェクトを追加します。以下のコードは、以下のデモ・プロジェクトに基づいてこの機能を追加する方法を示しています。[Tutorial: Build an audio player](../tutorial_playing_sound_files/).
 
-## 追加オブジェクト
+### 追加オブジェクト
 
 我々の`MainContentComponent`クラスに2つのメンバを追加する必要があります。[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトと[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトになる。その[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")クラスは、1つまたは複数のオーディオファイルの必要な低解像度バージョンをキャッシュするために使用されます。これは、例えば、あるファイルを閉じて新しいファイルを開き、また最初のファイルを開こうとすると[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")には最初のファイルの低解像度バージョンが残っているので、データを再スキャンして再計算する必要はない。もうひとつの便利な機能は[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")の異なるインスタンス間で共有できる。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラス
 
@@ -76,7 +76,7 @@ tags: [中級]
 
 このような静的に割り当てられたオブジェクトを使用する場合、次のことが重要である。[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクト\[1\]の前に表示される。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクト\[2\]に引数として渡されるからである。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。") [constructor.](https://docs.juce.com/master/classAudioThumbnail.html#abfa7516538eb0518cddeec4c71cf329d)ということも重要である。[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")オブジェクト\[3\]の前に表示される。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトも同じ理由である。
 
-## オブジェクトの初期化
+### オブジェクトの初期化
 
 のイニシャライザーリストでは`MainContentComponent`コンストラクターでこれらのオブジェクトをセットアップする：
 
@@ -97,7 +97,7 @@ tags: [中級]
         thumbnail.addChangeListener (this);            // [6]
 ```
 
-## 変化への対応
+### 変化への対応
 
 我々の`changeListenerCallback()`関数からブロードキャストされているかどうかを判断する必要がある。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトまたは[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトがある：
 
@@ -127,7 +127,7 @@ tags: [中級]
     }
 ```
 
-## ファイルを開く
+### ファイルを開く
 
 サウンドファイルをうまく開いたら、そのファイルを[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクト\[7\]の中にある。[FileInputSource](https://docs.juce.com/master/classFileInputSource.html "通常のファイルを表すInputSourceの一種。")オブジェクトがある。
 
@@ -161,7 +161,7 @@ tags: [中級]
     }
 ```
 
-## 描画の実行
+### 描画の実行
 
 我々の`paint()`関数では、まず描画する矩形を計算する。次に[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")これは、ファイルがロードされているかどうかを示す：
 
@@ -218,11 +218,11 @@ tags: [中級]
 
 :::
 
-# タイムポジションマーカーの追加
+## タイムポジションマーカーの追加
 
 このセクションでは、ファイル再生の現在時刻を表示する縦線の追加について説明します。
 
-## タイマーの追加
+### タイマーの追加
 
 まず最初に[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスを基本クラスのリストに加える。\[10\]:
 
@@ -256,7 +256,7 @@ public:
 
 :::
 
-## ポジションラインを引く
+### ポジションラインを引く
 
 最後に、線を引くために、線の位置を計算し、線を引く必要がある。*その後*サムネイルを描く
 
@@ -317,7 +317,7 @@ public:
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスと、それをオーディオ・アプリケーションに統合する方法について説明しました。特に
 
@@ -325,7 +325,7 @@ public:
 - を使用している。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスをコンポーネント内で使用します。
 - コンポーネントを構造化することで、描画が複雑なコンテンツが不必要に再描画されないようにする。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)
 - [Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)

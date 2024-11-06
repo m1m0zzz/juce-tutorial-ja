@@ -12,11 +12,11 @@ tags: [初級]
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。"),[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。"),[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")
 
-# スタート
+## スタート
 
 :::note
 
@@ -28,7 +28,7 @@ tags: [初級]
 
 このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトは、次のスクリーンショットのように、家の簡単な図面を含むシーンを表示します：
 
@@ -41,7 +41,7 @@ tags: [初級]
 
 これがどのように組み合わされるのか、なぜこのようにコンポーネントを構成するのが良いのか、その理由を探ってみよう。
 
-# Componentクラスの階層
+## Componentクラスの階層
 
 ほとんどのユーザー・インターフェースは、テキスト、ボタン、スライダー、メニューなど、多くの要素で構成されています。例えば、次のスクリーンショットは[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")クラス（オーディオのハードウェア設定を制御するクラス。[Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)を参照してください)。これには、ボタン、ラベル、メニュー（コンボボックス）、ラジオボタン、オーディオレベルインジケータが含まれます。
 
@@ -59,7 +59,7 @@ tags: [初級]
 
 このような場合、個々の要素を別々の階層部分に分離することで、インターフェースのレイアウト設計（およびユーザーとのインタラクションへの対応）が非常に容易になる。コンポーネントによっては`paint()`関数を使って描画する。他のコンポーネントは、単に他のコンポーネントを含んでいるだけかもしれない。あるコンポーネントは他のコンポーネントを含むかもしれない*そして*ドローイングを行う。デザインの選択肢はかなり柔軟だ。
 
-# MainContentComponentクラス
+## MainContentComponentクラス
 
 このチュートリアルでは`MainContentComponent`クラスは、他のコンポーネント・クラスのインスタンスをメンバーとして含んでいる。これが`SceneComponent`クラスが実際のシーンを描く。クラスを見てみよう。`MainContentComponent`クラスが追加されます。SceneComponent オブジェクトは、プライベートメンバーとして追加されます：
 
@@ -72,7 +72,7 @@ private:
 };
 ```
 
-## 子コンポーネントの追加
+### 子コンポーネントの追加
 
 その中で`MainContentComponent`コンストラクタでは`SceneComponent`オブジェクトが*子供*コンポーネントと`MainContentComponent`オブジェクトがその*親*.
 
@@ -92,7 +92,7 @@ private:
     }
 ```
 
-## 子コンポーネントの境界を設定する
+### 子コンポーネントの境界を設定する
 
 その一方で`MainContentComponent`クラスは構築時に自身のサイズを設定するため、多くのコンポーネント・オブジェクトの初期サイズはゼロです。Component::setSize()関数を呼び出すと、今度は私たちの`MainContentComponent::resized()`関数を使用します。これは、子コンポーネントのサイズと位置を設定するのに適した場所である：
 
@@ -120,7 +120,7 @@ void resized() override
 
 :::
 
-# その様子
+## その様子
 
 について`SceneComponent`クラスは独自の描画を行い、2つの子コンポーネント（床と家を表す）を含んでいる。子コンポーネントは`SceneComponent`宣言は以下の通りである：
 
@@ -175,7 +175,7 @@ JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WI
 
 それぞれのクラスの中で、床と家がどのように描かれているかを見てみよう。
 
-## フロア
+### フロア
 
 床は緑色の水平線で描かれる。[Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/))5ピクセルの厚さで、コンポーネント内の垂直方向の中央に配置され、その全幅にわたります。以下は`FloorComponent::paint()`関数 (`FloorComponent`クラス)：
 
@@ -187,7 +187,7 @@ JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WI
     }
 ```
 
-## 家
+### 家
 
 この家自体は、それ自体で絵を描くことはない。`paint()`関数）であるが、他の2つのコンポーネント（家の壁と屋根を表す）で構成されている。`HouseComponent`クラスである：
 
@@ -230,7 +230,7 @@ private:
 - \[2\]屋根は家の全幅に設定されている。1⁄5家の高さのこれは離れを考慮して調整される。
 - \[3\]壁は屋根の下に配置されている。4⁄5家の高さのこれはまた、離れを考慮して調整される。
 
-### 壁
+#### 壁
 
 について`WallComponent`クラスはシンプルだ。このクラスは、市松模様で自分自身を塗りつぶすだけである。`WallComponent::paint()`関数 (`WallComponent`クラス)：
 
@@ -242,7 +242,7 @@ private:
     }
 ```
 
-### 屋根
+#### 屋根
 
 について`RoofComponent`クラスは[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")オブジェクトを`RoofComponent::paint()`関数である：
 
@@ -265,7 +265,7 @@ private:
 
 :::
 
-# 太陽の追加
+## 太陽の追加
 
 シーンに太陽を追加してみよう。いくつかの空の関数が`SunComponent`クラスにコードを追加する。
 
@@ -352,7 +352,7 @@ private:
 
 :::
 
-# コンポーネントの再利用
+## コンポーネントの再利用
 
 で使用される座標系の主な利点のひとつは、この座標系を使用することである。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスでは、描画は常にコンポーネントの左上を基準として行われる。描画を別のクラスにカプセル化するもう1つの利点は、簡単に再利用できることです。
 
@@ -413,7 +413,7 @@ private:
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、"親 "と "子 "の階層システムを紹介した。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスである。特に、私たちは学んだ：
 
@@ -423,7 +423,7 @@ private:
 - そのコンポーネントが最初に描画を実行し、次に子コンポーネントが親コンポーネントに追加された順に描画される。
 - 描画は通常、コンポーネントの境界にクリッピングされる。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)
 - [Tutorial: Customise the look and feel of your app](../tutorial_look_and_feel_customisation/)

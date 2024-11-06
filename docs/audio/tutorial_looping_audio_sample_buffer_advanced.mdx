@@ -12,11 +12,11 @@ tags: [上級]
 
 レベル上級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。"),[ReferenceCountedArray](https://docs.juce.com/master/classReferenceCountedArray.html "ReferenceCountedObjectから派生したオブジェクトや、基本的な参照カウントを実装したオブジェクトのリストを保持します。"),[Thread](https://docs.juce.com/master/classThread.html "スレッドをカプセル化する。"),[AudioBuffer](https://docs.juce.com/master/classAudioBuffer.html "浮動小数点オーディオサンプルを含むマルチチャンネルバッファ。")
 
-# スタート
+## スタート
 
 このチュートリアルは[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/).もしまだなら、まずそのチュートリアルを読むべきだ。
 
@@ -24,15 +24,15 @@ tags: [上級]
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 のデモ・プロジェクトと同様の動作を実装している。[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/).バッファにロードされたオーディオファイルを開き、ループで再生することができます。このチュートリアルで大きく異なる点は、ファイルを参照するたびにシャットダウンするのではなく、オーディオシステムを実行し続けることです。これは、スレッドセーフな方法でスレッド間の通信を行うためのいくつかの便利なクラスを使用することで実現されています。
 
-# スレッドセーフ・テクニック
+## スレッドセーフ・テクニック
 
 を思い出してほしい。[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/)オーディオスレッドとメッセージスレッドが不完全または破損したデータにアクセスする可能性があるという潜在的な問題をどのように解決したか。ファイルをブラウズする直前に、オーディオシステムをシャットダウンした。そして、ファイルを選択したら、ファイルを開き、オーディオシステムを再起動した。これは、実際のアプリケーションでは明らかに非現実的で面倒な方法である！
 
-## 参照カウントされるオブジェクト
+### 参照カウントされるオブジェクト
 
 について[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスは、スレッド間でメッセージやデータを受け渡すのに便利なツールだ。ここでは[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトの再生位置と[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスを作成しました。デバッグの助けとなるように、また、このクラスがどのように動作するかを説明するのに役立つように、次のようなものもあります。`name`メンバ（ただし、これはクラスが機能するために厳密には必要ではない）：
 
@@ -83,7 +83,7 @@ tags: [上級]
 
 について`buffers`メンバは、オーディオスレッドがバッファを必要としないと確信するまで、バッファを配列に保持する。この`currentBuffer`メンバは現在選択されているバッファを保持する。
 
-## バックグラウンド・スレッドの実装
+### バックグラウンド・スレッドの実装
 
 私たちの`MainContentComponent`クラスは[Thread](https://docs.juce.com/master/classThread.html "スレッドをカプセル化する。")クラスである：
 
@@ -133,7 +133,7 @@ public:
     }
 ```
 
-## ファイルを開く
+### ファイルを開く
 
 私たちの`openButtonClicked()`関数は`openButtonClicked()`関数[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/)若干の違いはあるが：
 
@@ -200,7 +200,7 @@ public:
     }
 ```
 
-## バッファーの再生
+### バッファーの再生
 
 私たちの`getNextAudioBlock()`関数は`getNextAudioBlock()`関数[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/)ただし、現在の`ReferenceCountedBuffer`オブジェクトと[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを含む。
 
@@ -269,11 +269,11 @@ public:
 
 このアルゴリズムは`ReferenceCountedBuffer`オブジェクトはオーディオスレッド上では削除されません。オーディオ・スレッドでメモリを確保したり解放したりするのは良い考えとは言えません。そのため`ReferenceCountedBuffer`オブジェクトはバックグラウンドのスレッドでのみ削除される。
 
-# バックグラウンド・スレッドで音声を読む
+## バックグラウンド・スレッドで音声を読む
 
 私たちのアプリケーションは、依然としてメッセージスレッドでオーディオデータを読み込んでいます。メッセージスレッドがブロックされ、大きなファイルはロードに時間がかかる可能性があるため、これは理想的ではありません。実際、バックグラウンドスレッドを使ってこのタスクを実行することもできます。
 
-## バックグラウンド・スレッドにファイル・パスを渡す
+### バックグラウンド・スレッドにファイル・パスを渡す
 
 まず、以下のメンバーを`MainContentComponent`クラスである：
 
@@ -315,7 +315,7 @@ public:
 
 ここでは、ファイルを開くためにバックグラウンド・スレッドで関数を呼び出すので、バックグラウンド・スレッドもウェイクアップする。
 
-## バックグラウンド・スレッドからのパスへのアクセス
+### バックグラウンド・スレッドからのパスへのアクセス
 
 私たちの`run()`関数を以下のように更新する必要がある：
 
@@ -386,7 +386,7 @@ public:
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、特にオーディオアプリケーションにおいて、スレッド間でデータを受け渡すための便利なテクニックを紹介しました。このチュートリアルを読めば、以下のことができるようになるでしょう：
 
@@ -394,7 +394,7 @@ public:
 - の寿命を維持する。[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")マルチスレッド・アプリケーションで。
 - 不要になったオブジェクトの削除や、ファイルの読み取り操作などのタスクを実行するバックグラウンド・スレッドを実装する。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Build an audio player](../tutorial_playing_sound_files/)
 - [Tutorial: Processing audio input](../tutorial_processing_audio_input/)

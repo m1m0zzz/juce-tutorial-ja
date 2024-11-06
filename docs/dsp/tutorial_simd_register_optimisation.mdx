@@ -12,17 +12,17 @@ tags: [上級]
 
 レベル上級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [dsp::SIMDRegister](https://docs.juce.com/master/structdsp_1_1SIMDRegister.html "プラットフォームのネイティブSIMDレジスタ・タイプのラッパー。"),[dsp::IIR](https://docs.juce.com/master/namespacedsp_1_1IIR.html "IIRフィルタ処理のためのクラス。"),[dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "モノラル・プロセッサー・クラスを複製し、マルチチャンネル・プロセッサー・クラスを適用することで、マルチチャンネル・プロセッサー・クラスに変換します。")AudioDataConverters、[dsp::AudioBlock](https://docs.juce.com/master/classdsp_1_1AudioBlock.html "最小かつ軽量のデータ構造で、いくつかのチャンネルへのポインタのリストを含む。"),[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/SIMDRegisterTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/SIMDRegisterTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このデモ・プロジェクトでは、読み込んだオーディオ・ファイルをIIRフィルターを通して再生し、試聴時に処理・変更することができます。この最適化の目的は、同じIIRフィルターにSIMD命令セットを使用することで、CPUパワーをどれだけ軽減できるかを確認することです。
 
@@ -37,7 +37,7 @@ tags: [上級]
 
 :::
 
-# SIMD命令
+## SIMD命令
 
 SIMDとは "Single Instruction Multiple Data"（単一命令複数データ）の略で、最新のCPUが複数のレジスタに数値をロードして同じ計算を一度に実行することで、1つの命令をデータセットに適用できる方法を指す。デジタル信号処理の世界では、このタイプの並列処理がMIMD（Multiple Instruction Multiple Data）のような他のタイプよりも好まれます。オーディオスレッドが他のスレッドとデータの取り合いにならないようにすることが最も重要であり、オーディオ処理ではほとんどの場合、命令の順序は同じに保たれるべきである。
 
@@ -100,7 +100,7 @@ SIMDRegister calculateDSPEffect (SIMDRegister x,
 
 このチュートリアルでは、SIMDを使ってIIRフィルターを最適化します。
 
-# IIRフィルター
+## IIRフィルター
 
 の中で`SIMDTutorialFilter`クラスでは、まずここに示すように、フィルタのパラメータなどのメンバ変数を定義する：
 
@@ -173,7 +173,7 @@ process()関数の中で、1つのブロックが入力と出力の両方に使�
 
 では、このIIRフィルターの最適化を始めよう。
 
-# SIMD最適化IIRフィルター
+## SIMD最適化IIRフィルター
 
 IIRフィルターのコードを最適化する前に、SIMDがシステムで利用可能であることを確認する必要があります。そのためには`JUCE_USE_SIMD`マクロを使って、フィルター実装全体をこのようにラップすることで、SIMDマシンで開発しているかどうかをチェックできる：
 
@@ -309,7 +309,7 @@ updateParameters()関数を次のように更新して、新しい係数ポイ�
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、SIMDRegisterクラスを使ってDSPコードを最適化する方法を学びました。特に
 
@@ -317,7 +317,7 @@ updateParameters()関数を次のように更新して、新しい係数ポイ�
 - サウンドファイルをIIRフィルターで処理。
 - SIMDRegisterクラスを使ってIIRフィルタを最適化。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Draw audio waveforms](../../audio/tutorial_audio_thumbnail/)
 - [Tutorial: Build an audio player](../../audio/tutorial_playing_sound_files/)

@@ -12,11 +12,11 @@ tags: [初級]
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [JUCEApplication](https://docs.juce.com/master/classJUCEApplication.html "このクラスのインスタンスは、アプリケーションの初期化およびシャットダウン・コードを指定するために使用される。"),[DocumentWindow](https://docs.juce.com/master/classDocumentWindow.html "タイトルバーと最大化、最小化、閉じるボタンを備えたサイズ変更可能なウィンドウ。"),[ResizableWindow](https://docs.juce.com/master/classResizableWindow.html "ドラッグして移動したりサイズを変更したりできるトップレベル・ウィンドウの基本クラス。")
 
-# スタート
+## スタート
 
 Projucerを起動し、次の名前で新しいGUIアプリケーション・プロジェクトを作成します。**メインウィンドウチュートリアル**.での**自動生成するファイル：**フィールドで**Main.cppファイルのみを作成する**.
 
@@ -80,7 +80,7 @@ void shutdown() override
 }
 ```
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトは、ソース・ファイルが1つしかない非常に最小限のJUCEアプリです：`Main.cpp`.このアプリが行うのは、空のアプリケーション・ウィンドウを作成して表示することだけです。アプリを実行すると、このウィンドウが開くはずです：
 
@@ -108,9 +108,9 @@ void initialise (const juce::String& commandLine) override
 
 :::
 
-# メインウィンドウの実装
+## メインウィンドウの実装
 
-## MainWindowクラス
+### MainWindowクラス
 
 では、この実装を見てみよう。`MainWindow`クラスを継承している。これはJUCE[DocumentWindow](https://docs.juce.com/master/classDocumentWindow.html "タイトルバーと最大化、最小化、閉じるボタンを備えたサイズ変更可能なウィンドウ。")クラス、タイトル・バーのあるサイズ変更可能なウィンドウ、最大化、最小化、閉じるボタン。これらはすべて、アプリケーション・ウィンドウに期待される要素です。
 
@@ -146,11 +146,11 @@ MainWindow (juce::String name)  : DocumentWindow (name,
 
 :::
 
-## 背景色の設定
+### 背景色の設定
 
 次の2つの引数、背景色とボタンは、直接`MainWindow`コンストラクタを使用します。ほとんどの一般的な色はJUCEで定義済みの定数を持っており、この例のように直接使用することができます。ですから[Colours::lightgrey](https://docs.juce.com/master/namespaceColours.html#a47f250277502112af4e9ac55a26d51fc)定数[Colours::red](https://docs.juce.com/master/namespaceColours.html#adeee57dc4a6f202204ad3a3d7e0ec243)または[Colours::blue](https://docs.juce.com/master/namespaceColours.html#a712056f9defb3e4e19f670d2175290c8)を使えば、アプリのウィンドウ全体の背景色を素早く変更できます。もちろん、独自のカスタムカラーを定義することも可能です。参照[Tutorial: Colours in JUCE](../../interface-design/tutorial_colours/)JUCEの色についてのより詳しい紹介はこちら。
 
-## ボタンにビットマスク引数を使う
+### ボタンにビットマスク引数を使う
 
 に渡される第3引数。[DocumentWindow](https://docs.juce.com/master/classDocumentWindow.html "タイトルバーと最大化、最小化、閉じるボタンを備えたサイズ変更可能なウィンドウ。")基底クラスのコンストラクタは[DocumentWindow::allButtons](https://docs.juce.com/master/classDocumentWindow.html#a104d68bc145157c6ce79169a36fc3c31af4a9b49869cebf7e8cecaf7f6dd93420 "上記のすべてのボタンの組み合わせ。")一定であることを示す。これは、デフォルトの3つのボタン（最大化、最小化、閉じる）をすべてタイトルバーに表示することを示します。このプロパティを変更するには、次の定数を使用します。`enum` [DocumentWindow::TitleBarButtons](https://docs.juce.com/master/classDocumentWindow.html#a104d68bc145157c6ce79169a36fc3c31 "タイトルバーに配置できるボタンの種類。"):
 
@@ -172,7 +172,7 @@ MainWindow (juce::String name)  : DocumentWindow (name,
 
 このように、フラグの組み合わせを関数に渡す方法を*ビットマスク*JUCEの他の多くの場所で見られる。
 
-## ウィンドウサイズの設定
+### ウィンドウサイズの設定
 
 そのとき`MainWindow`オブジェクトが作成されると、コンストラクタの本体が実行されます。最初のステートメントでは、Component::centreWithSize()関数を呼び出してウィンドウの位置とサイズを設定します。2番目のステートメント、Component::setVisible()関数の呼び出しは、作成後にウィンドウを表示するために常に必要です。
 
@@ -198,9 +198,9 @@ Component::setBoundsRelative()関数を使用して、絶対ピクセルでは�
 
 :::
 
-# その他のカスタマイズ・オプション
+## その他のカスタマイズ・オプション
 
-## ウィンドウをリサイズ可能にする
+### ウィンドウをリサイズ可能にする
 
 JUCE[DocumentWindow](https://docs.juce.com/master/classDocumentWindow.html "タイトルバーと最大化、最小化、閉じるボタンを備えたサイズ変更可能なウィンドウ。")クラス自体は[ResizableWindow](https://docs.juce.com/master/classResizableWindow.html "ドラッグして移動したりサイズを変更したりできるトップレベル・ウィンドウの基本クラス。")クラスで定義されています。この基底クラスは、ユーザがウィンドウのサイズを変更できるようにする機能を追加します。これは関数[ResizableWindow::setResizable()](https://docs.juce.com/master/classResizableWindow.html#a538709f0111ad32b05d858a511bcd5be "ウィンドウのサイズを変更または固定する。").
 
@@ -217,7 +217,7 @@ setResizable (true, true);
   caption="ドラッグ可能なコーナーリサイザーを備えたリサイズ可能なウィンドウ。"
 />
 
-## ネイティブタイトルバーの使用
+### ネイティブタイトルバーの使用
 
 これまでのところ、アプリのメイン・ウィンドウにはJUCEのルック＆フィールを使っている。その主な利点は、どのデスクトップ・オペレーティング・システム（Windows、Mac OS X、Linux）でも同じように見え、同じように動作することです。
 
@@ -238,7 +238,7 @@ setUsingNativeTitleBar (true);
 
 ほとんどのアプリの場合、メインアプリのウィンドウはネイティブのルック＆フィールの方が適しています。
 
-## より多くのカスタマイズ・オプション
+### より多くのカスタマイズ・オプション
 
 :::danger[エクササイズ]
 
@@ -246,15 +246,15 @@ setUsingNativeTitleBar (true);
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、基本的な JUCE アプリのメイン・ウィンドウの動作を設定する方法について説明しました。例えば、サイズの調整、リサイズ可能なウィンドウ、タイトルと外観の設定、タイトルバーに表示するボタンの定義などです。また、ネイティブタイトルバーに切り替えて、実行中のオペレーティングシステム上でよりネイティブなウィンドウのように感じられるようにする方法についても説明しました。
 
-# 備考
+## 備考
 
 - 後に、複数の異なるウィンドウで構成される、より複雑なアプリを作りたくなるかもしれない。同じテクニックを使って、それぞれのウィンドウの動作をコントロールすることができる。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: The main component](../tutorial_main_component/)
 - [Tutorial: Colours in JUCE](../../interface-design/tutorial_colours/)

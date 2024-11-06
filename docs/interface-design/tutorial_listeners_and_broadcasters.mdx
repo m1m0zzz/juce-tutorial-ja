@@ -12,17 +12,17 @@ tags: [初級]
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。"),[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。"),[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。"),[Time](https://docs.juce.com/master/classTime.html "絶対日時を保持する。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/ListenersAndBroadcastersTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/ListenersAndBroadcastersTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このチュートリアルのデモ・プロジェクトでは、1つのボタンと1つのラベルを持つシンプルなユーザー・インターフェースを紹介します。インターフェイスは次のスクリーンショットに似ているはずです：
 
@@ -33,7 +33,7 @@ tags: [初級]
 
 インターフェイスは提供された状態では何もしない。ボタンをクリックすると、ラベルに現在の日付と時刻が表示されるようにコードを追加する。
 
-# インターフェイスの設定
+## インターフェイスの設定
 
 について`MainContentComponent`クラスは2つの子コンポーネントで構成されています。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトと[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトA[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトは、特定のテキストを含むボタンを表示することができます。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトはテキストを表示できる。
 
@@ -94,7 +94,7 @@ JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WI
 
 ここでは、ボタンのテキストを設定し、ラベルの特定の外観を設定します。これにより、ラベルは黒い背景に白いテキストを表示します。デフォルトでは、ラベルはテキストを表示しません。
 
-## リスナー・ベース・クラスの追加
+### リスナー・ベース・クラスの追加
 
 JUCEでは、ボタンやスライダーなど、他のオブジェクトに状態の変化を知らせる必要のあるコントロールの多くは*ブロードキャスター*オブジェクトの変更に対応するために、他のクラスがブロードキャスター・オブジェクトの変更に応答するためには、他のクラスが*リスナー*リスナーは、そのブロードキャスターの特定のタイプに登録する必要があります。リスナーはまた、そのタイプの少なくとも1つの特定のブロードキャスターオブジェクトに登録される必要があります。(JUCEのブロードキャスター・リスナーシステムは[observer pattern](https://en.wikipedia.org/wiki/Observer_pattern).)多くの放送局オブジェクトは、ネストされた`Listener`クラスを継承することで、そのタイプのブロードキャスターのリスナーになることができる。例えば[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスは、ネストされたクラス[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")そのためである。
 
@@ -115,7 +115,7 @@ public:
 
 カスタム・クラスは、同じようにリスナー・ベース・クラスを追加することで、異なるタイプのブロードキャスターのリスナーになることができる。
 
-## リスナーのコールバックを宣言する
+### リスナーのコールバックを宣言する
 
 通常、各リスナークラスは少なくとも1つの[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数を呼び出します。これは、ブロードキャスター・オブジェクトがその変更をブロードキャストする必要があるときに、コールバックとして呼び出される関数である。コードをコンパイルして使うためには、これをオーバーライドしなければならない。
 
@@ -151,7 +151,7 @@ public:
 buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInterface.h:200
 ```
 
-## リスナー・コールバックの実装
+### リスナー・コールバックの実装
 
 では`MainContentComponent::buttonClicked()`関数に渡される。ここでは、変更をブロードキャストしたオブジェクトへのポインタが渡される。そして、このポインターを他のオブジェクトと比較することで、どのオブジェクトが変更されたかを判断することができる：
 
@@ -182,7 +182,7 @@ buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInter
 
 :::
 
-## 放送局へのリスナー登録
+### 放送局へのリスナー登録
 
 ブロードキャストされたメッセージを受信するには、リスナー・オブジェクトを1つ以上のブロードキャスター・オブジェクトに登録する必要がある。この場合[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトを返します。通常、これはリスナー・サブクラスのコンストラクタ内で行われる。\[7\]:
 
@@ -200,7 +200,7 @@ buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInter
 
 :::
 
-### 放送局へのリスナー登録解除
+#### 放送局へのリスナー登録解除
 
 放送局もまた`removeListener()`関数もある。例えば[Button::removeListener()](https://docs.juce.com/master/classButton.html#aa7016d2e4b8ab37a12c2736057eb28de "以前に登録されたボタンリスナーを削除します。")関数を使用します。このボタンは、リスニングを実行しているのと同じクラスが所有しているので、実際には*必要*ボタンがリスナーと同時に破壊されるので、リスナーを削除する。念のため*可能性がある*これをデストラクタに追加する：
 
@@ -242,7 +242,7 @@ buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInter
 
 :::
 
-## Buttonコールバックの簡素化
+### Buttonコールバックの簡素化
 
 このチュートリアルで示したようなリスナーやブロードキャスターのパラダイムを使う代わりに、最新のC++標準のラムダ関数を使うことで、ボタンのコールバックを単純化することができます。これは、複雑な実装を必要としない単純なコールバックには特に有効です。
 
@@ -287,7 +287,7 @@ public:
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、JUCEにおけるブロードキャスターとリスナーのシステムの基本を紹介しました。このチュートリアルではボタンに焦点を当てましたが、同じテクニックはJUCEコードの多くの領域に適用できます。特に、以下のことを学びました：
 
@@ -297,7 +297,7 @@ public:
 - を使って現在時刻にアクセスする方法[Time](https://docs.juce.com/master/classTime.html "絶対日時を保持する。")クラスである。
 - ラムダ関数でコールバックを単純化する方法。
 
-# 参照
+## 参照
 
 - [Tutorial: The Label class](../tutorial_label/)
 - [Tutorial: The ComboBox class](../tutorial_combo_box/)

@@ -12,17 +12,17 @@ tags: [初級]
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。"),[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。"),[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。"),[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/LabelTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/LabelTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトには多くのラベルが含まれている。そのうちのいくつかはテキストを表示するためのものですが、1つはテキストを入力するためのものです。デモ・プロジェクトを実行すると、次のスクリーンショットのようになるはずです：
 
@@ -60,7 +60,7 @@ tags: [初級]
 
 長方形のボックスの2つ目は、テキスト入力ボックスと区別するため、ごくわずかにグレーアウトされている。
 
-# テキストの表示
+## テキストの表示
 
 このチュートリアルでは[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスがあります。ラベルの最も基本的な機能は、テキストを表示することです！コンポーネントの`paint()`関数 ([Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)を使用してテキストのレイアウトを管理する方がはるかに便利です。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクト（または[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")オブジェクトの場合もある）。
 
@@ -89,7 +89,7 @@ tags: [初級]
 
 :::
 
-## ラベルの基本構成
+### ラベルの基本構成
 
 の中で`MainContentComponent`コンストラクタで、アプリケーションの各ラベルを設定します。まず、タイトルを16ポイントの太字フォントで設定し、そこに含まれるテキスト、テキストの色を設定し、テキストを中央揃えにしている。
 
@@ -129,7 +129,7 @@ tags: [初級]
 
 :::
 
-## 別のコンポーネントにラベルを貼り付ける
+### 別のコンポーネントにラベルを貼り付ける
 
 その名の通り[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")コンポーネントは別のコンポーネントのラベルとして使われることが多い。この場合[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトは*付属*を別のコンポーネントに貼り付けることができる。ラベルが貼られると*所有者*コンポーネントを配置する必要があります。添付されたラベルは、親コンポーネントの周りにその所有者に従います。私たちの場合は`inputLabel`オブジェクト（テキストを表示する**テキスト入力：**)に取り付けられる。`inputText`オブジェクトの第2引数。の第2引数は[Label::attachToComponent()](https://docs.juce.com/master/classLabel.html#a3c2397c0da1249f9e27e2279e0f2d4eb "このラベルを別のコンポーネントに「くっつける」。")関数は、ラベルをオーナーの左側に付けるか、上側に付けるかを指定する。この関数は`true`引数は、左側に付けることを意味する：
 
@@ -165,7 +165,7 @@ tags: [初級]
     }
 ```
 
-## ラベルを編集可能にする
+### ラベルを編集可能にする
 
 最後のラベルは`MainContentComponent`コンストラクタは編集可能なテキスト・フィールドである。
 
@@ -188,7 +188,7 @@ tags: [初級]
 
 :::
 
-## 変化への対応
+### 変化への対応
 
 ラムダ関数は[Label::onTextChange](https://docs.juce.com/master/classLabel.html#a5ba80ea5ea965a001e2eacf75fc0314b "このコールバック・オブジェクトにラムダを割り当てて、ラベルのテキストが変更されたときに呼び出させることができます。")ヘルパー・オブジェクトを使います。ここでは入力されたテキストを取得し、大文字に変換するために[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスのテキストを設定する。`uppercaseText`のラベルが貼られている。
 
@@ -209,11 +209,11 @@ dontSendNotification@ dontSendNotificationNo notification message should be sent
 
 :::
 
-# その他のカスタマイズ
+## その他のカスタマイズ
 
 他にもいくつかカスタマイズが可能です。特にラベルは複数行のテキストを表示することができます。また、編集可能なラベル用にエディターをカスタマイズすることもできます。
 
-## 複数行テキストの表示
+### 複数行テキストの表示
 
 一方[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")クラスは大量のテキストに対してより柔軟です。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは複数行のテキストを表示することができます。これを行うには、コンポーネントの高さが1行以上のテキストを表示するのに十分な大きさであることを確認すればよい。
 
@@ -254,7 +254,7 @@ infoLabel.setBounds (10, 110, getWidth() - 20, getHeight() - 120);
   caption="複数行テキストの表示"
 />
 
-## エディタの外観を変更する
+### エディタの外観を変更する
 
 エディター機能の一部は[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスそのものです。エディタが作成されると[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスはフォントのスタイルと色をエディタにコピーします。いくつかの[Label::ColourIds](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701 "ラベルの様々な部分の色を変更するために使用する色IDのセット。")値はエディタに関連します。例えば、編集中のラベルの境界線を変更するには[Label::outlineWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6c7adfce6c830c9faa94efd3445f78cf "ラベルが編集されているときのオプションの枠色。")Component::setColour() 関数の値：
 
@@ -284,7 +284,7 @@ inputText.onEditorShow = [this]
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスである。使い方はとても簡単だが、強力な便利な機能がいくつもある。私たちはそれを取り上げてきた：
 
@@ -293,7 +293,7 @@ inputText.onEditorShow = [this]
 - ラベルをシンプルなテキストエディタとして使用し、その外観をカスタマイズする。
 - 複数行のテキストを表示する
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Colours in JUCE](../tutorial_colours/)
 - [Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)

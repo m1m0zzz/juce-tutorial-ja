@@ -12,17 +12,17 @@ tags: [初級]
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。"),[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。"),[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。"),[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/RadioButtonsAndCheckboxesTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/RadioButtonsAndCheckboxesTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このデモ・プロジェクトは、JUCEにおけるラジオ・ボタンとチェック・ボックスの使い方を説明しています。これらは通常[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")クラスでは、どのJUCE[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")コンポーネントは、個別のトグル・ボタンとしても、「ラジオ・グループ」の一部としても使用できます。デモ・アプリケーションでは、いくつかの見出しを表示しています。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラス）と[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")コンポーネントを使用している：
 
@@ -31,7 +31,7 @@ tags: [初級]
   caption="デモ・アプリケーション"
 />
 
-# ラジオボタンとチェックボックス
+## ラジオボタンとチェックボックス
 
 このチュートリアルでは[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスを使用します。通常は[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")クラスを使うことができるが、前述のように、どんなボタンでもトグル・タイプのボタンに設定することができる。標準の[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")コンポーネントは、テキストとテキストの左側にある "バブル "で構成され、このバブルには目盛りが入っているか、入っていないかのどちらかである。(この外観は、必要に応じて[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラス)。この2つの状態は、前のセクションのスクリーンショットで見ることができる。
 
@@ -85,7 +85,7 @@ tags: [初級]
 
 :::
 
-## トグル状態の変化への対応
+### トグル状態の変化への対応
 
 オン・オフを切り替えられるボタンへの反応は、通常のボタンクリックへの反応と似ている。ボタンがトグルされたときに呼び出したい関数を指定する必要があります。[Button::onClick](https://docs.juce.com/master/classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "このコールバック・オブジェクトにラムダを代入すると、ボタンがクリックされたときに呼び出されるようになります。")ヘルパー・オブジェクト（上のコード・スニペットでわかる）。
 
@@ -114,7 +114,7 @@ tags: [初級]
 
 :::
 
-## 他のボタンをトグルとして使う
+### 他のボタンをトグルとして使う
 
 前述したとおりだ、*いずれも*ボタンをトグル・ボタンとして使うことができる。説明のために、すべての[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトを[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトの型を変更する必要があります。ここで必要なのは、メンバ変数の型を[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスである：
 
@@ -156,7 +156,7 @@ tags: [初級]
 
 :::
 
-## テキストを使用してボタンのトグル状態を表示する
+### テキストを使用してボタンのトグル状態を表示する
 
 ボタンのトグル状態によって表示されるテキストを変えたい場合もあるだろう。これを行うには、単純に[Button::setButtonText()](https://docs.juce.com/master/classButton.html#a96f4185a0a716d10309f1081f0af2f91 "ボタンのテキストを変更します。")関数を使用する。`updateToggleState()`関数を使います。これを試すには`updateToggleState()`関数は次のようになる：
 
@@ -187,7 +187,7 @@ tags: [初級]
   caption="トグルの状態に応じてボタンのテキストを変更する"
 />
 
-# 概要
+## 概要
 
 このチュートリアルでは、チェックボックスとラジオボタン形式のコントロールの使い方を紹介しました。特に、自分のアプリケーションで以下のようなことができるようになるはずです：
 
@@ -196,7 +196,7 @@ tags: [初級]
 - グループ[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトを "ラジオ・グループ "を形成する。
 - その他[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")コンポーネントをトグルとして使用する。
 
-# 参照
+## 参照
 
 - [Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)
 - [Tutorial: Colours in JUCE](../tutorial_colours/)

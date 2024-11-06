@@ -10,13 +10,13 @@ tags: [中級]
 
 このチュートリアルでは、MIDI 入力に反応するポリフォニックなサイン波シンセサイザーを実装します。これは[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスおよび関連クラス。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。"),[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "SynthesiserがSynthesiserSoundを再生するために使用できる音色を表します。"),[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。"),[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。"),[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")
 
-# スタート
+## スタート
 
 :::note
 
@@ -28,7 +28,7 @@ JUCEでのMIDI入力の扱い方と、サイン波の生成方法に慣れてい
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このデモ・プロジェクトでは、シンプルなサイン波シンセサイザーを演奏するのに使えるオンスクリーン・キーボードを紹介している。
 
@@ -39,7 +39,7 @@ JUCEでのMIDI入力の扱い方と、サイン波の生成方法に慣れてい
 
 コンピュータのキーボードのキーを使って、画面上のキーボードをコントロールすることができます（A、S、D、Fなどのキーを使って、音符C、D、E、Fなどをコントロールします）。これにより、シンセサイザーをポリフォニックに演奏することができます。
 
-# シンセシザークラス
+## シンセシザークラス
 
 このチュートリアルでは、JUCE[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスを使用して、ポリフォニック・シンセシスを実装することができます。これは、独自のアプリケーションで独自のサウンドを使ってシンセサイザーをカスタマイズするために必要なすべての基本要素を示しています。これを動作させるために必要なクラスはいろいろあり、標準の`MainContentComponent`クラスがある：
 
@@ -47,7 +47,7 @@ JUCEでのMIDI入力の扱い方と、サイン波の生成方法に慣れてい
 - `SineWaveVoice`これはカスタム[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "SynthesiserがSynthesiserSoundを再生するために使用できる音色を表します。")というクラスがあります。`SineWaveVoice`.ボイスクラスは、シンセサイザーのボイスの1つを、他のボイスとミックスしてレンダリングします。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトを生成します。1つのボイスクラスのインスタンスが1つのボイスをレンダリングします。
 - `SineWaveSound`カスタム[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")というクラスがあります。`SineWaveSound`.サウンドクラスは、ボイスとして作成できるサウンドを記述したものです。例えば、サンプラーボイスのサンプルデータや、ウェーブテーブルシンセサイザーのウェーブテーブルデータが含まれます。
 
-## キーボードの設定
+### キーボードの設定
 
 私たちの`MainContentComponent`クラスには以下のデータ・メンバが含まれる。
 
@@ -87,7 +87,7 @@ JUCEでのMIDI入力の扱い方と、サイン波の生成方法に慣れてい
     }
 ```
 
-## AudioAppComponent 関数
+### AudioAppComponent 関数
 
 アプリケーションは[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")簡単なオーディオ・アプリケーションをセットアップする ([Tutorial: Build a white noise generator](../tutorial_simple_synth_noise/)最も基本的なアプリケーションの場合）。必要な3つ[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数は、カスタム[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスである：
 
@@ -108,7 +108,7 @@ JUCEでのMIDI入力の扱い方と、サイン波の生成方法に慣れてい
     }
 ```
 
-## SynthAudioSource クラス
+### SynthAudioSource クラス
 
 について`SynthAudioSource`クラスはもう少し仕事をする：
 
@@ -175,7 +175,7 @@ private:
 
 :::
 
-## SineWaveSoundクラス
+### SineWaveSoundクラス
 
 私たちのサウンドクラスはとてもシンプルで、データを含む必要すらありません。ただ、このサウンドが特定のMIDIチャンネルとそのチャンネルの特定の音符または音域で再生されるべきかどうかを報告する必要があるだけです。この単純なケースでは`true`ともに`appliesToNote()`そして`appliesToChannel()`関数を使用します。前述したように、サウンド・クラスには、サウンドを作成するのに必要なデータ（ウェーブテーブルなど）を格納することができる。
 
@@ -189,7 +189,7 @@ struct SineWaveSound   : public juce::SynthesiserSound
 };
 ```
 
-## 正弦波の音声状態
+### 正弦波の音声状態
 
 について`SineWaveVoice`クラスはもう少し複雑だ。シンセサイザーのボイスの1つの状態を維持する必要がある。私たちのサイン波には、これらのデータ・メンバーが必要だ：
 
@@ -206,7 +206,7 @@ private:
   caption="指数放出エンベロープ"
 />
 
-## 再生可能な音の確認
+### 再生可能な音の確認
 
 について[SynthesiserVoice::canPlaySound()](https://docs.juce.com/master/classSynthesiserVoice.html#aa9fb097ca96dc39fae8e6f7b9139df9f "このボイスオブジェクトが与えられたサウンドを再生できる場合、trueを返さなければならない。")関数をオーバーライドして、ボイスがサウンドを再生できるかどうかを返さなければならない。単に`true`を使用する方法を説明する。`dynamic_cast`で、渡されたサウンド・クラスのタイプをチェックする。
 
@@ -217,7 +217,7 @@ private:
     }
 ```
 
-## 声を出す
+### 声を出す
 
 音声は、シンセサイザーが私たちの[SynthesiserVoice::startNote()](https://docs.juce.com/master/classSynthesiserVoice.html#af3b872622dd9bb540030420189175762 "新しいノートを始めるために電話した。")関数をオーバーライドしなければならない：
 
@@ -238,7 +238,7 @@ private:
 
 繰り返しになるが、この大部分は、あなたが以前から慣れ親しんできたものであるはずだ。[Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/).その`tailOff`の値は、各ボイスの開始時にゼロに設定されます。また、MIDIノートオンイベントのベロシティを使って、ボイスのレベルをコントロールします。
 
-## 声のレンダリング
+### 声のレンダリング
 
 について[SynthesiserVoice::renderNextBlock()](https://docs.juce.com/master/classSynthesiserVoice.html#a72ab7856c1e7651b1ce955388645a0a1 "この音声の次のデータ・ブロックをレンダリングする。")関数をオーバーライドしなければならない。
 
@@ -298,7 +298,7 @@ private:
 
 :::
 
-## 声を止める
+### 声を止める
 
 というシンセサイザーが声を止める。[SynthesiserVoice::stopNote()](https://docs.juce.com/master/classSynthesiserVoice.html#ae1faf9289de24cdeb1d42289754601e6 "ノートを止めるために電話した。")関数をオーバーライドしなければならない：
 
@@ -326,7 +326,7 @@ private:
 
 :::
 
-# 外部MIDI入力の追加
+## 外部MIDI入力の追加
 
 スクリーン上のキーボードだけでなく、外部MIDIソースからシンセサイザーをコントロールできる機能を追加しよう。
 
@@ -336,7 +336,7 @@ private:
 
 :::
 
-## MIDI入力をSynthAudioSourceに提供する
+### MIDI入力をSynthAudioSourceに提供する
 
 まず[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")オブジェクトを`SynthAudioSource`クラスです。これは、MIDIメッセージを送信できる場所と`SynthAudioSource`クラスが使用できる：
 
@@ -384,7 +384,7 @@ MIDIデータのタイムスタンプを処理するために[MidiMessageCollect
 
 我々の`MainContentComponent`クラスに次のように追加する。[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")オブジェクトを[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。")オブジェクトをアプリケーションの[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトがある。
 
-## MIDI入力のリスト
+### MIDI入力のリスト
 
 MIDI入力デバイスのリストをユーザーに提示するために、以下のコードを使います。[Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/).メンバーを追加する`MainContentComponent`クラスである：
 
@@ -480,7 +480,7 @@ MIDI入力デバイスのリストをユーザーに提示するために、以�
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスです。このチュートリアルを読めば、次のことができるようになるでしょう：
 
@@ -488,7 +488,7 @@ MIDI入力デバイスのリストをユーザーに提示するために、以�
 - 適切な[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "SynthesiserがSynthesiserSoundを再生するために使用できる音色を表します。")そして[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")クラスに追加する。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトがある。
 - オンスクリーン・キーボードと外部MIDIソースからのMIDIメッセージを[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトがある。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/)
 - [Tutorial: Build a white noise generator](../tutorial_simple_synth_noise/)

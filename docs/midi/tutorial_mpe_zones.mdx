@@ -10,13 +10,13 @@ tags: [中級]
 
 MPE規格で定義されているゾーンの概念とゾーンレイアウトの規約を学びます。MPEシンセサイザーをMPE対応機器に接続します。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。")MPEZoneLayout::Zone、[MPEMessages](https://docs.juce.com/master/classMPEMessages.html "このヘルパー・クラスは、MIDIメッセージを生成するために必要なヘルパー関数を含んでいます。"),[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/MPEZonesTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/MPEZonesTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -28,7 +28,7 @@ MPE規格で定義されているゾーンの概念とゾーンレイアウト�
 
 :::
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトは`MPEDemo`のプロジェクトである。`JUCE/examples`ディレクトリにある簡略化されたバージョンをベースにしている。[Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/).このチュートリアルを最大限に活用するためには、以下のものが必要です。[MPE](https://support.roli.com/article/what-is-mpe/)互換性のあるコントローラー。[MPE](https://support.roli.com/article/what-is-mpe/)を表す。*MIDIポリフォニック・エクスプレッション*オーディオ製品間で多次元データの通信を可能にする仕様。
 
@@ -45,13 +45,13 @@ MIDI入力の一つを有効にする必要があります。[Lightpad Block](ht
 
 で演奏されたすべての音符は、その音符に対応する。[MPE](https://support.roli.com/article/what-is-mpe/)で説明したように、対応デバイスはウィンドウの下部に表示されます。[Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/)チュートリアル
 
-# MPE仕様
+## MPE仕様
 
 入門チュートリアルでは[Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/)このチュートリアルでは、レガシーモードを使用して標準のMPE設定プロセスをバイパスすることで、MPE互換のシンセサイザーを簡単に実装することができます。このチュートリアルでは、最新のMPE標準に記載されている手順に従ってシンセサイザーを構成してみよう。
 
 シンセサイザが MPE モードで動作しているかどうかを判断するためには、MPE ゾーンの概念が必要である。MPE コンフィギュレーション・メッセージ(MCM)を使用して少なくとも1つのゾーンが定義されていれば、MPE モードである。そうでない場合、ゾーンが定義されていなければMPEモードはオフです。では、ゾーンとは何でしょうか？
 
-## MPEゾーン
+### MPEゾーン
 
 ゾーンの概念はMPE固有の用語で、1つのマスター・チャンネルと1つ以上のメンバー・チャンネルからなる連続したMIDIチャンネルのグループを表す。
 
@@ -74,7 +74,7 @@ JUCEでは、ゾーンの実装はMPEZoneLayout::Zone構造体にカプセル化
 
 ゾーンは、1つのMPEコントローラーを使用して異なる音色特性を提供する便利な手段であり、マスター・チャンネルを使用してチャンネル・グループにまたがるMIDIメッセージの伝搬を容易にします。
 
-## MIDIモード
+### MIDIモード
 
 MPEでサポートされているMIDIモードは、主にMIDIモード3と4の2つです。
 
@@ -83,7 +83,7 @@ MPEでサポートされているMIDIモードは、主にMIDIモード3と4の2
 
 MPEはMIDIモード3（ポリ・モード）で正しく動作するように設計されていますが、MIDIモード4（モノ・モード）でも使用できます。
 
-## ノート・レベルとゾーン・レベルのメッセージ
+### ノート・レベルとゾーン・レベルのメッセージ
 
 MIDIメッセージがマスター・チャンネルとメンバー・チャンネルのどちらに送信されるかに応じて、それぞれゾーン・レベル・メッセージまたはノート・レベル・メッセージと呼ぶことにします。ゾーン内のマスター・チャンネルとメンバー・チャンネルの両方に送信されるメッセージもあります。このような場合、受信側のシンセサイザーは両方の情報を適切な方法で組み合わせなければなりません。
 
@@ -112,7 +112,7 @@ MIDIメッセージがマスター・チャンネルとメンバー・チャン�
 
 これらのメッセージレベルは、シンセサイザー内のゾーンを定義する際の設計上の決定に影響を与えるので、覚えておくことが重要です。
 
-# ゾーンの設定
+## ゾーンの設定
 
 で実装されているようなレガシー・モードがない場合[Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/)少なくとも1つのゾーンを設定するまで、シンセは音を出力しません。
 
@@ -163,7 +163,7 @@ MIDIメッセージがマスター・チャンネルとメンバー・チャン�
     }
 ```
 
-# シンクの設定
+## シンクの設定
 
 以来`MPESetupComponent`クラスはブロードキャスターとして機能するので、リスナーとして`MainComponent`クラスは、ゾーンレイアウトが変更されたときにコールバックを受け取れるようにする。
 
@@ -233,7 +233,7 @@ public:
     }
 ```
 
-# ピッチベンドの割り当て
+## ピッチベンドの割り当て
 
 シンセサイザーを走らせれば、1ゾーンあたりのメンバー・チャンネル数をカスタマイズしながら、ロワーゾーンとアッパーゾーンを追加することができる。
 
@@ -256,7 +256,7 @@ public:
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、MPEゾーンとノートの管理方法について学びました。特に
 
@@ -265,7 +265,7 @@ public:
 - ノート・レベルとゾーン・レベルのメッセージの違いについて調べました。
 - ロワーゾーンとアッパーゾーンに異なるピッチベンド感度を割り当てる。
 
-# 参照
+## 参照
 
 - [Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/)
 - [Tutorial: Handling MIDI events](../tutorial_handling_midi_events/)

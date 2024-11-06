@@ -12,11 +12,11 @@ JUCEアプリケーションの高性能レンダリングライブラリとし�
 
 レベル上級
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。"),[OpenGLContext](https://docs.juce.com/master/classOpenGLContext.html "コンポーネントにアタッチできるOpenGLコンテキストを作成します。"),[OpenGLShaderProgram](https://docs.juce.com/master/classOpenGLShaderProgram.html "OpenGLシェーダープログラムを管理する。"),[OpenGLHelpers](https://docs.juce.com/master/classOpenGLHelpers.html "雑多なopenGLヘルパー関数のセット。"),[Matrix3D](https://docs.juce.com/master/classMatrix3D.html "4x4の3次元変換行列。"),[Vector3D](https://docs.juce.com/master/classVector3D.html "3座標ベクトル。")
 
-# スタート
+## スタート
 
 このチュートリアルは、OpenGLグラフィックス・ライブラリの基本的な理解を前提としています。もし[OpenGL](https://en.wikipedia.org/wiki/OpenGL)まずはそれを読んでほしい[here](https://www.opengl.org).
 
@@ -30,7 +30,7 @@ JUCEアプリケーションの高性能レンダリングライブラリとし�
 
 このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトは、以下のスクリーンショットのように、Wavefrontの".obj "ファイルを解析して、標準的なOpenGLティーポット・オブジェクトを3Dグラフィックスで表示します：
 
@@ -45,7 +45,7 @@ JUCEアプリケーションの高性能レンダリングライブラリとし�
 
 :::
 
-# OpenGLアプリの解剖
+## OpenGLアプリの解剖
 
 OpenGL APIは、多くの異なるプラットフォームやビルド環境で動作する強力で汎用性の高いライブラリですが、3Dレンダリングに関する原則は、すべてのアプリケーションで類似しています。ここで説明する用語のいくつかは、OpenGLがどのようにレンダリングルーチンを実行するかを理解するための基本的なものです：
 
@@ -60,7 +60,7 @@ OpenGL APIは、多くの異なるプラットフォームやビルド環境で�
 - 変数：頂点シェーダプログラムとフラグメントシェーダプログラムの間で共有されるパラメータを記述します。
 - シェイプ：アプリケーションで最終的にレンダリングしたいポリゴンをカプセル化します。この場合はティーポットです。
 
-# OpenGLシェーディング言語
+## OpenGLシェーディング言語
 
 OpenGLシェーディング言語またはGLSLは、複数のオペレーティング・システムやハードウェア・グラフィックス・カード上のグラフィックス・レンダリング・パイプラインを直接制御できるCタイプの言語です。GLSLを使用すると、オブジェクトの外観を記述するシェーダーと呼ばれる小さなプログラムを書くことができます。OpenGLを使うか、スマートフォンやタブレットのような組み込みシステム専用に設計されたサブセット・ライブラリOpenGL ESを使うかによって、言語構文は変わりませんが、パフォーマンスを考慮する必要があります。
 
@@ -122,7 +122,7 @@ void main()
 - `gl_FragColor`フラグメントシェーダーがフラグメント操作を実行するための色。
 - `main()`メイン関数は、頂点シェーダーやフラグメントシェーダーの計算を行う場所です。
 
-# OpenGLAppComponentクラス
+## OpenGLAppComponentクラス
 
 JUCEでは[OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスは[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスを継承しているが、その代わりにグラフィカルなアプリに使用されている。を継承する場合は[OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスには、オーバーライドしなければならない関数がいくつかある：
 
@@ -133,7 +133,7 @@ JUCEでは[OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppCompon
 
 OpenGLの基本を学んだところで、ティーポットのレンダリングを実装してみよう！
 
-# 投影行列とビュー行列の計算
+## 投影行列とビュー行列の計算
 
 投影行列とビュー行列の計算を切り離すために、これらの行列を後で使えるように返す2つのヘルパー関数を作成する。
 
@@ -175,7 +175,7 @@ OpenGLの基本を学んだところで、ティーポットのレンダリン�
 
 数学的計算部分は完了したので、次にシェーダープログラムを書き始めることができる。
 
-# OpenGLシェーダーを書く
+## OpenGLシェーダーを書く
 
 まず、チュートリアルのコード・ベース全体で使用する便利なメンバ変数を定義することから始めましょう：
 
@@ -273,7 +273,7 @@ OpenGLの基本を学んだところで、ティーポットのレンダリン�
 
 では、頂点、アトリビュート、ユニフォーム、シェイプを表す便利な構造を定義してみよう。
 
-## 頂点構造体
+### 頂点構造体
 
 頂点を表現するためには、以下のように4つの重要な変数が必要である：
 
@@ -292,7 +292,7 @@ OpenGLの基本を学んだところで、ティーポットのレンダリン�
 - 色：色の配列は頂点の色を RGBA フォーマットで表します。
 - テクスチャ座標：テクスチャを使用する場合、その頂点で使用するテクスチャの2D座標を表します。
 
-## 属性構造体
+### 属性構造体
 
 アトリビュート構造体は、基本的に複数の[OpenGLShaderProgram::Attribute](https://docs.juce.com/master/structOpenGLShaderProgram_1_1Attribute.html "openGLの頂点属性値を表す。")オブジェクトをまとめ、保存する属性はここで定義される：
 
@@ -381,7 +381,7 @@ OpenGLの基本を学んだところで、ティーポットのレンダリン�
         }
 ```
 
-## ユニフォームの構造
+### ユニフォームの構造
 
 ユニフォームの構造も同様に[OpenGLShaderProgram::Uniform](https://docs.juce.com/master/structOpenGLShaderProgram_1_1Uniform.html "openGLの一様な値を表す。")オブジェクトを、ここで定義されているのと同じ方法で使用する：
 
@@ -420,7 +420,7 @@ OpenGLの基本を学んだところで、ティーポットのレンダリン�
 
 しかし、上記ではまず、シェーダプログラムにユニフォームが存在するかどうかを`glGetUniformLocation()`関数を使用する。もし返された数値が-1であれば、ユニフォームのインスタンス化を中止する。
 
-## シェイプ・ストラクチャー
+### シェイプ・ストラクチャー
 
 Shape構造体は、OpenGL用語でティーポットオブジェクトを定義する場所です。メンバ変数は、ティーポットモデルのWavefront Objファイルと、すぐ下のサブ構造体として定義された頂点バッファの配列を格納するために使用されます：
 
@@ -569,7 +569,7 @@ void bind()
 
 メンバ変数配列の各頂点バッファに対して、まず`bind()`関数を呼び出して、頂点とインデックスのバッファをGLコンテキストにバインドします。次に`enable()`関数を定義する。最後に`glDrawElements`関数は、アトリビュートを無効にして空にする前に、頂点バッファに含まれる3つの頂点のすべてのセットを三角形として描画します。
 
-# すべてをまとめる
+## すべてをまとめる
 
 これで、ティーポットをレンダリングするためのすべてのコンポーネントが揃った。
 
@@ -672,7 +672,7 @@ public:
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、OpenGL JUCE アプリケーションのセットアップ方法を学びました。特に
 
@@ -681,7 +681,7 @@ public:
 - 計算された投影行列とビュー行列。
 - を設定した。[OpenGLContext](https://docs.juce.com/master/classOpenGLContext.html "コンポーネントにアタッチできるOpenGLコンテキストを作成します。")そしてシェーダーを使ってレンダリングする。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: The application window](../tutorial_main_window/)
 - [Tutorial: The main component](../tutorial_main_component/)

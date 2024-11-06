@@ -10,13 +10,13 @@ tags: [中級]
 
 MPE規格の基礎とMPEに対応したシンセサイザーの実装方法を学びます。アプリケーションをROLI Seaboard Riseに接続します！  
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。"),[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。"),[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。"),[MPEValue](https://docs.juce.com/master/classMPEValue.html "このクラスは、MPE の制御次元のいずれかの単一の値を表します。"),[SmoothedValue](https://docs.juce.com/master/classSmoothedValue.html "オーディオのグリッチを避けるためにスムージングが必要な値のためのユーティリティクラス。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/MPEIntroductionTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/MPEIntroductionTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -28,7 +28,7 @@ MPE規格の基礎とMPEに対応したシンセサイザーの実装方法を�
 
 :::
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトは`MPEDemo`のプロジェクトである。`JUCE/examples`ディレクトリに移動します。このチュートリアルを最大限に活用するためには[MPE](https://support.roli.com/article/what-is-mpe/)互換性のあるコントローラー。[MPE](https://support.roli.com/article/what-is-mpe/)を表す。*MIDIポリフォニック・エクスプレッション*これは、オーディオ製品間で多次元データの通信を可能にする新しい仕様である。
 
@@ -49,7 +49,7 @@ MPE規格の基礎とMPEに対応したシンセサイザーの実装方法を�
 
 MIDI入力を1つ有効にする必要があります。[Seaboard RISE](https://roli.com/products/seaboard-rise)はオプションとして表示される）。
 
-## ビジュアライザー
+### ビジュアライザー
 
 で演奏されたすべての音符は、その音符に対応する。[MPE](https://support.roli.com/article/what-is-mpe/)対応するデバイスがウィンドウの下部に表示されます。これは以下のスクリーンショットに示されています：
 
@@ -77,7 +77,7 @@ MIDI入力を1つ有効にする必要があります。[Seaboard RISE](https://
 - ノートの水平位置は、元のノートと、このノートに適用されたピッチベンドから決定されます。
 - ノートの垂直方向の位置は*ベル*このノートのMIDIチャンネルのMIDIコントローラー74から）。
 
-## その他の設定
+### その他の設定
 
 の他の側面をさらに掘り下げる前に。[MPE](https://support.roli.com/article/what-is-mpe/)このアプリケーションで実証されている仕様の他に、このアプリケーションが使っているものをいくつか見てみよう。
 
@@ -129,7 +129,7 @@ public:
         audioDeviceManager.addAudioCallback (this);
 ```
 
-### MIDI入力コールバック
+#### MIDI入力コールバック
 
 について`handleIncomingMidiMessage()`は、ユーザーインターフェイスのアクティブなMIDI入力のいずれかからMIDIメッセージが受信されるたびに呼び出されます：
 
@@ -147,7 +147,7 @@ public:
 - 私たちの`visualiserInstrument`ビジュアライザー・ディスプレイの駆動に使用されるメンバー。
 - その`midiCollector`メンバーは、オーディオ・コールバックでシンセサイザーにメッセージを渡す。
 
-### オーディオ・コールバック
+#### オーディオ・コールバック
 
 オーディオ・コールバックが行われる前に、次のことを知らせる必要がある。`synth`そして`midiCollector`デバイスのサンプルレートの`audioDeviceAboutToStart()`関数である：
 
@@ -192,11 +192,11 @@ public:
 
 :::
 
-# MPEコアクラス
+## MPEコアクラス
 
 すべて[MPE](https://support.roli.com/article/what-is-mpe/)特定の処理は[MPE](https://support.roli.com/article/what-is-mpe/)クラスである：[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。"),[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。"),[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。"),[MPEValue](https://docs.juce.com/master/classMPEValue.html "このクラスは、MPE の制御次元のいずれかの単一の値を表します。")そして[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")(先に述べたように）。
 
-## MPEInstrument クラス
+### MPEInstrument クラス
 
 について[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")クラスは、MPE仕様に従って、現在演奏中の音符の状態を保持する。このクラスは[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトには、1つ以上のリスナーをアタッチすることができ、ノートに変更が発生するとそれをブロードキャストすることができます。必要なことは[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトにMIDIデータを入力し、残りを処理する。
 
@@ -222,7 +222,7 @@ public:
 
 この例では[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトを直接作成する必要があります。音声合成を行うために、別に[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトになる。その[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。")オブジェクトには[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")このオブジェクトはシンセサイザーを駆動するために使用される。
 
-## MPESynthesiser クラス
+### MPESynthesiser クラス
 
 を設定した。[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")と同じ構成で`visualiserInstrument`オブジェクト（レガシー・モード、ピッチベンド・レンジは24半音）：
 
@@ -245,7 +245,7 @@ public:
         synth.renderNextBlock (buffer, incomingMidi, 0, numSamples);
 ```
 
-## MPESynthesiserVoice クラス
+### MPESynthesiserVoice クラス
 
 一般的には[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")そして[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")クラスをそのまま使うことができる（ただし、いくつかの動作をオーバーライドする必要がある場合は、どちらのクラスも基本クラスとして使うことができる）。最も重要なクラスは*マスト*を使うためにオーバーライドする。[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")クラスは[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")クラスです。これは実際にシンセサイザーのボイスからオーディオ信号を生成する。
 
@@ -278,7 +278,7 @@ class MPEDemoSynthVoice : public juce::MPESynthesiserVoice
 };
 ```
 
-### 声の開始と停止
+#### 声の開始と停止
 
 を使用する上で重要なことである。[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")クラスにアクセスすることである。[MPESynthesiserVoice::currentlyPlayingNote](https://docs.juce.com/master/classMPESynthesiserVoice.html#aea34fcbdb3fa0961f73d5f9a1f34e255)(保護されている)[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")メンバをオーバーライドして、さまざまなコールバック時にノートの制御情報にアクセスできるようにします。例えば[MPESynthesiserVoice::noteStarted()](https://docs.juce.com/master/classMPESynthesiserVoice.html#ae10c1cdfb37208b96b56863d47a3a193 "MPESynthesiserによって呼び出され、音声に新しいノートが始まったことを知らせる。")関数はこのようになる：
 
@@ -355,7 +355,7 @@ class MPEDemoSynthVoice : public juce::MPESynthesiserVoice
 
 :::
 
-### パラメータの変更
+#### パラメータの変更
 
 この音符の音圧、ピッチベンド、音色のいずれかが変更されると、それを知らせるコールバックがある：
 
@@ -378,7 +378,7 @@ class MPEDemoSynthVoice : public juce::MPESynthesiserVoice
 
 ここでも[MPESynthesiserVoice::currentlyPlayingNote](https://docs.juce.com/master/classMPESynthesiserVoice.html#aea34fcbdb3fa0961f73d5f9a1f34e255)メンバーを使用して、これらの各パラメーターの現在値を取得する。
 
-### オーディオの生成
+#### オーディオの生成
 
 について`MainComponent::renderNextBlock()`実際にオーディオ信号を生成し、このボイスの信号を渡されたバッファにミックスする：
 
@@ -461,7 +461,7 @@ class MPEDemoSynthVoice : public juce::MPESynthesiserVoice
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは[MPE](https://support.roli.com/article/what-is-mpe/)をベースとしたクラスがJUCEにあります。これでわかるはずです：
 
@@ -472,7 +472,7 @@ class MPEDemoSynthVoice : public juce::MPESynthesiserVoice
 - その[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")クラスには[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")このオブジェクトはシンセサイザーを駆動するために使用される。
 - を継承したクラスを実装しなければならない。[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")クラスを使って、シンセサイザーのオーディオ・コードを実装します。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Understanding MPE zones](../tutorial_mpe_zones/)
 - [Tutorial: Handling MIDI events](../tutorial_handling_midi_events/)

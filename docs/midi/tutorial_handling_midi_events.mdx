@@ -10,13 +10,13 @@ tags: [中級]
 
 このチュートリアルでは、MIDI入力イベントの扱い方を説明します。外部ソースからMIDIデータを渡すことに加えて、オンスクリーンキーボードコンポーネントを紹介します。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。"),[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。"),[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。"),[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。"),[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。"),[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。"),[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "配信されたときにコールバック・メソッドを呼び出すメッセージ。"),[ScopedValueSetter](https://docs.juce.com/master/classScopedValueSetter.html "一時的に値を設定し、再度設定するための RAII ベースのメカニズムを提供するヘルパークラス。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/HandlingMidiEventsTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/HandlingMidiEventsTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -28,7 +28,7 @@ tags: [中級]
 
 :::
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このデモ・プロジェクトでは、画面上にMIDIキーボードが表示され、コンボボックスを使ってハードウェア・デバイスのMIDI入力を1つ選択することができます。これらのソースから受信した MIDI イベントはウィンドウの下部に表示されます。これは次のスクリーンショットに示されています：
 
@@ -37,7 +37,7 @@ tags: [中級]
   caption="アプリケーション・ウィンドウ"
 />
 
-# MIDI入力
+## MIDI入力
 
 このチュートリアルでは、基本的なアプリケーションで MIDI 入力を扱う方法を示します。JUCEは、接続されているハードウェアMIDIインタフェースのリストを簡単に見つけることができます。また[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")クラスのメンバ変数を見てみよう。まず、このクラスのメンバ変数を見てみよう。`MainContentComponent`クラスである：
 
@@ -73,7 +73,7 @@ tags: [中級]
 
 を通過させなければならない。[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。")オブジェクトを初期化する。[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")オブジェクトである。そして、これらは静的に割り当てられたオブジェクトなので[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。")は、メンバー変数の最初にリストされなければならない。
 
-## MIDI入力リスト
+### MIDI入力リスト
 
 MIDI入力のリストを含むコンボボックスは、コンピュータに接続されているMIDI入力のリストを[MidiInput](https://docs.juce.com/master/classMidiInput.html "MIDI入力デバイスを表す。")クラスでは、MidiInput::getDevices() 関数を使います：
 
@@ -132,7 +132,7 @@ midiInputList.onChange = [this] { setMidiInput (midiInputList.getSelectedItemInd
     }
 ```
 
-## 外部MIDI入力を扱う
+### 外部MIDI入力を扱う
 
 を実施する。[MidiInputCallback::handleIncomingMidiMessage()](https://docs.juce.com/master/classMidiInputCallback.html#acdf6d7e27b96a50fe06922737f0d082e "着信メッセージを受信する。") [pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数を使う。これによりキーボードの状態が更新され（これにより[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")オブジェクト)：
 
@@ -151,7 +151,7 @@ midiInputList.onChange = [this] { setMidiInput (midiInputList.getSelectedItemInd
 - を設定する。`isAddingFromMidiInput`メンバーをtrueに設定する。
 - 関数が終了すると`isAddingFromMidiInput`メンバーを関数開始時の状態に戻す。
 
-## MIDIキーボードの状態とコンポーネント
+### MIDIキーボードの状態とコンポーネント
 
 の中で`MainContentComponent`コンストラクタは[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")オブジェクトが`MainContentComponent`親コンポーネントを可視化する。また[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。")オブジェクト(*ない*コンポーネント)：
 
@@ -186,7 +186,7 @@ MidiKeyboardStateListener クラスには、次の 2 つがあります。[pure 
 
 ここでは`isAddingFromMidiInput`メンバが使用される。これにより、ハードウェア入力から到着したイベントが複数回リストに投稿されるのを防ぐことができる。
 
-## メーリングリストへのメッセージ投稿
+### メーリングリストへのメッセージ投稿
 
 について`postMessageToList()`関数は、最初は少し変わって見えるかもしれない：
 
@@ -207,7 +207,7 @@ MidiKeyboardStateListener クラスには、次の 2 つがあります。[pure 
 
 :::
 
-## メッセージの表示
+### メッセージの表示
 
 について`addMessageToList()`そして`getMidiMessageDescription()`の関数と非常によく似ている。[Tutorial: Create MIDI data](../tutorial_midi_message/).主な違いは、出典を記録することである。\[7\]MIDIメッセージ（どのハードウェア入力、またはオンスクリーンキーボード）の
 
@@ -240,7 +240,7 @@ MidiKeyboardStateListener クラスには、次の 2 つがあります。[pure 
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、MIDI入力イベントを処理したり表示したりするためのいくつかのクラスを紹介しました。特に以下のことができるようになるはずです：
 
@@ -250,7 +250,7 @@ MidiKeyboardStateListener クラスには、次の 2 つがあります。[pure 
 - を使用してMIDIノートデータを表示します。[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")クラスである。
 - を使って、他のスレッドからのメッセージをメッセージスレッドに投稿する。[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "配信されたときにコールバック・メソッドを呼び出すメッセージ。")クラスである。
 
-# 参照
+## 参照
 
 - [Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)
 - [Tutorial: Create MIDI data](../tutorial_midi_message/)

@@ -12,11 +12,11 @@ tags: [初級]
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [Random](https://docs.juce.com/master/classRandom.html "乱数発生器。"),[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。"),[AudioBuffer](https://docs.juce.com/master/classAudioBuffer.html "浮動小数点オーディオサンプルを含むマルチチャンネルバッファ。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/ProcessingAudioInputTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/ProcessingAudioInputTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -28,7 +28,7 @@ tags: [初級]
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このデモ・プロジェクトは、入力信号をホワイト・ノイズで変調します。ホワイトノイズのレベルは変更可能で、出力全体のレベルに影響を与えます ([Tutorial: Control audio levels](../../synth/tutorial_synth_level_control/)ホワイトノイズを生成するために使用される技術については、こちらを参照）。その結果、入力信号は非常に "ファジー "なものになる。
 
@@ -40,7 +40,7 @@ tags: [初級]
 
 マイクとヘッドフォンは別々に使うのがベストだろう。もちろん、このプロジェクトが正しく機能するためには、何らかのオーディオ入力デバイスが必要です。
 
-# 音声入力
+## 音声入力
 
 このチュートリアルでは[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスをデモ・プロジェクト・アプリケーションの基礎として使用します。他のチュートリアルでは`getNextAudioBlock()`関数 - 参照[Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/),[Tutorial: Control audio levels](../../synth/tutorial_synth_level_control/)そして[Tutorial: Build a sine wave synthesiser](../../synth/tutorial_sine_synth/).このチュートリアルでは、オーディオ入力を読み取り、音声も出力します。このチュートリアルでは`MainContentComponent`コンストラクタで、2つのオーディオ入力と2つのオーディオ出力を要求します：
 
@@ -54,11 +54,11 @@ tags: [初級]
 
 :::
 
-## バッファの再利用
+### バッファの再利用
 
 重要なことは、入力と出力のバッファーは完全に分離されているわけではないということである。入力と出力には同じバッファが使われる。のすべてのコードを一時的にコメントアウトすることで、これをテストすることができる。`getNextAudioBlock()`関数を使います。アプリケーションを実行すると、オーディオ入力が直接出力に渡されます。アプリケーションの`getNextAudioBlock()`関数のチャンネル数は[AudioSampleBuffer](https://docs.juce.com/master/classAudioBuffer.html) オブジェクトを`bufferToFill`構造体は、入力チャンネル数、出力チャンネル数、またはその両方よりも大きくなる可能性があります。要求した入出力チャンネル数を参照するデータのみにアクセスすることが重要である、*そして*を使用することができます。特に、入力チャンネル数が出力チャンネル数より多い場合は、以下のようになります。*べからず*読み取り専用データを含むチャンネルを変更する。
 
-## アクティブ・チャンネルの獲得
+### アクティブ・チャンネルの獲得
 
 の中で`getNextAudioBlock()`関数が得られる。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")これは、アクティブな入出力チャンネルのリストを*ビットマスク*(これは[std::bitset](https://docs.juce.com/master/http://www.cplusplus.com/reference/bitset/bitset/)クラスを使用するか[std::vector\<bool\>](https://docs.juce.com/master/http://www.cplusplus.com/reference/vector/vector-bool/)オブジェクト)。これらの[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")を構成するビットの0（非アクティブ）または1（アクティブ）で表されます。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")値である。
 
@@ -136,7 +136,7 @@ tags: [初級]
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、JUCE アプリケーションのオーディオ入力からのオーディオ処理について紹介しました。特に
 
@@ -145,7 +145,7 @@ tags: [初級]
 - アクティブなチャンネルと非アクティブなチャンネルをどう扱うか。
 - 入力と出力のチャンネル数が異なる場合、どうすればよいかを推論する方法。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: The AudioDeviceManager class](../tutorial_audio_device_manager/)
 - [Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)

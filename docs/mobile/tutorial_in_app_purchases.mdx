@@ -21,7 +21,7 @@ This project requires Apple Developer and iTunes Connect accounts on macOS/iOS a
 
 :::
 
-## はじめる
+### はじめる
 
 Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/InAppPurchaseTutorial.zip) | [ジップ](/tutorials/ZIPs/InAppPurchaseTutorial.zip). Unzip the project and open the first header file in the Projucer.
 
@@ -33,7 +33,7 @@ If using the PIP version of this project, please make sure to copy the `リソ�
 
 If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
 
-# The demo project
+## The demo project
 
 このプロジェクトでは、音声ディクテーションを使用してフレーズを再生する際に、いくつかの聴覚的なフレーバーを提供するために、アプリ内課金で取得できるさまざまな音声を提供しています。デフォルトでは、ユーザーは一般的なロボット音声を利用できますが、必然的にJUCE開発者の音声を試したくなります。iOSシミュレータでモバイル・アプリケーションを実行すると、ウィンドウは次のようになります：
 
@@ -53,7 +53,7 @@ The code presented here is broadly similar to the **アプリ内購入** from th
 
 :::
 
-# Initial Setup
+## Initial Setup
 
 In order for this project to function properly, we have to perform some initial setup procedures with appropriate developer consoles for specific deployment platform. Let's first allow appropriate permissions for in-app purchases in the Projucer. Under macOS/iOS, make sure that the **アプリ内課金機能** checkbox is ticked. Under Android, make sure that the **アプリ内課金** checkbox is ticked.
 
@@ -63,7 +63,7 @@ In order for this project to function properly, we have to perform some initial 
 
 プロジェクトを保存してお気に入りのIDEで開くと、Projucerが自動的に必要なエンタイトルメントをデプロイメント・ターゲットに追加します。
 
-## Apple Developer
+### Apple Developer
 
 :::note
 
@@ -83,7 +83,7 @@ Also make sure that the correct app capabilities have been ticked and approved i
 <CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot4.png" caption="Capabilities settings window in Xcode" />
 
 
-## iTunes Connect
+### iTunes Connect
 
 For the in-app purchases to display properly on iOS, we need to create IAP products in iTunes Connect. First, create a new app in your dashboard under **私のアプリ**. If you navigate to the **特徴** tab of your app, you can access the **アプリ内課金** feature on the following screen:
 
@@ -93,7 +93,7 @@ For the in-app purchases to display properly on iOS, we need to create IAP produ
 
 Click on the **+** sign to create six products that correspond with the options in the app with appropriate names and prices.
 
-## Google Play Developer
+### Google Play Developer
 
 :::note
 
@@ -115,7 +115,7 @@ Google PlayのプロダクトIDに関する制限により、プロダクトID�
 
 :::
 
-## Generate Android APK
+### Generate Android APK
 
 In order for in-app purchases to function properly on Android, we have to sign the Android version of the app and authenticate the requests to the Google Play store API. First launch Android Studio and navigate to the menu bar under **ビルド > 署名付きAPKの生成...**:
 
@@ -143,7 +143,7 @@ This will generate the keystore file that you can now refer to in the Projucer. 
 
 アプリ内購入のセットアップはもう完了しているはずで、ようやくアプリにこれらの機能を実装し始めることができる。
 
-# Purchase Types
+## Purchase Types
 
 アプリ内課金は、アプリ内で直接顧客に追加コンテンツや機能を提供するのに便利です。プレミアム機能、限定アイテム、あるいはサブスクリプションなどがあります。一般的に、すべての関連プラットフォームで4つの主要なタイプの購入があります：
 
@@ -154,7 +154,7 @@ This will generate the keystore file that you can now refer to in the Projucer. 
 
 このチュートリアルでは、非消費型のアプリ内課金を実装します。
 
-# Project structure
+## Project structure
 
 プロジェクトは、アプリケーションのさまざまな部分を処理するために、以下のクラスを使用して構成されています：
 
@@ -178,7 +178,7 @@ VoiceProduct 構造体には、消耗品以外の製品に役立つ情報、つ�
 
 消耗品の購入にはどのような情報が必要だろうか？定期購入についてはどうだろう？何が追加されるべきか、何が削除されるべきかを考えよう。
 
-# Displaying products
+## Displaying products
 
 Let's start by displaying the IAP products that we want to sell in the user interface. In the VoicePurchases constructor of the `ボイス購入` class, we have initialised the VoiceProduct objects using the structure described above like so:
 
@@ -294,7 +294,7 @@ We can now start overriding the [アプリ内課金](https://docs.juce.com/maste
 -   \[6\]: If the index is valid, set the product variables to reflect availability of the product.
 -   \[7\]: Optionally show a message box asynchronously explaining that users will be charged.
 
-# Retrieving purchases
+## Retrieving purchases
 
 :::warning
 
@@ -454,7 +454,7 @@ if (rowNumber == 0)
 
 In this piece of code, we mainly update the font styles of the name and price labels to remain as default when the item is purchased and change its colour to white. In addition, we enable the purchase buttons if the corresponding product is available for purchase. We also need to disable mouse clicks on these buttons after purchase to avoid errors when charging the customer \[14\].
 
-# Purchasing products
+## Purchasing products
 
 :::warning
 
@@ -570,7 +570,7 @@ purchaseInProgress = purchase.purchaseInProgress; // [10].
 
 チュートリアルのこの時点で、商品の購入と商品情報の取得を処理する仕組みはすべて実装されていますが、GUIに更新のタイミングを指示する必要があります。
 
-# Handling async updates
+## Handling async updates
 
 Since purchases and synchronisation with the IAP server are performed on a separate thread, we need to handle responses in an asynchronous manner. In the `メインコンテンツコンポーネント` class, let's inherit from the [非同期アップデーター](https://docs.juce.com/master/classAsyncUpdater "Has a callback method that is triggered asynchronously.") class \[1\] and pass a reference of this class to the VoicePurchases instance \[2\]:
 
@@ -669,7 +669,7 @@ Add the following getter in the `ボイス購入` class as a public helper funct
 
 ユーザーが特定の音声でフレーズを再生するたびにトークンを消費することで、これらのIAP製品の消費可能バージョンを実装します。
 
-# Playing sounds
+## Playing sounds
 
 When the user clicks on the play button, we need to trigger the correct audio file to play using the right voice and phrase. The audio files are stored as binary resources using the name of the voice and an index relating to the phrase number as a naming convention. In the `メインコンテンツコンポーネント` class, we handle the behaviour as follows:
 
@@ -710,7 +710,7 @@ The source code for this modified version of the code can be found in the `InApp
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、モバイルとデスクトップでアプリ内課金を処理する方法を学びました。特に
 
@@ -719,7 +719,7 @@ The source code for this modified version of the code can be found in the `InApp
 -   過去のユーザーの購入履歴を取得し、それに応じてGUIを非同期に更新。
 -   アプリ内で消耗品以外の商品の購入に対応。
 
-# 関連項目
+## 関連項目
 
 -   [チュートリアルアンドロイドを始めよう](../tutorial_android_studio/)
 -   [チュートリアルAndroidの画面サイズを管理する](../tutorial_android_screen_sizes/)

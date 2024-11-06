@@ -12,17 +12,17 @@ tags: [初級]
 
 レベル初心者
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。"),[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。"),[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/ColoursTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/ColoursTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトは、いくつかの子コンポーネントを表示し、いくつかの簡単な描画コマンドを実行します。これは、JUCEでどのように色が指定され、コンポーネントに適用されるかを説明するために使用されます。アプリケーションは以下のスクリーンショットのようになるはずです：
 
@@ -33,7 +33,7 @@ tags: [初級]
 
 このチュートリアルの最初の部分では、より一般的な色の指定について見ていきます。の描画コードを変更することで説明します。`paint()`関数を使用します。チュートリアルの第2部では、組み込みのコンポーネント・タイプ（ラベルやスライダーなど）の要素に対して、どのように色を指定するかを示します。
 
-# 色と一般的な塗装作業
+## 色と一般的な塗装作業
 
 JUCEは、赤、緑、青、アルファ（透明度）の値を使って色を指定します。これはもちろん、コンピュータで色を指定する方法として広く使われているものですが、実装はすべて微妙に異なります。特に、JUCEは色を操作するためのいくつかの便利なメソッドを提供しており、アプリケーションの一貫したカラーパレットを維持するのに役立ちます。まず`paint()`関数をデモ・アプリケーションから呼び出す：
 
@@ -112,7 +112,7 @@ for (auto colour : colours)
 
 この後のいくつかの例では、色を指定するためのいくつかの方法を示します。`colours`配列である。
 
-## 名前で色を指定する
+### 名前で色を指定する
 
 デモ・プロジェクトと上のコードに示されているように、JUCEでは、色は[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")の名前空間を使用します。
 
@@ -185,7 +185,7 @@ juce::Array colours { juce::Colours::findColourForName (removeSpaces ("Dark Red"
                                     juce::Colours::findColourForName (removeSpaces ("Dark Blue"), defaultColour) };
 ```
 
-## 値から色を指定する
+### 値から色を指定する
 
 [Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")は、生の赤、緑、青、アルファ値を使って指定することもできる。ここでは[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。")オブジェクトは、0.0-1.0の範囲の浮動小数点値か、0-255の整数（uint8型）のいずれかを使用します。整数を使えば、同じ赤、緑、青の色を次のように作ることができる：
 
@@ -237,7 +237,7 @@ juce::Array colours { juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 1.0f),   //
 
 :::
 
-## 色相、彩度、明度
+### 色相、彩度、明度
 
 [Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。")オブジェクトを色相、彩度、明度値から初期化することもできる。これは、知覚的な性質を共有する異なる色を生成する1つの方法です。
 
@@ -276,7 +276,7 @@ juce::Array colours { juce::Colour::fromHSV (purpleHue, 0.5f, 0.3f, 1.0f),
   caption="紫、彩度0.5、明度0.3、0.5、0.7"
 />
 
-## 色の値を操作する
+### 色の値を操作する
 
 また、既存の色を使って新しい色を作ることもできます。例えば、既存の色より少し明るい色や暗い色を作るには[Colour::brighter()](https://docs.juce.com/master/classColour.html#a614c7699a1b47dcf324106d548238bac "この色の明るいバージョンを返します。")または[Colour::darker()](https://docs.juce.com/master/classColour.html#a9910d9b8385825a87ea0d62d96115872 "この色の暗いバージョンを返します。")関数をそれぞれ使用する：
 
@@ -331,7 +331,7 @@ juceDefinition juce_AudioWorkgroup_mac.h:36
 
 を使用して、重ね合わせた色のアルファチャンネルを考慮して2色をブレンドするなど、他にもさまざまな操作が可能です。[Colour::overlaidWith()](https://docs.juce.com/master/classColour.html#a3c6c94ff6f05b403b783acaf7c68b439 "この色の上に新しい色をアルファ合成した結果の色を返します。")関数である。
 
-# コンポーネントカラーの指定
+## コンポーネントカラーの指定
 
 前のセクションでは、コンポーネントの`paint()`関数を使用します。組み込みコンポーネント（スライダーやラベルなど）の色をカスタマイズするには、Component::setColour() または[LookAndFeel::setColour()](https://docs.juce.com/master/classLookAndFeel.html#a167a1e914771f32e433a0d45aaba45e3 "特定の目的に使用する色を登録する。")の機能がある。
 
@@ -376,7 +376,7 @@ AccessibilityRole::label@ label
 
 :::
 
-## ルック＆フィールカラーの設定
+### ルック＆フィールカラーの設定
 
 アプリケーションやアプリケーションの一部では、同じタイプのすべてのコンポーネントに同じカラーパレットを必要とすることがよくあります。前のセクションの練習問題で、同じ外観にするために両方のスライダーにComponent::setColour()関数を繰り返し呼び出す必要があることに気づいたかもしれません。関数の1つの使い方は[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスは、これらの色を指定できる単一のポイントを提供することです。これを説明するために`MainContentComponent`コンストラクタを元の状態に戻す：
 
@@ -416,7 +416,7 @@ addAndMakeVisible (slider2);
   caption="1行のコードで複数のスライダー親指の色をカスタマイズする"
 />
 
-## カスタム・ルック＆フィール・カラー
+### カスタム・ルック＆フィール・カラー
 
 のサブクラスを作ることもできます。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラス([LookAndFeel\_V1](https://docs.juce.com/master/classLookAndFeel__V1.html "2002年から2007年頃まで使用されていたオリジナルのJUCEのルック＆フィール。"),[LookAndFeel\_V2](https://docs.juce.com/master/classLookAndFeel__V2.html "このLookAndFeelサブクラスは、2008-12年頃のjuceスタイルを実装しています。"),[LookAndFeel\_V3](https://docs.juce.com/master/classLookAndFeel__V3.html "2013年に登場した最新のJUCEルック＆フィールスタイル。")あるいは[LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "2017年に登場した最新のJUCEルック＆フィールスタイル。")) を作成し、そのコンストラクタで特定の色をカスタマイズします。これを行うには、次のクラスを`MainContentComponent`クラスである：
 
@@ -461,7 +461,7 @@ private:
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、あなた自身のアプリケーションで使用できる以下の項目を見てきました：
 
@@ -470,7 +470,7 @@ private:
 - カラーIDを使った組み込みコンポーネントの要素の色の指定。
 - を使用して、アプリケーションの一部またはアプリケーション全体で色を指定します。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスである。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: The Random class](../../utility-classes/tutorial_random/)
 - [Tutorial: Customise the look and feel of your app](../tutorial_look_and_feel_customisation/)

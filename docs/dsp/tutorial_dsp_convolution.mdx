@@ -12,9 +12,9 @@ tags: [上級]
 
 レベル上級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
-プラグイン形式：VST , AU , スタンドアロン
+プラグイン形式：VST, AU, スタンドアロン
 
 クラス： [dsp::ProcessorChain](https://docs.juce.com/master/classdsp_1_1ProcessorChain.html "この変種テンプレート化されたクラスを使用すると、任意の数のプロセッサー・クラスを1つにまとめることができます。"),[dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html "単一のサンプルまたは AudioBlock としてオーディオサンプルにゲインを適用します。"),[dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html "ユーザーが指定した関数に基づいて信号を生成する。"),[dsp::Convolution](https://docs.juce.com/master/classdsp_1_1Convolution.html "インパルス応答を持つ入力信号のステレオ分割畳み込みを周波数..."),[dsp::WaveShaper](https://docs.juce.com/master/structdsp_1_1WaveShaper.html "オーディオサンプルにウェーブシェーピングを適用します。"),[dsp::Reverb](https://docs.juce.com/master/classdsp_1_1Reverb.html "ProcessorChain に簡単に統合できる juce::Reverb の Processor ラッパー。"),[dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "モノラル・プロセッサー・クラスを複製し、マルチチャンネル・プロセッサー・クラスを適用することで、マルチチャンネル・プロセッサー・クラスに変換します。")
 
@@ -24,7 +24,7 @@ tags: [上級]
 
 :::
 
-# スタート
+## スタート
 
 このチュートリアルは[Tutorial: Introduction to DSP](../tutorial_dsp_introduction/).もしまだなら、まずそのチュートリアルを読むべきだ。
 
@@ -38,7 +38,7 @@ tags: [上級]
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+### デモ・プロジェクト
 
 プロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメント・ターゲットを選択することで、スタンドアロン・アプリケーションとして実行することができます。Xcodeでは、以下のスクリーンショットのように、メインウィンドウの左上でターゲットを変更することができます：
 
@@ -65,13 +65,13 @@ MIDIコントローラーをお持ちの場合は、このチュートリアル�
 
 :::
 
-# はじめに
+### はじめに
 
 このチュートリアルでは、異なる方法で信号処理を可能にする2つの新しいDSPコンセプトを紹介します：ウェーブシェーピングとコンボリューションです。
 
 このDSP用語の定義から始めよう。
 
-## ウェーブシェイピングとは何か？
+#### ウェーブシェイピングとは何か？
 
 ウェーブシェーピングとは、ある信号が、元の信号に適用される伝達関数によって別の信号にシェーピングされるプロセスのことである。例えば、単純な正弦波は、数学的な関数を適用することによって異なる波形に成形することができる。
 
@@ -113,7 +113,7 @@ MIDIコントローラーをお持ちの場合は、このチュートリアル�
 
 JUCEでは、ウェーブシェーピングは[dsp::WaveShaper](https://docs.juce.com/master/structdsp_1_1WaveShaper.html "オーディオサンプルにウェーブシェーピングを適用します。")クラスはDSPモジュールに含まれている。
 
-## コンボリューションとは何か？
+#### コンボリューションとは何か？
 
 コンボリューションとは、ある空間の残響特性を、その空間の特性を表すインパルス応答をあらかじめ録音しておき、それを使ってシミュレートすることです。このプロセスにより、インパルス応答のサンプルに対してデータの各サンプルを乗算して合成出力を作成するコンボリューションによって、入力信号にあらゆるタイプの音響プロファイルを適用することができます。
 
@@ -149,7 +149,7 @@ JUCEでは、ウェーブシェーピングは[dsp::WaveShaper](https://docs.juc
 
 JUCEでは、コンボリューションは[dsp::Convolution](https://docs.juce.com/master/classdsp_1_1Convolution.html "インパルス応答を持つ入力信号のステレオ分割畳み込みを周波数...")クラスはDSPモジュールに含まれている。
 
-# ウェーブシェイパーの統合
+### ウェーブシェイパーの統合
 
 の中で`Distortion`クラスのテンプレート引数として、 juce::dsp::ProcessorChain に juce::dsp::WaveShaper プロセッサを追加します。\[1\].また、プロセッサ・インデックスを持つ enum も定義します。\[2\]これは、後でそのインデックスから対応するプロセスを明確に参照できるようにするためである。
 
@@ -224,7 +224,7 @@ xfloat xDefinition juce_UnityPluginInterface.h:200
 
 :::
 
-# 伝達関数を変更する
+### 伝達関数を変更する
 
 伝達関数を双曲線正接に変えて、ウェーブシェーパーのクリッピングをもう少しソフトにしてみよう。
 
@@ -280,7 +280,7 @@ public:
 
 :::
 
-# フィルターの調整
+### フィルターの調整
 
 お気づきかもしれませんが、ウェーブシェイパーで低域を歪ませると、歪んだ音がすぐに濁ってしまうことがあります。ウェーブシェイパーで信号を処理する前にハイパスフィルターを導入することで、この問題を軽減することができます。
 
@@ -330,7 +330,7 @@ private:
 
 :::
 
-# キャビネット・シミュレーターの実装
+### キャビネット・シミュレーターの実装
 
 コンボリューションを使ってギター・キャビネットをシミュレートすることで、サウンドにさらに個性を与えてみよう。
 
@@ -450,7 +450,7 @@ public:
 
 :::
 
-# 概要
+### 概要
 
 このチュートリアルでは、ウェーブシェーピングとコンボリューションの取り入れ方を学んだ。特に
 
@@ -467,7 +467,7 @@ public:
 
 :::
 
-# こちらも参照
+### こちらも参照
 
 - [Tutorial: The fast Fourier transform](../tutorial_simple_fft/)
 - [Tutorial: Visualise the frequencies of a signal in real time](../tutorial_spectrum_analyser/)

@@ -10,13 +10,13 @@ tags: [中級]
 
 を使用して、さまざまな画面サイズや方向で動作するレスポンシブGUIレイアウトを構築します。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。")クラスである。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux , iOS , Android
+プラットフォーム：Windows, macOS, Linux, iOS, Android
 
 クラス： [FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。"),[FlexItem](https://docs.juce.com/master/classFlexItem.html "FlexBox コンテナ内のアイテムのプロパティを記述します。"),[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。"),[GridItem](https://docs.juce.com/master/classGridItem.html "グリッド内の項目を定義します。")
 
-# スタート
+## スタート
 
 このチュートリアルは、以下のような簡単なレイアウトテクニックを理解していることを前提としています。[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスで説明されている。[Tutorial: Advanced GUI layout techniques](../tutorial_rectangle_advanced/).もしまだなら、まずそのチュートリアルを読むべきだ。
 
@@ -24,7 +24,7 @@ tags: [中級]
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 デモ・プロジェクトでは、次のようなさまざまなレスポンシブ・レイアウトのテクニックを紹介しています。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定された列と行）のジオメトリを扱うコンテナ。")オブジェクトは、画面サイズや解像度が変化する場合に使用される。最初にプロジェクトを初期状態で実行すると、次のようになるはずだ：
 
@@ -35,7 +35,7 @@ tags: [中級]
 
 今のところ、レイアウトは一般的な非レスポンシブ・テクニックを使って画面上にコンポーネントをレイアウトしており、向きの変化には対応していません。私たちは[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定列と固定行）のジオメトリを扱うコンテナ。")これらの問題を根絶するためのアイテムだ。
 
-# FlexBoxとGridレイアウトシステム
+## FlexBoxとGridレイアウトシステム
 
 について[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定された列と行）のジオメトリを扱うコンテナ。")クラスは、CSSウェブ開発で使用されているレスポンシブ・レイアウトの実践から大きな影響を受けています。以前にレスポンシブ・ウェブサイトをデザインしたことがあれば、このセクションで説明するレイアウト・システムに慣れているはずです。
 
@@ -64,7 +64,7 @@ tags: [中級]
 
 特定のプロパティがこれらのレイアウト・システムにどのような影響を与えるかがわかったので、デモ・プロジェクトでこれらの変更を実装し始めることができる。
 
-# FlexItemオブジェクトとGridItemオブジェクトの使用
+## FlexItemオブジェクトとGridItemオブジェクトの使用
 
 のボタンレイアウトを置き換えることから始めよう。`RightSidePanel::resized()`を使用する方法です。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。"):
 
@@ -213,7 +213,7 @@ JUCEのピクセルは物理的なピクセルと等価ではありません。�
 
 :::
 
-# FlexBoxとGridクラスの長所と短所
+## FlexBoxとGridクラスの長所と短所
 
 レスポンシブ・レイアウトを作成するために、これらのクラスのいずれかを使用できるケースはたくさんあります。しかし、あるレイアウトの制約を解決するために、どちらか一方がより適しており、時には必要でさえあるシナリオもあります。
 
@@ -235,7 +235,7 @@ JUCEのピクセルは物理的なピクセルと等価ではありません。�
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、レスポンシブ・レイアウトをデザインする方法について学びました。[FlexBox](https://docs.juce.com/master/classFlexBox.html "FlexItemオブジェクトのセットを含み、レイアウトを管理するFlexBoxコンテナを表します。")そして[Grid](https://docs.juce.com/master/classGrid.html "グリッドレイアウト（固定された列と行）のジオメトリを扱うコンテナ。")クラスである。特に
 
@@ -243,7 +243,7 @@ JUCEのピクセルは物理的なピクセルと等価ではありません。�
 - オリエンテーションの変更に対応し、それに応じてインターフェイスを変更。
 - それぞれのクラスの長所と短所について話し合った。
 
-# 参照
+## 参照
 
 - [Tutorial: Parent and child components](../tutorial_component_parents_children/)
 - [Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)

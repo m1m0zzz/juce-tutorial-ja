@@ -10,19 +10,19 @@ tags: [中級]
 
 さまざまな画面サイズに対応するアプリケーションを作成しましょう。このチュートリアルでは、Androidで利用可能な画面サイズは数多くありますが、これを管理するためのいくつかの戦略を検討します。
 
-レベル中級
+レベル：中級
 
-プラットフォームアンドロイド , macOS , Windows
+プラットフォームアンドロイド, macOS, Windows
 
 クラス： [Desktop](https://docs.juce.com/master/classDesktop.html "コンピュータのデスクトップについて説明し、制御する。"),[AffineTransform](https://docs.juce.com/master/classAffineTransform.html "2次元アフィン変換行列を表す．"),[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")
 
-# スタート
+## スタート
 
 このチュートリアルでは、JUCEを使用してAndroidプラットフォーム上で異なる画面サイズを管理するためのいくつかの戦略を説明します。このチュートリアルには、いくつかのデモプロジェクトがあります。これらのプロジェクトのダウンロード・リンクは、チュートリアルの関連するセクションにあります。
 
 各セクションのこのステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このチュートリアルで提供されるデモ・プロジェクトは、JUCEを使用してAndroidプラットフォーム上で異なる画面サイズを管理するためのいくつかの異なる方法を示しています。大まかに、これらの方法は以下の通りです：
 
@@ -31,7 +31,7 @@ tags: [中級]
 - 方向によって異なるコンポーネントのレイアウトを設計する。
 - サイズごとに異なるコンポーネントレイアウトを設計。
 
-# アンドロイドの画面サイズ
+## アンドロイドの画面サイズ
 
 特にフルスクリーン操作を期待するデバイス（モバイルデバイスなど）では、すべての画面サイズとさまざまなデバイスの向きに効果的なユーザーインターフェイスをデザインすることが課題となります。これは、多くの画面サイズと解像度が存在するアンドロイド・プラットフォームでは特に難しいことです。ここでは主に3つの問題がある：
 
@@ -55,7 +55,7 @@ tags: [中級]
 
 :::
 
-# 子コンポーネントのサイズ変更（単純なサイズ変更）
+## 子コンポーネントのサイズ変更（単純なサイズ変更）
 
 このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialSimpleResize.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialSimpleResize.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -73,7 +73,7 @@ tags: [中級]
   caption="子コンポーネントの簡単なサイズ変更ランドスケープ"
 />
 
-## コンポーネントの配列
+### コンポーネントの配列
 
 ボタンとスライダーを`ResizingComp`クラスでは[OwnedArray](https://docs.juce.com/master/classOwnedArray.html "オブジェクトを保持するために設計された配列。")テンプレート・クラスでは、これらの子コンポーネントは自動的に削除されます。`ResizingComp`デストラクタ)。まず`ResizingComp`コンストラクタで[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。")オブジェクトの色を設定します。これらは、ボタン、スライダーの親指、スライダートラックの色を設定するために使用されます：
 
@@ -121,7 +121,7 @@ tags: [中級]
             }
 ```
 
-## カスタムスライダーのサムサイズを使用する
+### カスタムスライダーのサムサイズを使用する
 
 タッチスクリーン・インターフェイスでより使いやすくするため、スライダーの親指は通常標準サイズより大きくなるようにカスタマイズされています。そのために[LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "2017年に登場した最新のJUCEルック＆フィールスタイル。")をオーバーライドした。[LookAndFeel::getSliderThumbRadius()](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html#a71905c89182698a67da8929077e768f8)関数である。
 
@@ -160,7 +160,7 @@ tags: [中級]
         }
 ```
 
-## ボタンとスライダーのサイズ変更
+### ボタンとスライダーのサイズ変更
 
 の中で`ResizingComp::resized()`関数では、ボタンとスライダーの配列を繰り返し処理し、その境界を設定する：
 
@@ -197,7 +197,7 @@ tags: [中級]
 
 :::
 
-# トランスフォームを使用したメインコンポーネントのサイズ変更
+## トランスフォームを使用したメインコンポーネントのサイズ変更
 
 このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialTransform.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialTransform.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -231,7 +231,7 @@ tags: [中級]
 
 :::
 
-# 異なる方向性に対して異なるレイアウトをデザインする
+## 異なる方向性に対して異なるレイアウトをデザインする
 
 このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -281,7 +281,7 @@ tags: [中級]
 
 :::
 
-# 画面サイズごとに異なるレイアウトをデザインする
+## 画面サイズごとに異なるレイアウトをデザインする
 
 このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsSize.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsSize.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
@@ -322,7 +322,7 @@ tags: [中級]
 
 について`ResizingComp`クラスはボタンとスライダーのライフタイムを管理するが、コンポーネントの階層構造から見ると、それらは`ComponentHolder`.
 
-## コンポーネントのレイアウト
+### コンポーネントのレイアウト
 
 について`ComponentHolder`クラスは[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")ポインターを使い、向きによってコンポーネントを1列または2列に並べる。(このレイアウトを実現するテクニックは、以前、さまざまな[screen orientations](https://docs.juce.com/master/#tutorial_android_screen_sizes_different_layouts_orientation).)一つの関数がある。`ComponentHolder::addComp()`\-内部配列に追加し、Component::addAndMakeVisible()を呼び出します：
 
@@ -371,7 +371,7 @@ tags: [中級]
             }
 ```
 
-## 単一ページまたは複数ページの選択
+### 単一ページまたは複数ページの選択
 
 画面サイズが大きい場合は、以下のいずれか1つのみとなる。`ComponentHolder`コンポーネントが作成され、すべてのボタンとスライダーがそこに追加される。画面サイズが小さい場合は`ResizingComp`クラスは[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")オブジェクトのインスタンスを2つ追加する。`ComponentHolder`クラスのタブを形成する。[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。").この単一ページか複数ページかの判断は、次のように管理される。`ResizingComp`クラスの`ResizingComp::resized()`関数である。
 
@@ -459,7 +459,7 @@ tags: [中級]
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、Androidデバイスの画面サイズや向きに関する様々な問題を検証してきました。特に
 
@@ -468,7 +468,7 @@ tags: [中級]
 - デバイスの向きによって異なるコンテンツを表示する方法を紹介。
 - の使い方を紹介する。[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")クラスを使用して、ユーザー・インターフェースを複数のページに分散させることができます。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Getting started with Android](../tutorial_android_studio/)
 - [Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)

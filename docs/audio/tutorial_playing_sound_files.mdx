@@ -10,19 +10,19 @@ tags: [中級]
 
 このチュートリアルでは、サウンドファイルを開いて再生する方法について説明します。これには、JUCEでサウンドファイルを扱うためのいくつかの重要なクラスが含まれます。
 
-レベル中級
+レベル：中級
 
-プラットフォームWindows , macOS , Linux
+プラットフォーム：Windows, macOS, Linux
 
 クラス： [AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。"),[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。"),[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。"),[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。"),[FileChooser](https://docs.juce.com/master/classFileChooser.html "ロードまたは保存するファイルまたはディレクトリを選択するダイアログボックスを作成します。"),[ChangeListener](https://docs.juce.com/master/classChangeListener.html "ChangeBroadcasterから発信される変更イベントコールバックを受信する。"),[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。"),[FileChooser](https://docs.juce.com/master/classFileChooser.html "ロードまたは保存するファイルまたはディレクトリを選択するダイアログボックスを作成します。")
 
-# スタート
+## スタート
 
 このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/PlayingSoundFilesTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/PlayingSoundFilesTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-# デモ・プロジェクト
+## デモ・プロジェクト
 
 このデモ・プロジェクトでは、サウンド・ファイルの再生をコントロールするための3つのボタン・インターフェースを紹介します。つのボタンは
 
@@ -37,13 +37,13 @@ tags: [中級]
   caption="3つのボタンでサウンドファイルの再生をコントロールするインターフェース。"
 />
 
-# 役に立つクラス
+## 役に立つクラス
 
-## AudioSourceクラス
+### AudioSourceクラス
 
 でサンプルごとにオーディオを生成することができます。`getNextAudioBlock()`Audio Application テンプレートには、オーディオを生成・処理するためのツールが組み込まれています。これらにより、アプリケーションコード内でオーディオの各サンプルを処理することなく、高レベルのビルディングブロックをリンクして、強力なオーディオアプリケーションを形成することができます（JUCEがこれを代行します）。これらのビルディングブロックは[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスである。実際、もしあなたが[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスである、[Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)\- を利用している。[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスがすでにある。その[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラス自体は[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスが含まれていることが重要です。[AudioSourcePlayer](https://docs.juce.com/master/classAudioSourcePlayer.html "オーディオ・ソースからAudioIODeviceへ連続的にオーディオをストリーミングするためのラッパークラス。")オブジェクトの間でオーディオをストリーミングする。[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")とオーディオハードウェアデバイスの間で、オーディオサンプルを直接生成することができます。オーディオ・サンプルを直接`getNextAudioBlock()`関数の代わりに[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")オブジェクトを組み合わせて一連のプロセスを形成する。このチュートリアルではこの機能を利用する。
 
-## オーディオフォーマット
+### オーディオフォーマット
 
 JUCE は、多くの形式のサウンドファイルを読み書きするためのツールを提供しています。このチュートリアルでは、特に以下のクラスを使用します：
 
@@ -52,7 +52,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 - [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。"):のサブクラスである。[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスです。このクラスは[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。")オブジェクトを使ってオーディオをレンダリングする。`getNextAudioBlock()`関数である。
 - [AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。"):このクラスは[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスです。このクラスは[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを制御する。このコントロールには[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトに変換できます。また、サンプル・レートの変換も可能で、希望すればオーディオを前もってバッファリングすることもできる。
 
-# まとめる
+## まとめる
 
 これから、これらのクラスと適切なユーザー・インターフェース・クラスを組み合わせて、サウンドファイル再生アプリケーションを作ります。この時点で、様々なフェーズについて考えておくと便利です。*運輸省*\- オーディオファイルの再生オーディオファイルがロードされると、以下の4つの状態が考えられる：
 
@@ -73,7 +73,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
     };
 ```
 
-## インターフェイスの初期化
+### インターフェイスの初期化
 
 のコンストラクタで`MainContentComponent`クラスで、3つのボタンを設定する：
 
@@ -100,7 +100,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 
 特に**プレー**そして**ストップ**ボタンは初期状態ではその**プレー**ボタンは、有効なファイルがロードされると有効になる。ここでは、ラムダ関数を[Button::onClick](https://docs.juce.com/master/classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "このコールバック・オブジェクトにラムダを代入すると、ボタンがクリックされたときに呼び出されるようになります。")これら3つのボタンそれぞれに対応するヘルパー・オブジェクト ([Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)).また、コンストラクタのイニシャライザーリストでトランスポートの状態を初期化する。
 
-## その他の初期化
+### その他の初期化
 
 の3つである。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")には他に4人のメンバーがいる。`MainContentComponent`クラスである：
 
@@ -138,7 +138,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 
 :::
 
-## AudioTransportSourceの変更への対応
+### AudioTransportSourceの変更への対応
 
 輸送の変更が報告されると`changeListenerCallback()`関数が呼び出される。この関数はメッセージスレッド上で非同期に呼び出される：
 
@@ -157,7 +157,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 
 これは単にメンバ関数を呼び出しているだけであることがわかる。`changeState()`.
 
-## 州の変更
+### 州の変更
 
 輸送状態の変化は、この一つの機能に集約される。`changeState()`.これにより、この機能のすべてのロジックを一箇所にまとめることができます。この関数は`state`メンバは、この新しい状態にあるときに起こる必要がある他のオブジェクトへの変更をトリガする。
 
@@ -204,7 +204,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 - \[5\](その)*プレー*状態がトリガーされる。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトが`changeListenerCallback()`関数を使用します。ここでは**ストップ**ボタンをクリックする。
 - \[6\](その)*停止*の状態は、ユーザーが**ストップ**ボタンをクリックします。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトを停止させる。
 
-## オーディオの処理
+### オーディオの処理
 
 このデモ・プロジェクトでのオーディオ処理は非常に単純である。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトに渡す。[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。")を介して渡された[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスである：
 
@@ -241,7 +241,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
     }
 ```
 
-## ファイルを開く
+### ファイルを開く
 
 ファイルを開くには[FileChooser](https://docs.juce.com/master/classFileChooser.html "ロードまたは保存するファイルまたはディレクトリを選択するダイアログボックスを作成します。")オブジェクトに応答する。**オープン...**ボタンがクリックされる：
 
@@ -289,7 +289,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 
 :::
 
-## ファイルの再生と停止
+### ファイルの再生と停止
 
 実際にファイルを再生するコードはすでにセットアップしてあるので、あとは`changeState()`関数に適切な引数を与えてファイルを再生する。その際**プレー**ボタンがクリックされたら、次のようにする：
 
@@ -315,7 +315,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 
 :::
 
-# 一時停止機能の追加
+## 一時停止機能の追加
 
 を追加する手順を説明します。*ポーズ*機能をアプリケーションに追加します。ここでは**プレー**ボタンが**ポーズ**ボタンを無効にする代わりに）ファイル再生中にまた**ストップ**ボタンが**ゼロに戻す**ボタンをクリックします。
 
@@ -441,7 +441,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 
 :::
 
-# 概要
+## 概要
 
 このチュートリアルでは、サウンドファイルの読み込みと再生について紹介しました。特に、以下の事柄を取り上げました：
 
@@ -452,11 +452,11 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 
 - また、オーディオファイルの再生状態を管理する一つの方法についても調べた。
 
-# 備考
+## 備考
 
 の2番目と3番目の引数である。[AudioTransportSource::setSource()](https://docs.juce.com/master/classAudioTransportSource.html#a20a6a91c4505e77207cadef7ddc4dc5c "入力ソースとして使用するリーダーを設定する。")関数を使用すると、バックグラウンド・スレッドで先読みバッファリングを制御できる。第2引数は使用するバッファサイズ、第3引数は[TimeSliceThread](https://docs.juce.com/master/classTimeSliceThread.html "クライアントのリストを保持し、順番に各クライアントを呼び出し、すべてのクライアントに実行するチャンスを与えるスレッド。")このオブジェクトはバックグラウンド処理に使用される。この例では、バッファサイズをゼロにして`nullptr`これはデフォルトである。
 
-# こちらも参照
+## こちらも参照
 
 - [Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)
 - [Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)
