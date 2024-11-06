@@ -252,8 +252,6 @@ tags: [${tags.join(", ")}]
   log("")
 
   const groups = await readListPage();
-  // TODO
-  fs.rmSync(OUTPUT_DIR, { recursive: true });
   ensureDir(OUTPUT_DIR);
 
   for (let i = 0; i < groups.length; i++) {
