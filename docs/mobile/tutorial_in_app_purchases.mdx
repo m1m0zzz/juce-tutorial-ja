@@ -147,10 +147,10 @@ This will generate the keystore file that you can now refer to in the Projucer. 
 
 アプリ内課金は、アプリ内で直接顧客に追加コンテンツや機能を提供するのに便利です。プレミアム機能、限定アイテム、あるいはサブスクリプションなどがあります。一般的に、すべての関連プラットフォームで4つの主要なタイプの購入があります：
 
--   消耗品：複数回使用・購入可能なアイテム。
--   非消耗品：アプリの機能を永続的にアンロックする1回限りの購入。
--   自動更新サブスクリプション：定期的に更新されるコンテンツを、解約するまで定期的にお届けします。
--   更新されないサブスクリプション：手動更新が必要な期間限定コンテンツ。
+- 消耗品：複数回使用・購入可能なアイテム
+- 非消耗品：アプリの機能を永続的にアンロックする1回限りの購入
+- 自動更新サブスクリプション：定期的に更新されるコンテンツを、解約するまで定期的にお届けします
+- 更新されないサブスクリプション：手動更新が必要な期間限定コンテンツ
 
 このチュートリアルでは、非消費型のアプリ内課金を実装します。
 
@@ -158,23 +158,23 @@ This will generate the keystore file that you can now refer to in the Projucer. 
 
 プロジェクトは、アプリケーションのさまざまな部分を処理するために、以下のクラスを使用して構成されています：
 
--   MainContentComponent：画面上にGUIコンポーネントをレイアウトし、再生/停止ボタンクリック時のサウンドファイルの再生を処理する。
--   PhraseModel: [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox.") to describe available phrases to play using purchased voices.
--   VoiceModel: [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox.") to describe available voices that can be purchased to play phrases with.
--   VoiceRow: Custom row [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") for the VoiceModel class to display pictures and information for specific voice entries.
--   VoicePurchases: Class to manage VoiceProduct purchases that handles purchases and encapsulates the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance.
--   VoiceProduct：価格、名前、以前に購入したかどうかなどの情報を含む、単一の購入可能な製品を記述するための構造。
+- MainContentComponent：画面上にGUIコンポーネントをレイアウトし、再生/停止ボタンクリック時のサウンドファイルの再生を処理する。
+- PhraseModel: [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox.") to describe available phrases to play using purchased voices.
+- VoiceModel: [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox.") to describe available voices that can be purchased to play phrases with.
+- VoiceRow: Custom row [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") for the VoiceModel class to display pictures and information for specific voice entries.
+- VoicePurchases: Class to manage VoiceProduct purchases that handles purchases and encapsulates the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance.
+- VoiceProduct：価格、名前、以前に購入したかどうかなどの情報を含む、単一の購入可能な製品を記述するための構造。
 
 As we can see, it roughly follows an [車々間通信](https://en.wikipedia.org/wiki/Model–view–controller) design pattern to separate application functionalities into separate classes.
 
 VoiceProduct 構造体には、消耗品以外の製品に役立つ情報、つまり以下の変数が含まれています：
 
--   const char\* identifier：iTunes ConnectやGoogle Playから参照される一意の識別子。
--   const char\* humanReadable：アプリに表示する、人間が読めるバージョンの識別子。
--   bool isPurchased：ログインしているユーザがそのアイテムを購入したことがあるかどうか。
--   bool priceIsKnown：価格が読み込まれ、表示されるように取得されているかどうか。
--   bool purchaseInProgress：ユーザーが現在進行中の購入を開始したかどうか。
--   [ストリング](https://docs.juce.com/master/classString "The JUCE String class!") purchasePrice: A localised string that displays the product price in the local currency.
+- const char\* identifier：iTunes ConnectやGoogle Playから参照される一意の識別子
+- const char\* humanReadable：アプリに表示する、人間が読めるバージョンの識別子
+- bool isPurchased：ログインしているユーザがそのアイテムを購入したことがあるかどうか
+- bool priceIsKnown：価格が読み込まれ、表示されるように取得されているかどうか
+- bool purchaseInProgress：ユーザーが現在進行中の購入を開始したかどうか
+- [ストリング](https://docs.juce.com/master/classString "The JUCE String class!") purchasePrice: A localised string that displays the product price in the local currency.
 
 消耗品の購入にはどのような情報が必要だろうか？定期購入についてはどうだろう？何が追加されるべきか、何が削除されるべきかを考えよう。
 
@@ -287,12 +287,12 @@ We can now start overriding the [アプリ内課金](https://docs.juce.com/maste
     }
 ```
 
--   \[2\]: First, check whether in-app purchases are supported on your platform and that setup was correctly performed.
--   \[3\]: For all VoiceProduct objects except the first free one, set their variables to reflect unavailability of products.
--   \[4\]: Optionally show a message box asynchronously to explain the issue to the user.
--   \[5\]: For all VoiceProduct objects if in-app purchases are available, retrieve the index from the identifier with the previously implemented helper function.
--   \[6\]: If the index is valid, set the product variables to reflect availability of the product.
--   \[7\]: Optionally show a message box asynchronously explaining that users will be charged.
+- \[2\]: First, check whether in-app purchases are supported on your platform and that setup was correctly performed.
+- \[3\]: For all VoiceProduct objects except the first free one, set their variables to reflect unavailability of products.
+- \[4\]: Optionally show a message box asynchronously to explain the issue to the user.
+- \[5\]: For all VoiceProduct objects if in-app purchases are available, retrieve the index from the identifier with the previously implemented helper function.
+- \[6\]: If the index is valid, set the product variables to reflect availability of the product.
+- \[7\]: Optionally show a message box asynchronously explaining that users will be charged.
 
 ## Retrieving purchases
 
@@ -331,10 +331,10 @@ VoiceProduct getPurchase (int voiceIndex)
     }
 ```
 
--   \[2\]: If this is the first time this function is called, make sure this code segment does not get called again.
--   \[3\]: Add this class as a listener to the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance to receive callbacks.
--   \[4\]: We can then call the `restoreProductsBoughtList()` function to trigger the restoration process and wait for the subsequent callback.
--   \[5\]: Finally, return the VoiceProduct at the specified index. This will get called every time as normal behaviour for this function.
+- \[2\]: If this is the first time this function is called, make sure this code segment does not get called again.
+- \[3\]: Add this class as a listener to the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance to receive callbacks.
+- \[4\]: We can then call the `restoreProductsBoughtList()` function to trigger the restoration process and wait for the subsequent callback.
+- \[5\]: Finally, return the VoiceProduct at the specified index. This will get called every time as normal behaviour for this function.
 
 Since the VoicePurchases class gets registered as a listener when the above function gets initially called, we need to make sure we unregister when this class gets destroyed. Remove the class as an [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") listener in the class destructor:
 
@@ -383,10 +383,10 @@ In the previously defined `ゲットパーチェス()` function, we called the `
     }
 ```
 
--   \[6\]: If the response from the server is successful, we can update our purchase list. Using the helper function, find the index of the voice from the identifier.
--   \[7\]: If the index is valid, set the appropriate variables of the VoiceProduct object to reflect its purchase state.
--   \[8\]: When this callback function gets called the first time around, we need to initialise the purchase prices. Make sure this code segment does not get called a second time.
--   \[9\]: Initiate the request to retrieve product prices on the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance by calling the `取得製品情報()` function.
+- \[6\]: If the response from the server is successful, we can update our purchase list. Using the helper function, find the index of the voice from the identifier.
+- \[7\]: If the index is valid, set the appropriate variables of the VoiceProduct object to reflect its purchase state.
+- \[8\]: When this callback function gets called the first time around, we need to initialise the purchase prices. Make sure this code segment does not get called a second time.
+- \[9\]: Initiate the request to retrieve product prices on the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance by calling the `取得製品情報()` function.
 
 In order to update the GUI for these in-app purchases products, it would be useful to have temporary variables to store purchase states. Let's declare these as private member variables in the VoiceRow subclass of the `ボイスモデル` class:
 
@@ -479,9 +479,9 @@ void purchaseVoice (int voiceIndex)
                 juce::InAppPurchases::getInstance()->purchaseProduct (product.identifier); // [3].
 ```
 
--   \[1\]: First check whether the prices were fetched before retrieving the VoiceProduct using the index.
--   \[2\]: If the product was not previously purchased, enter purchasing state by setting the appropriate variable.
--   \[3\]: We can now safely request the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance to purchase the product by specifying the correct identifier.
+- \[1\]: First check whether the prices were fetched before retrieving the VoiceProduct using the index.
+- \[2\]: If the product was not previously purchased, enter purchasing state by setting the appropriate variable.
+- \[3\]: We can now safely request the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance to purchase the product by specifying the correct identifier.
 
 This will trigger a callback from the server when the purchasing has ended and a response was received. We implement this `商品購入完了()` callback here:
 
@@ -553,9 +553,9 @@ void clickPurchase()
         void timerCallback() override { repaint(); }.          // [9]
 ```
 
--   \[7\]: If the row index is valid and the item was not purchased before, call the `purchaseVoice()` function and enter purchasing state.
--   \[8\]: Start a timer to update the spinning wheel animation while the purchase is in progress.
--   \[9\]: Implement the timer callback to repaint the screen for the animation.
+- \[7\]: If the row index is valid and the item was not purchased before, call the `purchaseVoice()` function and enter purchasing state.
+- \[8\]: Start a timer to update the spinning wheel animation while the purchase is in progress.
+- \[9\]: Implement the timer callback to repaint the screen for the animation.
 
 Lastly in the `更新()` function, retrieve the purchasing state for the row-specific product \[10\] and stop the spinning animation if the purchase is finished by calling the `stopTimer()` function \[11\]:
 
@@ -698,9 +698,9 @@ void playStopPhrase()
     }
 ```
 
--   \[1\]: First, retrieve the index for the selected row in the voice table and check if the index is valid against the array of audio files.
--   \[2\]: Next, construct the correct file name using a [メモリー出力ストリーム](https://docs.juce.com/master/classMemoryOutputStream "Writes data to an internal memory buffer, which grows as required.") object and the naming convention as described above.
--   \[3\]: Finally, check whether the audio file can be loaded based on the file name constructed previously and call the `プレイ()` function of the [サウンドプレーヤー](https://docs.juce.com/master/classSoundPlayer "A simple sound player that you can add to the AudioDeviceManager to play simple sounds.") with the corresponding file.
+- \[1\]: First, retrieve the index for the selected row in the voice table and check if the index is valid against the array of audio files.
+- \[2\]: Next, construct the correct file name using a [メモリー出力ストリーム](https://docs.juce.com/master/classMemoryOutputStream "Writes data to an internal memory buffer, which grows as required.") object and the naming convention as described above.
+- \[3\]: Finally, check whether the audio file can be loaded based on the file name constructed previously and call the `プレイ()` function of the [サウンドプレーヤー](https://docs.juce.com/master/classSoundPlayer "A simple sound player that you can add to the AudioDeviceManager to play simple sounds.") with the corresponding file.
 
 これで、再生ボタンを押すと、対応する音声とともに話し言葉が聞こえるはずです。
 
@@ -714,15 +714,15 @@ The source code for this modified version of the code can be found in the `InApp
 
 このチュートリアルでは、モバイルとデスクトップでアプリ内課金を処理する方法を学びました。特に
 
--   さまざまな配備プラットフォームの予備セットアップをカバー。
--   様々なIAP製品情報をユーザーインターフェースに表示。
--   過去のユーザーの購入履歴を取得し、それに応じてGUIを非同期に更新。
--   アプリ内で消耗品以外の商品の購入に対応。
+- さまざまな配備プラットフォームの予備セットアップをカバー
+- 様々なIAP製品情報をユーザーインターフェースに表示
+- 過去のユーザーの購入履歴を取得し、それに応じてGUIを非同期に更新
+- アプリ内で消耗品以外の商品の購入に対応
 
 ## 関連項目
 
--   [チュートリアルアンドロイドを始めよう](../tutorial_android_studio/)
--   [チュートリアルAndroidの画面サイズを管理する](../tutorial_android_screen_sizes/)
--   [チュートリアルアプリ分析の収集](../tutorial_analytics_collection/)
--   [チュートリアルデスクトップとモバイルデバイスでのプッシュ通知](../tutorial_push_notifications/)
--   [チュートリアルアプリやプラグインを配布用にパッケージ化する](../tutorial_app_plugin_packaging/)
+- [チュートリアルアンドロイドを始めよう](../tutorial_android_studio/)
+- [チュートリアルAndroidの画面サイズを管理する](../tutorial_android_screen_sizes/)
+- [チュートリアルアプリ分析の収集](../tutorial_analytics_collection/)
+- [チュートリアルデスクトップとモバイルデバイスでのプッシュ通知](../tutorial_push_notifications/)
+- [チュートリアルアプリやプラグインを配布用にパッケージ化する](../tutorial_app_plugin_packaging/)

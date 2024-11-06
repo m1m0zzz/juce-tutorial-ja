@@ -574,10 +574,10 @@ In the next part, we iterate over the three available processor slots and check 
         }
 ```
 
--   \[1\]: If the choice remains in the "Empty" state, we first check whether the node was previously instantiated to a different processor and if so, we remove the node from the graph, clear the reference to the node and set the `hasChanged` flag to true. Otherwise, the state has not changed and the graph does not need rebuilding.
--   \[2\]: If the user chooses the "Oscillator" state, we first check whether the currently instantiated node is already an oscillator processor and if so, the state has not changed and we continue onto the next slot. Otherwise, if the slot was already occupied we remove the node from the graph, set the reference to a new node by instantiating the oscillator and set the `hasChanged` flag to true.
--   \[3\]: We proceed to do the same for the "Gain" state and instantiate a gain processor if necessary.
--   \[4\]: Again, we repeat the same process for the "Filter" state and instantiate a filter processor if needed.
+- \[1\]: If the choice remains in the "Empty" state, we first check whether the node was previously instantiated to a different processor and if so, we remove the node from the graph, clear the reference to the node and set the `hasChanged` flag to true. Otherwise, the state has not changed and the graph does not need rebuilding.
+- \[2\]: If the user chooses the "Oscillator" state, we first check whether the currently instantiated node is already an oscillator processor and if so, the state has not changed and we continue onto the next slot. Otherwise, if the slot was already occupied we remove the node from the graph, set the reference to a new node by instantiating the oscillator and set the `hasChanged` flag to true.
+- \[3\]: We proceed to do the same for the "Gain" state and instantiate a gain processor if necessary.
+- \[4\]: Again, we repeat the same process for the "Filter" state and instantiate a filter processor if needed.
 
 次のセクションは、グラフの状態が変化した場合にのみ実行され、以下のようにノードの接続を開始する：
 
@@ -630,12 +630,12 @@ In the next part, we iterate over the three available processor slots and check 
         }
 ```
 
--   \[5\]: First we remove all the connections in the graph to start from a blank state.
--   \[6\]: Then, we iterate over the slots and check whether they have an [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") node within the graph. If so we add the node to our temporary array of active nodes and make sure to call the setPlayConfigDetails() function on the corresponding processor instance with channel, sample rate and block size information to prepare the node for future processing.
--   \[7\]: Next, if there are no active slots found this means that all the choices are in an "Empty" state and the audio I/O processor nodes can be simply connected together.
--   \[8\]: Otherwise, it means that there is at least one node that should lie between the audio I/O processor nodes. Therefore we can start connecting the active slots together in an ascending order of slot number. Notice here that the number of pairs of connections we need is only the number of active slots minus one.
--   \[9\]: We can then finish connecting the graph by linking the audio input processor node to the first active slot in the chain and the last active slot to the audio output processor node.
--   \[10\]: Finally, we connect the midi I/O nodes together and make sure that all the buses in the audio processors are enabled.
+- \[5\]: First we remove all the connections in the graph to start from a blank state.
+- \[6\]: Then, we iterate over the slots and check whether they have an [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") node within the graph. If so we add the node to our temporary array of active nodes and make sure to call the setPlayConfigDetails() function on the corresponding processor instance with channel, sample rate and block size information to prepare the node for future processing.
+- \[7\]: Next, if there are no active slots found this means that all the choices are in an "Empty" state and the audio I/O processor nodes can be simply connected together.
+- \[8\]: Otherwise, it means that there is at least one node that should lie between the audio I/O processor nodes. Therefore we can start connecting the active slots together in an ascending order of slot number. Notice here that the number of pairs of connections we need is only the number of active slots minus one.
+- \[9\]: We can then finish connecting the graph by linking the audio input processor node to the first active slot in the chain and the last active slot to the audio output processor node.
+- \[10\]: Finally, we connect the midi I/O nodes together and make sure that all the buses in the audio processors are enabled.
 
 ```
 for (int i = 0; i < 3; ++i)
@@ -776,12 +776,12 @@ The source code for this modified version of the plug-in can be found in the `Au
 
 In this tutorial, we have learnt how to manipulate an [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") to cascade the effects of plugins. In particular, we have:
 
--   一連のオーディオプロセッサーでチャンネルストリップを構築。
--   Learnt how to connect nodes in an [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.").
--   Created a standalone app from the graph using an [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.").
+- 一連のオーディオプロセッサーでチャンネルストリップを構築。
+- Learnt how to connect nodes in an [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.").
+- Created a standalone app from the graph using an [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.").
 
 # 関連項目
 
--   [チュートリアルプラグインパラメータの追加](../tutorial_audio_parameter/)
--   [チュートリアルプラグイン状態の保存と読み込み](../tutorial_audio_processor_value_tree_state/)
--   [チュートリアルプラグインに適切なバスレイアウトを設定する](../tutorial_audio_bus_layouts/)
+- [チュートリアルプラグインパラメータの追加](../tutorial_audio_parameter/)
+- [チュートリアルプラグイン状態の保存と読み込み](../tutorial_audio_processor_value_tree_state/)
+- [チュートリアルプラグインに適切なバスレイアウトを設定する](../tutorial_audio_bus_layouts/)

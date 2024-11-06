@@ -60,8 +60,8 @@ MIDI入力を1つ有効にする必要があります。[Seaboard RISE](https://
 
 の重要な特徴のひとつである。[MPE](https://support.roli.com/article/what-is-mpe/)は、特定のコントローラー・キーボードからのすべてのノートが同じMIDI チャンネルに割り当てられるのではなく、それぞれの新しいMIDI ノート・イベントに独自のMIDI チャンネルが割り当てられます。これにより、コントロール・チェンジ・メッセージやピッチ・ベンド・メッセージなどによって、個々のノートを独立してコントロールできるようになります。JUCEの実装では[MPE](https://support.roli.com/article/what-is-mpe/)演奏音は[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")オブジェクト。或いは[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")オブジェクトは以下のデータをカプセル化する：
 
-- ノートのMIDIチャンネル。
-- MIDIノートの初期値。
+- ノートのMIDIチャンネル
+- MIDIノートの初期値
 - ノートオン・ベロシティ*ストライキ*).
 - ノートのピッチベンド値：このノートのMIDIチャンネルで受信したMIDIピッチベンドメッセージから得られます。
 - ノートの音圧：このノートのMIDIチャンネルで受信したMIDIチャンネル音圧メッセージから得られます。

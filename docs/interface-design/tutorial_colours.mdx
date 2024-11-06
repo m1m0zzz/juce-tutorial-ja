@@ -337,19 +337,19 @@ juceDefinition juce_AudioWorkgroup_mac.h:36
 
 基本的に[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")サブクラスには`enum`には、特定の色を持つことができるコンポーネントのさまざまな要素がリストされています。これらの各項目は*カラーID*.(これらのカラーIDの値はJUCEライブラリ全体で一意です。) 例えば[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは以下の通りである。[Label::ColourIds](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701 "ラベルの様々な部分の色を変更するために使用する色IDのセット。")):
 
-- [Label::backgroundColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a80bf4bb58a466a4debb994f3ee2c8cab "ラベルを塗りつぶす背景色。")ラベルを塗りつぶす背景色。
+- [Label::backgroundColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a80bf4bb58a466a4debb994f3ee2c8cab "ラベルを塗りつぶす背景色")ラベルを塗りつぶす背景色
 
-- [Label::textColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a1f25238374bf53d43f8c73e68c8e937c "テキストの色。")テキストの色。
+- [Label::textColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a1f25238374bf53d43f8c73e68c8e937c "テキストの色")テキストの色
 
-- [Label::outlineColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701ab67bf6af853bcef12b41b3e81f7d18bb "ラベルの周囲に境界線を引くために使用するオプションの色。"): ラベルの周囲に境界線を引くために使用するオプションの色。
+- [Label::outlineColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701ab67bf6af853bcef12b41b3e81f7d18bb "ラベルの周囲に境界線を引くために使用するオプションの色"): ラベルの周囲に境界線を引くために使用するオプションの色
 
 アウトラインを持たないように透明にしておく。
 
-- [Label::backgroundWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6ccfd805ecc818013ea4bdde69d4258b "ラベル編集時の背景色。")ラベル編集時の背景色。
+- [Label::backgroundWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6ccfd805ecc818013ea4bdde69d4258b "ラベル編集時の背景色ベル編集時の背景色
 
-- [Label::textWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701adb6284340066b8c4d9ea389087c7d69d "ラベル編集時のテキストの色。")ラベルを編集しているときのテキストの色。
+- [Label::textWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701adb6284340066b8c4d9ea389087c7d69d "ラベル編集時のテキストの色")ラベルを編集しているときのテキストの色
 
-- [Label::outlineWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6c7adfce6c830c9faa94efd3445f78cf "ラベルが編集されているときのオプションの枠色。")ラベルが編集されているときのボーダーカラー。
+- [Label::outlineWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6c7adfce6c830c9faa94efd3445f78cf "ラベルが編集されているときのオプションの枠色")ラベルが編集されているときのボーダーカラー
 
 これらの色をいくつか変えてみよう。を見ると`MainContentComponent`コンストラクタの[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。"), a[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。"), a[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")そして2つ[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを子コンポーネントとして追加する。次の行を追加する。\[1\]ラベルの文字色を黒に変更するには、下図のようにします：
 
