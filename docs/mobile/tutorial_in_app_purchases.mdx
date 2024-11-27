@@ -1,197 +1,224 @@
 ---
-title: デスクトップおよびモバイルデバイスでのアプリ内課金
-sidebar_position: 4
+title: デスクトップとモバイルデバイスでのアプリ内課金
+sidebar_position: 3
+tags: [上級]
 ---
 
 # チュートリアルデスクトップとモバイルデバイスでのアプリ内課金
 
+<SourcePageLink path="tutorial_in_app_purchases" />
+
 デスクトップアプリケーションとモバイルアプリケーションで、消耗品と非消耗品のアプリ内課金を販売できます。macOS/iOSとAndroidデバイスの両方で、IAP製品のセットアップと支払い処理方法をご紹介します。
 
-レベル：Advanced
+レベル：上級
 
 プラットフォーム：macOS, iOS, Android
 
-クラス： [InAppPurchases::リスナー](https://docs.juce.com/master/structInAppPurchases_1_1Listener "Represents an object that gets notified about events such as product info returned or product purchas..."), [サウンドプレーヤー](https://docs.juce.com/master/classSoundPlayer "A simple sound player that you can add to the AudioDeviceManager to play simple sounds."), [非同期アップデーター](https://docs.juce.com/master/classAsyncUpdater "Has a callback method that is triggered asynchronously."), [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox.")
+クラス： [InAppPurchases::Listener](https://docs.juce.com/master/structInAppPurchases_1_1Listener.html "商品情報の返送や商品購入などのイベント通知を受け取るオブジェクトを表します。"),[SoundPlayer](https://docs.juce.com/master/classSoundPlayer.html "AudioDeviceManagerに追加することで、シンプルなサウンドを再生することができます。"),[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。"),[ListBoxModel](https://docs.juce.com/master/classListBoxModel.html "このサブクラスはListBoxを駆動するために使用されます。")
 
 :::warning
 
-This project requires Apple Developer and iTunes Connect accounts on macOS/iOS and a Google Play Developer account on Android. If you need help with this, follow the instructions on the [アップル開発者](https://developer.apple.com/account/), [iTunes Connect](https://itunesconnect.apple.com) and [Google Playデベロッパー](https://play.google.com/apps/publish/) websites to open up these accounts.
+このプロジェクトには、macOS/iOSではApple DeveloperアカウントとiTunes Connectアカウント、AndroidではGoogle Play Developerアカウントが必要です。ヘルプが必要な方は[Apple Developer](https://developer.apple.com/account/),[iTunes Connect](https://itunesconnect.apple.com)そして[Google Play Developer](https://play.google.com/apps/publish/)のウェブサイトで口座を開設する。
 
 シミュレーターはIAPテストをサポートしていないため、このプロジェクトではアプリ内課金をテストするために物理的なデバイスが必要です。このためにデバイスを用意してください。
 
 :::
 
-### はじめる
+## スタート
 
-Download the demo project for this tutorial here: [ピップ](/tutorials/PIPs/InAppPurchaseTutorial.zip) | [ジップ](/tutorials/ZIPs/InAppPurchaseTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/InAppPurchaseTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/InAppPurchaseTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 :::warning
 
-If using the PIP version of this project, please make sure to copy the `リソース` folder into the generated Projucer project.
+このプロジェクトのPIPバージョンを使用する場合は、必ず`Resources`フォルダを生成されたProjucerプロジェクトに追加します。
 
 :::
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../tutorial_new_projucer_project/).
+このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-## The demo project
+## デモ・プロジェクト
 
 このプロジェクトでは、音声ディクテーションを使用してフレーズを再生する際に、いくつかの聴覚的なフレーバーを提供するために、アプリ内課金で取得できるさまざまな音声を提供しています。デフォルトでは、ユーザーは一般的なロボット音声を利用できますが、必然的にJUCE開発者の音声を試したくなります。iOSシミュレータでモバイル・アプリケーションを実行すると、ウィンドウは次のようになります：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot1.png"
+  caption="iOSのデモ・プロジェクト・アプリケーションのウィンドウ"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot1.png" caption="The demo project app window on iOS" />
 :::note
 
 アプリケーションはシミュレータで実行されているので、商品がグレーアウトし、価格が無期限にフェッチされるのは予想された動作です。
 
-::::::warning
+:::
+
+:::warning
 
 これはチュートリアル・プロジェクトですが、サンドボックス・モードかテスト・ユーザーとしてログインしていない限り、商品を購入しようとするとクレジットカードに課金されます！
 
-::::::note
-
-The code presented here is broadly similar to the **アプリ内購入** from the JUCE Examples.
-
 :::
-
-## Initial Setup
-
-In order for this project to function properly, we have to perform some initial setup procedures with appropriate developer consoles for specific deployment platform. Let's first allow appropriate permissions for in-app purchases in the Projucer. Under macOS/iOS, make sure that the **アプリ内課金機能** checkbox is ticked. Under Android, make sure that the **アプリ内課金** checkbox is ticked.
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot2_android.png" caption="Project settings window on iOS](tutorial_in_app_purchases_screenshot2_ios.png) ![Project settings window on Android" />
-
-
-プロジェクトを保存してお気に入りのIDEで開くと、Projucerが自動的に必要なエンタイトルメントをデプロイメント・ターゲットに追加します。
-
-### Apple Developer
 
 :::note
 
-If developing for Android, please skip to the next section [Google Playデベロッパー](#tutorial_in_app_purchases_initial_setup_google_play_developer) for instructions.
+ここで紹介するコードは、大まかに以下のものと似ている。**アプリ内購入**JUCE Examplesより。
+
+:::
+
+## 初期設定
+
+このプロジェクトが適切に機能するためには、特定のデプロイメント・プラットフォームに適した開発者コンソールで、いくつかの初期設定手順を実行する必要があります。まず、Projucerでアプリ内課金の適切なパーミッションを許可しましょう。macOS/iOSでは**アプリ内課金機能**のチェックボックスがオンになっていることを確認してください。Androidで**アプリ内課金**チェックボックスをオンにする。
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot2_ios.png"
+  caption="iOSのプロジェクト設定ウィンドウ"
+/>
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot2_android.png"
+  caption="Androidのプロジェクト設定ウィンドウ"
+/>
+
+プロジェクトを保存し、お気に入りのIDEで開くと、Projucerは自動的に必要なエンタイトルメントをデプロイメント・ターゲットに追加します。
+
+### アップル開発者
+
+:::note
+
+アンドロイド用に開発する場合は、次のセクションに進んでください。[Google Play Developer](https://docs.juce.com/master/#tutorial_in_app_purchases_initial_setup_google_play_developer)をご覧ください。
 
 :::
 
 macOS と iOS では、アプリケーションに署名するために、Xcode 内の Apple Developer アカウントでサインインし、開発チームを選択する必要があります。あなたのプロジェクトのためのユニークなバンドル ID を選択します。以下のスクリーンショットのように、Xcode は自動的に署名証明書と Provisioning Profile を提供します：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot3.png"
+  caption="Xcodeの一般設定ウィンドウ"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot3.png" caption="General settings window in Xcode" />
+また、正しいアプリの機能がチェックされ、承認されていることも確認してください。**能力**設定ウィンドウを開きます。以下のように同じ情報が表示されるはずです：
 
-
-Also make sure that the correct app capabilities have been ticked and approved in the **能力** settings window. You should see the same information as follows:
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot4.png" caption="Capabilities settings window in Xcode" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot4.png"
+  caption="Xcodeの機能設定ウィンドウ"
+/>
 
 ### iTunes Connect
 
-For the in-app purchases to display properly on iOS, we need to create IAP products in iTunes Connect. First, create a new app in your dashboard under **私のアプリ**. If you navigate to the **特徴** tab of your app, you can access the **アプリ内課金** feature on the following screen:
+iOSでアプリ内課金を正しく表示するには、iTunes ConnectでIAP商品を作成する必要があります。まず、ダッシュボードの**私のアプリ**.に移動すると**特徴**タブにアクセスできます。**アプリ内課金**機能を以下の画面で見ることができる：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot5.png"
+  caption="iTunes ConnectでIAP製品を作成する"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot5.png" caption="Create IAP products in iTunes Connect" />
+をクリックしてください。**+**適切な名前と価格で、アプリのオプションに対応する6つの製品を作成するためのサイン。
 
-
-Click on the **+** sign to create six products that correspond with the options in the app with appropriate names and prices.
-
-### Google Play Developer
-
-:::note
-
-If developing for macOS/iOS, please jump to the previous section [アップル開発者](#tutorial_in_app_purchases_initial_setup_apple_developer) for instructions.
-
-:::
-
-For the in-app purchases to display properly on Android, we need to create in-app billing products in the Google Play Console. First, navigate to your app page from the **すべてのアプリケーション** panel and open up the **アプリ内商品** page under **店舗プレゼンス**. You can access the items under the **マネージド製品** tab as shown on the following screen:
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot6.png" caption="Create IAB products in the Google Play Console" />
-
-
-Click on **マネージド製品を作る** to create six products that correspond with the options in the app with appropriate names and prices.
+### Google Playデベロッパー
 
 :::note
 
-Google PlayのプロダクトIDに関する制限により、プロダクトIDには数字（0～9）、小文字（a～z）、アンダースコア（\_）、またはフルストップ（.)のみを使用することをお勧めします。こうすることで、AppStoreとPlayStoreの両方で同じプロダクトIDを使用することができます。そうしないと、アプリは同じ商品でも異なる商品IDを扱わなければならなくなります。
+macOS/iOS用に開発する場合は、前のセクションにジャンプしてください。[Apple Developer](https://docs.juce.com/master/#tutorial_in_app_purchases_initial_setup_apple_developer)をご覧ください。
 
 :::
 
-### Generate Android APK
+Androidでアプリ内課金を正しく表示するには、Google Play Consoleでアプリ内課金商品を作成する必要があります。まず、アプリのページを**すべてのアプリケーション**パネルを開き**アプリ内商品**ページ下**店舗プレゼンス**.の下にある項目にアクセスできます。**マネージド製品**タブをクリックする：
 
-In order for in-app purchases to function properly on Android, we have to sign the Android version of the app and authenticate the requests to the Google Play store API. First launch Android Studio and navigate to the menu bar under **ビルド > 署名付きAPKの生成...**:
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot6.png"
+  caption="Google Play ConsoleでIABプロダクトを作成する"
+/>
 
+をクリックする。**マネージド製品を作る**アプリのオプションに対応する6つの商品を、適切な名前と価格で作成する。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot7.png" caption="Generate signed APK from menu bar" />
+:::note
 
+Google PlayのプロダクトIDに関する制限により、プロダクトIDには数字（0～9）、小文字（a～z）、アンダースコア（\_）、またはフルストップ（.)のみを使用することをお勧めします。こうすることで、AppStoreとPlayStoreの両方で同じプロダクトIDを使用することができます。そうしないと、アプリは同じ商品でも異なるプロダクトIDを扱わなければならなくなります。
 
-その後、キーストア・ファイルの場所、エイリアス、パスワードを入力するようプロンプトが表示されるので、以下のように入力する：
+:::
 
+### Android APKを生成する
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot8.png" caption="Enter aliases and passwords for keystore file" />
+Androidでアプリ内課金を正しく機能させるためには、Android版アプリに署名し、Google PlayストアAPIへのリクエストを認証する必要があります。まずAndroid Studioを起動し、メニューバーの**ビルド > 署名付きAPKの生成...**:
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot7.png"
+  caption="メニューバーから署名付きAPKを生成する"
+/>
+
+すると、キーストア・ファイルの場所、エイリアス、パスワードを入力するようプロンプトが表示される：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot8.png"
+  caption="キーストア・ファイルのエイリアスとパスワードを入力する。"
+/>
 
 次に、リリースビルドタイプの "release\_"フレーバーを選択し、V1とV2の両方の署名がチェックされていることを確認する。
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot9.png"
+  caption="ビルド・タイプ、フレーバー、シグネチャー・バージョン"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot9.png" caption="Build type, flavours and signature versions" />
+これでキーストア・ファイルが生成され、Projucerで参照できるようになる。Androidリリース設定で、キーストア・ファイルへの相対パス、エイリアス、パスワードを**鍵の署名**の分野だ：
 
-
-This will generate the keystore file that you can now refer to in the Projucer. Under the Android release settings, enter the relative path, alias and passwords to the keystore file in the **キー・サイン** fields:
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot10.png" caption="Path for keystore file in release settings" />
-
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot10.png"
+  caption="リリース設定のキーストアファイルのパス"
+/>
 
 アプリ内購入のセットアップはもう完了しているはずで、ようやくアプリにこれらの機能を実装し始めることができる。
 
-## Purchase Types
+## 購入タイプ
 
 アプリ内課金は、アプリ内で直接顧客に追加コンテンツや機能を提供するのに便利です。プレミアム機能、限定アイテム、あるいはサブスクリプションなどがあります。一般的に、すべての関連プラットフォームで4つの主要なタイプの購入があります：
 
-- 消耗品：複数回使用・購入可能なアイテム
-- 非消耗品：アプリの機能を永続的にアンロックする1回限りの購入
-- 自動更新サブスクリプション：定期的に更新されるコンテンツを、解約するまで定期的にお届けします
-- 更新されないサブスクリプション：手動更新が必要な期間限定コンテンツ
+- 消耗品：複数回使用・購入可能なアイテム。
+- 非消耗品：アプリの機能を永続的にアンロックする1回限りの購入。
+- 自動更新サブスクリプション：定期的に更新されるコンテンツを、解約するまで定期的にお届けします。
+- 更新されないサブスクリプション：手動更新が必要な期間限定コンテンツ。
 
 このチュートリアルでは、非消費型のアプリ内課金を実装します。
 
-## Project structure
+## プロジェクト体制
 
 プロジェクトは、アプリケーションのさまざまな部分を処理するために、以下のクラスを使用して構成されています：
 
 - MainContentComponent：画面上にGUIコンポーネントをレイアウトし、再生/停止ボタンクリック時のサウンドファイルの再生を処理する。
-- PhraseModel: [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox.") to describe available phrases to play using purchased voices.
-- VoiceModel: [リストボックスモデル](https://docs.juce.com/master/classListBoxModel "A subclass of this is used to drive a ListBox.") to describe available voices that can be purchased to play phrases with.
-- VoiceRow: Custom row [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") for the VoiceModel class to display pictures and information for specific voice entries.
-- VoicePurchases: Class to manage VoiceProduct purchases that handles purchases and encapsulates the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance.
-- VoiceProduct：価格、名前、以前に購入したかどうかなどの情報を含む、単一の購入可能な製品を記述するための構造。
+- フレーズモデル：[ListBoxModel](https://docs.juce.com/master/classListBoxModel.html "このサブクラスはListBoxを駆動するために使用されます。")購入したボイスを使って演奏できるフレーズを説明する。
+- ボイスモデル[ListBoxModel](https://docs.juce.com/master/classListBoxModel.html "このサブクラスはListBoxを駆動するために使用されます。")をクリックすると、フレーズを再生するために購入可能なボイスが表示されます。
+- VoiceRow：カスタム行[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")の VoiceModel クラスを使用して、特定の音声エントリーの画像と情報を表示します。
+- VoicePurchases：VoiceProductの購入を管理するクラス。[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")インスタンスだ。
+- VoiceProduct：価格、名前、以前に購入したかどうかなどの情報を持つ、単一の購入可能な製品を記述するための構造。
 
-As we can see, it roughly follows an [車々間通信](https://en.wikipedia.org/wiki/Model–view–controller) design pattern to separate application functionalities into separate classes.
+見てわかるように、これはおおよそ[MVC](https://en.wikipedia.org/wiki/Model–view–controller)デザイン・パターンを使って、アプリケーションの機能を別々のクラスに分離する。
 
 VoiceProduct 構造体には、消耗品以外の製品に役立つ情報、つまり以下の変数が含まれています：
 
-- const char\* identifier：iTunes ConnectやGoogle Playから参照される一意の識別子
-- const char\* humanReadable：アプリに表示する、人間が読めるバージョンの識別子
-- bool isPurchased：ログインしているユーザがそのアイテムを購入したことがあるかどうか
-- bool priceIsKnown：価格が読み込まれ、表示されるように取得されているかどうか
-- bool purchaseInProgress：ユーザーが現在進行中の購入を開始したかどうか
-- [ストリング](https://docs.juce.com/master/classString "The JUCE String class!") purchasePrice: A localised string that displays the product price in the local currency.
+- const char\* identifier：iTunes ConnectやGoogle Playで参照される一意の識別子。
+- const char\* humanReadable：アプリに表示する、人間が読めるバージョンの識別子。
+- bool isPurchased：ログインしているユーザがそのアイテムを購入したことがあるかどうか。
+- bool priceIsKnown：価格が読み込まれ、表示されるように取得されているかどうか。
+- bool purchaseInProgress：ユーザーが現在進行中の購入を開始したかどうか。
+- [String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")購入価格：商品価格を現地通貨で表示するローカライズされた文字列。
+
+:::danger[エクササイズ]
 
 消耗品の購入にはどのような情報が必要だろうか？定期購入についてはどうだろう？何が追加されるべきか、何が削除されるべきかを考えよう。
 
-## Displaying products
+:::
 
-Let's start by displaying the IAP products that we want to sell in the user interface. In the VoicePurchases constructor of the `ボイス購入` class, we have initialised the VoiceProduct objects using the structure described above like so:
+## 製品の表示
 
-```
+販売したいIAP商品をユーザー・インターフェースに表示することから始めましょう。VoicePurchasesコンストラクタの`VoicePurchases`クラスでは、VoiceProductオブジェクトを上記のような構造で初期化しています：
+
+```cpp
     VoicePurchases()
     {
         voiceProducts = juce::Array(
-                        {VoiceProduct {"robot", "Robot", true, true, false, "Free" }、
-                          VoiceProduct {"jules", "Jules", false, false, false, "価格を取得しています。"},
-                          VoiceProduct {"fabian", "Fabian", false, false, false, "価格検索中..." }, VoiceProduct {"fabian", "Fabian", false, false, false, "価格検索中..."},
-                          VoiceProduct {"ed", "Ed", false, false, false, "価格検索中..."},
-                          VoiceProduct {"lukasz", "Lukasz", false, false, false, "価格検索中..." }, VoiceProduct {"lukasz", "Lukasz", false, false, false, "価格検索中..."},
-                          VoiceProduct {"jb", "JB", false, false, false, "価格検索中..." }, VoiceProduct {"jb", "JB", false, false, false, "価格検索中..."}});
+                        { VoiceProduct {"robot",  "Robot",  true,   true,  false, "Free" },
+                          VoiceProduct {"jules",  "Jules",  false,  false, false, "Retrieving price..." },
+                          VoiceProduct {"fabian", "Fabian", false,  false, false, "Retrieving price..." },
+                          VoiceProduct {"ed",     "Ed",     false,  false, false, "Retrieving price..." },
+                          VoiceProduct {"lukasz", "Lukasz", false,  false, false, "Retrieving price..." },
+                          VoiceProduct {"jb",     "JB",     false,  false, false, "Retrieving price..." } });
     }
 ```
 
@@ -201,153 +228,153 @@ Let's start by displaying the IAP products that we want to sell in the user inte
 
 :::
 
-In order to easily retrieve human-readable versions of all our products, we have implemented a helper function that returns a [文字列配列](https://docs.juce.com/master/classStringArray "A special array for holding a list of strings.") of all capitalised names:
+すべての製品について、人間が読めるバージョンを簡単に取得できるように、私たちはヘルパー関数を実装しました。[StringArray](https://docs.juce.com/master/classStringArray.html "文字列のリストを保持するための特別な配列。")すべて大文字の名前：
 
-```
-juce::StringArray getVoiceNames() const
+```cpp
+    juce::StringArray getVoiceNames() const
     {
-        juce::StringArray names；
+        juce::StringArray names;
  
         for (auto& voiceProduct : voiceProducts)
-            names.add (voiceProduct.humanReadable)；
+            names.add (voiceProduct.humanReadable);
  
-        names を返します；
+        return names;
     }
 ```
 
-Let's create another helper function in the same class called `findVoiceIndexFromIdentifier()` to get the index of a VoiceProduct when passed an identifier. This private function will be helpful later on when dealing with callbacks from the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") object:
+同じクラス内にもうひとつ、次のようなヘルパー関数を作ってみよう。`findVoiceIndexFromIdentifier()`を使用して、識別子を渡された VoiceProduct のインデックスを取得します。このプライベート関数は、後で[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")オブジェクトがある：
 
-```
-int findVoiceIndexFromIdentifier (juce::String identifier) const
+```cpp
+    int findVoiceIndexFromIdentifier (juce::String identifier) const
     {
-        identifier = identifier.toLowerCase()；
+        identifier = identifier.toLowerCase();
  
         for (auto i = 0; i < voiceProducts.size(); ++i)
             if (juce::String (voiceProducts.getReference (i).identifier) == identifier)
-                return i；
+                return i;
  
-        return -1；
+        return -1;
     }
 ```
 
-The [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") class works as a broadcaster so let's inherit from [InAppPurchases::リスナー](https://docs.juce.com/master/structInAppPurchases_1_1Listener "Represents an object that gets notified about events such as product info returned or product purchas...") to become a listener for this class and receive callbacks from the IAP server \[1\]:
+について[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")クラスはブロードキャスターとして機能する。[InAppPurchases::Listener](https://docs.juce.com/master/structInAppPurchases_1_1Listener.html "商品情報の返送や商品購入などのイベント通知を受け取るオブジェクトを表します。")このクラスのリスナーになり、IAPサーバーからのコールバックを受け取る。\[1\]:
 
-```
-class VoicePurchases : private juce::InAppPurchases::Listener // [1].
+```cpp
+class VoicePurchases      : private juce::InAppPurchases::Listener // [1]
 {
-public：
+public:
 ```
 
-We can now start overriding the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") callback functions in our VoicePurchases class. First, implement the `productsInfoReturned()` function. This function gets called to return product information after a call to [InAppPurchases::getProductsInformation()](classInAppPurchases.html#aad53d0d034c19ad6cce54ec9e39e69b8 "Asynchronously requests information for products with given ids.").
+これで[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")コールバック関数を実装します。まず`productsInfoReturned()`関数を呼び出します。この関数は[InAppPurchases::getProductsInformation()](https://docs.juce.com/master/classInAppPurchases.html#aad53d0d034c19ad6cce54ec9e39e69b8 "指定された ID を持つ商品の情報を非同期に要求する。").
 
-```
-    void productsInfoReturned (const juce::Array製品）オーバーライド
+```cpp
+    void productsInfoReturned (const juce::Array& products) override
     {
-        if (! juce::InAppPurchases::getInstance()->isInAppPurchasesSupported()) // [2].
+        if (! juce::InAppPurchases::getInstance()->isInAppPurchasesSupported())         // [2]
         {
-            for (auto idx = 1; idx < voiceProducts.size(); ++idx) // [3].
+            for (auto idx = 1; idx < voiceProducts.size(); ++idx)                       // [3]
             {
-                auto& voiceProduct = voiceProducts.getReference (idx)；
+                auto& voiceProduct = voiceProducts.getReference (idx);
  
-                voiceProduct.isPurchased = false；
-                voiceProduct.priceIsKnown = false；
-                voiceProduct.purchasePrice = "アプリ内購入は利用できません；
+                voiceProduct.isPurchased  = false;
+                voiceProduct.priceIsKnown = false;
+                voiceProduct.purchasePrice = "In-App purchases unavailable";
             }
  
-            juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon, // [4])
-                                                    "In-app purchase is unavailable!"、
-                                                    "アプリ内課金は利用できません。これは、"
-                                                    "これは、IAPをサポートしていないプラットフォームでIAPを使用しようとしているか、IAPで動作するようにアプリを正しくセットアップ" "していないことを意味します。
-                                                    "これは、IAPをサポートしていないプラットフォームでIAPを使用しようとしているか、IAPで動作するようにアプリを正しく設定" "していないかのどちらかです、
-                                                    "OK")；
+            juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,     // [4]
+                                                    "In-app purchase is unavailable!",
+                                                    "In-App purchases are not available. This either means you are trying "
+                                                    "to use IAP on a platform that does not support IAP or you haven't setup "
+                                                    "your app correctly to work with IAP.",
+                                                    "OK");
         }
         else
         {
             for (auto product : products)
             {
-                auto idx = findVoiceIndexFromIdentifier (product.identifier); // [5].
+                auto idx = findVoiceIndexFromIdentifier (product.identifier);           // [5]
  
                 if (juce::isPositiveAndBelow (idx, voiceProducts.size()))               // [6]
                 {
-                    auto& voiceProduct = voiceProducts.getReference (idx)；
+                    auto& voiceProduct = voiceProducts.getReference (idx);
  
-                    voiceProduct.priceIsKnown = true；
-                    voiceProduct.purchasePrice = product.price；
+                    voiceProduct.priceIsKnown = true;
+                    voiceProduct.purchasePrice = product.price;
                 }
             }
  
-            juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon, // [7].
-                                                    "Your credit card will be charged!"、
-                                                    "You are running the sample code for JUCE In-App purchases."
-                                                    "これはサンプルコードに過ぎませんが、クレジットカードに課金されます！"、
-                                                    "わかりました！")；
+            juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,     // [7]
+                                                    "Your credit card will be charged!",
+                                                    "You are running the sample code for JUCE In-App purchases. "
+                                                    "Although this is only sample code, it will still CHARGE YOUR CREDIT CARD!",
+                                                    "Understood!");
         }
  
-        guiUpdater.triggerAsyncUpdate()；
+        guiUpdater.triggerAsyncUpdate();
     }
 ```
 
-- \[2\]: First, check whether in-app purchases are supported on your platform and that setup was correctly performed.
-- \[3\]: For all VoiceProduct objects except the first free one, set their variables to reflect unavailability of products.
-- \[4\]: Optionally show a message box asynchronously to explain the issue to the user.
-- \[5\]: For all VoiceProduct objects if in-app purchases are available, retrieve the index from the identifier with the previously implemented helper function.
-- \[6\]: If the index is valid, set the product variables to reflect availability of the product.
-- \[7\]: Optionally show a message box asynchronously explaining that users will be charged.
+- \[2\]まず、アプリ内課金があなたのプラットフォームでサポートされているか、セットアップが正しく行われているかを確認します。
+- \[3\]: 最初に空いているVoiceProductオブジェクトを除くすべてのVoiceProductオブジェクトについて、商品が入手できないことを反映するように変数を設定する。
+- \[4\]オプションで非同期にメッセージボックスを表示し、ユーザーに問題を説明します。
+- \[5\]: アプリ内課金が可能な場合、すべての VoiceProduct オブジェクトについて、先に実装したヘルパー関数で識別子からインデックスを取得します。
+- \[6\]インデックスが有効であれば、商品変数に商品の在庫状況を反映させます。
+- \[7\]オプションで、非同期にユーザーに課金されることを説明するメッセージボックスを表示できます。
 
-## Retrieving purchases
+## 購入品の検索
 
 :::warning
 
-このセクションは物理的なデバイス上でのみ機能します。シミュレーターでは正しく機能しませんので、試さないでください。
+このセクションは物理的なデバイス上でのみ機能します。シミュレーターでは正しく機能しないので、試さないでください。
 
 :::
 
 アプリ内課金を扱う場合、アプリケーションが最初にチェックすべきなのは、ユーザーがサインインしたときに過去の購入履歴があるかどうかです。顧客として最もイライラすることの1つは、別のデバイスや同じアプリの以前のバージョンで購入したものを失うことです。そこで、アプリ起動時にできるだけ早く、ユーザーが商品ページの最新ビューを取得できるようにしましょう。
 
-First, create additional private variables in the `ボイス購入` class to store temporary states of the app \[1\]:
+まず`VoicePurchases`アプリの一時的な状態を保存するクラス\[1\]:
 
-```
+```cpp
     bool havePurchasesBeenRestored = false, havePricesBeenFetched = false, purchaseInProgress = false; // [1]
-    juce::Arrayボイスプロダクト
+    juce::Array voiceProducts;
  
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VoicePurchases)
 };
 ```
 
-We also need a new helper function called `ゲットパーチェス()` to retrieve a VoiceProduct from an index. In this function, we also insert initialisation code for when this function is first called:
+という新しいヘルパー関数も必要だ。`getPurchase()`インデックスから VoiceProduct を取得します。この関数には、この関数が最初に呼ばれたときのための初期化コードも挿入します：
 
-```
-VoiceProduct getPurchase (int voiceIndex)
+```cpp
+    VoiceProduct getPurchase (int voiceIndex)
     {
         if (! havePurchasesBeenRestored)
         {
-            havePurchasesBeenRestored = true; // [2].
-            juce::InAppPurchases::getInstance()->addListener (this); // [3].
+            havePurchasesBeenRestored = true;                                       // [2]
+            juce::InAppPurchases::getInstance()->addListener (this);                // [3]
  
-            juce::InAppPurchases::getInstance()->restoreProductsBoughtList (true); // [4].
+            juce::InAppPurchases::getInstance()->restoreProductsBoughtList (true);  // [4]
         }
  
-        return voiceProducts[voiceIndex]; // [5].
+        return voiceProducts[voiceIndex];                                           // [5]
     }
 ```
 
-- \[2\]: If this is the first time this function is called, make sure this code segment does not get called again.
-- \[3\]: Add this class as a listener to the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance to receive callbacks.
-- \[4\]: We can then call the `restoreProductsBoughtList()` function to trigger the restoration process and wait for the subsequent callback.
-- \[5\]: Finally, return the VoiceProduct at the specified index. This will get called every time as normal behaviour for this function.
+- \[2\]この関数が初めて呼び出される場合は、このコードセグメントが再び呼び出されないようにしてください。
+- \[3\]このクラスを[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")インスタンスでコールバックを受け取ります。
+- \[4\]を呼び出すことができる。`restoreProductsBoughtList()`関数を使用して復元処理をトリガーし、その後のコールバックを待つ。
+- \[5\]最後に、指定されたインデックスのVoiceProductを返します。これは、この関数の通常の動作として、毎回呼び出されます。
 
-Since the VoicePurchases class gets registered as a listener when the above function gets initially called, we need to make sure we unregister when this class gets destroyed. Remove the class as an [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") listener in the class destructor:
+VoicePurchasesクラスは、上記の関数が最初に呼ばれたときにリスナーとして登録されるので、このクラスが破棄されたときに登録を解除する必要があります。このクラスを[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")リスナーをクラスのデストラクタに追加する：
 
-```
-~VoicePurchases() オーバーライド
+```cpp
+    ~VoicePurchases() override
     {
-        juce::InAppPurchases::getInstance()->removeListener (this)；
+        juce::InAppPurchases::getInstance()->removeListener (this);
     }
 ```
 
-In the previously defined `ゲットパーチェス()` function, we called the `restoreProductsBoughtList()` function to trigger a callback to restore our purchases. Now let's implement that callback function called `購入リスト復元()`:
+先に定義した`getPurchase()`関数を呼び出した。`restoreProductsBoughtList()`関数を使用してコールバックをトリガーし、購入した商品を復元します。では、そのコールバック関数を実装してみましょう。`purchasesListRestored()`:
 
-```
+```cpp
     void purchasesListRestored (const juce::Array& infos, bool success, const juce::String&) override
     {
         if (success)
@@ -356,105 +383,105 @@ In the previously defined `ゲットパーチェス()` function, we called the `
             {
                 for (const auto& productId : info.purchase.productIds)
                 {
-                    auto idx = findVoiceIndexFromIdentifier (productId); // [6].
+                    auto idx = findVoiceIndexFromIdentifier (productId);                // [6]
  
                     if (juce::isPositiveAndBelow (idx, voiceProducts.size()))
                     {
-                        auto& voiceProduct = voiceProducts.getReference (idx); // [7].
+                        auto& voiceProduct = voiceProducts.getReference (idx);          // [7]
  
-                        voiceProduct.isPurchased = true；
+                        voiceProduct.isPurchased = true;
                     }
                 }
             }
  
-            guiUpdater.triggerAsyncUpdate()；
+            guiUpdater.triggerAsyncUpdate();
         }
  
         if (! havePricesBeenFetched)
         {
-            havePricesBeenFetched = true; // [8].
-            juce::StringArray識別子；
+            havePricesBeenFetched = true;                                               // [8]
+            juce::StringArray identifiers;
  
             for (auto& voiceProduct : voiceProducts)
-                identifiers.add (voiceProduct.identifier)；
+                identifiers.add (voiceProduct.identifier);
  
-            juce::InAppPurchases::getInstance()->getProductsInformation (identifiers); // [9].
+            juce::InAppPurchases::getInstance()->getProductsInformation (identifiers);  // [9]
         }
     }
 ```
 
-- \[6\]: If the response from the server is successful, we can update our purchase list. Using the helper function, find the index of the voice from the identifier.
-- \[7\]: If the index is valid, set the appropriate variables of the VoiceProduct object to reflect its purchase state.
-- \[8\]: When this callback function gets called the first time around, we need to initialise the purchase prices. Make sure this code segment does not get called a second time.
-- \[9\]: Initiate the request to retrieve product prices on the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance by calling the `取得製品情報()` function.
+- \[6\]サーバーからのレスポンスが正常であれば、購入リストを更新することができます。ヘルパー関数を使用して、識別子から音声のインデックスを見つけます。
+- \[7\]インデックスが有効であれば、VoiceProductオブジェクトの適切な変数を設定し、購入状態を反映させます。
+- \[8\]このコールバック関数が最初に呼ばれたときは、購入価格を初期化する必要があります。このコードセグメントが2回目に呼ばれないようにしてください。
+- \[9\]の商品価格を取得するリクエストを開始する。[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")インスタンスを呼び出す。`getProductsInformation()`関数である。
 
-In order to update the GUI for these in-app purchases products, it would be useful to have temporary variables to store purchase states. Let's declare these as private member variables in the VoiceRow subclass of the `ボイスモデル` class:
+これらのアプリ内課金商品のGUIを更新するためには、購入状態を保存する一時変数があると便利です。VoiceRowのサブクラスで、プライベートなメンバ変数として宣言しましょう。`VoiceModel`クラスである：
 
+```cpp
+        bool isSelected = false, hasBeenPurchased = false, purchaseInProgress = false;
+        int rowSelected = -1;
+        juce::Image avatar;
 ```
-bool isSelected = false, hasBeenPurchased = false, purchaseInProgress = false；
-        int rowSelected = -1；
-        juce::画像アバター；
-```
 
-At the moment, all the in-app purchases products look visually the same and do not clearly indicate their availability in a visually-striking manner. Let's apply a different look and feel to purchasable products. In the `ペイント` function, modify the code to apply a white background to the product image when available \[10\] and a white semi-transparent overlay when unavailable \[11\]:
+現時点では、アプリ内課金商品はすべて同じビジュアルに見え、視覚的に印象的な方法で利用可能であることを明確に示していません。購入可能な商品には、異なるルック＆フィールを適用してみましょう。アプリ内の`paint()`関数が利用可能な場合は、商品画像に白い背景を適用するようにコードを修正する。\[10\]利用できない場合は、白い半透明のオーバーレイとなる\[11\]:
 
-```
-void paint (juce::Graphics& g) override
+```cpp
+        void paint (juce::Graphics& g) override
         {
-            auto r = getLocalBounds().reduced (4)；
+            auto r = getLocalBounds().reduced (4);
             {
-                auto voiceIconBounds = r.removeFromLeft (r.getHeight())；
-                g.setColour (juce::Colours::black)；
-                g.drawRect (voiceIconBounds)；
+                auto voiceIconBounds = r.removeFromLeft (r.getHeight());
+                g.setColour (juce::Colours::black);
+                g.drawRect (voiceIconBounds);
  
-                voiceIconBounds.reduce (1, 1)；
-                g.setColour (hasBeenPurchased ? juce::Colours::white : juce::Colours::grey); // [10].
-                g.fillRect (voiceIconBounds)；
+                voiceIconBounds.reduce (1, 1);
+                g.setColour (hasBeenPurchased ? juce::Colours::white : juce::Colours::grey); // [10]
+                g.fillRect (voiceIconBounds);
  
-                g.drawImage (avatar, voiceIconBounds.toFloat())；
+                g.drawImage (avatar, voiceIconBounds.toFloat());
  
                 if (! hasBeenPurchased)
                 {
-                    g.setColour (juce::Colours::white.withAlpha (0.8f)); // [11].
-                    g.fillRect (voiceIconBounds)；
+                    g.setColour (juce::Colours::white.withAlpha (0.8f));                     // [11]
+                    g.fillRect (voiceIconBounds);
 ```
 
-Also modify the code in the `更新()` function to reflect purchase status on the name and price labels. Use the previously defined helper function to retrieve the VoiceProduct from the row index first \[12\] and set the temporary variable to indicate whether the item was purchased \[13\]. Then update the GUI accordingly as follows:
+また`update()`関数を使用して、名前と価格のラベルに購入ステータスを反映させます。先に定義したヘルパー関数を使用して、まず行インデックスから VoiceProduct を取得します。\[12\]そして、その商品が購入されたかどうかを示す一時変数を設定する。\[13\].その後、以下のようにGUIを更新する：
 
-```
-void update (int rowNumber, bool rowIsSelected)
+```cpp
+        void update (int rowNumber, bool rowIsSelected)
         {
-            isSelected = rowIsSelected；
-            rowSelected = rowNumber；
+            isSelected  = rowIsSelected;
+            rowSelected = rowNumber;
  
             if (juce::isPositiveAndBelow (rowNumber, voices.size()))
             {
-                auto imageResourceName = voices[rowNumber] + ".png"；
+                auto imageResourceName = voices[rowNumber] + ".png";
  
-                nameLabel.setText (voices[rowNumber], juce::NotificationType::dontSendNotification)；
+                nameLabel.setText (voices[rowNumber], juce::NotificationType::dontSendNotification);
  
-                auto purchase = purchases.getPurchase (rowNumber); // [12].
-                hasBeenPurchased = purchase.isPurchased; // [13].
+                auto purchase = purchases.getPurchase (rowNumber);                  // [12]
+                hasBeenPurchased = purchase.isPurchased;                            // [13]
 ```
 
-```
-if (rowNumber == 0)
+```cpp
+                if (rowNumber == 0)
                 {
-                    purchaseButton.setButtonText ("Internal")；
-                    purchaseButton.setEnabled (false)；
+                    purchaseButton.setButtonText ("Internal");
+                    purchaseButton.setEnabled (false);
                 }
                 else
                 {
-                    purchaseButton.setButtonText (hasBeenPurchased ? "Purchased" : "Purchase")；
-                    purchaseButton.setEnabled (! hasBeenPurchased && purchase.priceIsKnown)；
+                    purchaseButton.setButtonText (hasBeenPurchased ? "Purchased" : "Purchase");
+                    purchaseButton.setEnabled (! hasBeenPurchased && purchase.priceIsKnown);
                 }
  
-                setInterceptsMouseClicks (! hasBeenPurchased, ! hasBeenPurchased); // [14].
+                setInterceptsMouseClicks (! hasBeenPurchased, ! hasBeenPurchased);  // [14]
 ```
 
-In this piece of code, we mainly update the font styles of the name and price labels to remain as default when the item is purchased and change its colour to white. In addition, we enable the purchase buttons if the corresponding product is available for purchase. We also need to disable mouse clicks on these buttons after purchase to avoid errors when charging the customer \[14\].
+このコードでは、主に、商品が購入されたときに名前と価格ラベルのフォントスタイルがデフォルトのままになるように更新し、色を白に変更しています。さらに、対応する商品が購入可能な場合、購入ボタンを有効にします。また、顧客への請求時のエラーを避けるために、購入後にこれらのボタンをマウスでクリックできないようにする必要があります。\[14\].
 
-## Purchasing products
+## 商品の購入
 
 :::warning
 
@@ -462,73 +489,73 @@ In this piece of code, we mainly update the font styles of the name and price la
 
 :::
 
-We have yet to implement purchasing behaviour in our app so let's do that. Implement a `purchaseVoice()` public function in the `ボイス購入` class that transfers the request to the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance:
+まだアプリに購買行動を実装していないので、実装しましょう。アプリに`purchaseVoice()`パブリック関数`VoicePurchases`クラスに転送します。[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")インスタンスだ：
 
-```
-void purchaseVoice (int voiceIndex)
+```cpp
+    void purchaseVoice (int voiceIndex)
     {
         if (havePricesBeenFetched && juce::isPositiveAndBelow (voiceIndex, voiceProducts.size()))
         {
-            auto& product = voiceProducts.getReference (voiceIndex); // [1].
+            auto& product = voiceProducts.getReference (voiceIndex);                       // [1]
  
             if (! product.isPurchased)
             {
-                purchaseInProgress = true；
+                purchaseInProgress = true;
  
-                product.purchaseInProgress = true; // [2].
-                juce::InAppPurchases::getInstance()->purchaseProduct (product.identifier); // [3].
+                product.purchaseInProgress = true;                                         // [2]
+                juce::InAppPurchases::getInstance()->purchaseProduct (product.identifier); // [3]
 ```
 
-- \[1\]: First check whether the prices were fetched before retrieving the VoiceProduct using the index.
-- \[2\]: If the product was not previously purchased, enter purchasing state by setting the appropriate variable.
-- \[3\]: We can now safely request the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance to purchase the product by specifying the correct identifier.
+- \[1\]まず、インデックスを使ってVoiceProductを取得する前に、価格が取得されているかどうかをチェックします。
+- \[2\]未購入の場合は、購入状態を変数に設定する。
+- \[3\]これで安心して[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")インスタンスで、正しい識別子を指定して製品を購入する。
 
-This will trigger a callback from the server when the purchasing has ended and a response was received. We implement this `商品購入完了()` callback here:
+これは、購入が終了し、レスポンスを受信したときに、サーバーからのコールバックをトリガーします。これを実装します。`productPurchaseFinished()`コールバックはここにある：
 
-```
-void productPurchaseFinished (const PurchaseInfo& info, bool success, const juce::String&) override
+```cpp
+    void productPurchaseFinished (const PurchaseInfo& info, bool success, const juce::String&) override
     {
-        purchaseInProgress = false；
+        purchaseInProgress = false;
  
         for (const auto& productId : info.purchase.productIds)
         {
-            auto idx = findVoiceIndexFromIdentifier (productId); // [4].
+            auto idx = findVoiceIndexFromIdentifier (productId);                // [4]
  
             if (juce::isPositiveAndBelow (idx, voiceProducts.size()))
             {
-                auto& voiceProduct = voiceProducts.getReference (idx); // [5].
+                auto& voiceProduct = voiceProducts.getReference (idx);          // [5]
  
-                voiceProduct.isPurchased = success；
-                voiceProduct.purchaseInProgress = false；
+                voiceProduct.isPurchased = success;
+                voiceProduct.purchaseInProgress = false;
             }
             else
             {
-                // 失敗した場合、Playストアはどの購入が失敗したかを教えてくれません。
+                // On failure Play Store will not tell us which purchase failed
                 for (auto& voiceProduct : voiceProducts)
-                    voiceProduct.purchaseInProgress = false；
+                    voiceProduct.purchaseInProgress = false;
             }
         }
  
-        guiUpdater.triggerAsyncUpdate()；
+        guiUpdater.triggerAsyncUpdate();
     }
 ```
 
-Using the same helper function as before, retrieve the VoiceProduct index from its identifier \[4\] and set appropriate variables on the object in question depending on whether the purchase was successful and exit purchasing state \[5\].
+先ほどと同じヘルパー関数を使って、VoiceProductの識別子からインデックスを取得します。\[4\]そして、購入が成功したかどうかに応じて、当該オブジェクトに適切な変数を設定し、購入状態を終了する。\[5\].
 
-To indicate the purchasing state to the user while waiting for the response from the server, display a spinning animation in the `ペイント` function of the `ボイスモデル` class \[6\]:
+サーバーからの応答を待つ間、ユーザーに購入状態を示すために、回転するアニメーションを`paint()`の機能である。`VoiceModel`クラス\[6\]:
 
-```
-if (! hasBeenPurchased)
+```cpp
+                if (! hasBeenPurchased)
                 {
-                    g.setColour (juce::Colours::white.withAlpha (0.8f)); // [11].
-                    g.fillRect (voiceIconBounds)；
+                    g.setColour (juce::Colours::white.withAlpha (0.8f));                     // [11]
+                    g.fillRect (voiceIconBounds);
  
-                    if (purchaseInProgress) // [6].
-                        getLookAndFeel().drawSpinningWaitAnimation (g, juce::Colours::darkgrey、
-                                                                    voiceIconBounds.getX()、
-                                                                    voiceIconBounds.getY()、
-                                                                    voiceIconBounds.getWidth()、
-                                                                    voiceIconBounds.getHeight())；
+                    if (purchaseInProgress) // [6]
+                        getLookAndFeel().drawSpinningWaitAnimation (g, juce::Colours::darkgrey,
+                                                                    voiceIconBounds.getX(),
+                                                                    voiceIconBounds.getY(),
+                                                                    voiceIconBounds.getWidth(),
+                                                                    voiceIconBounds.getHeight());
                 }
             }
         }
@@ -536,74 +563,74 @@ if (! hasBeenPurchased)
 
 ユーザーがUIとインタラクトしたときに購入プロセスを開始するために、clickPurchase()関数を実装してみましょう：
 
-```
-void clickPurchase()
+```cpp
+        void clickPurchase()
         {
             if (rowSelected >= 0)
             {
                 if (! hasBeenPurchased)
                 {
-                    purchases.purchaseVoice (rowSelected); // [7].
-                    purchaseInProgress = true；
-                    startTimer (1000 / 50); // [8].
+                    purchases.purchaseVoice (rowSelected);      // [7]
+                    purchaseInProgress = true;
+                    startTimer (1000 / 50);                     // [8]
                 }
             }
         }
  
-        void timerCallback() override { repaint(); }.          // [9]
+        void timerCallback() override   { repaint(); }          // [9]
 ```
 
-- \[7\]: If the row index is valid and the item was not purchased before, call the `purchaseVoice()` function and enter purchasing state.
-- \[8\]: Start a timer to update the spinning wheel animation while the purchase is in progress.
-- \[9\]: Implement the timer callback to repaint the screen for the animation.
+- \[7\]もし行インデックスが有効で、以前に購入されたことがなければ`purchaseVoice()`関数を使用し、購買状態に入る。
+- \[8\]タイマーをスタートさせ、購入中に回転ホイールのアニメーションを更新します。
+- \[9\]アニメーションの画面を再描画するためのタイマー・コールバックを実装する。
 
-Lastly in the `更新()` function, retrieve the purchasing state for the row-specific product \[10\] and stop the spinning animation if the purchase is finished by calling the `stopTimer()` function \[11\]:
+最後に`update()`関数で、行固有の商品の購買状態を取得する。\[10\]を呼び出し、購入が完了したら回転アニメーションを停止する。`stopTimer()`機能\[11\]:
 
-```
-purchaseInProgress = purchase.purchaseInProgress; // [10].
+```cpp
+                purchaseInProgress = purchase.purchaseInProgress;                   // [10]
  
                 if (purchaseInProgress)
-                    startTimer (1000 / 50)；
+                    startTimer (1000 / 50);
                 else
-                    stopTimer(); // 【11
+                    stopTimer();                                                    // [11]
 ```
 
 チュートリアルのこの時点で、商品の購入と商品情報の取得を処理する仕組みはすべて実装されていますが、GUIに更新のタイミングを指示する必要があります。
 
-## Handling async updates
+## 非同期アップデートの処理
 
-Since purchases and synchronisation with the IAP server are performed on a separate thread, we need to handle responses in an asynchronous manner. In the `メインコンテンツコンポーネント` class, let's inherit from the [非同期アップデーター](https://docs.juce.com/master/classAsyncUpdater "Has a callback method that is triggered asynchronously.") class \[1\] and pass a reference of this class to the VoicePurchases instance \[2\]:
+購入とIAPサーバーとの同期は別のスレッドで実行されるため、レスポンスを非同期で処理する必要がある。そのため`MainContentComponent`クラスを継承しよう。[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")クラス\[1\]このクラスの参照を VoicePurchases のインスタンスに渡す。\[2\]:
 
-```
-class MainContentComponent : public juce::Component、
-                             private juce::AsyncUpdater // [1].
+```cpp
+class MainContentComponent : public juce::Component,
+                             private juce::AsyncUpdater         // [1]
 {
 ```
 
-```
-juce::SoundPlayer player；
-    VoicePurchases purchases { *this }; // [2].
-    juce::AudioDeviceManager dm；
+```cpp
+    juce::SoundPlayer player;
+    VoicePurchases purchases                         { *this }; // [2]
+    juce::AudioDeviceManager dm;
 ```
 
-In the VoicePurchases constructor and member initialisation list, assign a reference to the [非同期アップデーター](https://docs.juce.com/master/classAsyncUpdater "Has a callback method that is triggered asynchronously.") instance in a private variable \[3\]:
+VoicePurchasesコンストラクタとメンバ初期化リストで、VoicePurchasesへの参照を[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")インスタンスをプライベート変数\[3\]:
 
-```
-VoicePurchases (juce::AsyncUpdater& asyncUpdater) // [3].
+```cpp
+    VoicePurchases (juce::AsyncUpdater& asyncUpdater)   // [3]
          : guiUpdater (asyncUpdater)
     {
 ```
 
-Declare that variable as a private member to be able to refer to the [非同期アップデーター](https://docs.juce.com/master/classAsyncUpdater "Has a callback method that is triggered asynchronously.") later on \[4\]:
+を参照できるように、その変数をプライベート・メンバーとして宣言する。[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")後に\[4\]:
 
-```
-//==============================================================================
-    juce::AsyncUpdater& guiUpdater; // [4］
+```cpp
+    //==============================================================================
+    juce::AsyncUpdater& guiUpdater;     // [4]
 ```
 
-Now in the `purchaseVoice()` function and all the callback functions of the [アプリ内課金](https://docs.juce.com/master/classInAppPurchases "Provides in-app purchase functionality.") instance namely `productsInfoReturned()`, `購入リスト復元()` and `商品購入完了()`, trigger an asynchronous update to the GUI as a last step to the corresponding code segments \[5\]:
+現在は`purchaseVoice()`関数と[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")すなわち`productsInfoReturned()`,`purchasesListRestored()`そして`productPurchaseFinished()`対応するコードセグメントへの最後のステップとして、GUIへの非同期更新をトリガーする。\[5\]:
 
-```
+```cpp
 void purchaseVoice (int voiceIndex)
 {
     if (havePricesBeenFetched && juce::isPositiveAndBelow (voiceIndex, voiceProducts.size()))
@@ -645,68 +672,76 @@ void purchasesListRestored (const juce::Array& infos, bool success, const juce::
     {
         //...
  
-        guiUpdater.triggerAsyncUpdate(); // [5.4].
+        guiUpdater.triggerAsyncUpdate();       // [5.4]
     }
  
     //...
 }
 ```
 
-Now whenever the `triggerAsyncUpdate()` function is called on the [非同期アップデーター](https://docs.juce.com/master/classAsyncUpdater "Has a callback method that is triggered asynchronously.") instance in the VoicePurchases class, we can handle the callback in the `handleAsyncUpdate()` function to update any outdated GUI components \[6\]:
+これで、いつでも`triggerAsyncUpdate()`関数が呼び出される。[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")インスタンスでコールバックを処理することができます。`handleAsyncUpdate()`古いGUIコンポーネントを更新する関数\[6\]:
 
-```
-void handleAsyncUpdate() オーバーライド
+```cpp
+    void handleAsyncUpdate() override
     {
-        voiceListBox.updateContent()；
-        voiceListBox.setEnabled (! purchases.isPurchaseInProgress())；
-        voiceListBox.repaint()；
+        voiceListBox.updateContent();
+        voiceListBox.setEnabled (! purchases.isPurchaseInProgress());
+        voiceListBox.repaint();
     }
 ```
 
-Add the following getter in the `ボイス購入` class as a public helper function:
+以下のゲッターを`VoicePurchases`クラスをパブリック・ヘルパー関数として使用する：
+
+```cpp
+    bool isPurchaseInProgress() const noexcept { return purchaseInProgress; }
+```
 
 これにより、購入が行われたり取得されたりするたびにGUIが更新されるようになります。アプリを再度起動すると、以前に購入したアプリ内課金が表示されるようになります。
 
+:::danger[エクササイズ]
+
 ユーザーが特定の音声でフレーズを再生するたびにトークンを消費することで、これらのIAP製品の消費可能バージョンを実装します。
 
-## Playing sounds
+:::
 
-When the user clicks on the play button, we need to trigger the correct audio file to play using the right voice and phrase. The audio files are stored as binary resources using the name of the voice and an index relating to the phrase number as a naming convention. In the `メインコンテンツコンポーネント` class, we handle the behaviour as follows:
+## サウンドの再生
 
-```
-void playStopPhrase()
+ユーザーが再生ボタンをクリックすると、正しい音声とフレーズを使って、正しいオーディオファイルを再生するようにトリガーする必要があります。オーディオファイルは、音声の名前とフレーズ番号に関連するインデックスを命名規則として使用し、バイナリリソースとして保存されます。このとき`MainContentComponent`クラスでは、次のように振る舞いを処理する：
+
+```cpp
+    void playStopPhrase()
     {
-        juce::MemoryOutputStream resourceName；
+        juce::MemoryOutputStream resourceName;
  
-        auto idx = voiceListBox.getSelectedRow(); // [1].
+        auto idx = voiceListBox.getSelectedRow();                                           // [1]
         if (juce::isPositiveAndBelow (idx, soundNames.size()))
         {
-            resourceName << soundNames[idx] << phraseListBox.getSelectedRow() << ".ogg"; // [2].
+            resourceName << soundNames[idx] << phraseListBox.getSelectedRow() << ".ogg";    // [2]
  
-            auto dir = juce::File::getCurrentWorkingDirectory()；
+            auto dir = juce::File::getCurrentWorkingDirectory();
  
-            int numTries = 0；
+            int numTries = 0;
  
             while (! dir.getChildFile ("Resources").exists() && numTries++ < 15)
-                dir = dir.getParentDirectory()；
+                dir = dir.getParentDirectory();
  
-            auto file = dir.getChildFile ("Resources").getChildFile ("Sounds").getChildFile (resourceName.toString().toRawUTF8())；
+            auto file = dir.getChildFile ("Resources").getChildFile ("Sounds").getChildFile (resourceName.toString().toRawUTF8());
  
             if (file.exists())
-                player.play (file); // [3].
+                player.play (file);                                                         // [3]
         }
     }
 ```
 
-- \[1\]: First, retrieve the index for the selected row in the voice table and check if the index is valid against the array of audio files.
-- \[2\]: Next, construct the correct file name using a [メモリー出力ストリーム](https://docs.juce.com/master/classMemoryOutputStream "Writes data to an internal memory buffer, which grows as required.") object and the naming convention as described above.
-- \[3\]: Finally, check whether the audio file can be loaded based on the file name constructed previously and call the `プレイ()` function of the [サウンドプレーヤー](https://docs.juce.com/master/classSoundPlayer "A simple sound player that you can add to the AudioDeviceManager to play simple sounds.") with the corresponding file.
+- \[1\]まず、音声テーブルの選択行のインデックスを取得し、そのインデックスが音声ファイルの配列に対して有効かどうかをチェックします。
+- \[2\]次に、正しいファイル名を[MemoryOutputStream](https://docs.juce.com/master/classMemoryOutputStream.html "内部メモリ・バッファにデータを書き込み、必要に応じてバッファを増やす。")オブジェクトと上記の命名規則に従っている。
+- \[3\]最後に、先に構築したファイル名に基づいてオーディオファイルをロードできるかどうかをチェックし、次のように呼び出します。`play()`の機能である。[SoundPlayer](https://docs.juce.com/master/classSoundPlayer.html "AudioDeviceManagerに追加することで、シンプルなサウンドを再生することができます。")を対応するファイルと一緒に保存する。
 
 これで、再生ボタンを押すと、対応する音声とともに話し言葉が聞こえるはずです。
 
 :::note
 
-The source code for this modified version of the code can be found in the `InAppPurchaseチュートリアル_02.h` file of the demo project.
+この修正版のソースコードは`InAppPurchaseTutorial_02.h`ファイルにある。
 
 :::
 
@@ -714,15 +749,15 @@ The source code for this modified version of the code can be found in the `InApp
 
 このチュートリアルでは、モバイルとデスクトップでアプリ内課金を処理する方法を学びました。特に
 
-- さまざまな配備プラットフォームの予備セットアップをカバー
-- 様々なIAP製品情報をユーザーインターフェースに表示
-- 過去のユーザーの購入履歴を取得し、それに応じてGUIを非同期に更新
-- アプリ内で消耗品以外の商品の購入に対応
+- さまざまな配備プラットフォームの予備セットアップをカバー。
+- 様々なIAP製品情報をユーザーインターフェースに表示。
+- 過去のユーザーの購入履歴を取得し、それに応じてGUIを非同期に更新。
+- アプリ内で消耗品以外の商品の購入に対応。
 
-## 関連項目
+## 参照
 
-- [チュートリアルアンドロイドを始めよう](../tutorial_android_studio/)
-- [チュートリアルAndroidの画面サイズを管理する](../tutorial_android_screen_sizes/)
-- [チュートリアルアプリ分析の収集](../tutorial_analytics_collection/)
-- [チュートリアルデスクトップとモバイルデバイスでのプッシュ通知](../tutorial_push_notifications/)
-- [チュートリアルアプリやプラグインを配布用にパッケージ化する](../tutorial_app_plugin_packaging/)
+- [Tutorial: Getting started with Android](../tutorial_android_studio/)
+- [Tutorial: Managing Android screen sizes](../tutorial_android_screen_sizes/)
+- [Tutorial: App analytics collection](../../utility-classes/tutorial_analytics_collection/)
+- [Tutorial: Push Notifications on desktop and mobile devices](../tutorial_push_notifications/)
+- [Tutorial: Package your app or plugin for distribution](../../utility-classes/tutorial_app_plugin_packaging/)

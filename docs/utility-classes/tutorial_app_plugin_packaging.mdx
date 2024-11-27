@@ -1,206 +1,220 @@
 ---
-title: Package your app or plugin for distribution
+title: アプリやプラグインを配布用にパッケージ化する
 sidebar_position: 8
+tags: [上級]
 ---
+
+# チュートリアルアプリやプラグインを配布用にパッケージ化する
 
 <SourcePageLink path="tutorial_app_plugin_packaging" />
 
-# Tutorial: Package your app or plugin for distribution
+オーディオアプリケーションやプラグインを様々なマーケットプレイスで配布するための準備方法を学びます。さまざまなOSプラットフォームで、すべてのプラグインタイプのインストーラーを作成します。
 
-Learn how to prepare your audio application or plugin for distribution on various marketplaces. Create installers for all plugin types on different OS platforms.
+レベル：上級
 
-Level: Advanced
+プラットフォーム：Windows, macOS
 
-Platforms: Windows, macOS
+プラグイン形式：VST, VST3, AU, AUv3, RTAS, AAX
 
-Plugin Format: VST, VST3, AU, AUv3, RTAS, AAX
+## はじめに
 
-# Introduction
+すべてのラッパーでバグがなく、可能な限り最適化された完璧なプラグインを実装し終えたものの、その傑作を配布するとなると何から始めればいいのかわからない？
 
-So you just finished implementing the perfect plugin, bug-free on all wrappers with the best optimisation possible but don't know where to start when it comes to distributing your masterpiece?
+それなら、このチュートリアルはあなたのために作られたものです！アプリケーションを配布するために準備することは、多数のプラットフォームにまたがってユーザーのシステムにインストールすることになると、かなり大変なことになります。マーケットプレイスの審査はますます厳しくなっており、ちょっとした見落としがバイナリの再提出を引き起こすこともあります。
 
-Then this tutorial is made for you! Preparing your application for distribution can be quite daunting when it comes to installations on your users' systems across a multitude of platforms. Marketplaces have become increasingly strict on their review process and the slight oversight can cause a resubmission of your binaries.
-
-In this tutorial we will first look at installation locations for plugins, then jump into creating installers for Mac and Windows and finally end with marketplace submission best practices.
+このチュートリアルでは、まずプラグインのインストール場所について見て、次にMacとWindows用のインストーラーの作成に入り、最後にマーケットプレイスへの投稿のベストプラクティスを紹介します。
 
 :::note
 
-To get the most out of this tutorial please have your built plugins and binaries ready for packaging.
+このチュートリアルを最大限に活用するために、ビルドしたプラグインとバイナリをパッケージングできる状態にしておいてください。
 
 :::
 
-## Installation locations
+### 設置場所
 
-Installing a plugin is nothing more than a simple copy step of the plugin into the right folder location on the user's machine.
+プラグインのインストールは、ユーザーのマシンの適切なフォルダにプラグインをコピーするだけです。
 
-When distributing a plugin, it's important to understand the installation locations for different plugin wrappers out there. The following table lists the directories in which your installer must copy the files into, depending on the target OS:
+プラグインを配布する場合、さまざまなプラグインラッパーのインストール場所を理解することが重要です。以下の表は、ターゲットOSによって、インストーラがファイルをコピーしなければならないディレクトリの一覧です：
 
-| Plugin Type | Directory Type | Mac Installation Directory |
+| プラグインタイプ | ディレクトリタイプ | Macインストールディレクトリ |
 | --- | --- | --- |
-| VST | User | ~/Library/Audio/Plug-Ins/VST |
-| System | Macintosh HD/Library/Audio/Plug-Ins/VST |
-| VST3 | User | ~/Library/Audio/Plug-Ins/VST3 |
-| System | Macintosh HD/Library/Audio/Plug-Ins/VST3 |
-| AU | User | ~/Library/Audio/Plug-Ins/Components |
-| System | Macintosh HD/Library/Audio/Plug-Ins/Components |
-| RTAS | System | Macintosh HD/Library/Application Support/Digidesign/Plug-Ins |
-| AAX | System | Macintosh HD/Library/Application Support/Avid/Audio/Plug-Ins |
+| VST | ユーザー | ~/Library/Audio/Plug-Ins/VST |
+| システム | Macintosh HD/ライブラリ/オーディオ/プラグイン/VST |
+| VST3 | ユーザー | ~/Library/Audio/Plug-Ins/VST3 |
+| システム | Macintosh HD/ライブラリ/オーディオ/プラグイン/VST3 |
+| AU | ユーザー | ~/Library/Audio/Plug-Ins/Components |
+| システム | Macintosh HD/ライブラリ/オーディオ/プラグイン/コンポーネント |
+| RTAS | システム | Macintosh HD/ライブラリ/アプリケーションサポート/Digidesign/プラグイン |
+| AAX | システム | Macintosh HD/ライブラリ/アプリケーションサポート/Avid/Audio/プラグイン |
 
-| Plugin Type | Directory Type | Windows Installation Directory |
+| プラグインタイプ | ディレクトリタイプ | Windowsインストールディレクトリ |
 | --- | --- | --- |
-| VST | Shared | C:\\Program Files\\VstPlugins |
-| Shared | C:\\Program Files\\Steinberg\\VstPlugins |
-| Shared | C:\\Program Files\\Common Files\\VST2 |
-| Shared | C:\\Program Files\\Common Files\\Steinberg\\VST2 |
-| VST3 | Shared | C:\\Program Files\\Common Files\\VST3 |
-| RTAS | Shared | C:\\Program Files\\Common Files\\Digidesign\\DAE\\Plug-Ins |
-| AAX | Shared | C:\\Program Files\\Common Files\\Avid\\Audio\\Plug-Ins |
+| VST | 共有 | C:¥Program Files¥VstPlugins |
+| 共有 | C:◆Program Files |
+| 共有 | C:¥Program Files¥Common Files¥VST2 |
+| 共有 | C:◆Program Files |
+| VST3 | 共有 | C:¥Program Files¥Common Files¥VST3 |
+| RTAS | 共有 | C:♪Program Files ♪Common Files |
+| AAX | 共有 | C:♪Program Files\\ Common Files |
 
 :::note
 
-Add the " (x86)" suffix to the "Program Files" folder for 32-bit plugins on 64-bit systems.
+64ビットシステムで32ビットプラグインを使用する場合は、"Program Files "フォルダに"(x86) "接尾辞を追加してください。
 
 :::
 
-It is generally recommended to install the plugins in the system folder or the "Common Files" directory as this is where most plugin manufacturers will install theirs and will have the benefit of making your plugin available to all users on the system. It will however require administrator permissions to perform the installation.
+一般的に、プラグインをシステムフォルダまたは "Common Files "ディレクトリにインストールすることをお勧めします。ただし、インストールには管理者権限が必要です。
 
 :::note
 
-For certain plugin formats such as AUv3 and AAX, extra steps such as code-signing and certificates are required for the installation process to succeed.
+AUv3やAAXのような特定のプラグインフォーマットでは、インストールプロセスを成功させるために、コード署名や証明書のような余分なステップが必要です。
 
 :::
 
-# Installers for Mac
+## Mac用インストーラー
 
 :::note
 
-If you are only interested in distributing for Windows, please skip to the next section [Installers for Windows](#tutorial_app_plugin_packaging_installers_windows) for more information.
+Windows版のみの配布を希望する場合は、次のセクションに進んでください。[Installers for Windows](https://docs.juce.com/master/#tutorial_app_plugin_packaging_installers_windows)をご覧ください。
 
 :::
 
-Although manually creating an installer is possible, there are many tools out there that can perform this task easily for you. One such example is the free software [Packages](https://docs.juce.com/master/http://s.sudre.free.fr/Software/Packages/about) which we will use in this section to create the Mac installer.
+手動でインストーラを作成することも可能ですが、このタスクを簡単に実行できるツールはたくさんあります。その一例が、フリーソフトウェアの[Packages](https://docs.juce.com/master/http://s.sudre.free.fr/Software/Packages/about.html)このセクションでは、Macのインストーラーを作成するために使用する。
 
-Install the software from the website and launch the application. You should come across a window prompting you for the type of project to create:
+ウェブサイトからソフトウェアをインストールし、アプリケーションを起動します。作成するプロジェクトの種類を尋ねるウィンドウが表示されるはずです：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot1.png"
+  caption="新しいプロジェクト・ウィンドウ"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot1.png" caption="New project window" />
+ディストリビューション」を選択し、「次へ」をクリックする。**次のページ**ボタンをクリックしてください。次の画面で、プロジェクトの名前と保存場所、必要なリソースを選択できます：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot2.png"
+  caption="プロジェクトの名前と場所を決める"
+/>
 
-Select "Distribution" and click the next **Next** button. You may now choose a name and a location to save the project as well as the required resources on the following screen:
+をクリックする。**作成**をクリックしてインストーラーの組み立てを開始します。メイン・プロジェクト・ウィンドウが開くはずです。
 
+メインウィンドウで**+**ユーザーのコンピュータにインストールしたいプラグインフォーマットの数を、左のパネルにサインしてください。例えば、VST/VST3/AU/RTAS/AAXをインストールする場合、以下のスクリーンショットのように、対応する識別子とそれに応じた名前の5つのパッケージを追加します：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot2.png" caption="Choosing a name and location for the project" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot3.png"
+  caption="パッケージの追加"
+/>
 
+次に、左側のパネルで各パッケージを選択し、"com.yourcompany.pkg.format "のような一意の識別子を割り当て、"Require admin password for installation "チェックボックスがチェックされていることを確認してください（これは、ユーザーディレクトリではなくシステムフォルダにプラグインをインストールするために必要です）。
 
-Click on **Create** to start assembling the installer. The main project window should open now.
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot4.png"
+  caption="識別子の設定"
+/>
 
-In the main window, start by adding packages by clicking on the **+** sign on the left panel for the number of plugin formats you want to install on the user's computer. For example to install VST/VST3/AU/RTAS/AAX, add five packages named accordingly with corresponding identifiers as shown in the following screenshot:
+次のステップではペイロードを設定し、インストーラにプラグインをコピーする場所を指示します。参照しやすいように、プラグインがプロジェクトディレクトリのどこかにコピーされていることを確認してください。プラグインを選択します。**ペイロード**タブをクリックし、このチュートリアルの前のセクションで説明したように、対応するプラグインフォーマットのインストールディレクトリに移動します。必要なフォルダ構造がナビゲーションウィンドウに表示されない場合は、以下の方法で足りないフォルダを追加できます。**階層 > 新規フォルダ**をクリックし、それに従って名前を付けます。次に、プラグインを希望の場所に追加するには**階層 > ファイルの追加...**を選択し、プロジェクトフォルダから以前にコピーしたプラグインを選択します。
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot5.png"
+  caption="ペイロードの設定"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot3.png" caption="Adding packages" />
+では、インストール中に表示されるメッセージをカスタマイズしてみましょう。**プロジェクト**左のパネルから**プレゼンテーション**タブをご覧ください：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot6.png"
+  caption="メッセージのカスタマイズ"
+/>
 
-Next, select each package on the left panel and assign a unique identifier such as "com.yourcompany.pkg.format" and make sure that the "Require admin password for installation" checkbox is checked. (This is necessary to install plugins in the system folders as opposed to the user directories.)
+この画面では、インストーラの導入画面でカスタムメッセージを表示するために使用するテキストファイルの場所を指定できます。をクリックします。**+**記号で右側の表に項目を追加し**選択...**でテキストファイルの場所を指定してください。参照しやすいように、必ずテキストファイルをプロジェクトフォルダにコピーしてください。Read Me "と "License "のステップは、プレビューインターフェイスのそれぞれのラベルをクリックすることで、このプロセスを繰り返すことができます。
 
+インターフェースの "Installation Type "ステップを選択することで、インストー ルするパッケージ名の順序を変更したり、パッケージに説明を追加したり、 デフォルトの状態や可視性を指定したりすることができる。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot4.png" caption="Setting identifiers" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot7.png"
+  caption="リスティング・パッケージ"
+/>
 
+ディストリビューションとパッケージの設定に問題がなければ、最終段階に進むことができます。ヒット**ファイル > 保存**では**ビルド > ビルド**をクリックしてインストーラのビルドを開始する。手順がエラーなく成功すると、以下のような画面が表示されるはずです：
 
-The next step consists in configuring the payload which essentially tells the installer the location to copy the plugins. Make sure that the plugins are copied somewhere in the project directory for easy referencing. Select the **Payload** tab at the top of the interface and navigate to the installation directories for the corresponding plugin format as described in the previous section of this tutorial. If the necessary folder structure is not appearing in the navigation window, you can add the missing folders using **Hierarchy > New Folder** and name them accordingly. Then add the plugin to the desired location by clicking on **Hierarchy > Add Files...** and select the previously-copied plugins from your project folder.
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot8.png"
+  caption="ディストリビューションの構築"
+/>
 
+という名前のフォルダが作成されます。`build`プロジェクトフォルダ内の`.pkg`ファイルをプロジェクト名で作成します。このファイルをダブルクリックして、インストール・プロセスをテストしてください。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot5.png" caption="Configuring the payload" />
+### ディスクイメージの作成
 
+ユーザーがダウンロードできる、より包括的でカスタマイズ可能なパッケージを提供するためには、一般的に、ディスクイメージを作成するのがベストプラクティスです。`.dmg`ファイルを`.pkg`ファイルを作成する。Macの内蔵アプリケーション`Disk Utility`にある。`Applications/Utilities`フォルダー
 
-Now let's customise the messages displayed during the installation process by choosing the **Project** entry from the left panel and selecting the **Presentation** tab as shown here:
+あなたの`.pkg`ファイルを使用できるようにするには、次のようにフォルダを作成します。`.pkg`ファイル、および「ライセンス」ファイルや「Read Me」ファイルなど、お望みの追加ドキュメントを含めます。このフォルダはディスクイメージの作成に使用され、解凍時に表示される内容になります。
 
+打ち上げ`Disk Utility`に移動する。**ファイル > 新しい画像 > フォルダから画像...**を選択し、作成したフォルダを選択します。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot6.png" caption="Customising messages" />
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot9.png"
+  caption="ディスクイメージの作成"
+/>
 
+新しいディスクイメージを`.dmg`拡張子から "read/write "オプションを選択する。**画像フォーマット**フィールドでを打つとき**セーブ**これで、次のステップでカスタマイズできる、変更可能なディスクイメージが生成されるはずです。新しく作成されたディスクイメージを開くと、作成に使用したフォルダの内容が表示されているはずです。項目を移動したり、オプションで背景画像を選択したりすることができます。**表示 > 表示オプションを表示**メニュー項目から
 
-In this screen, you can specify a location for a text file that will be used to show a custom message on the introduction screen of the installer. Click on the **+** sign to add an entry in the right hand side table and select **Choose...** to specify the location of the text file. Make sure to copy the text file into the project folder for easy referencing. You can repeat the process for the "Read Me" and "License" steps by clicking on the respective labels on the preview interface.
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot10.png"
+  caption="外観のカスタマイズ"
+/>
 
-By selecting the "Installation Type" step of the interface we can modify the order of the package names to be installed, add descriptions to them and specify their default states as well as visibility.
+ディスクイメージの外観に満足したら、イメージを取り出すだけで、変更は自動的に保存されます。戻る`Disk Utility`に移動する。**画像 > 変換...**を選択してください。`.dmg`ファイルを作成します。ファイル名に`.dmg`拡張機能から "read-only "オプションを選択する。**画像フォーマット**フィールドにいる。
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot11.png"
+  caption="ディスクイメージの変換"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot7.png" caption="Listing packages" />
+ヒット**コンバート**そして、自信を持って顧客に配布できる最終的なディスクイメージが完成するはずです。
 
+### ドラッグ＆ドロップ・インストーラの作成
 
-If you are happy with the distribution and package settings, we can proceed to the final stage. Hit **File > Save** then **Build > Build** to start building the installer. If the procedure succeeds without error, you should see a screen like the following:
+を作成する代わりに`.pkg`インストーラにプラグインインストールのためのすべてのコピー&ペーストを実行させることもできますが、よりシンプルなバージョンのディスクイメージを作成することもできます。この方法は、インストールが基本的にユーザーによって行われるため、エラーが発生しやすくなりますが、インストール場所をよりコントロールできるようになります。
 
+ドラッグ＆ドロップインストーラーは、ユーザーのシステム上のインストール場所にフォルダーエイリアスを提示し、ユーザーがこれらのエイリアスを介して適切なフォルダーにプラグインをドラッグ＆ドロップするように誘う方法で機能します。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot8.png" caption="Building the distribution" />
+このタイプのディスクイメージを作成するには、前のセクションで説明したのと同じ手順で、必要なプラグインをすべて含むフォルダを持つディスクイメージを作成します。次に、ディスクイメージを前と同じように開き、外観をカスタマイズします。
 
+サポートするプラグインフォーマット（チュートリアル冒頭の表を参考にしてください）のインストール場所に移動し、フォルダを選択して、エイリアスを作成します。**ファイル > エイリアスの作成**をクリックします。新しく作成されたエイリアスはディスクイメージに移動することができ、フォルダはシステム内の場所を指すようになります。
 
-This will create a folder named `build` in the project folder with a `.pkg` file with your project name. Double-click on it to test the installation process.
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot12.png"
+  caption="代替ディスクイメージ"
+/>
 
-## Creating a disk image
-
-To provide a more comprehensive and customisable package for your users to download, it is generally best practice to create a disk image or `.dmg` file from the `.pkg` file we created in the previous step. We can easily do this using the built-in Mac application `Disk Utility` found in the `Applications/Utilities` folder.
-
-With your `.pkg` file ready for use, create a folder with the `.pkg` file and any additional documents you wish to include such as a "License" or "Read Me" file. This folder will be used to create the disk image and will be the content shown when unpacked.
-
-Launch `Disk Utility` and navigate to **File > New Image > Image from Folder...** from the menu items and select the folder you just created.
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot9.png" caption="Creating the disk image" />
-
-
-Save the new disk image as a `.dmg` extension and select the "read/write" option from the **Image Format** field. When hitting **Save**, this should generate a modifiable disk image that we can customise in the next step. Open the newly-created disk image and you should see the contents of the folder used for its creation. You can then move the items around and optionally choose a background image by opening the Finder view options by navigating to **View > Show View Options** from the menu items.
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot10.png" caption="Customising the appearance" />
-
-
-When you are happy with the appearance of your disk image, you can simply eject the image as the changes will be saved automatically. Return to `Disk Utility` and navigate to **Images > Convert...** and select the `.dmg` file. Give it the final name you want your users to see by appending the `.dmg` extension and select the "read-only" option from the **Image Format** field.
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot11.png" caption="Converting the disk image" />
-
-
-Hit **Convert** and you should end up with the final disk image that you can confidently distribute to customers.
-
-## Creating a drag and drop installer
-
-Instead of creating a `.pkg` distribution and letting the installer perform all the copy/paste actions for plugin installation, we can also create a simpler version of the disk image that involves the user a bit more. This method is more error-prone as the installation is essentially done by the user but gives more control for installation locations.
-
-A drag and drop installer functions in a way where it presents folder aliases to installation locations on the user's system and invites the user to drag and drop the plugins into the appropriate folders through these aliases.
-
-To create this type of disk image, follow the same steps described in the previous section to create a disk image with a folder containing all the necessary plugins. Then open the disk image as before in order to customise its appearance.
-
-Now navigate to the desired plugin installation locations on your system for the plugin formats you are supporting (use the table at the beginning of the tutorial as a reference), select the folder and create an alias by navigating to **File > Make Alias** from the menu item. The newly-created alias can then be moved into the disk image and the folder will still point to the location in the system.
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot12.png" caption="Alternative disk image" />
-
-
-Now all the user has to do is drag and drop the plugins into the aliases in the disk image window to perform the installation.
+あとは、ディスクイメージウィンドウのエイリアスにプラグインをドラッグ＆ドロップするだけで、インストールが実行されます。
 
 :::note
 
-All the steps explained in this part of the tutorial were also applicable for packaging an application.
+チュートリアルのこのパートで説明したすべてのステップは、アプリケーションのパッケージングにも適用できます。
 
 :::
 
-# Installers for Windows
+## Windows用インストーラー
 
 :::note
 
-If you are only interested in distributing for Mac, please jump to the previous section [Installers for Mac](#tutorial_app_plugin_packaging_installers_mac) for more information.
+マックでの配布にしか興味がない場合は、前のセクションにお進みください。[Installers for Mac](https://docs.juce.com/master/#tutorial_app_plugin_packaging_installers_mac)をご覧ください。
 
 :::
 
-Manually creating an installer can be tedious but thankfully there are many tools out there that can perform this task easily for you. One such example is the free software [Inno Setup](http://www.jrsoftware.org/isinfo.php) which we will use in this section to create the Windows installer.
+手動でインストーラを作成するのは面倒ですが、ありがたいことに、このタスクを簡単に実行してくれるツールがたくさんあります。その一例が、フリーソフトの[Inno Setup](https://docs.juce.com/master/http://www.jrsoftware.org/isinfo.php)このセクションで使用するWindowsインストーラーを作成する。
 
-Install the software from the website and launch the application. You should come across a window with a code editor where we can write our own installer script.
+ウェブサイトからソフトウェアをインストールし、アプリケーションを起動する。インストーラー・スクリプトを書くためのコード・エディターが表示されるはずだ。
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot13.png"
+  caption="Inno Setup メインウィンドウ"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot13.png" caption="Inno Setup main window" />
+Inno セットアップスクリプトの例`.iss`VST/VST3/RTAS/AAXプラグインをWindowsにインストールするためのファイルは、次のようになる：
 
-
-An example Inno Setup Script or `.iss` file to install VST/VST3/RTAS/AAX plugins on Windows would look something like this:
-
-```
+```cpp
 [Setup]
 AppName=TestPlugin
 AppVersion=1.0.0
@@ -215,107 +229,125 @@ Source: "TestPlugin.dpm"; DestDir: "{app}\Digidesign\DAE\Plug-Ins"
 Source: "TestPlugin.aaxplugin\*"; DestDir: "{app}\Avid\Audio\Plug-Ins\TestPlugin.aaxplugin"; Flags: recursesubdirs
 ```
 
-Here we have general properties that we can set in the `[Setup]` section of the script and plugins we want to copy in specific folders in the `[Files]` section.
+ここでは、一般的なプロパティを設定しています。`[Setup]`の特定のフォルダーにコピーしたいスクリプトとプラグインのセクションにある。`[Files]`セクションを参照されたい。
 
-Certain shotcuts for common Windows path locations are available in this syntax format by enclosing the desired variable with curly brackets.
+Windowsの一般的なパスの位置に対する特定のショットカットは、目的の変数を中かっこで囲むことで、この構文フォーマットで利用できる。
 
--   \{pf\}: Shortcut for "Program Files" located at `C:\Program Files`.
--   \{cf\}: Shortcut for "Common Files" located at `C:\Program Files\Common Files`.
--   \{app\}: Shortcut for the destination application directory chosen by the user during installation.
+- {pf}：Program Files "のショートカット。`C:\Program Files`.
+- {cf}：にある「共通ファイル」のショートカット`C:\Program Files\Common Files`.
+- {app}：app}：インストール中にユーザーが選択した、インストール先アプリケーションディレクトリのショートカット。
 
-In order to specify the default installation directory, we set the `DefaultDirName` variable to the "Common Files" directory but the user can still choose to install the plugins elsewhere as seen here when running the setup installer:
+デフォルトのインストール・ディレクトリを指定するために`DefaultDirName`変数を "Common Files "ディレクトリに追加することもできますが、セットアップインストーラを実行する際に、このようにプラグインを別の場所にインストールすることもできます：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot14.png"
+  caption="アプリケーション・ディレクトリの選択"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot14.png" caption="Choosing the destination application directory" />
+個々のプラグインフォーマットを正しいディレクトリにコピーするようインストーラーに指示するには、作業ディレクトリのソースファイルを`Source`を指定し、希望の設置場所を`DestDir`での`[Files]`セクションを個々のラインとして使用する。
 
+AAXプラグインは、他のプラグインフォーマットとは逆に、フォルダとしてパッケージ化されていることに注意してください。`recursesubdirs`フラグが設定されていなければならない。
 
-To instruct the installer to copy each individual plugin format into the right directory, specify the source file from the working directory as the `Source` and the desired installation location as the `DestDir` in the `[Files]` section as individual lines.
+スクリプトの設定に満足したら、次のボタンを押してください。**ビルド > コンパイル**でインストーラーを作成する。これにより、以下の名前のディレクトリにSetupアプリケーションが生成されます。`Output`をデフォルトで作業ディレクトリにインストールします。このインストーラーの名前は`OutputBaseFilename`の変数である。`[Setup]`セクションにある。
 
-Notice that the AAX plugin is packaged as a folder contrary to other plugin formats and therefore the `recursesubdirs` flag has to be set to instruct all the directory content to be copied.
+Inno Setup 内で直接インストーラをテストするには、次のコマンドを実行します。**実行 > 実行**コンパイルに成功したら、生成されたインストーラーを起動する。
 
-When you are happy with the configuration of the script, hit **Build > Compile** to create the installer. This will generate a Setup application in a directory named `Output` by default in your working directory. The name of this installer will be chosen from the `OutputBaseFilename` variable of the `[Setup]` section of the script.
+ユーザーが**インストール**ボタンをクリックすると、プラグインがスクリプトで指定された適切なフォルダにコピーされます：
 
-To test the installer directly within Inno Setup, hit **Run > Run** after successful compilation to launch the installer just generated.
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot15.png"
+  caption="プラグインのインストール"
+/>
 
-When the user hits the **Install** button in the final step of the setup installer, the plugins will be copied to the appropriate folders specified in the script:
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot15.png" caption="Installing the plugins" />
 :::note
 
-All the steps explained in this part of the tutorial were also applicable for packaging an application.
+チュートリアルのこのパートで説明したすべてのステップは、アプリケーションのパッケージングにも適用できます。
 
 :::
 
-## Runtime library linking
+### ランタイム・ライブラリのリンク
 
 :::warning
 
-Due to a recent Windows 10 update, static linking of the runtime library has been deprecated and dynamic linking is suggested instead.
+最近のウィンドウズ10のアップデートにより、ランタイム・ライブラリのスタティック・リンクは廃止され、代わりにダイナミック・リンクが推奨されている。
 
 :::
 
-When building a plugin for Windows, JUCE will choose dynamic linking of runtime libraries by default. This universal runtime is now part of the system core from Windows 10 and therefore if your plugin only targets users with Windows 10, you should not encounter any problems. However, for Windows versions between 8.1 and Vista there is a chance that the universal runtime library is not installed on the customer's computer and the plugin will not work properly.
+Windows 用プラグインをビルドする際、JUCE はデフォルトでランタイムライブラリのダイナミックリンクを選択します。このユニバーサルランタイムは Windows 10 からシステムコアの一部となったため、あなたのプラグインが Windows 10 のユーザのみを対象としている場合、問題は発生しないはずです。しかし、Windowsのバージョンが8.1からVistaまでの場合、ユニバーサルランタイムライブラリが顧客のコンピュータにインストールされておらず、プラグインが正しく動作しない可能性があります。
 
-To remedy this problem, you can either prompt users to install the universal runtime through Windows Update themselves or supply an installer that downloads and installs this along with your plugin. Alternatively, you can also decide to build your plugins with static linking however, this is not recommended as Windows will restrict the number of plugins that can be loaded into a DAW to 64.
+この問題を解決するには、Windows Updateを通じてユニバーサルランタイムをインストールするようユーザーに促すか、プラグインと一緒にユニバーサルランタイムをダウンロードしてインストールするインストーラーを提供します。あるいは、スタティックリンクでプラグインをビルドすることもできますが、WindowsがDAWにロードできるプラグインの数を64個に制限するため、これはお勧めできません。
 
-You can change the way JUCE links the runtime library in the Projucer here:
+JUCEがProjucerでランタイム・ライブラリをリンクする方法は、ここで変更できます：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot16.png"
+  caption="ランタイム・ライブラリのリンク"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot16.png" caption="Runtime library linking" />
+## マーケットプレイスへの投稿
 
+アプリを配信するストアによって、さまざまな種類の要件が存在します。しかし、これらのストアのほとんどで、審査プロセスを加速させるために従うことができる一般的なガイドラインがあります：
 
-# Marketplace submissions
+- 最も曖昧なユースケースであっても、クラッシュやバグを示さないアプリケーションを提出すること。
+- アプリケーションの正確な説明を書くこと。
+- マイクやカメラへのアクセスなど、アプリケーションで必要とされるすべてのパーミッションとエンタイトルメントの説明を提供すること。
 
-Depending on the store you want to distribute your app on, different types of requirements exist. However, there are general guidelines that you can follow to accelerate the review process on most of these stores and these include:
+Projucerエクスポーターの設定から、以下のように、マイクまたはカメラアクセスを使用する際に、簡単に説明テキストを提供することができます：
 
--   Submitting an application that does not exhibit any crash or bug even in the most obscure use case.
--   Writing an accurate description of your application that reflects exactly what it does.
--   Supplying descriptions for all permissions and entitlements required by the application such as microphone and camera access.
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot17.png"
+  caption="マイクアクセスの理由の説明"
+/>
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot18.png"
+  caption="カメラにアクセスする理由の説明"
+/>
 
-You can easily supply a descriptive text when using microphone or camera access from the Projucer exporter settings as shown below:
+アプリ内課金」や「プッシュ通知」機能など、macOS/iOSに必要なすべての機能/権限を登録してください：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot19.png"
+  caption="iOSの機能を有効にする"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot18.png" caption="Describing the reason for microphone access](tutorial_app_plugin_distribution_screenshot17.png) ![Describing the reason for camera access" />
+Androidでは、関連するProjucerフィールドを有効にすることで、Androidマニフェストに必要なすべての機能をリストすることを意味します：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot20.png"
+  caption="アンドロイドの機能を有効にする"
+/>
 
-Ensure that you enlist all required Capabilities/Entitlements for macOS/iOS such as "In-App Purchases" or "Push Notifications" capability:
+アイコンの正しい画像サイズを提供しないことは、リジェクトされるアプリの一般的な理由です。大小のアイコンなど、必要なリソースがすべて含まれていることを確認してください：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot21.png"
+  caption="大小のアイコンを割り当てる"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot19.png" caption="Enabling iOS capabilities" />
+最高のユーザー・エクスペリエンスを提供するために、iOSの場合は「iOS Deployment Target」、Androidの場合は「Minimum SDK version」など、OSの最小バージョン要件を必ず設定してください。
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot22.png"
+  caption="iOSの最小バージョンの設定"
+/>
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot23.png"
+  caption="Androidの最小バージョンの設定"
+/>
 
-On Android that means listing all required functionalities in the Android manifest by enabling relevant Projucer fields:
+最後に、JUCEはインターフェースデザインにネイティブUIを使用しないため、アプリの外観にも注意が必要です。ネイティブのデザインを模倣しようとするとリジェクトされるので、そうならないように注意してください。
 
+## 概要
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot20.png" caption="Enabling Android capabilities" />
+このチュートリアルでは、アプリケーションやプラグインを配布する方法を学びました。特に
 
+- プラグインのインストール場所について学びました。
+- Mac用とWindows用のインストーラーを作成。
+- マーケットプレイスにバイナリを提出する際のよくある間違いについて議論した。
 
-Failing to provide correct image sizes for icons is a common reason for rejected apps. Ensure that you have all required resources such as small and large icons included:
+## 参照
 
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot21.png" caption="Assigning small and large icons" />
-
-
-In order to provide the best user experience, ensure that you configure the minimum OS version requirements, such as "iOS Deployment Target" for iOS and "Minimum SDK version" on Android.
-
-
-<CaptionImage src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot23.png" caption="Setting the minimum iOS version](tutorial_app_plugin_distribution_screenshot22.png) ![Setting the minimum Android version" />
-
-
-Finally, since JUCE does not use native UIs for interface design, you also need to be careful with the appearance of your app. Make sure you do not try to mimic native designs as these will be rejected.
-
-# 概要
-
-In this tutorial, we have learnt how to distribute an application or plugin. In particular, we have:
-
--   Learnt about the installation locations for plugins.
--   Created installers for Mac and Windows.
--   Discussed common mistakes when submitting binaries to marketplaces.
-
-# 関連項目
-
--   [Tutorial: Unlock your plugins through online registration](../tutorial_online_unlock_status/)
--   [Tutorial: App analytics collection](../tutorial_analytics_collection/)
--   [Tutorial: In-App Purchases on desktop and mobile devices](../tutorial_in_app_purchases/)
--   [Tutorial: Push Notifications on desktop and mobile devices](../tutorial_push_notifications/)
+- [Tutorial: Unlock your plugins through online registration](../tutorial_online_unlock_status/)
+- [Tutorial: App analytics collection](../tutorial_analytics_collection/)
+- [Tutorial: In-App Purchases on desktop and mobile devices](../../mobile/tutorial_in_app_purchases/)
+- [Tutorial: Push Notifications on desktop and mobile devices](../../mobile/tutorial_push_notifications/)

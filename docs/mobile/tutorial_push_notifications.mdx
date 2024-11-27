@@ -1,0 +1,969 @@
+---
+title: デスクトップとモバイルデバイスへのプッシュ通知
+sidebar_position: 4
+tags: [上級]
+---
+
+# チュートリアルデスクトップとモバイルデバイスでのプッシュ通知
+
+<SourcePageLink path="tutorial_push_notifications" />
+
+デスクトップとモバイルのアプリケーションでローカルとリモートの通知をトリガーします。リモートサーバーからmacOS/iOSとAndroidデバイスの両方にプッシュ通知を送信する方法をご紹介します。
+
+レベル：上級
+
+プラットフォーム：macOS, iOS, Android
+
+クラス： [PushNotifications::Listener](https://docs.juce.com/master/structPushNotifications_1_1Listener.html "リスナーを登録し（アプリケーションの起動時が理想的）、通知受信に関する情報を受け取る。"),[PushNotifications::Notification](https://docs.juce.com/master/structPushNotifications_1_1Notification.html "送受信可能な通知を表します。"),[PushNotifications::Channel](https://docs.juce.com/master/structPushNotifications_1_1Channel.html "Android APIレベル26以上のみ：通知チャネルを表します。"),[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")
+
+:::warning
+
+このプロジェクトには、macOS/iOSではApple Developerアカウント、AndroidではGoogle Firebaseアカウントが必要です。ヘルプが必要な場合は[Apple Developer](https://developer.apple.com/account/)そして[Google Firebase](https://console.firebase.google.com/)のウェブサイトで口座を開設する。
+
+シミュレーターはリモート・テストをサポートしていないため、このプロジェクトではプッシュ通知をテストするために物理的なデバイスが必要です。このためにデバイスを用意してください。
+
+プッシュ通知でサポートされる機能は、プラットフォームやOSのバージョンによって異なります。macOSの場合、リモート通知には最低10.7、ローカル通知には最低10.8が必要です。Androidの場合、リモート通知には最低14（Ice Cream Sandwich）のAPIが、通知チャンネルには最低27のAPIが必要です。チュートリアルではSDKの最低バージョンを23としていますが、14以上に変更することも歓迎します。
+
+:::
+
+## スタート
+
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/PushNotificationsTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/PushNotificationsTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+
+:::warning
+
+このプロジェクトのPIPバージョンを使用する場合は、必ず`Resources`フォルダを生成されたProjucerプロジェクトに追加します。
+
+:::
+
+このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+
+## デモ・プロジェクト
+
+このプロジェクトは、ローカルとリモートの両方の通知を送受信するための包括的なユーザー・インターフェースを提供します。通知パラメーターと識別子を整理するために、別々のテーブルが表示されます。iOSシミュレーターでモバイル・アプリケーションを実行すると、ウィンドウは次のようになるはずです：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot1.png"
+  caption="iOSのデモ・プロジェクト・アプリケーションのウィンドウ"
+/>
+
+:::note
+
+ここで紹介するコードは、大まかに以下のものと似ている。**プッシュ通知デモ**JUCE Examplesより。
+
+:::
+
+## 初期設定
+
+このプロジェクトが正しく機能するためには、特定のデプロイメント・プラットフォームに適した開発者コンソールで、いくつかの初期設定手順を実行する必要がある。まず、Projucerでプッシュ通知の適切なパーミッションを許可しよう。macOSとiOSでは**プッシュ通知機能**フィールドに移動します。Androidでは**リモート通知**フィールドにいる。
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_ios.png"
+  caption="iOSのプロジェクト設定ウィンドウ"
+/>
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_android.png"
+  caption="Androidのプロジェクト設定ウィンドウ"
+/>
+
+また、以下のように実行ファイルにリソースをバンドルするために、macOSとiOSの両方でカスタムXcodeリソースフォルダを指定する必要があります：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_resources_macos.png"
+  caption="macOSのカスタムリソース"
+/>
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_resources_ios.png"
+  caption="iOSのカスタムリソース"
+/>
+
+最後に、Androidの場合、「Debug」と「Release」の両方のエクスポーター設定で、実行ファイルに追加したい各リソースをrawリソースとして、以下のように個別に指定する必要がある：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_resources_android_debug.png"
+  caption="Androidの生リソース（デバッグ）"
+/>
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_resources_android_release.png"
+  caption="アンドロイドの生リソース（リリース）"
+/>
+
+必要なリソースのリストは以下の通り：
+
+```
+../Resources/sounds/demonstrative.mp3
+../Resources/sounds/isntit.mp3
+../Resources/sounds/jinglebellssms.mp3
+../Resources/sounds/served.mp3
+../Resources/sounds/solemn.mp3
+../Resources/images/ic_stat_name.png
+../Resources/images/ic_stat_name2.png
+../Resources/images/ic_stat_name3.png
+../Resources/images/ic_stat_name4.png
+../Resources/images/ic_stat_name5.png
+```
+
+プロジェクトを保存してお気に入りのIDEで開くと、Projucerが自動的に必要なエンタイトルメントをデプロイメント・ターゲットに追加します。
+
+### Apple Developer
+
+:::note
+
+アンドロイド用に開発する場合は、次のセクションに進んでください。[Google Firebase](https://docs.juce.com/master/#tutorial_push_notifications_initial_setup_google_firebase)をご覧ください。
+
+:::
+
+macOS と iOS では、アプリケーションに署名するために、Xcode 内の Apple Developer アカウントでサインインし、開発チームを選択する必要があります。あなたのプロジェクトのためのユニークなバンドル ID を選択します。以下のスクリーンショットのように、Xcode は自動的に署名証明書と Provisioning Profile を提供します：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot3.png"
+  caption="Xcodeの一般設定ウィンドウ"
+/>
+
+また、正しいアプリの機能がチェックされ、承認されていることも確認してください。**能力**設定ウィンドウを開きます。以下のように同じ情報が表示されるはずです（macOSにはBackground Modesのセクションがないことに注意してください）：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot4.png"
+  caption="Xcodeの機能設定ウィンドウ"
+/>
+
+### Pusher
+
+iOSのリモート通知をテストするには、Apple Push Notification Service（APN）を使って通知を送信するサーバーかアプリケーションが必要です。GoogleのFirebaseを利用してテストすることも可能だが（Android側と同じように）、ありがたいことに、以下のようなアプリを利用することで、より簡単な解決策がある。[Pusher](https://github.com/noodlewerk/NWPusher).このチュートリアルの目的には、このアプリケーションをお勧めしますが、APNを使用する他のお好みのサービスを使用することができます。
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_pusher_screenshot1.png"
+  caption="リモート通知をテストするPusherアプリ"
+/>
+
+### SSL証明書の生成
+
+Pusherアプリを使ってプッシュ通知を送信するには、SSL証明書を生成する必要があります。これを行うには、Apple Developerアカウントにログインし、アプリIDの**証明書、ID、プロフィール**ページをご覧ください。をクリックして、プッシュ通知サービスを設定することができます。**編集**ボタンをクリックします。以下のスクリーンショットのように、ウェブサイトの指示に従って証明書を作成します：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot5.png"
+  caption="Apple DeveloperポータルでSSL証明書を生成する"
+/>
+
+証明書が生成されダウンロードされたら、それをダブルクリックしてキーチェーンに追加します。Pusherアプリの証明書ドロップダウンで選択できるようになります。
+
+### Google Firebase
+
+:::note
+
+macOS/iOS用に開発する場合は、前のセクションにジャンプしてください。[Apple Developer](https://docs.juce.com/master/#tutorial_push_notifications_initial_setup_apple_developer)をご覧ください。
+
+:::
+
+このチュートリアルでは、Google Firebaseを使ってAndroidのリモート通知をテストする。まず、Firebase コンソールで新しいプロジェクトを作成し、Android アプリをプロジェクトに追加します。プロジェクトにはユニークなパッケージ名を選んでください。プロジェクトの**クラウド・メッセージング**タブをクリックすると、次の画面でサーバー送信者IDにアクセスできます：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot6.png"
+  caption="Google Firebaseのサーバー送信者ID"
+/>
+
+の以下のコード・スニペットに、この送信者IDを挿入する。`MainContentComponent`ビルダー
+
+```cpp
+      #if JUCE_ANDROID
+        remoteView.sendRemoteMessageButton.onClick = [this]
+        {
+            juce::StringPairArray data;
+            data.set ("key1", "value1");
+            data.set ("key2", "value2");
+ 
+            static int id = 100;
+            juce::PushNotifications::getInstance()->sendUpstreamMessage ("XXXXXXXXXXXX", // Insert sender ID here
+                                                                         "com.juce.pushnotificationstutorial",
+                                                                         juce::String (id++),
+                                                                         "standardType",
+                                                                         3600,
+                                                                         data);
+        };
+```
+
+:::note
+
+Google Firebase のバンドル ID が、プロジェクト設定のバンドル ID と一致していることを確認してください（すべて小文字）。
+
+:::
+
+### google-services.jsonファイルの生成
+
+また、Androidのリモート通知用のFirebase設定ファイルをダウンロードする必要がある。設定ファイルを**一般**タブをクリックし、ダウンロードをクリックします。**google-services.json**次のスクリーンショットのように：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot7.png"
+  caption="Google Firebaseからjsonファイルをダウンロードする"
+/>
+
+JUCEプロジェクト・ディレクトリにファイルをコピーし、Android exporter settings の**リモート通知設定ファイル**フィールドにいる：
+
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot8.png"
+  caption="エクスポート設定にあるgoogle-servicesファイルのパス"
+/>
+
+:::note
+
+google-services.jsonへのパスは、"Debug "セクションと "Release "セクションで、ターゲットごとに個別に指定することもできます。これらはメインのAndroid exporterセクションの設定を上書きします。
+
+:::
+
+プッシュ通知のセットアップはもう完了しているはずなので、ようやくアプリにこれらの機能を実装し始めることができる。
+
+## 通知の種類
+
+通知は、アプリが起動しているかどうかに関わらず、関連するコンテンツをユーザーに通知するのに便利です。単にメッセージを表示したり、ダイアログボックスを表示したり、音を鳴らしたりすることもできます。一般的に、すべての関連プラットフォームでは、主に2種類の通知があります：
+
+- ローカル：システムによってローカルにトリガーされるため、インターネット接続を必要とせず、アプリがアクティブでないときでも起動するようにアプリによってスケジュールすることができる。
+- リモート：リモートサーバーから送信されるため、インターネット接続が必要だが、顧客のデバイスから受信したデータに基づいていつでも送信できる。
+
+まず、アプリ内で実行できる簡単なローカル通知を見てみよう。
+
+## リスナーとして登録する
+
+について[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")クラスは[singleton](https://en.wikipedia.org/wiki/Singleton_pattern)そのグローバル・インスタンスには、関数`PushNotifications::getInstance()`.その[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")クラスは、アクションの結果が[PushNotifications::Listener](https://docs.juce.com/master/structPushNotifications_1_1Listener.html "リスナーを登録し（アプリケーションの起動時が理想的）、通知受信に関する情報を受け取る。")インターフェイスにリスナーを登録するだけです。リスナーを[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンスがコールバックを受け取る。その結果`MainContentComponent`クラスを継承している。[PushNotifications::Listener](https://docs.juce.com/master/structPushNotifications_1_1Listener.html "リスナーを登録し（アプリケーションの起動時が理想的）、通知受信に関する情報を受け取る。") \[1\]:
+
+```cpp
+class MainContentComponent   : public juce::Component,
+                               private juce::ChangeListener,
+                               private juce::ComponentListener,
+                               private juce::PushNotifications::Listener // [1]
+{
+```
+
+のコンストラクタでは`MainContentComponent`クラスのリスナーとして追加します。[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンス\[2\]:
+
+```cpp
+        juce::PushNotifications::getInstance()->addListener (this);     // [2]
+```
+
+また、次のようにクラスのデストラクタで登録を解除する。\[3\]:
+
+```cpp
+    ~MainContentComponent() override
+    {
+        juce::PushNotifications::getInstance()->removeListener (this);  // [3]
+    }
+```
+
+## アクセス許可の申請
+
+通知を送信する前に、まずユーザーから許可を得る必要があります。これはアプリが最初に起動されたときに一度だけ要求され、アプリが削除されるか、ユーザーがシステム設定で権限を取り消すまで、設定は保存されたままになります。そのため、アプリケーションの起動ごとに許可を要求し、許可が下りない場合にのみユーザーに許可を求めるのが良い習慣です。macOS/iOSでは`requestPermissionsWithSettings()`関数は[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")オブジェクトを引数\[4\].Androidでは`setupChannels()`関数は[PushNotifications::ChannelGroup](https://docs.juce.com/master/structPushNotifications_1_1ChannelGroup.html "Android APIレベル26以上のみ：チャネルグループを表す。")オブジェクトと[PushNotifications::Channel](https://docs.juce.com/master/structPushNotifications_1_1Channel.html "Android APIレベル26以上のみ：通知チャネルを表します。")オブジェクトを引数に取る\[5\].
+
+```cpp
+      #if JUCE_IOS || JUCE_MAC
+        paramControls.fireInComboBox.onChange = [this] { delayNotification(); };
+        juce::PushNotifications::getInstance()->requestPermissionsWithSettings (getNotificationSettings()); // [4]
+      #elif JUCE_ANDROID
+        juce::PushNotifications::ChannelGroup cg { "demoGroup", "demo group" };
+        juce::PushNotifications::getInstance()->setupChannels ({{ cg }}, getAndroidChannels());             // [5]
+      #endif
+    }
+```
+
+:::note
+
+setupChannels()はAndroid Oreo（API 26）以降でのみ必要で、それ以前のAndroidバージョンでは無視されることに注意。
+
+:::
+
+### macOS/iOSでパーミッションを要求する
+
+まずmacOS/iOS側を見てみよう。
+
+要求するパーミッションには、アラート、バッジ、サウンドの3種類があります。この初期化を容易にするために`getNotificationSettings()`関数にこのコードを挿入する。関数の[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")オブジェクトに対応する変数を設定し、以下の機能を許可する。\[6\].macOSでデプロイする場合は、これだけリクエストすれば関数から戻ることができる。しかしiOSでは、以下のように定義されたActionオブジェクトとCategoryオブジェクトを定義しなければならない：
+
+- アクション：通知へのボタンまたはテキスト入力として提示できるアクションを表します。
+- カテゴリー：通知で一緒に表示される一連のアクションを表します。
+
+同じ関数で、アクションとカテゴリーを以下のように定義する：
+
+```cpp
+    static juce::PushNotifications::Settings getNotificationSettings()
+    {
+        juce::PushNotifications::Settings settings;                             // [6]
+        settings.allowAlert = true;
+        settings.allowBadge = true;
+        settings.allowSound = true;
+ 
+      #if JUCE_IOS
+        using Action   = juce::PushNotifications::Settings::Action;
+        using Category = juce::PushNotifications::Settings::Category;
+ 
+        Action okAction;
+        okAction.identifier = "okAction";
+        okAction.title = "OK!";
+        okAction.style = Action::button;
+        okAction.triggerInBackground = true;
+ 
+        Action cancelAction;
+        cancelAction.identifier = "cancelAction";
+        cancelAction.title = "Cancel";
+        cancelAction.style = Action::button;
+        cancelAction.triggerInBackground = true;
+        cancelAction.destructive = true;
+ 
+        Action textAction;
+        textAction.identifier = "textAction";
+        textAction.title = "Enter text";
+        textAction.style = Action::text;
+        textAction.triggerInBackground = true;
+        textAction.destructive = false;
+        textAction.textInputButtonText = "Ok";
+        textAction.textInputPlaceholder = "Enter text...";
+ 
+        Category okCategory;
+        okCategory.identifier = "okCategory";
+        okCategory.actions = { okAction };
+ 
+        Category okCancelCategory;
+        okCancelCategory.identifier = "okCancelCategory";
+        okCancelCategory.actions = { okAction, cancelAction };
+ 
+        Category textCategory;
+        textCategory.identifier = "textCategory";
+        textCategory.actions = { textAction };
+        textCategory.sendDismissAction = true;
+ 
+        settings.categories = { okCategory, okCancelCategory, textCategory };   // [7]
+      #endif
+ 
+        return settings;
+    }
+```
+
+ここでは、3つの異なるアクションと3つの異なるカテゴリーを作成した：
+
+- OKアクション：背景でトリガーされる適切な "OK "タイトルを持つボタンとしてのアクションスタイルを指定します。
+- キャンセルアクション：背景でトリガーされ、破壊的に表示される適切な "Cancel "タイトルを持つボタンとしてアクションスタイルを指定します。
+- テキストアクション：背景でトリガーされる適切なプレースホルダーとボタンテキストを持つテキスト入力としてアクションスタイルを指定します。
+- OKカテゴリー：OKアクション」のみを表す。
+- OK/キャンセルカテゴリー：OKアクション」と「キャンセルアクション」を表す。
+- テキストカテゴリー：テキスト・アクション」のみを表し、却下アクションが送信されることを指定する。
+
+これらのカテゴリーはすべて[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")オブジェクト\[7\].
+
+### Androidでパーミッションを要求する
+
+では、アンドロイド側を見てみよう。
+
+対応する設定で定義できる重要度の異なるチャンネルがあり、これらのチャンネルをチャンネル・グループの一部にして、通知を視覚的に分けることができる。この初期化を容易にするために`getAndroidChannels()`関数にこのコードを挿入する。3つの異なる[PushNotifications::Channel](https://docs.juce.com/master/structPushNotifications_1_1Channel.html "Android APIレベル26以上のみ：通知チャネルを表します。")オブジェクトで異なるパラメータを指定する\[8\]:
+
+```cpp
+    static juce::Array getAndroidChannels()
+    {
+        using Channel = juce::PushNotifications::Channel;
+ 
+        Channel ch1, ch2, ch3;
+ 
+        ch1.identifier = "1";
+        ch1.name = "HighImportance";
+        ch1.importance = juce::PushNotifications::Channel::max;
+        ch1.lockScreenAppearance = juce::PushNotifications::Notification::showCompletely;
+        ch1.description = "High Priority Channel for important stuff";
+        ch1.groupId = "demoGroup";
+        ch1.ledColour = juce::Colours::red;
+        ch1.bypassDoNotDisturb = true;
+        ch1.canShowBadge = true;
+        ch1.enableLights = true;
+        ch1.enableVibration = true;
+        ch1.soundToPlay = juce::URL ("demonstrative");
+        ch1.vibrationPattern = { 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200 };
+ 
+        ch2.identifier = "2";
+        ch2.name = "MediumImportance";
+        ch2.importance = juce::PushNotifications::Channel::normal;
+        ch2.lockScreenAppearance = juce::PushNotifications::Notification::showPartially;
+        ch2.description = "Medium Priority Channel for standard stuff";
+        ch2.groupId = "demoGroup";
+        ch2.ledColour = juce::Colours::yellow;
+        ch2.canShowBadge = true;
+        ch2.enableLights = true;
+        ch2.enableVibration = true;
+        ch2.soundToPlay = juce::URL ("default_os_sound");
+        ch2.vibrationPattern = { 1000, 1000 };
+ 
+        ch3.identifier = "3";
+        ch3.name = "LowImportance";
+        ch3.importance = juce::PushNotifications::Channel::min;
+        ch3.lockScreenAppearance = juce::PushNotifications::Notification::dontShow;
+        ch3.description = "Low Priority Channel for silly stuff";
+        ch3.groupId = "demoGroup";
+ 
+        return { ch1, ch2, ch3 };
+    }
+```
+
+- チャンネル1：最も重要な通知。赤にする色、"Do Not Disturb "のバイパス、カスタム振動パターンの起動、カスタムサウンドファイルの再生などのパラメーターを指定できます。
+- チャンネル2：通知における中程度の重要度を表します。今回は、黄色、異なるバイブレーションパターン、異なるカスタムサウンドファイルを指定します。
+- チャンネル3：通知の中で最も重要度の低いものを表す。これらのパラメータはデフォルトのままとする。
+
+の配列として返される。[PushNotifications::Channel](https://docs.juce.com/master/structPushNotifications_1_1Channel.html "Android APIレベル26以上のみ：通知チャネルを表します。")同じ[PushNotifications::ChannelGroup](https://docs.juce.com/master/structPushNotifications_1_1ChannelGroup.html "Android APIレベル26以上のみ：チャネルグループを表す。") \[9\].
+
+:::note
+
+getAndroidChannels()の実装は、チャンネルごとに少なくとも識別子、名前、グループIDを提供することで、チャンネルを正しく設定しなければならない。
+
+:::
+
+:::danger[エクササイズ]
+
+これらのプラットフォームでの通知許可に慣れるために、これらの設定を自由に試して変更してください。
+
+:::
+
+すべてのプラットフォームで通知のセットアップが完了しました。
+
+## ローカル通知
+
+ユーザーがローカル通知タブの送信ボタンをクリックすると、以下のようになる。`sendLocalNotification()`関数が呼び出される。この関数はまず[PushNotifications::Notification](https://docs.juce.com/master/structPushNotifications_1_1Notification.html "送受信可能な通知を表します。")オブジェクトを作成し、そのオブジェクトにユーザーインターフェースの入力から対応するパラメータを入力する。\[1\].通知オブジェクトが不正なパラメータのために無効である場合、このチュートリアルの目的のために、オプションでメッセージを表示します。\[2\].そうでなければ、オブジェクトが有効であれば`sendLocalNotification()`関数を使用する。[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンス\[3\].
+
+```cpp
+    void sendLocalNotification()
+    {
+        juce::PushNotifications::Notification n;                            // [1]
+ 
+        fillRequiredParams (n);                                             // [4]
+        fillOptionalParamsOne (n);
+      #if JUCE_ANDROID
+        fillOptionalParamsTwo (n);
+        fillOptionalParamsThree (n);
+      #endif
+ 
+        if (! n.isValid())                                                  // [2]
+        {
+          #if JUCE_IOS
+            juce::String requiredFields = "identifier (from iOS 10), title, body and category";
+          #elif JUCE_ANDROID
+            juce::String requiredFields = "channel ID (from Android O), title, body and icon";
+          #else
+            juce::String requiredFields = "all required fields";
+          #endif
+ 
+            juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon,
+                                                         "Incorrect notifications setup",
+                                                         "Please make sure that "
+                                                         + requiredFields + " are set.");
+ 
+ 
+            return;
+        }
+ 
+        juce::PushNotifications::getInstance()->sendLocalNotification (n);  // [3]
+    }
+```
+
+今のところ、必要なパラメータに焦点を当てる。`fillRequiredParams()`関数に渡す。[PushNotifications::Notification](https://docs.juce.com/master/structPushNotifications_1_1Notification.html "送受信可能な通知を表します。")オブジェクトを引数\[4\].
+
+:::note
+
+プッシュ通知のオプション・パラメーターに興味がある方は、このチュートリアルの最後のセクションを参照してください。[Customising notifications](https://docs.juce.com/master/#tutorial_push_notifications_customising_notifications)そこで、このことについて詳しく説明する。
+
+:::
+
+```cpp
+    void fillRequiredParams      (juce::PushNotifications::Notification& n)
+    {
+        n.identifier = paramControls.identifierEditor.getText();            // [5.1]
+        n.title = paramControls.titleEditor.getText();                      // [5.2]
+        n.body = paramControls.bodyEditor.getText();                        // [5.3]
+      #if JUCE_IOS
+        n.category = paramControls.categoryComboBox.getText();              // [6.1]
+      #elif JUCE_ANDROID || JUCE_MAC
+       #if JUCE_MAC
+        juce::String prefix = "images/";
+        juce::String extension = ".png";
+       #else
+        juce::String prefix;
+        juce::String extension;
+       #endif
+        if (paramControls.iconComboBox.getSelectedItemIndex() == 0)         // [7]
+            n.icon = prefix + "ic_stat_name" + extension;
+        else if (paramControls.iconComboBox.getSelectedItemIndex() == 1)
+            n.icon = prefix + "ic_stat_name2" + extension;
+        else if (paramControls.iconComboBox.getSelectedItemIndex() == 2)
+            n.icon = prefix + "ic_stat_name3" + extension;
+        else if (paramControls.iconComboBox.getSelectedItemIndex() == 3)
+            n.icon = prefix + "ic_stat_name4" + extension;
+        else if (paramControls.iconComboBox.getSelectedItemIndex() == 4)
+            n.icon = prefix + "ic_stat_name5" + extension;
+      #endif
+ 
+      #if JUCE_ANDROID
+        // Note: this is not strictly speaking required param, just doing it here because it is the fastest way!
+        n.publicVersion = new juce::PushNotifications::Notification();      // [8]
+        n.publicVersion->identifier = "blahblahblah";
+        n.publicVersion->title = "Public title!";
+        n.publicVersion->body  = "Public body!";
+        n.publicVersion->icon  = n.icon;
+ 
+        n.channelId = String (paramControls.channelIdComboBox.getSelectedItemIndex() + 1); // [6.2]
+      #endif
+    }
+```
+
+すべてのプラットフォームにおいて、通知は3つの主要パラメータで定義され、必須パラメータタブのユーザー入力から設定します：
+
+- 特定する\[5.1\]内部で通知を識別するためのユニークなID。通常、ユーザーには表示されません。
+- タイトル\[5.2\]バブルの上部に表示される通知のタイトル。
+- ボディ\[5.3\]: トリミングすると全体が表示されるように展開できる通知の内容。
+
+macOS/iOSでは、表示するアクションを選択するための通知カテゴリも提供しています。\[6.1\].Androidでは、チャネル番号を指定して通知の重要度を指定します。\[6.2\].
+
+macOSとAndroidでは、通知内に表示するアイコンを提供する必要があり、パスがプラットフォーム固有であることを確認します。\[7\].最後にアンドロイドでは、必要に応じて、デバイスのロック画面に表示される通知の別バージョンを提供することができます。\[8\].
+
+ローカル通知の実装はかなり簡単なので、次はリモート通知に飛び込もう。
+
+## リモート通知
+
+:::warning
+
+このセクションは物理的なデバイス上でのみ機能します。シミュレーターでは正しく機能しませんので、試さないでください。
+
+:::
+
+macOS/iOSでリモート通知を受け取るには、まず、テスト通知を送信するためにPusherアプリケーションに挿入するデバイストークンを取得する必要があります。このトークンはいつでも変更される可能性があるため、アプリケーションを起動するたびに新しいトークンを取得することをお勧めします。これはボタンのラムダ関数の中で`getDeviceToken()`関数を使用する。[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンス\[1\]:
+
+```cpp
+        remoteView.getDeviceTokenButton.onClick = []
+        {
+            juce::String token = juce::PushNotifications::getInstance()->getDeviceToken();
+ 
+            DBG ("token = " + token);
+ 
+            if (token.isEmpty())
+                showRemoteInstructions();
+            else
+                juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon, "Device token", token);
+        };
+```
+
+トークンがリフレッシュされるたびに、コールバック関数`deviceTokenRefreshed()`がトリガーされ、この変更が通知される：
+
+```cpp
+    void deviceTokenRefreshed (const juce::String& token) override
+    {
+        juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon,
+                                                     "Device token refreshed",
+                                                     token);
+    }
+```
+
+### macOS/iOSでのリモート通知
+
+Pusherに飛び、macOS/iOS上のアプリにプッシュ通知を送る方法を見てみよう。デバッガーから新しいデバイストークンをコピーし、Pusherアプリを起動します。トークンを適切な**デバイス・プッシュ・トークン**フィールドで、正しい証明書がドロップダウンメニューで選択されていることを確認してください。
+
+下のテキスト・フィールドで、ペイロード辞書としてプッシュ通知を作成するには[JSON](https://docs.juce.com/master/classJSON.html "JSON 形式のテキストを var オブジェクトとの間で変換するための静的メソッドが含まれています。")形式を使用します。単純な通知は次のようになる：
+
+```cpp
+{
+    "aps" :
+    {
+        "alert" : "Test Push Notification",
+        "badge" : 1,
+        "sound" : "default"
+    },
+    "juce" : "tutorial",
+    "foo" : "bar"
+}
+```
+
+aps "と呼ばれる最初の要素には、通知に必要な情報が含まれます。上記の例では、アラート、バッジカウント、トリガー時に再生するサウンドを記述しています。また、"aps "エレメントに続くkey/valueペアの例で示したように、アプリケーション固有のデータを送信することもできます。
+
+この2つ目のペイロードの例では、タイトルフィールドに加えて、本文やアクションボタンなど、より多くの情報を含むようにアラートをカスタマイズします。また、通知がトリガーされた時にカスタムサウンドファイルを再生することにしました：
+
+```cpp
+{
+    "aps" :
+    {
+        "alert" :
+        {
+            "title" : "Test Push Notification",
+            "body" : "Hello World!",
+            "action-loc-key" : "OK"
+        },
+        "badge" : 2,
+        "sound" : "demonstrative.caf"
+    }
+}
+```
+
+3つ目の例では、次のように定義された通知カテゴリーを使用します。[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")アクションを簡単に定義することができます。また、通知をバックグラウンドで静かに配信するようOSに指示します。`content-available`財産である：
+
+```cpp
+{
+    "aps" :
+    {
+        "category" : "okCategory",
+        "alert" : "Test Push Notification",
+        "badge" : 3,
+        "content-available" : 1
+    },
+    "foobar" : [ "foo", "bar" ]
+}
+```
+
+:::danger[エクササイズ]
+
+様々なペイロードパラメータを試し、それらがアプリ内でどのように受け取られるかを見てみましょう。通知本文に画像を表示できますか？
+
+:::
+
+### アンドロイドでのリモート通知
+
+ここでAndroid側に切り替えて、Google Firebaseコンソールを使ってみよう。コンソールで**成長 > 通知**タブをクリックし**メッセージを作成する**.次のウィンドウで、メッセージの情報を入力し、通知を送信するターゲットを選択します。
+
+Androidでは、アプリからサーバーにアップストリームでメッセージを送信し、重要なユーザーデータを伝達することもできる。これは、キーと値のペアの辞書を[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "別の文字列をキーとする文字列のセットを保持するための容器。")オブジェクト\[1\]を呼び出す。`sendUpstreamMessage()`関数を使用する。[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンス\[2\]:
+
+```cpp
+        remoteView.sendRemoteMessageButton.onClick = [this]
+        {
+            juce::StringPairArray data;                                         // [1]
+            data.set ("key1", "value1");
+            data.set ("key2", "value2");
+ 
+            static int id = 100;
+            juce::PushNotifications::getInstance()->sendUpstreamMessage ("XXXXXXXXXXXX", // Insert sender ID here
+                                                                         "com.juce.pushnotificationstutorial",
+                                                                         String (id++),
+                                                                         "standardType",
+                                                                         3600,
+                                                                         data); // [2]
+        };
+```
+
+残念なことに、これを行うには、事前に設定したサーバー送信者IDを毎回明示的に引数として渡す必要がある。
+
+アップストリームメッセージがサーバーに送信されると、次のようなコールバックが期待できます。`upstreamMessageSent()`リクエストに成功した場合は
+
+```cpp
+    void upstreamMessageSent (const juce::String& messageId) override
+    {
+        juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon,
+                                                     "Upstream message sent",
+                                                     "Message id: " + messageId);
+    }
+```
+
+しかし、リクエストが失敗した場合、コールバックは`upstreamMessageSendingError()`関数を使用する：
+
+```cpp
+    void upstreamMessageSendingError (const juce::String& messageId, const juce::String& error) override
+    {
+        juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon,
+                                                     "Upstream message sending error",
+                                                     "Message id: " + messageId
+                                                     + "\nerror: " + error);
+    }
+```
+
+Google Firebaseがメッセージを受信しすぎると、保留中のメッセージのキューから削除し始めることがあります。そのような場合は`remoteNotificationsDeleted()`関数である：
+
+```cpp
+    void remoteNotificationsDeleted() override
+    {
+        juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon,
+                                                     "Remote notifications deleted",
+                                                     "Some of the pending messages were removed!");
+    }
+```
+
+Androidでは、特定のトピックを購読したり購読解除したりするには`subscribeToTopic()`そして`unsubscribeFromTopic()`関数をそれぞれ[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")のインスタンスを作成する。この例では、"sports "トピックの購読と購読解除を選択する：
+
+```cpp
+        remoteView.subscribeToSportsButton    .onClick = [this]
+            { juce::PushNotifications::getInstance()->subscribeToTopic ("sports"); };
+        remoteView.unsubscribeFromSportsButton.onClick = [this]
+            { juce::PushNotifications::getInstance()->unsubscribeFromTopic ("sports"); };
+```
+
+## 受信通知の処理
+
+ユーザーが通知を操作したときに呼び出されるコールバックには、さまざまなものがあります。正確な動作はプラットフォームやOSのバージョンによって異なりますので[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")クラスのドキュメントに詳しい説明があります。
+
+について`handleNotification()`コールバック関数は、ユーザーが通知を押すたびに呼び出されます。通常は、この関数を使用してIDに基づいてnotificationからの情報を処理しますが、このチュートリアルの目的では、以下の3つの主要なパラメータを持つメッセージボックスを表示するだけです：
+
+```cpp
+    void handleNotification (bool isLocalNotification, const juce::PushNotifications::Notification& n) override
+    {
+        juce::ignoreUnused (isLocalNotification);
+ 
+        juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon,
+                                                     "Received notification",
+                                                     "ID: " + n.identifier
+                                                     + ", title: " + n.title
+                                                     + ", body: " + n.body);
+    }
+```
+
+について`handleNotificationAction()`コールバック関数は、ユーザが通知からアクションを実行するたびに呼び出されます（ボタンを押す、テキスト入力を行うなど）。このコールバックには、アクションのタイプに関する追加情報と、例えばテキスト入力のようなオプションのレスポンスが含まれます。このシナリオでは、notification identiferを`removeDeliveredNotification()`関数を引数に取り、それを[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンス\[9\]:
+
+```cpp
+    void handleNotificationAction (bool isLocalNotification,
+                                   const juce::PushNotifications::Notification& n,
+                                   const juce::String& actionIdentifier,
+                                   const juce::String& optionalResponse) override
+    {
+        juce::ignoreUnused (isLocalNotification);
+ 
+        juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon,
+                                                     "Received notification action",
+                                                     "ID: " + n.identifier
+                                                     + ", title: " + n.title
+                                                     + ", body: " + n.body
+                                                     + ", action: " + actionIdentifier
+                                                     + ", optionalResponse: " + optionalResponse);
+ 
+        juce::PushNotifications::getInstance()->removeDeliveredNotification (n.identifier);
+    }
+```
+
+その名前が示すように、ユーザがローカル通知に応答する前にその通知を解除すると、以下のコールバックがトリガーされ、以前と同じメッセージボックスが表示されます：
+
+```cpp
+    void localNotificationDismissedByUser (const juce::PushNotifications::Notification& n) override
+    {
+        juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon,
+                                                     "Notification dismissed by a user",
+                                                     "ID: " + n.identifier
+                                                     + ", title: " + n.title
+                                                     + ", body: " + n.body);
+    }
+```
+
+ユーザーが通知を無視したり、通知に対してアクションを起こさなかったりした場合、その通知はデバイスの通知領域の配信済みリストに残る。配信された通知のリストを取得するには`getDeliveredNotifications()`関数を使用する。[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンスを返します。コールバック関数は`deliveredNotificationsListReceived()`が呼び出され、以下のようにメッセージボックスにリストを表示することで対処できる：
+
+```cpp
+    void deliveredNotificationsListReceived (const juce::Array& notifs) override
+    {
+        juce::String text = "Received notifications: ";
+ 
+        for (auto& n : notifs)
+            text << "(" << n.identifier << ", " << n.title << ", " << n.body << "), ";
+ 
+        juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon, "Received notification list", text);
+    }
+```
+
+macOS/iOSでは、アプリケーションは将来のある瞬間にトリガーされるローカル通知をスケジュールできる。この便利なコールバック関数は`pendingLocalNotificationsListReceived()`を実行すると、保留中の通知の配列を受け取ります。`getPendingLocalNotifications()`関数が呼び出される。[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンスだ：
+
+```cpp
+    void pendingLocalNotificationsListReceived (const juce::Array& notifs) override
+    {
+        juce::String text = "Pending notifications: ";
+ 
+        for (auto& n : notifs)
+            text << "(" << n.identifier << ", " << n.title << ", " << n.body << "), ";
+ 
+        juce::NativeMessageBox::showMessageBoxAsync (juce::AlertWindow::InfoIcon, "Pending notification list", text);
+    }
+```
+
+:::danger[エクササイズ]
+
+いろいろなパラメータを試して、メッセージボックスに表示してみてください。コールバックのメッセージボックスに通知アイコンを表示できますか？
+
+:::
+
+このチュートリアルの核となる部分のデモンストレーションは終了し、すべてのコールバック関数は[PushNotifications::Listener](https://docs.juce.com/master/structPushNotifications_1_1Listener.html "リスナーを登録し（アプリケーションの起動時が理想的）、通知受信に関する情報を受け取る。")クラスはオーバーライドされましたが、オプションの通知パラメータについてもっと知りたい方は、どうぞご自由にお読みください！
+
+## 通知のカスタマイズ
+
+Notificationには、このチュートリアルでこれまでに発見したパラメータに加えて、設定できるオプションのパラメータが多数あります。このオプションセクションでは、これらのパラメータについて詳しく説明します。
+
+この最初の関数は`sendLocalNotification()`関数は、すべてのプラットフォームでサポートされているいくつかのオプションのパラメータを埋めます：
+
+```cpp
+    void fillOptionalParamsOne   (juce::PushNotifications::Notification& n)
+    {
+        n.subtitle = paramControls.subtitleEditor.getText();                            // [1.1]
+        n.badgeNumber = paramControls.badgeNumberComboBox.getSelectedItemIndex();       // [1.2]
+ 
+        if (paramControls.soundToPlayComboBox.getSelectedItemIndex() > 0)
+            n.soundToPlay = juce::URL (paramControls.soundToPlayComboBox.getItemText (paramControls.soundToPlayComboBox.getSelectedItemIndex())); // [1.3]
+ 
+        n.properties = juce::JSON::parse (paramControls.propertiesEditor.getText());    // [1.4]
+ 
+      #if JUCE_IOS || JUCE_MAC
+        n.triggerIntervalSec = double (paramControls.fireInComboBox.getSelectedItemIndex() * 10);
+        n.repeat = paramControls.repeatButton.getToggleState();
+      #elif JUCE_ANDROID
+        n.badgeIconType = (juce::PushNotifications::Notification::BadgeIconType) paramControls.badgeIconComboBox.getSelectedItemIndex(); // [2.1]
+        n.tickerText  = paramControls.tickerTextEditor.getText();                       // [2.2]
+ 
+        n.shouldAutoCancel = paramControls.autoCancelButton.getToggleState();           // [2.3]
+        n.alertOnlyOnce = paramControls.alertOnlyOnceButton.getToggleState();           // [2.4]
+      #endif
+ 
+      #if JUCE_ANDROID || JUCE_MAC
+        if (paramControls.actionsComboBox.getSelectedItemIndex() == 1)
+        {
+            juce::PushNotifications::Notification::Action a, a2;
+            a .style = juce::PushNotifications::Notification::Action::button;
+            a2.style = juce::PushNotifications::Notification::Action::button;
+            a .title = a .identifier = "Ok";
+            a2.title = a2.identifier = "Cancel";
+            n.actions.add (a);
+            n.actions.add (a2);
+        }
+        else if (paramControls.actionsComboBox.getSelectedItemIndex() == 2)
+        {
+            juce::PushNotifications::Notification::Action a, a2;
+            a .title = a .identifier = "Input Text Here";
+            a2.title = a2.identifier = "No";
+            a .style = juce::PushNotifications::Notification::Action::text;
+            a2.style = juce::PushNotifications::Notification::Action::button;
+            a .icon = "ic_stat_name4";
+            a2.icon = "ic_stat_name5";
+            a.textInputPlaceholder = "placeholder text ...";
+            n.actions.add (a);
+            n.actions.add (a2);
+        }
+        else if (paramControls.actionsComboBox.getSelectedItemIndex() == 3)
+        {
+            juce::PushNotifications::Notification::Action a, a2;
+            a .title = a .identifier = "Ok";
+            a2.title = a2.identifier = "Cancel";
+            a .style = juce::PushNotifications::Notification::Action::button;
+            a2.style = juce::PushNotifications::Notification::Action::button;
+            a .icon = "ic_stat_name4";
+            a2.icon = "ic_stat_name5";
+            n.actions.add (a);
+            n.actions.add (a2);
+        }
+        else if (paramControls.actionsComboBox.getSelectedItemIndex() == 4)
+        {
+            juce::PushNotifications::Notification::Action a, a2;
+            a .title = a .identifier = "Input Text Here";
+            a2.title = a2.identifier = "No";
+            a .style = juce::PushNotifications::Notification::Action::text;
+            a2.style = juce::PushNotifications::Notification::Action::button;
+            a .icon = "ic_stat_name4";
+            a2.icon = "ic_stat_name5";
+            a.textInputPlaceholder = "placeholder text ...";
+            a.allowedResponses.add ("Response 1");
+            a.allowedResponses.add ("Response 2");
+            a.allowedResponses.add ("Response 3");
+            n.actions.add (a);
+            n.actions.add (a2);
+        }
+      #endif
+    }
+```
+
+- サブタイトル\[1.1\]通知に表示できる追加テキスト。
+- バッジ番号\[1.2\]他の配信通知バッジ番号と合計される前に、バッジアイコンに表示されるカウントを表す数値。
+- サウンド\[1.3\]: 通知がトリガーされたときに再生するカスタムサウンド。通知を無音にしたい場合は、このフィールドを空にしておくか、"default\_os\_sound "を使ってデフォルトのOSサウンドをトリガーしてください。
+- プロパティ\[1.4\]辞書として渡すことができる追加プロパティ。
+
+macOSとiOSでは、通知のトリガーを指定した秒数だけ遅らせたり、当該通知を繰り返すかどうかを決定したりすることもできます。Androidでは、通知の内容に表示する大きな画像を提供し、これらの追加パラメータを指定することができます：
+
+- バッジ・アイコンタイプ\[2.1\]バッジアイコンの大きさ、またはバッジアイコンを隠すかどうか。
+- ティッカーテキスト\[2.2\]アクセシビリティのための追加テキスト。
+- オートキャンセル\[2.3\]: 通知をクリックしたときにキャンセルするかどうか。
+- アラート・ワンス\[2.4\]: 通知がまだ表示されていないときに、音とバイブレーションだけを鳴らすかどうか。
+
+iOSのように通知にアクションボタンを表示させたい場合、AndroidとmacOSでは手動で定義する必要がある。この設定は、基本的にiOSと同様に[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")オブジェクトの詳細については割愛する。
+
+次のパラメーターはアンドロイドのみ。
+
+```cpp
+    void fillOptionalParamsTwo   (juce::PushNotifications::Notification& n)
+    {
+        using Notification = juce::PushNotifications::Notification;
+ 
+        Notification::Progress progress;
+        progress.max     = paramControls.progressMaxComboBox.getSelectedItemIndex() * 10;
+        progress.current = paramControls.progressCurrentComboBox.getSelectedItemIndex() * 10;
+        progress.indeterminate = paramControls.progressIndeterminateButton.getToggleState();
+ 
+        n.progress = progress;                                  // [3.1]
+        n.person   = paramControls.personEditor.getText();      // [3.2]
+        n.type                 = Notification::Type                 (paramControls.categoryComboBox.getSelectedItemIndex());                    // [3.3]
+        n.priority             = Notification::Priority             (paramControls.priorityComboBox.getSelectedItemIndex() - 2);                // [3.4]
+        n.lockScreenAppearance = Notification::LockScreenAppearance (paramControls.lockScreenVisibilityComboBox.getSelectedItemIndex() - 1);    // [3.5]
+        n.groupId = paramControls.groupIdEditor.getText();      // [3.6]
+        n.groupSortKey = paramControls.sortKeyEditor.getText();
+        n.groupSummary = paramControls.groupSummaryButton.getToggleState();
+        n.groupAlertBehaviour = Notification::GroupAlertBehaviour (paramControls.groupAlertBehaviourComboBox.getSelectedItemIndex());
+    }
+```
+
+- 進捗状況\[3.1\]:[Displays](https://docs.juce.com/master/classDisplays.html "接続されているディスプレイデバイスの詳細を管理する。")進捗状況を示す特定の種類の通知。
+- 人物\[3.2\]通知を特定の人に関連付ける。これはメッセージングアプリなどで便利です。
+- タイプ\[3.3\]OSが外観をよりよく処理するために、通知のカテゴリーを指定します。
+- 優先順位\[3.4\]OSへの通知の優先順位を指定することで、より見栄えを良くします。
+- ロック画面の外観\[3.5\]ロック画面に通知を表示するかどうかを設定します。
+- グループ\[3.6\]: ソート順、グループサマリー、グループアラートの動作など、通知のグループに関するパラメーターを指定します。
+
+```cpp
+    void fillOptionalParamsThree (juce::PushNotifications::Notification& n)
+    {
+        n.accentColour = paramControls.accentColourButton.findColour (juce::TextButton::buttonColourId, false);     // [4.1]
+        n.ledColour    = paramControls.ledColourButton   .findColour (juce::TextButton::buttonColourId, false);     // [4.2]
+ 
+        using Notification = juce::PushNotifications::Notification;
+        Notification::LedBlinkPattern ledBlinkPattern;
+        ledBlinkPattern.msToBeOn  = paramControls.ledMsToBeOnComboBox .getSelectedItemIndex() * 200;
+        ledBlinkPattern.msToBeOff = paramControls.ledMsToBeOffComboBox.getSelectedItemIndex() * 200;
+        n.ledBlinkPattern = ledBlinkPattern;                                                                        // [4.3]
+ 
+        juce::Array vibrationPattern;
+ 
+        if (paramControls.vibratorMsToBeOnComboBox .getSelectedItemIndex() > 0 &&
+            paramControls.vibratorMsToBeOffComboBox.getSelectedItemIndex() > 0)
+        {
+            vibrationPattern.add (paramControls.vibratorMsToBeOffComboBox.getSelectedItemIndex() * 500);
+            vibrationPattern.add (paramControls.vibratorMsToBeOnComboBox .getSelectedItemIndex() * 500);
+            vibrationPattern.add (2 * paramControls.vibratorMsToBeOffComboBox.getSelectedItemIndex() * 500);
+            vibrationPattern.add (2 * paramControls.vibratorMsToBeOnComboBox .getSelectedItemIndex() * 500);
+        }
+ 
+        n.vibrationPattern = vibrationPattern;                                                                      // [4.4]
+ 
+        n.localOnly = paramControls.localOnlyButton.getToggleState();                                               // [4.5]
+        n.ongoing = paramControls.ongoingButton.getToggleState();                                                   // [4.6]
+        n.timestampVisibility = Notification::TimestampVisibility (paramControls.timestampVisibilityComboBox.getSelectedItemIndex()); // [4.7]
+ 
+        if (paramControls.timeoutAfterComboBox.getSelectedItemIndex() > 0)
+        {
+            auto index = paramControls.timeoutAfterComboBox.getSelectedItemIndex();
+            n.timeoutAfterMs = index * 1000 + 4000;                                                                 // [4.8]
+        }
+    }
+```
+
+- アクセントカラー\[4.1\]通知のアクセントカラーを変更します。
+- LEDカラー\[4.2\]デバイス背面の物理LEDの色を変更します。
+- LED点滅パターン\[4.3\]物理LEDの点滅パターンをカスタマイズ可能。
+- 振動パターン\[4.4\]物理デバイスの振動パターンをカスタマイズできます。
+- ローカル\[4.5\]他の接続されたユーザー機器に通知をブロードキャストするかどうか。
+- 継続中\[4.6\]ユーザが通知を解除できるか、システムが手動で解除できるか。
+- タイムスタンプ\[4.7\]: 通知にタイムスタンプまたはクロノメーターを表示するかどうか。
+- タイムアウト\[4.8\]: 通知が自動的にキャンセルされるまでの時間を指定します。
+
+:::note
+
+この修正版のソースコードは`PushNotificationsTutorial_02.h`ファイルにある。
+
+:::
+
+## 概要
+
+このチュートリアルでは、モバイルとデスクトップでプッシュ通知を扱う方法を学びました。特に
+
+- さまざまな配備プラットフォームの予備セットアップをカバー。
+- 通知を許可するユーザー権限をシステムに要求。
+- シンプルなメッセージをアプリ内のローカル通知として表示。
+- リモートサーバーから送信されたプッシュ通知を処理。
+- 写真を表示したり、サウンドを再生したりして、通知をカスタマイズ。
+
+## 参照
+
+- [Tutorial: Getting started with Android](../tutorial_android_studio/)
+- [Tutorial: Managing Android screen sizes](../tutorial_android_screen_sizes/)
+- [Tutorial: App analytics collection](../../utility-classes/tutorial_analytics_collection/)
+- [Tutorial: In-App Purchases on desktop and mobile devices](../tutorial_in_app_purchases/)
+- [Tutorial: Package your app or plugin for distribution](../../utility-classes/tutorial_app_plugin_packaging/)

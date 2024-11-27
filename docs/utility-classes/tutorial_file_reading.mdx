@@ -1,75 +1,76 @@
 ---
-title: File reading
+title: ファイル閲覧
 sidebar_position: 3
+tags: [初級]
 ---
+
+# チュートリアルファイルの読み込み
 
 <SourcePageLink path="tutorial_file_reading" />
 
-# Tutorial: File reading
+テキストファイルやバイナリファイルを開いてデータを読み込む。
 
-Open and read data from text and binary files.
+レベル初心者
 
-Level: Beginner
+プラットフォーム：Windows, macOS, Linux
 
-Platforms: Windows, macOS, Linux
+クラス： [File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。"),[FileInputStream](https://docs.juce.com/master/classFileInputStream.html "ローカルファイルから読み込む入力ストリーム。"),[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。"),[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。"),[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！"),[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "リサイズ可能な生データ・ブロックを保持するクラス。")
 
-Classes: [File](https://docs.juce.com/master/classFile "Represents a local file or directory."), [FileInputStream](https://docs.juce.com/master/classFileInputStream "An input stream that reads from a local file."), [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se..."), [TextEditor](https://docs.juce.com/master/classTextEditor "An editable text box."), [String](https://docs.juce.com/master/classString "The JUCE String class!"), [MemoryBlock](https://docs.juce.com/master/classMemoryBlock "A class to hold a resizable block of raw data.")
+## スタート
 
-## はじめる
+このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/FileReadingTutorial.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/FileReadingTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
-Download the demo project for this tutorial here: [PIP](/tutorials/PIPs/FileReadingTutorial.zip) | [ZIP](/tutorials/ZIPs/FileReadingTutorial.zip). Unzip the project and open the first header file in the Projucer.
+このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
 
-If you need help with this step, see [Tutorial: Projucer Part 1: Getting started with the Projucer](../tutorial_new_projucer_project/).
+## デモ・プロジェクト
 
-# The demo project
+デモ・プロジェクトでは、ファイルを選択するためのシンプルなウィンドウが表示されます。[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。")オブジェクトに変換される。このファイルが開かれ、文字列として読み込まれて[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")コンポーネントを使用している。
 
-The demo project presents a simple window which allows you to select a file, using a [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se...") object. This file is opened, read as a string, and displayed in a [TextEditor](https://docs.juce.com/master/classTextEditor "An editable text box.") component.
+## JUCEのファイル
 
-# Files in JUCE
+このチュートリアルでは、JUCEを使ってファイルを読むための基本的なテクニックを説明します。異なるオペレーティングシステム上のファイルシステムは、時として全く異なる方法で動作するためです。JUCE を使用する開発者であれば、このような問題から免れることはできませんが、JUCE は異なるプラットフォーム間でより一貫した体験を提供します。
 
-This tutorial illustrates the basic techniques for reading files using JUCE. Files are one aspect of cross-platform development that need to be handled carefully because file systems on different operating systems sometimes work in quite different ways. As a developer using JUCE you are not immune to these problems, but JUCE makes the experience more consistent across different platforms and will often raise assertions in your debug builds if it can see that your code does something that may lead to problems.
+### ファイルクラス
 
-## The File class
+について[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。")クラスは*絶対*ファイルやディレクトリへのパス（実際に存在するかどうかは問わない）。最も簡単な方法は[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。")オブジェクトを渡すことである。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")には絶対パスが含まれる。例えば、macOS、Linux、Androidの場合、次のような絶対パスになります：
 
-The [File](https://docs.juce.com/master/classFile "Represents a local file or directory.") class in JUCE represents an *absolute* path to a file or a directory (whether it actually exists or not). The simplest way to create a [File](https://docs.juce.com/master/classFile "Represents a local file or directory.") object is to pass it a [String](https://docs.juce.com/master/classString "The JUCE String class!") that contains the absolute path. For example, on macOS, Linux or Android the following would be an absolute path:
-
-```
+```cpp
 juce::File path ("/path/to/file.txt");
 ```
 
-But the [File](https://docs.juce.com/master/classFile "Represents a local file or directory.") class enables ways of manipulating paths by requesting child files that are relative to a parent directory, obtaining the parent directory, and so on. For example, the code above could be rewritten using the [File::getChildFile()](classFile.html#a087bb8f0a60069234b13ab965fb5014a "Returns a file that represents a relative (or absolute) sub-path of the current one.") function like so:
+しかし[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。")クラスは、親ディレクトリからの相対パスを持つ子ファイルを要求したり、親ディレクトリを取得したりすることで、パスを操作する方法を可能にします。例えば、上のコードは[File::getChildFile()](https://docs.juce.com/master/classFile.html#a087bb8f0a60069234b13ab965fb5014a "現在のサブパスの相対パス（または絶対パス）を表すファイルを返す。")関数は次のようになる：
 
-```
+```cpp
 juce::File path (File ("/path").getChildFile ("to").getChildFile ("file.txt"));
-FileRepresents a local file or directory.Definition juce_File.h:48
+FileRepresents a local file or directory.Definition juce_File.h:60
 ```
 
-In this example the code has become more verbose but in real-world scenarios it is common to need to access multiple files from the same directory. Therefore, it makes sense to store the parent directory in one [File](https://docs.juce.com/master/classFile "Represents a local file or directory.") object and request child files as and when they are needed.
+この例では、コードがより冗長になったが、実際のシナリオでは、同じディレクトリから複数のファイルにアクセスする必要があることはよくある。したがって、親ディレクトリを1つの[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。")オブジェクトを作成し、必要なときに子ファイルをリクエストする。
 
-On Windows, an equivalent absolute path might be:
+Windowsの場合、同等の絶対パスは次のようになる：
 
-```
+```cpp
 juce::File path ("C:\path\to\file.txt");
 ```
 
-Dealing with child and parent directories is the same on each platform. JUCE handles the platform differences (such as path separators).
+子ディレクトリと親ディレクトリの扱いは各プラットフォームで同じです。JUCEはプラットフォームの違い(パスの区切り文字など)を処理します。
 
-## The FilenameComponent class
+### FilenameComponentクラス
 
-In this tutorial we are going to use a [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se...") object to allow the user to select a file using a standard operating system window. We can attach a listener to the [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se...") object (see [Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)) and when the file changes we can obtain the currently chosen file as a [File](https://docs.juce.com/master/classFile "Represents a local file or directory.") object.
+このチュートリアルでは[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。")オブジェクトにリスナーをアタッチすれば、標準的なオペレーティング・システム・ウィンドウを使ってユーザーがファイルを選択できるようになる。リスナーを[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。")オブジェクト（参照[Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)として取得できる。[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。")オブジェクトがある。
 
-A [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se...") object shows a text box that contains an absolute path. It also provides a button for the user to select a file from the operating system. There is also a drop-down menu that contains a list of recently used files. This is populated automatically during use, but these recently-used files can be added manually too (for example, hardcoded into your application or from a preferences file).
+A[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。")オブジェクトは絶対パスを含むテキストボックスを表示します。また、ユーザーがオペレーティング・システムからファイルを選択するためのボタンもあります。最近使ったファイルのリストを含むドロップダウンメニューもあります。これは使用中に自動的に入力されますが、最近使用したファイルを手動で追加することもできます（例えば、アプリケーションにハードコードしたり、環境設定ファイルから）。
 
-As we will see in a moment, the [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se...") constructor has quite a few arguments—and it doesn't have a default constructor. When this is the case, it is often easier to store child components in std::unique\_ptr objects. (Since this means that they don't have to be initialised in the class initialiser list in the constructor.) We also need a [TextEditor](https://docs.juce.com/master/classTextEditor "An editable text box.") component, which we will use to display the file's contents. The [TextEditor](https://docs.juce.com/master/classTextEditor "An editable text box.") class *does* have a default constructor, but for consistency we store both component objects in std::unique\_ptr objects:
+すぐにわかるように[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。")コンストラクタには多くの引数があり、デフォルトのコンストラクタはありません。このような場合、子コンポーネントをstd::unique\_ptrオブジェクトに格納する方が簡単なことがよくあります。(これは、コンストラクタのクラス初期化リストで初期化する必要がないことを意味します）。また[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")コンポーネントを使い、ファイルの内容を表示する。この[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")クラス*する*にはデフォルトのコンストラクタがありますが、一貫性を保つために、両方のコンポーネント・オブジェクトをstd::unique\_ptrオブジェクトに格納します：
 
-```
+```cpp
     std::unique_ptr fileComp;
     std::unique_ptr        textContent;
 ```
 
-In our `MainContentComponent` constructor we allocate a new [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se...") object and initialise it with some settings suitable for opening files (since the [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se...") class can also be used for choosing locations for saving files too). Within this constructor we can provide a list of file suffixes that we wish to be able to select (for example, `"*.txt;*.foo"`). We can also enforce a suffix (which is more useful for saving files). In both of these arguments we pass an empty string, which means that no filtering will be performed. Other arguments are self-explanatory, defining other ways that we want the [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se...") object to behave (see the comments in the code):
+我々の`MainContentComponent`コンストラクタで新しい[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。")オブジェクトを作成し、ファイルを開くのに適した設定で初期化する。[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。")クラスは、ファイルを保存する場所の選択にも使用できます)。このコンストラクタの中で、選択したいファイルの接尾辞のリストを指定することができます（たとえば、以下のようになります、`"*.txt;*.foo"`).また、接尾辞を強制することもできる（ファイルを保存するときに便利）。どちらの引数にも空文字列を渡しますが、これはフィルタリングが実行されないことを意味します。その他の引数は自明なものであり、フィルタリングを実行させたい他の方法を定義している。[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。")オブジェクトを動作させる（コード中のコメントを参照）：
 
-```
+```cpp
     MainContentComponent()
     {
         fileComp.reset (new juce::FilenameComponent ("fileComp",
@@ -84,9 +85,9 @@ In our `MainContentComponent` constructor we allocate a new [FilenameComponent](
         fileComp->addListener (this);
 ```
 
-In the [FilenameComponentListener](https://docs.juce.com/master/classFilenameComponentListener "Listens for events happening to a FilenameComponent.") callback we obtain the currently chosen file and pass it to our `readFile()` function:
+の中で[FilenameComponentListener](https://docs.juce.com/master/classFilenameComponentListener.html "FilenameComponentに発生するイベントをリッスンします。")コールバックは、現在選択されているファイルを取得し、それを`readFile()`関数である：
 
-```
+```cpp
     void filenameComponentChanged (juce::FilenameComponent* fileComponentThatHasChanged) override
     {
         if (fileComponentThatHasChanged == fileComp.get())
@@ -94,9 +95,9 @@ In the [FilenameComponentListener](https://docs.juce.com/master/classFilenameCom
     }
 ```
 
-In each of the examples that follow, the `readFile()` function will read the chosen file in different ways. But we need somewhere to display the results, so we set up a [TextEditor](https://docs.juce.com/master/classTextEditor "An editable text box.") component in our `MainContentComponent` constructor too:
+以下の各例では`readFile()`関数は、選択されたファイルをさまざまな方法で読み込む。しかし、結果を表示する場所が必要だ。[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")のコンポーネントである。`MainContentComponent`コンストラクタも同様だ：
 
-```
+```cpp
         textContent.reset (new juce::TextEditor());
         addAndMakeVisible (textContent.get());
         textContent->setMultiLine (true);
@@ -107,11 +108,11 @@ In each of the examples that follow, the `readFile()` function will read the cho
     }
 ```
 
-## Reading a whole file into a string
+### ファイル全体を文字列に読み込む
 
-While the [File](https://docs.juce.com/master/classFile "Represents a local file or directory.") class is designed primarily to store and manipulate paths to files, there are a few convenient functions for reading files in really simple ways. For example, the [File::loadFileAsString()](classFile.html#a07b95f6831ee4ed5b49241ce6af8539d "Reads a file into memory as a string.") function does exactly what it says: it reads a whole file into a [String](https://docs.juce.com/master/classString "The JUCE String class!") object. Of course, if the file selected isn't a text file then the result may be impossible to make sense of (although JUCE won't crash). This function can detect and read both UTF-8 and UTF-16 formats:
+一方[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。")クラスは主にファイルへのパスを保存し操作するために設計されているが、実に単純な方法でファイルを読み込むための便利な関数がいくつかある。たとえば[File::loadFileAsString()](https://docs.juce.com/master/classFile.html#a07b95f6831ee4ed5b49241ce6af8539d "ファイルを文字列としてメモリに読み込む。")関数はその言葉どおり、ファイル全体を[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトに変換されます。もちろん、選択されたファイルがテキストファイルでない場合、結果は意味をなさないかもしれません(JUCEはクラッシュしませんが)。この関数は、UTF-8 形式と UTF-16 形式の両方を検出して読み込むことができます：
 
-```
+```cpp
     void readFile (const juce::File& fileToRead)
     {
         if (! fileToRead.existsAsFile()) // [1]
@@ -123,27 +124,28 @@ While the [File](https://docs.juce.com/master/classFile "Represents a local file
     }
 ```
 
-Notice that we check to see if the file chosen actually exists \[1\]. Since we chose the file from the operating systems then this shouldn't fail, but it's good practice to make these kinds of checks when dealing with files. Run the app and load the `juce.txt` text file provided in the `Resources` directory of the demo project. The result will be as shown in the following screenshot:
+選択されたファイルが実際に存在するかどうかをチェックしていることに注意してください。\[1\].オペレーティング・システムからファイルを選んだのだから、失敗することはないはずだが、ファイルを扱うときにはこのようなチェックをするのが良い習慣だ。アプリを実行し`juce.txt`テキストファイル`Resources`ディレクトリに移動します。結果は以下のスクリーンショットのようになります：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_file_reading_screenshot1.png"
+  caption="テキストファイルの読み込みと表示"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_file_reading_screenshot1.png" caption="Reading and displaying a text file" />
+等価な関数がある。[File::loadFileAsData()](https://docs.juce.com/master/classFile.html#a889b8b0784b4f97c5bf93ffc24c3650d "ファイルの内容をバイナリデータのブロックとしてメモリにロードする。")\-ファイル全体を[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "リサイズ可能な生データ・ブロックを保持するクラス。")オブジェクトがある。
 
+### ファイルを一行ずつ読む
 
-There is an equivalent function—[File::loadFileAsData()](classFile.html#a889b8b0784b4f97c5bf93ffc24c3650d "Loads a file's contents into memory as a block of binary data.")—to read an entire file into a [MemoryBlock](https://docs.juce.com/master/classMemoryBlock "A class to hold a resizable block of raw data.") object.
-
-## Reading a file line by line
-
-For more control over the file reading process, you will need to use a [FileInputStream](https://docs.juce.com/master/classFileInputStream "An input stream that reads from a local file.") object. One way to do this is to construct a [FileInputStream](https://docs.juce.com/master/classFileInputStream "An input stream that reads from a local file.") object by passing its constructor the [File](https://docs.juce.com/master/classFile "Represents a local file or directory.") object that represents the file you want to read \[2\].
+ファイル読み込みプロセスをよりコントロールするには[FileInputStream](https://docs.juce.com/master/classFileInputStream.html "ローカルファイルから読み込む入力ストリーム。")オブジェクトを作成します。これを行う一つの方法は[FileInputStream](https://docs.juce.com/master/classFileInputStream.html "ローカルファイルから読み込む入力ストリーム。")オブジェクトのコンストラクタに渡す。[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。")読み込みたいファイルを表すオブジェクト\[2\].
 
 :::note
 
-The [FileInputStream](https://docs.juce.com/master/classFileInputStream "An input stream that reads from a local file.") class is a subclass of the [InputStream](https://docs.juce.com/master/classInputStream "The base class for streams that read data.") class, which is the base class for streams that read data.
+について[FileInputStream](https://docs.juce.com/master/classFileInputStream.html "ローカルファイルから読み込む入力ストリーム。")クラスは[InputStream](https://docs.juce.com/master/classInputStream.html "データを読み込むストリームの基本クラス。")これは、データを読み込むストリームの基本クラスである。
 
 :::
 
-Add the following code:
+以下のコードを追加する：
 
-```
+```cpp
     void readFile (const juce::File& fileToRead)
     {
         if (! fileToRead.existsAsFile())
@@ -155,9 +157,9 @@ Add the following code:
             return;  // failed to open
 ```
 
-We are going to read the file line by line, but we are also going to detect lines that start with the "\*" character. Then we'll format these lines in a different font, using these lines as headings for the other text. Add the following code:
+ファイルを一行ずつ読み込むが、"\*"文字で始まる行も検出する。そして、これらの行を別のフォントでフォーマットし、他のテキストの見出しとして使用します。次のコードを追加する：
 
-```
+```cpp
         textContent->clear();
  
         auto normalFont = textContent->getFont();
@@ -165,9 +167,9 @@ We are going to read the file line by line, but we are also going to detect line
         juce::String asterix ("*");
 ```
 
-The next part is to read data from the `inputStream` object, in a `while()` loop, until the stream is exhausted \[3\]. Add this:
+次の部分は`inputStream`オブジェクトの`while()`ループ、ストリームがなくなるまで\[3\].これを加える：
 
-```
+```cpp
         while (! inputStream.isExhausted()) // [3]
         {
             auto line = inputStream.readNextLine();
@@ -188,29 +190,32 @@ The next part is to read data from the `inputStream` object, in a `while()` loop
     }
 ```
 
-You can see that this:
+これでわかるだろう：
 
--   reads a line, using the [InputStream::readNextLine()](classInputStream.html#af16acc8f2fd769adb559a781ece8e903 "Reads a UTF-8 string from the stream, up to the next linefeed or carriage return.") function,
--   checks to see if the line starts with a "\*",
--   sets the font for the `textContent` object accordingly,
--   removes any "\*" characters, if necessary, and
--   appends line of text to the `textContent` object.
+- を使用して行を読み取る。[InputStream::readNextLine()](https://docs.juce.com/master/classInputStream.html#af16acc8f2fd769adb559a781ece8e903 "ストリームからUTF-8文字列を、次の改行または復帰まで読み込む。")関数である、
+- で始まる行かどうかをチェックする、
+- のフォントを設定します。`textContent`オブジェクトを適宜使用する、
+- を削除する。
+- にテキスト行を追加する。`textContent`オブジェクトがある。
 
-Loading the same `juce.txt` file should result in the something like the following screenshot:
+同じものを積む`juce.txt`ファイルは以下のスクリーンショットのようになるはずだ：
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_file_reading_screenshot2.png"
+  caption="ファイルを一行ずつ読む"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_file_reading_screenshot2.png" caption="Reading the file line by line" />
 :::note
 
-The code for the example in this subsection can be found in the `FileReadingTutorial_02.h` file of the demo project.
+このサブセクションの例のコードは`FileReadingTutorial_02.h`ファイルにある。
 
 :::
 
-## Reading a file byte by byte
+### ファイルをバイトごとに読む
 
-The [InputStream](https://docs.juce.com/master/classInputStream "The base class for streams that read data."), and therefore [FileInputStream](https://docs.juce.com/master/classFileInputStream "An input stream that reads from a local file."), classes also have functions for reading files in smaller pieces, right down to reading a byte at a time. To illustrate this, let's load a text file and display each word in a different colour. First let's add a function to generate random colours. Add this function which generates a random colour, but clips the brightness to a specified minimum (this is to ensure that the colour will be visible against the black background):
+について[InputStream](https://docs.juce.com/master/classInputStream.html "データを読み込むストリームの基本クラス。")したがって[FileInputStream](https://docs.juce.com/master/classFileInputStream.html "ローカルファイルから読み込む入力ストリーム。")また、クラスには、ファイルを1バイトずつ細かく読み込む関数もある。これを説明するために、テキスト・ファイルを読み込んで、それぞれの単語を異なる色で表示してみよう。まず、ランダムな色を生成する関数を追加しましょう。この関数を追加すると、ランダムな色が生成されるが、明るさは指定した最小値にクリップされる（これは、黒い背景から色が見えるようにするためである）：
 
-```
+```cpp
     static juce::Colour getRandomColour (float minBrightness)
     {
         auto& random = juce::Random::getSystemRandom();
@@ -223,9 +228,9 @@ The [InputStream](https://docs.juce.com/master/classInputStream "The base class 
     }
 ```
 
-Now let's add a function that reads data from a [FileInputStream](https://docs.juce.com/master/classFileInputStream "An input stream that reads from a local file.") object until it reaches a space character. This will then return the text up to, and including, the space. It creates a small memory buffer, using the [MemoryBlock](https://docs.juce.com/master/classMemoryBlock "A class to hold a resizable block of raw data.") class, then uses the [InputStream::readByte()](classInputStream.html#a2e5944641712d84b6da2eee5d394326a "Reads a byte from the stream.") function to read bytes one at a time from the `inputStream` object:
+次に、データを[FileInputStream](https://docs.juce.com/master/classFileInputStream.html "ローカルファイルから読み込む入力ストリーム。")オブジェクトをスペース文字に達するまで返します。そして、そのスペースまでのテキストを返します。これは小さなメモリー・バッファを作り[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "リサイズ可能な生データ・ブロックを保持するクラス。")クラスを使用しています。[InputStream::readByte()](https://docs.juce.com/master/classInputStream.html#a2e5944641712d84b6da2eee5d394326a "ストリームからバイトを読み込む。")関数から1バイトずつ読み込む。`inputStream`オブジェクトがある：
 
-```
+```cpp
     static juce::String readUpToNextSpace (juce::FileInputStream& inputStream)
     {
         juce::MemoryBlock buffer (256);
@@ -240,11 +245,11 @@ Now let's add a function that reads data from a [FileInputStream](https://docs.j
     }
 ```
 
-The [String::fromUTF8()](classString.html#aa0116dc51d7bdd363d14c72bba60060a "Creates a String from a UTF-8 encoded buffer.") \[4\] function attempts to convert the raw binary data to a [String](https://docs.juce.com/master/classString "The JUCE String class!") object.
+について[String::fromUTF8()](https://docs.juce.com/master/classString.html#aa0116dc51d7bdd363d14c72bba60060a "UTF-8 でエンコードされたバッファから文字列を作成します。") \[4\]関数は、生のバイナリデータを[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトがある。
 
-Finally, in our `readFile()` function, we use our `readUpToNextSpace` function to read the words from the text file until the stream is exhausted. Add the following code:
+最後に`readFile()`関数を使用します。`readUpToNextSpace`関数を使用して、ストリームがなくなるまでテキストファイルから単語を読み込む。以下のコードを追加する：
 
-```
+```cpp
 void readFile (const juce::File& fileToRead)
 {
     if (! fileToRead.existsAsFile())
@@ -266,19 +271,22 @@ void readFile (const juce::File& fileToRead)
 }
 ```
 
-Running this code will result in something like the following screenshot.
+このコードを実行すると、以下のスクリーンショットのようになる。
 
+<CaptionImage
+  src="https://docs.juce.com/master/tutorial_file_reading_screenshot3.png"
+  caption="ファイルを分割して読む"
+/>
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_file_reading_screenshot3.png" caption="Reading the file in smaller chunks" />
 :::note
 
-The code for the example in this subsection can be found in the `FileReadingTutorial_03.h` file of the demo project.
+このサブセクションの例のコードは`FileReadingTutorial_03.h`ファイルにある。
 
 :::
 
-An alternative way of creating a [FileInputStream](https://docs.juce.com/master/classFileInputStream "An input stream that reads from a local file.") object is to use the [File::createInputStream()](classFile.html#a668db4b90ac7839c70f0a9ac22124c29 "Creates a stream to read from this file.") function. This function returns a [FileInputStream](https://docs.juce.com/master/classFileInputStream "An input stream that reads from a local file.") object on the heap, allocated using the `new` operator. This means that it is *very* important that you deallocate the object when you are finished. Ideally, you should use a std::unique\_ptr object for this. A slight difference here is that the [File::createInputStream()](classFile.html#a668db4b90ac7839c70f0a9ac22124c29 "Creates a stream to read from this file.") function will return a `nullptr` value if the file stream fails to open. The following code shows the typical pattern that you should use in this case:
+を作成する別の方法がある。[FileInputStream](https://docs.juce.com/master/classFileInputStream.html "ローカルファイルから読み込む入力ストリーム。")オブジェクトは[File::createInputStream()](https://docs.juce.com/master/classFile.html#a668db4b90ac7839c70f0a9ac22124c29 "このファイルから読み込むストリームを作成します。")関数を使用します。この関数は[FileInputStream](https://docs.juce.com/master/classFileInputStream.html "ローカルファイルから読み込む入力ストリーム。")オブジェクトをヒープ上に割り当てた。`new`演算子である。これはつまり*とても*終了したらオブジェクトをデアロケートすることが重要である。理想的には、このためにstd::unique\_ptrオブジェクトを使うべきである。ここでの若干の違いは[File::createInputStream()](https://docs.juce.com/master/classFile.html#a668db4b90ac7839c70f0a9ac22124c29 "このファイルから読み込むストリームを作成します。")関数は`nullptr`値を返します。次のコードは、この場合に使用すべき典型的なパターンを示している：
 
-```
+```cpp
     void readFile (const juce::File& fileToRead)
     {
         if (! fileToRead.existsAsFile())
@@ -298,30 +306,34 @@ An alternative way of creating a [FileInputStream](https://docs.juce.com/master/
     }
 ```
 
-You may notice that the colours of words at the ends of some lines are identical to the colour of the word at the start of the next line. This is because we are looking only for the space character as a delimiter. Modify the code to look for new line, carriage return, and tab characters too. (These are characters `'\n'`, `'\r'`, and `'\t'`.)
+:::danger[エクササイズ]
 
-# Reading binary data
+行末の単語の色が、次の行頭の単語の色と同じであることに気づくかもしれない。これは、区切り文字としてスペース文字だけを探しているためです。改行、キャリッジ・リターン、タブ文字も探すようにコードを修正してください。(これらは文字`'\n'`,`'\r'`そして`'\t'`.)
 
-In this tutorial we have looked at reading string data from a file. In addition to reading single bytes from a file, the [InputStream](https://docs.juce.com/master/classInputStream "The base class for streams that read data.") class also includes functions for reading other fundamental types. For example:
+:::
 
--   [InputStream::readInt()](classInputStream.html#a59eb456ebfbe9d4c7fdfd4c14337e19a "Reads four bytes from the stream as a little-endian 32-bit value.") — reads an `int` (32-bit) from the stream.
--   [InputStream::readShort()](classInputStream.html#a0c4b0f9f1fa9515fea5a98d2ffe7ae02 "Reads two bytes from the stream as a little-endian 16-bit value.") — reads a `short` (16-bit) integer from the stream.
--   [InputStream::readFloat()](classInputStream.html#a46d7f191f1872bc27550db3fa0733f59 "Reads four bytes as a 32-bit floating point value.") — reads a `float` (32-bit) from the stream.
+## バイナリデータの読み取り
 
-These all read multi-byte values using the little endian byte order. To read them as big endian values there are alternative versions—for example, the [InputStream::readIntBigEndian()](classInputStream.html#a84ab1bcc547eee621c4c6c2502af808d "Reads four bytes from the stream as a big-endian 32-bit value.") function. You can also read a block of data from a stream using the [InputStream::read()](classInputStream.html#aa5350c414bad6b97ae3b463a3401c0d6 "Reads some data from the stream into a memory buffer.") or [InputStream::readIntoMemoryBlock()](classInputStream.html#a7708d25af96e8d8b937a4642dcf55a23 "Reads from the stream and appends the data to a MemoryBlock.") functions.
+このチュートリアルでは、ファイルからの文字列データの読み取りについて見てきた。ファイルから1バイトを読み取るだけでなく[InputStream](https://docs.juce.com/master/classInputStream.html "データを読み込むストリームの基本クラス。")クラスには、他の基本型を読み取るための関数も含まれています。例えば
 
-These are useful if you need to read existing files in binary format, or if you really need to have your data stored as binary. In most cases, it is probably preferable to use XML (using the [XmlDocument](https://docs.juce.com/master/classXmlDocument "Parses a text-based XML document and creates an XmlElement object from it.") and [XmlElement](https://docs.juce.com/master/classXmlElement "Used to build a tree of elements representing an XML document.") classes) or [JSON](https://docs.juce.com/master/classJSON "Contains static methods for converting JSON-formatted text to and from var objects.") (by storing data in var objects) for storing and reading your data.
+- [InputStream::readInt()](https://docs.juce.com/master/classInputStream.html#a59eb456ebfbe9d4c7fdfd4c14337e19a "ストリームから4バイトをリトルエンディアンの32ビット値として読み込む。")\- を読む。`int`(32ビット)をストリームから取得する。
+- [InputStream::readShort()](https://docs.juce.com/master/classInputStream.html#a0c4b0f9f1fa9515fea5a98d2ffe7ae02 "ストリームから2バイトをリトルエンディアンの16ビット値として読み込む。")\- を読む。`short`(ストリームからの（16ビット）整数。
+- [InputStream::readFloat()](https://docs.juce.com/master/classInputStream.html#a46d7f191f1872bc27550db3fa0733f59 "4バイトを32ビット浮動小数点値として読み込む。")\- を読む。`float`(32ビット)をストリームから取得する。
 
-# 概要
+これらはすべて、リトルエンディアンバイトオーダーでマルチバイト値を読み込む。ビッグエンディアンの値として読み込むには、別のバージョンがある。[InputStream::readIntBigEndian()](https://docs.juce.com/master/classInputStream.html#a84ab1bcc547eee621c4c6c2502af808d "ストリームから4バイトをビッグエンディアンの32ビット値として読み込む。")関数を使用する。また、ストリームからデータ・ブロックを読み込むには[InputStream::read()](https://docs.juce.com/master/classInputStream.html#aa5350c414bad6b97ae3b463a3401c0d6 "ストリームからメモリ・バッファにデータを読み込む。")または[InputStream::readIntoMemoryBlock()](https://docs.juce.com/master/classInputStream.html#a7708d25af96e8d8b937a4642dcf55a23 "ストリームから読み取り、データをMemoryBlockに追加する。")の機能がある。
 
-This tutorial has introduced simple file reading technique using JUCE through reading a text file in various ways. In particular you should be able to:
+これらは、既存のファイルをバイナリ形式で読み込む必要がある場合や、データをバイナリとして保存する必要が本当にある場合に便利です。たいていの場合は、XMLを使うのが望ましいだろう（XMLでは[XmlDocument](https://docs.juce.com/master/classXmlDocument.html "テキストベースの XML ドキュメントを解析し、XmlElement オブジェクトを作成します。")そして[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")クラス）または[JSON](https://docs.juce.com/master/classJSON.html "JSON 形式のテキストを var オブジェクトとの間で変換するための静的メソッドが含まれています。")(varオブジェクトにデータを格納することによって）データを格納したり読み取ったりすることができます。
 
--   Use the [FilenameComponent](https://docs.juce.com/master/classFilenameComponent "Shows a filename as an editable text box, with a 'browse' button and a drop-down list for recently se...") and the [FilenameComponentListener](https://docs.juce.com/master/classFilenameComponentListener "Listens for events happening to a FilenameComponent.") to store a file path and offer the user a means of choosing a file.
--   Read the entire contents of a file into a [String](https://docs.juce.com/master/classString "The JUCE String class!") object.
--   Read a file in smaller chunks using the appropriate [InputStream](https://docs.juce.com/master/classInputStream "The base class for streams that read data.") functions.
+## 概要
 
-# 関連項目
+このチュートリアルでは、様々な方法でテキストファイルを読むことを通して、JUCEを使用した簡単なファイル読み取りのテクニックを紹介しました。特に、以下のことができるようになるはずです：
 
--   [Tutorial: Colours in JUCE](../tutorial_colours/)
--   [Tutorial: The Label class](../tutorial_label/)
--   [Tutorial: Build an audio player](../tutorial_playing_sound_files/)
+- を使用する。[FilenameComponent](https://docs.juce.com/master/classFilenameComponent.html "ファイル名を編集可能なテキストボックスとして表示し、「ブラウズ」ボタンと最近使用したファイルのドロップダウンリストを表示します。")そして[FilenameComponentListener](https://docs.juce.com/master/classFilenameComponentListener.html "FilenameComponentに発生するイベントをリッスンします。")ファイルパスを保存し、ユーザーにファイルを選択する手段を提供する。
+- ファイルの内容全体を[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトがある。
+- 適切な[InputStream](https://docs.juce.com/master/classInputStream.html "データを読み込むストリームの基本クラス。")の機能がある。
+
+## 参照
+
+- [Tutorial: Colours in JUCE](../../interface-design/tutorial_colours/)
+- [Tutorial: The Label class](../../interface-design/tutorial_label/)
+- [Tutorial: Build an audio player](../../audio/tutorial_playing_sound_files/)
