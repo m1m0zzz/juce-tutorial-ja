@@ -49,13 +49,13 @@ tags: [上級]
 
 | プラグインタイプ | ディレクトリタイプ | Windowsインストールディレクトリ |
 | --- | --- | --- |
-| VST | 共有 | C:¥Program Files¥VstPlugins |
-| 共有 | C:◆Program Files |
-| 共有 | C:¥Program Files¥Common Files¥VST2 |
-| 共有 | C:◆Program Files |
-| VST3 | 共有 | C:¥Program Files¥Common Files¥VST3 |
-| RTAS | 共有 | C:♪Program Files ♪Common Files |
-| AAX | 共有 | C:♪Program Files\\ Common Files |
+| VST | 共有 | C:\\Program Files\\VstPlugins |
+| 共有 | C:\\Program Files |
+| 共有 | C:\\Program Files\\Common Files\\VST2 |
+| 共有 | C:\\Program Files |
+| VST3 | 共有 | C:\\Program Files\\Common Files\\VST3 |
+| RTAS | 共有 | C:\\Program Files\\Common Files |
+| AAX | 共有 | C:\\Program Files\\ Common Files |
 
 :::note
 
@@ -233,9 +233,9 @@ Source: "TestPlugin.aaxplugin\*"; DestDir: "{app}\Avid\Audio\Plug-Ins\TestPlugin
 
 Windowsの一般的なパスの位置に対する特定のショットカットは、目的の変数を中かっこで囲むことで、この構文フォーマットで利用できる。
 
-- {pf}：Program Files "のショートカット。`C:\Program Files`.
-- {cf}：にある「共通ファイル」のショートカット`C:\Program Files\Common Files`.
-- {app}：app}：インストール中にユーザーが選択した、インストール先アプリケーションディレクトリのショートカット。
+- \{pf\}：Program Files "のショートカット。`C:\Program Files`.
+- \{cf\}：にある「共通ファイル」のショートカット`C:\Program Files\Common Files`.
+- \{app\}：インストール中にユーザーが選択した、インストール先アプリケーションディレクトリのショートカット。
 
 デフォルトのインストール・ディレクトリを指定するために`DefaultDirName`変数を "Common Files "ディレクトリに追加することもできますが、セットアップインストーラを実行する際に、このようにプラグインを別の場所にインストールすることもできます：
 
