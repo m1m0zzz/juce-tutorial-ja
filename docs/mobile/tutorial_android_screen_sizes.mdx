@@ -57,7 +57,7 @@ tags: [中級]
 
 ## 子コンポーネントのサイズ変更（単純なサイズ変更）
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialSimpleResize.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialSimpleResize.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/AndroidScreenSizesTutorialSimpleResize.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/AndroidScreenSizesTutorialSimpleResize.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 この例では、スライダーとボタンのコレクションを含む単純なインターフェイスを使用します。これらの子コンポーネントには、それぞれ画面の高さ（端の小さな枠を除く）の割合が与えられている。水平方向でも同様のアプローチが可能です。簡単にするために、スライダーとボタンは、画面の幅全体を占めるだけです（ここでも、小さなボーダーを除きます）。画面が縦向きで、サイズが数百ピクセルの場合、以下のスクリーンショットのようになります：
 
@@ -199,7 +199,7 @@ tags: [中級]
 
 ## トランスフォームを使用したメインコンポーネントのサイズ変更
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialTransform.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialTransform.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/AndroidScreenSizesTutorialTransform.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/AndroidScreenSizesTutorialTransform.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 この例では、子コンポーネントのサイズ変更に代わる方法を使用しています。代わりに`ResizingComp`コンポーネントは公称サイズ（480×640ピクセル）に設定され、次に`MainContentComponent`オブジェクトはアフィン変換を適用し、これをスクリーンサイズに合わせて拡大縮小します。これは、同じアスペクト比を保ちながら行われます（スライダーやボタンの横や上下に空白を残します）。のコードは`ResizingComp`クラスは[simple resize](https://docs.juce.com/master/#tutorial_android_screen_sizes_resizing_child_components)の例だ。しかし`MainContentComponent::resized()`関数のサイズを設定する。`ResizingComp`コンポーネントが必要な変換を計算する：
 
@@ -233,7 +233,7 @@ tags: [中級]
 
 ## 異なる方向性に対して異なるレイアウトをデザインする
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsOrientation.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 この例では、スクリーン（またはデバイス）の向きによって異なるレイアウトを表示する方法のひとつを紹介する。ここでは[Desktop::getCurrentOrientation()](https://docs.juce.com/master/classDesktop.html#a02ae21e312faf1715e8311f1f53e5e00 "向きを変えられるタブレット端末では、これは現在の向きを返す。")関数は、デバイスの向きにアクセスする手段を提供する。実際には、4つの可能な方向があります：
 
@@ -283,7 +283,7 @@ tags: [中級]
 
 ## 画面サイズごとに異なるレイアウトをデザインする
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/master/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsSize.zip)|[ZIP](https://docs.juce.com/master/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsSize.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/AndroidScreenSizesTutorialLayoutsSize.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/AndroidScreenSizesTutorialLayoutsSize.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
 
 この最後の例では、画面の向きや画面サイズごとに異なるレイアウトを使用しています。このようなテクニックは、画面の向きによってまったく異なるレイアウトを使いたい場合や、Android携帯やタブレット用のユニバーサルアプリケーションを作りたい場合に特に有効です。ここで採用されている方法は[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")クラスを使用すると、コンポーネントのページが1ページに収まらない場合に、そのページを並べることができる。
 
