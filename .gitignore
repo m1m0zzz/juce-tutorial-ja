@@ -1,4 +1,5 @@
 # Dependencies
+static/_images
 /node_modules
 
 # Production

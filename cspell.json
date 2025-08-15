@@ -4,6 +4,8 @@
         "Arpeggiator",
         "Coeff",
         "Coeffs",
+        "constexpr",
+        "deepl",
         "jassert",
         "jmax",
         "jmin",
