@@ -24,22 +24,22 @@ tags: [初級]
 
 ## デモ・プロジェクト
 
-このチュートリアルのデモ・プロジェクトでは、1つのボタンと1つのラベルを持つシンプルなユーザー・インターフェースを紹介します。インターフェイスは次のスクリーンショットに似ているはずです：
+このチュートリアルのデモ・プロジェクトでは、1つのボタンと1つのラベルを持つシンプルなユーザー・インタフェースを紹介します。インタフェースは次のスクリーンショットに似ているはずです：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_listeners_and_broadcasters_screenshot1.png"
   caption="基本的なボタンとラベルのインターフェイス。"
 />
 
-インターフェイスは提供された状態では何もしない。ボタンをクリックすると、ラベルに現在の日付と時刻が表示されるようにコードを追加する。
+インタフェースは提供された状態では何もしない。ボタンをクリックすると、ラベルに現在の日付と時刻が表示されるようにコードを追加する。
 
-## インターフェイスの設定
+## インタフェースの設定
 
-について`MainContentComponent`クラスは2つの子コンポーネントで構成されています。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトと[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトA[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトは、特定のテキストを含むボタンを表示することができます。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトはテキストを表示できる。
+について`MainContentComponent`クラスは2つの子コンポーネントで構成されています。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトと[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトA[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトは、特定のテキストを含むボタンを表示できます。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトはテキストを表示できる。
 
 :::note
 
-について[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスは1種類のボタンを実装している。ボタンの種類はたくさんある。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスは JUCE で利用可能です。のAPIリファレンスドキュメントを参照してください。[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。"),[ShapeButton](https://docs.juce.com/master/classShapeButton.html "塗りつぶされた形状を含むボタン。"),[ImageButton](https://docs.juce.com/master/classImageButton.html "タイトルが示すように、これは画像を含むボタンである。"),[DrawableButton](https://docs.juce.com/master/classDrawableButton.html "Drawableを表示するボタン。")そして[ArrowButton](https://docs.juce.com/master/classArrowButton.html "矢印のボタン。")のクラスがある。
+について[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスは1種類のボタンを実装している。ボタンの種類はたくさんある。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスはJUCEで利用可能です。のAPIリファレンスドキュメントを参照してください。[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。"),[ShapeButton](https://docs.juce.com/master/classShapeButton.html "塗りつぶされた形状を含むボタン。"),[ImageButton](https://docs.juce.com/master/classImageButton.html "タイトルが示すように、これは画像を含むボタンである。"),[DrawableButton](https://docs.juce.com/master/classDrawableButton.html "Drawableを表示するボタン。")そして[ArrowButton](https://docs.juce.com/master/classArrowButton.html "矢印のボタン。")のクラスがある。
 
 :::
 
@@ -100,7 +100,7 @@ JUCEでは、ボタンやスライダーなど、他のオブジェクトに状�
 
 :::note
 
-について[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")クラスのインスタンスを含む、さまざまなボタンタイプをリッスンするために使用することができます。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスは次のようになる。
+について[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")クラスのインスタンスを含む、さまざまなボタンタイプをリッスンするために使用できます。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスは次のようになる。
 
 :::
 
@@ -153,7 +153,7 @@ buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInter
 
 ### リスナー・コールバックの実装
 
-では`MainContentComponent::buttonClicked()`関数に渡される。ここでは、変更をブロードキャストしたオブジェクトへのポインタが渡される。そして、このポインターを他のオブジェクトと比較することで、どのオブジェクトが変更されたかを判断することができる：
+では`MainContentComponent::buttonClicked()`関数に渡される。ここでは、変更をブロードキャストしたオブジェクトへのポインタが渡される。そして、このポインターを他のオブジェクトと比較することで、どのオブジェクトが変更されたかを判断できる：
 
 ```cpp
     void buttonClicked (juce::Button* button) override  // [2]
@@ -178,7 +178,7 @@ buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInter
 
 :::note
 
-について`dontSendNotification`議論\[7\]は、ラベルがこの変更をリスナーに伝えるのを防ぎます。([Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトもリスナーを持つことができます。）この場合、リスナーを持つことができないことは分かっています（私たち自身のプライベート・メンバーだからです）。
+について`dontSendNotification`議論\[7\]は、ラベルがこの変更をリスナーに伝えるのを防ぎます。([Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトもリスナーを持つことができます）。この場合、リスナーを持つことができないことは分かっています（私たち自身のプライベート・メンバーだからです）。
 
 :::
 
@@ -244,7 +244,7 @@ buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInter
 
 ### Buttonコールバックの簡素化
 
-このチュートリアルで示したようなリスナーやブロードキャスターのパラダイムを使う代わりに、最新のC++標準のラムダ関数を使うことで、ボタンのコールバックを単純化することができます。これは、複雑な実装を必要としない単純なコールバックには特に有効です。
+このチュートリアルで示したようなリスナーやブロードキャスターのパラダイムを使う代わりに、最新のC++標準のラムダ関数を使うことで、ボタンのコールバックを単純化できます。これは、複雑な実装を必要としない単純なコールバックには特に有効です。
 
 まずは[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")クラスを作成し、次のようにMainContentComponentクラスの定義を復元する：
 
@@ -266,7 +266,7 @@ public:
 
 これは[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")オブジェクトを呼び出します。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")がクリックされる。
 
-最後に、コールバック関数の名前をcheckTime()に変更します。\[9\]へのポインタをチェックする if() ステートメントを削除する。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")オブジェクトをチェックする必要がないからだ。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")はもうその関数を呼び出さない：
+最後に、コールバック関数の名前をcheckTime()に変更します。\[9\]へのポインタをチェックするif() ステートメントを削除する。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")オブジェクトをチェックする必要がないからだ。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")はもうその関数を呼び出さない：
 
 ```cpp
     void checkTime() // [9]

@@ -8,7 +8,7 @@ tags: [中級]
 
 <SourcePageLink path="tutorial_looping_audio_sample_buffer" />
 
-このチュートリアルでは、AudioSampleBuffer オブジェクトに格納されたオーディオを再生し、ループさせる方法を説明します。これは、録音されたオーディオデータを操作するサンプリングアプリケーションの基礎として役立ちます。
+このチュートリアルでは、AudioSampleBufferオブジェクトに格納されたオーディオを再生し、ループさせる方法を説明します。これは、録音されたオーディオデータを操作するサンプリングアプリケーションの基礎として役立ちます。
 
 レベル：中級
 
@@ -38,7 +38,7 @@ tags: [中級]
 
 サウンドファイルの再生には、組み込みのクラスを使った方が良い場合が多いでしょう。このチュートリアルでは、いくつかのテクニックを紹介します。サンプラーアプリケーションは、特にサウンドが比較的短い場合、このようにサウンドファイルのデータをメモリにロードするのが一般的です（詳しくは[SamplerSound](https://docs.juce.com/master/classSamplerSound.html "サンプリングされたオーディオクリップを表すSynthesiserSoundのサブクラス。")クラスの例)。サウンドを合成するには、ウェーブテーブルを[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを適切な速度でループさせ、必要な音高を作り出す。これは[Tutorial: Wavetable synthesis](../../synth/tutorial_wavetable_synth/).
 
-また、このチュートリアルでは、ファイルへのアクセスとオーディオ処理をオーディオスレッドで 組み合わせるときに遭遇する可能性のある、マルチスレッドの問題をいくつか取り上げます。これらの問題のいくつかは、表面的には単純に見えますが、クラッシュやオーディオの不具合を避けるために、注意深く適用するテクニックが必要になることがよくあります。これらのテクニックについては[Tutorial: Looping audio using the AudioSampleBuffer class (advanced)](../tutorial_looping_audio_sample_buffer_advanced/).
+また、このチュートリアルでは、ファイルへのアクセスとオーディオ処理をオーディオスレッドで組み合わせるときに遭遇する可能性のある、マルチスレッドの問題をいくつか取り上げます。これらの問題のいくつかは、表面的には単純に見えますが、クラッシュやオーディオの不具合を避けるために、注意深く適用するテクニックが必要になることがよくあります。これらのテクニックについては[Tutorial: Looping audio using the AudioSampleBuffer class (advanced)](../tutorial_looping_audio_sample_buffer_advanced/).
 
 ### なぜ長さに制限があるのですか？
 
@@ -47,9 +47,9 @@ tags: [中級]
 - ファイル全体が非常に大きい場合、コンピューターが物理メモリーを使い果たしてしまうかもしれない。実際のアプリケーションでは、もちろん、もっと大きな制限を使うことができるだろう。サンプルレート44.1kHzの2秒間のステレオオーディオファイルを[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトは705,600バイトのメモリーしか占有しない。(注を参照)
 - かなり短いファイルであっても、読み込みには些細な時間しかかからない。
 
-ポイント1について：コンピュータが持っている物理メモリの量を超えると、仮想メモリ（つまりハードドライブなどの二次記憶装置）を使い始める可能性がある。これでは、そもそもデータをメモリにロードする意味がなくなってしまう！もちろん、メモリが不足すれば、デバイスによっては動作が失敗することもある。
+ポイント1について：コンピュータが持っている物理メモリの量を超えると、仮想メモリ（つまりハードドライブなどの二次記憶装置）を使い始める可能性がある。これでは、そもそもデータをメモリにロードする意味がなくなってしまう！ もちろん、メモリが不足すれば、デバイスによっては動作が失敗することもある。
 
-2について：この例では、オーディオデータを直接ロードすることで、シンプルにしています。[FileChooser::browseForFileToOpen()](https://docs.juce.com/master/classFileChooser.html#a546ef74bcd139b67a90e4459cd591d21 "開くファイルを選択するダイアログボックスを表示します。")関数は、ユーザーが選択したファイルを返した。これは*メッセージスレッド*にすべての音声が読み込まれるまでブロックされます。[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトで行う必要があります。短いサウンドであっても、ユーザーインターフェースのレスポンスを可能な限り維持するために、バックグラウンドスレッドで行うべきです。長いサウンドの場合、遅延や無反応が非常に目立ちます。別の（バックグラウンド）スレッドを追加すると、この例の複雑さが増します。参照[Tutorial: Looping audio using the AudioSampleBuffer class (advanced)](../tutorial_looping_audio_sample_buffer_advanced/)この方法でバックグラウンド・スレッドにファイルをロードする方法の例を参照されたい。
+2について：この例では、オーディオデータを直接ロードすることで、シンプルにしています。[FileChooser::browseForFileToOpen()](https://docs.juce.com/master/classFileChooser.html#a546ef74bcd139b67a90e4459cd591d21 "開くファイルを選択するダイアログボックスを表示します。")関数は、ユーザーが選択したファイルを返した。これは*メッセージスレッド*にすべての音声が読み込まれるまでブロックされます。[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトで行う必要があります。短いサウンドであっても、ユーザーインタフェースのレスポンスを可能な限り維持するために、バックグラウンドスレッドで行うべきです。長いサウンドの場合、遅延や無反応が非常に目立ちます。別の（バックグラウンド）スレッドを追加すると、この例の複雑さが増します。参照[Tutorial: Looping audio using the AudioSampleBuffer class (advanced)](../tutorial_looping_audio_sample_buffer_advanced/)この方法でバックグラウンド・スレッドにファイルをロードする方法の例を参照されたい。
 
 :::danger[エクササイズ]
 
@@ -124,7 +124,7 @@ tags: [中級]
 
 の中で`getNextAudioBlock()`関数から適切なサンプル数が読み込まれる。`fileBuffer` [AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)を書き出す。[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。")構造体
 
-ファイルからオーディオデータを読み込んでいる間、現在の読み込み位置は`position`メンバは、オーディオのすべてのチャンネルが指定されたサンプルのブロックに対して処理された後に更新するように注意すること）：
+ファイルからオーディオデータを読み込んでいる間、現在の読み込み位置は`position`メンバーは、オーディオのすべてのチャンネルが指定されたサンプルのブロックに対して処理された後に更新するように注意すること）：
 
 ```cpp
     void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
@@ -164,7 +164,7 @@ tags: [中級]
 - \[9\]また、そのコピーもお預かりします。[AudioSourceChannelInfo::startSample](https://docs.juce.com/master/structAudioSourceChannelInfo.html#a42e88ccc05d4893015e2415785390259 "コールバックがデータを書き込むバッファの最初のサンプル。")の値を、デスティネーション・バッファ内のオフセットとして使用する。
 - \[10\]ここでは、読み出し元のバッファに何サンプル残っているかを計算する。
 - \[11\]この峠のために`while()`ループの残りのサンプルのうち、小さい方を出力する必要がある。`getNextAudioBlock()`関数とバッファ内の残りのサンプル - を使用する。[jmin()](https://docs.juce.com/master/group__juce__core-maths.html#gae8394cdf11279b266f4aa741758c1669)関数を呼び出す。への呼び出しの総サンプル数より少ない場合、そのサンプル数は`getNextAudioBlock()`関数をもう1回パスすることになる。`while()`ループを終了する。
-- \[12\]各出力チャンネルには[AudioSampleBuffer::copyFrom()](https://docs.juce.com/master/classAudioBuffer.html#a9ec751bfa23564c011bf3940ca17b743)関数を使用して、あるバッファのあるチャンネルから別のバッファのあるチャンネルにデータのセクションをコピーすることができます。ここでは、コピー先のチャネルインデックスを指定します。
+- \[12\]各出力チャンネルには[AudioSampleBuffer::copyFrom()](https://docs.juce.com/master/classAudioBuffer.html#a9ec751bfa23564c011bf3940ca17b743)関数を使用して、あるバッファのあるチャンネルから別のバッファのあるチャンネルにデータのセクションをコピーできます。ここでは、コピー先のチャネルインデックスを指定します。
 - \[12.1\]デスティネーションバッファ内のサンプルオフセット。
 - \[12.2\]ソースはこちら[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトをコピーする。
 - \[12.3\]これはソースバッファのチャンネルインデックスです。ソースバッファのチャンネル数がデスティネーションバッファより少ない場合、このモジュロ計算を使用します。例えば、モノラル・ソース・バッファの場合、この結果は常にゼロとなり、同じデータが各出力チャンネルにコピーされます。
@@ -184,7 +184,7 @@ tags: [中級]
 
 ## マルチスレッドの問題
 
-前述したように、このチュートリアルでは、ユーザーが**オープン...**ボタンだ。しかし、もしそうしなかったらどうなるだろうか？うまくいかないことはたくさんある。`getNextAudioBlock()`そして`openButtonClicked()`関数は異なるスレッドで同時に実行される可能性がある。以下はその例である：
+前述したように、このチュートリアルでは、ユーザーが**オープン...**ボタンだ。しかし、もしそうしなかったらどうなるだろうか？ うまくいかないことはたくさんある。`getNextAudioBlock()`そして`openButtonClicked()`関数は異なるスレッドで同時に実行される可能性がある。以下はその例である：
 
 - アプリケーションがすでにオーディオファイルを再生していて、ユーザーが**オープン...**ボタンをクリックし、新しいファイルを選択する。オーディオ・スレッドがこの関数に割り込むとする。\[4\]そして\[5\].バッファのサイズが変更されたが、データがバッファに書き込まれていない。バッファには前のファイルのオーディオデータが残っているかもしれませんが、バッファのサイズが変更されたときに、バッファのメモリを移動する必要があったかどうかによります。いずれにしても、おそらく不具合が発生するでしょう。
 - 可能性はある。`getNextAudioBlock()`のコードによって中断される可能性がある。`openButtonClicked()`関数を使用します。これが\[11\]そして`openButtonClicked()`に達したところである。\[4\].バッファは以前より短くリサイズされるかもしれないが、すでに数行前に開始点を計算している。これはメモリ・アクセス・エラーにつながり、アプリケーションがクラッシュする可能性がある。

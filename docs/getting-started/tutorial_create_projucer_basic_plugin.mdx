@@ -8,8 +8,8 @@ tags: ["中級"]
 
 <SourcePageLink path="tutorial_create_projucer_basic_plugin" />
 
-このチュートリアルでは、コンピュータをセットアップし、JUCE を使ってオーディオプラグイン（VST3 と AudioUnit）を開発するための Projucer プロジェクトを作成します。
-最後には、"Hello, World!" と言って、Cubase や REAPER のような VST3 ホストにロードできるオーディオプラグインが完成します。
+このチュートリアルでは、コンピュータをセットアップし、JUCEを使ってオーディオプラグイン（VST3とAudioUnit）を開発するためのProjucerプロジェクトを作成します。
+最後には、"Hello, World!" と言って、CubaseやREAPERのようなVST3ホストにロードできるオーディオプラグインが完成します。
 
 レベル：中級
 
@@ -33,8 +33,8 @@ Projucerにまだ慣れていない方は、[Projucerパート1：Projucerを始
 
 ### VST3 と AudioUnit
 
-VST3 および AU（MacOSのみ）プラグインを作成するために必要なファイルは、
-すべてJUCEに同梱されています。（JUCEの最新バージョンを使用している限り）
+VST3およびAU（Mac OSのみ）プラグインを作成するために必要なファイルは、
+すべてJUCEに同梱されています（JUCEの最新バージョンを使用している限り）
 
 
 ## Projucerでオーディオプラグインプロジェクトを作成する
@@ -42,7 +42,7 @@ VST3 および AU（MacOSのみ）プラグインを作成するために必要�
 JUCEでオーディオ・プラグインを作成するには、Projucerで新規プロジェクトを作成し、プロジェクトの種類として **Audio Plug-In** を選択します。
 Projucerの使い方がわからない場合は、[Projucerパート1：Projucerを始める](../tutorial_new_projucer_project/) を参照してください。
 
-Projucerの新規プロジェクトの設定において、エクスポートするプラグイン・タイプや、プラグインがMIDIノートを受信するか生成するかなどのプロジェクト設定を変更することができます。
+Projucerの新規プロジェクトの設定において、エクスポートするプラグイン・タイプや、プラグインがMIDIノートを受信するか生成するかなどのプロジェクト設定を変更できます。
 これらの設定はいつでも変更できます。
 
 このチュートリアルではVST3プラグインを作成するので、"Plugin Formats "フィールドで **VST3** 設定にチェックが入っていることを確認してください。
@@ -55,11 +55,11 @@ Projucerの新規プロジェクトの設定において、エクスポートす
 
 ## プラグインデバッグの設定（オプション）
 
-プラグインを構築する際の課題の一つは、それをテストすることです。
+プラグインを構築する際の課題の1つは、それをテストすることです。
 ありがたいことに、JUCEはプラグインホストを内蔵しているので、それを簡単に行うことができます。
 ホストにアクセスするには、`extras/AudioPluginHost/` に行き、Projucerで `.jucer` ファイルを開きます。
 **Save ProjectとOpen in IDE...** をクリックします。
-そして IDE内でプロジェクトをビルドしてバイナリを作成します（Mac OS Xでは `extras/AudioPluginHost/Builds/MacOSX/build` にあります）
+そしてIDE内でプロジェクトをビルドしてバイナリを作成します（Mac OS Xでは `extras/AudioPluginHost/Builds/MacOSX/build` にあります）
 
 アプリケーションを実行すると、次のようなグラフィカルノードエディターが表示されます：
 
@@ -69,7 +69,7 @@ Projucerの新規プロジェクトの設定において、エクスポートす
 />
 
 "Cmd-P" を押す（または **Options > Edit the List of Available Plug-ins...**）と、
-システム上のプラグインリストを更新することができます（プロジェクトごとに1回だけ行う必要があります）。
+システム上のプラグインリストを更新できます（プロジェクトごとに1回だけ行う必要があります）。
 ポップアップ・ウィンドウの下部にあるオプション・ボタンをクリックし、**Scan for new or updated VST3 plug-ins...** をクリックします。  
 macOSの場合、JUCE Audioプラグインは自動的に `~/Library/Audio/Plug-Ins/VST3` にコピーされ、ホストアプリケーションが自動的にそのフォルダを検索します。  
 Windowsの場合、ビルドしたVST3をプロジェクトのビルドフォルダからVST3のインストールフォルダ（通常は `C:\Program Files\Common Files\VST3`）に手動でコピーする必要があります。
@@ -90,12 +90,12 @@ Windowsの場合、ビルドしたVST3をプロジェクトのビルドフォル
 **File > Save** をクリックすると、この設定を簡単に呼び出すことができます。
 
 このようにプラグインホストを使用すると、プラグインをテストするための非常にシンプルな環境が得られます。
-プラグインのステップスルーデバッグができるようにホストを設定することができます。  
-macOS でこれを行うには、Xcodeでプラグインプロジェクトに戻り、**Product > Scheme > Edit Scheme...** をクリックし、
+プラグインのステップスルーデバッグができるようにホストを設定できます。  
+macOSでこれを行うには、Xcodeでプラグインプロジェクトに戻り、**Product > Scheme > Edit Scheme...** をクリックし、
 **Run** で **Executable** ドロップダウンから **Other...** を選択し、**Plugin Host.app** を探します。
 Debug executableにチェックが入っていることを確認してください。  
-Windows の Visual Studio では、VST3ビルドターゲットのプロパティページに行き、
-"Debugging" ペインを選択し、"Command" フィールドに AudioPluginHost 実行ファイルへのパスを設定します。
+WindowsのVisual Studioでは、VST3ビルドターゲットのプロパティページに行き、
+"Debugging" ペインを選択し、"Command" フィールドにAudioPluginHost実行ファイルへのパスを設定します。
 
 これで、プラグインをビルドして実行すると、自動的にホストが起動し、プラグインがホスト内にロードされると、
 ブレークポイントを設定してステップスルーデバッグを行うことができます。
@@ -108,7 +108,7 @@ Windows の Visual Studio では、VST3ビルドターゲットのプロパテ�
 
 ## 備考
 
-Pro Tools用の AAXプラグインをビルドするには、Avidに連絡してSDKにアクセスするための開発者ライセンスを取得する必要があります。
+Pro Tools用のAAXプラグインをビルドするには、Avidに連絡してSDKにアクセスするための開発者ライセンスを取得する必要があります。
 AAX SDKにアクセスした場合、Projucerの **Global Preferences** ウィンドウで設定できるパスがあることに気づくでしょう。
 
 ## 概要

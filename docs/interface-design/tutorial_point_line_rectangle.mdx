@@ -99,7 +99,7 @@ juce::Rectangle area (juce::Point (10, 50),
 
 ### Point クラスと Path クラスの使用
 
-実際、このような[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")オブジェクトの各コーナーを定義する4点を持つ矩形を指定することができる：
+実際、このような[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")オブジェクトの各コーナーを定義する4点を持つ矩形を指定できる：
 
 ```cpp
 void paint (juce::Graphics& g) override
@@ -120,7 +120,7 @@ void paint (juce::Graphics& g) override
 
 :::note
 
-この場合[Point\<float\>](https://docs.juce.com/master/classPoint.html)クラスは[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスを使う必要がある。しかし、Point\<int\>::toFloat()関数とPoint\<float\>::toInt()関数を使えば、2種類のポイントを変換することができる。
+この場合[Point\<float\>](https://docs.juce.com/master/classPoint.html)クラスは[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスを使う必要がある。しかし、Point\<int\>::toFloat()関数とPoint\<float\>::toInt()関数を使えば、2種類のポインできる。できる。
 
 :::
 
@@ -302,7 +302,7 @@ void paint (juce::Graphics& g) override
 
 交差点をチェックするコード\[2\]を呼び出す。[Line::intersects()](https://docs.juce.com/master/classLine.html#ab65eb5685ecd0cfa39bee23c3d4f36d7 "2本の直線の交点を求めます。")関数を使用します。これは`true`が実際に交差している場合は、交差している点を返す。`intersection`という議論になる。
 
-今すぐアプリケーションを実行してください。マウスのクリックに反応して再描画するコードを残しておけば、コンポーネントをクリックすることで新しい線のセットを生成することができます。
+今すぐアプリケーションを実行してください。マウスのクリックに反応して再描画するコードを残しておけば、コンポーネントをクリックすることで新しい線のセットを生成できます。
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_point_line_rectangle_screenshot5.png"

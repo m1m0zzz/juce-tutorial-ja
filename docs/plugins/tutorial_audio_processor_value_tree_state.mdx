@@ -8,7 +8,7 @@ tags: ["中級"]
 
 <SourcePageLink path="tutorial_audio_processor_value_tree_state" />
 
-プラグインパラメーターの自動管理パラメーターの保存とアクセスが簡単になり、特に効果的なユーザーインターフェースの構築がより簡単になります。
+プラグインパラメーターの自動管理パラメーターの保存とアクセスが簡単になり、特に効果的なユーザーインタフェースの構築がより簡単になります。
 
 レベル：中級
 
@@ -31,7 +31,7 @@ tags: ["中級"]
 
 このステップでヘルプが必要な場合は、チュートリアルを参照してください：Projucerパート1：Projucerを使い始める。
 
-また、JUCE を使ってオーディオプラグインを構築し、これをお好みのオーディオホスト（Digital Audio Workstation など）にロードする方法も知っておく必要があります。
+また、JUCEを使ってオーディオプラグインを構築し、これをお好みのオーディオホスト（Digital Audio Workstationなど）にロードする方法も知っておく必要があります。
 [基本的なAudio/MIDIプラグインを作る パート1：セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/) を参照してください。
 オーディオプロセッサーのパラメーターの入門として、[チュートリアル：プラグインパラメータの追加](../tutorial_audio_parameter/) も読んでおくのが理想的です。
 
@@ -40,7 +40,7 @@ tags: ["中級"]
 
 このデモ・プロジェクトは、`JUCE/examples/Plugins` ディレクトリにあるGainPluginプロジェクトに大まかに基づいています
 このプラグインは、1つのパラメータを使って入力信号のゲインを変更します。
-これに加えて、入力信号の位相を反転させる phase invert\* パラメータも持っています。
+これに加えて、入力信号の位相を反転させるphase invert\* パラメータも持っています。
 
 ## ゲインプロセッサー
 
@@ -48,11 +48,11 @@ tags: ["中級"]
 簡単にするために、プロセッサーのコードを.cppファイルと.hファイルに分けるのではなく、1つの.hファイルにまとめました。
 プロセッサー用のエディターはGenericEditorクラスにあります。
 
-プラグインのパラメータ管理に AudioProcessorValueTreeState クラスを使うことには、いくつかの利点があります：
+プラグインのパラメータ管理にAudioProcessorValueTreeStateクラスを使うことには、いくつかの利点があります：
 
 - [ValueTree](https://docs.juce.com/master/classValueTree.html) クラスは、本質的にアンドゥをサポートしています。
 - [ValueTree](https://docs.juce.com/master/classValueTree.html) オブジェクトは、すでに（XMLへの）シリアライズとデシリアライズをサポートしています。
-- [ValueTree](https://docs.juce.com/master/classValueTree.html) オブジェクトは、リスナーをアタッチすることができます。
+- [ValueTree](https://docs.juce.com/master/classValueTree.html) オブジェクトは、リスナーをアタッチできます。
   つまり、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) クラスは、ほぼ自動的にスライダーやボタンに接続し、スレッドセーフな方法でUIとプロセッサの状態を最新の状態に保つことができます。
 
 [AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) オブジェクトを使用するには、プロセッサクラスに1つ格納します：
@@ -95,7 +95,7 @@ AudioProcessorValueTreeState (AudioProcessor& processorToConnectTo,
 [AudioProcessorValueTreeState::ParameterLayout](https://docs.juce.com/master/classAudioProcessorValueTreeState.html)
 パラメータには、プラグインのパラメータが含まれています。
 [AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) は、
-[RangedAudioParameter](https://docs.juce.com/master/classRangedAudioParameter.html) から派生した任意のパラメータを管理することができ、
+[RangedAudioParameter](https://docs.juce.com/master/classRangedAudioParameter.html) から派生した任意のパラメータを管理でき、
 [AudioProcessorValueTreeState::ParameterLayout](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) コンストラクタは、
 可変数の [RangedAudioParameter](https://docs.juce.com/master/classRangedAudioParameter.html) サブクラスまたは
 RangedAudioParameterを含むAudioProcessorParameterGroupsを取ることができます。
@@ -235,7 +235,7 @@ XMLから状態をリストアするのは、ほとんど簡単です：
 ```
 
 ここでは、安全のためにいくつかのエラーチェックを行います。
-また、XML 要素のタグ名を検査することで、ValueTree が生成する XML がプラグインに適した ValueTree 型であることを確認します。
+また、XML要素のタグ名を検査することで、ValueTreeが生成するXMLがプラグインに適したValueTree型であることを確認します。
 
 ## ゲインエディター
 
@@ -254,7 +254,7 @@ public:
 [Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html)
 クラスを継承する必要があると思うかもしれません。
 しかし、これも[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) クラスを使う利点の1つです。
-代わりに、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) クラス内のアタッチメント・クラスを使用することができます。
+代わりに、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) クラス内のアタッチメント・クラスを使用できます。
 
 ### コンポーネント・アタッチメント
 
@@ -338,7 +338,7 @@ private:
 
 ## プログラムでパラメータを追加する
 
-また、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) に対してaddを呼び出すことで、プログラム的にパラメータ（または AudioProcessorParameterGroups）を追加することもできます。
+また、[AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html) に対してaddを呼び出すことで、プログラム的にパラメータ（またはAudioProcessorParameterGroups）を追加することもできます。
 以下にその例を示します：
 
 ```cpp

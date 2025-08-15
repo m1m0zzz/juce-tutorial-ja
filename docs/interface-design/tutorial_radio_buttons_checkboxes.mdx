@@ -33,7 +33,7 @@ tags: [初級]
 
 ## ラジオボタンとチェックボックス
 
-このチュートリアルでは[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスを使用します。通常は[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")クラスを使うことができるが、前述のように、どんなボタンでもトグル・タイプのボタンに設定することができる。標準の[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")コンポーネントは、テキストとテキストの左側にある "バブル "で構成され、このバブルには目盛りが入っているか、入っていないかのどちらかである。(この外観は、必要に応じて[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラス)。この2つの状態は、前のセクションのスクリーンショットで見ることができる。
+このチュートリアルでは[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスを使用します。通常は[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")クラスを使うことができるが、前述のように、どんなボタンでもトグル・タイプのボタンに設定できる。標準の[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")コンポーネントは、テキストとテキストの左側にある "バブル "で構成され、このバブルには目盛りが入っているか、入っていないかのどちらかである。(この外観は、必要に応じて[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラス)。この2つの状態は、前のセクションのスクリーンショットで見ることができる。
 
 の中で`MainContentComponent`のコンストラクタでは、"male "と "female "のボタンは以下のように設定される：
 
@@ -64,7 +64,7 @@ tags: [初級]
 
 :::note
 
-に注目してほしい。`setRadioGroupId()`関数は[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスだけでなく[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")クラスに追加することができます。どのようなボタンでもラジオグループの一部にすることができますが、それはおそらく、そのボタンが（単にクリックイベントをインターセプトするのではなく）オンとオフの切り替えを期待するように設定されている場合にのみ意味があります。
+に注目してほしい。`setRadioGroupId()`関数は[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスだけでなく[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")クラスに追加できます。どのようなボタンでもラジオグループの一部にできますが、それはおそらく、そのボタンが（単にクリックイベントをインターセプトするのではなく）オンとオフの切り替えを期待するように設定されている場合にのみ意味があります。
 
 :::
 
@@ -116,7 +116,7 @@ tags: [初級]
 
 ### 他のボタンをトグルとして使う
 
-前述したとおりだ、*いずれも*ボタンをトグル・ボタンとして使うことができる。説明のために、すべての[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトを[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトの型を変更する必要があります。ここで必要なのは、メンバ変数の型を[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスである：
+前述したとおりだ、*いずれも*ボタンをトグル・ボタンとして使うことができる。説明のために、すべての[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")オブジェクトを[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトの型を変更する必要があります。ここで必要なのは、メンバー変数の型を[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスである：
 
 ```cpp
     juce::Label genderLabel         { {}, "I identify my gender as..."};

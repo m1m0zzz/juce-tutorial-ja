@@ -31,13 +31,13 @@ tags: [初級]
   caption="標準的なルック＆フィールのボタンとスライダー"
 />
 
-について[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスは、JUCEでカスタマイズされたGUIを作成するための基本です。クラスを使って[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスでは、特定のコンポーネントのデフォルト・カラーを変更するなどの簡単なカスタマイズを行うことができます。しかし、多くの種類のコンポーネントの描画をカスタマイズすることもできます。例えば、ボタンやスライダーを独自の外観で作成することができます。
+について[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスは、JUCEでカスタマイズされたGUIを作成するための基本です。クラスを使って[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスでは、特定のコンポーネントのデフォルト・カラーを変更するなどの簡単なカスタマイズを行うことができます。しかし、多くの種類のコンポーネントの描画をカスタマイズすることもできます。例えば、ボタンやスライダーを独自の外観で作成できます。
 
 ## 色のカスタマイズ
 
 という場合[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")オブジェクトがコンポーネントに適用されると、そのコンポーネントに適用されます。*そして*その子コンポーネント ([Tutorial: Parent and child components](../tutorial_component_parents_children/)ただし、子コンポーネントに特別に別のルック＆フィールが割り当てられている場合を除く）。
 
-ルック・アンド・フィール・システムでできることの一つは、標準的なJUCEコンポーネントの要素に特定の色を上書きすることです([Tutorial: Colours in JUCE](../tutorial_colours/).)例えば、以下の行を`MainContentComponent`コンストラクタの*両方*文字盤が赤くなる：
+ルック・アンド・フィール・システムでできることの1つは、標準的なJUCEコンポーネントの要素に特定の色を上書きすることです([Tutorial: Colours in JUCE](../tutorial_colours/).)例えば、以下の行を`MainContentComponent`コンストラクタの*両方*文字盤が赤くなる：
 
 ```cpp
 getLookAndFeel().setColour (juce::Slider::thumbColourId, juce::Colours::red);
@@ -80,7 +80,7 @@ otherLookAndFeel.setColour (juce::Slider::thumbColourId, juce::Colours::red);
   caption="コンポーネントごとに異なるルック＆フィール・オブジェクトを使用する"
 />
 
-もちろん、この単純な例では、この方法は[Slider::thumbColourId](https://docs.juce.com/master/classSlider.html#a1012002c53381ccc7c1fe7e604a75f44aee563b22e0033b0ed4f38e5296889835 "親指を描く色。")色をスライダーオブジェクトに直接適用することができます。しかし、アプリでは複数のスライダーを異なる目的で使用することがあり、ある目的のスライダーには1つのカラーセットを使用し、他の目的のスライダーには異なるカラーセットを使用したい場合があります。このアプローチでは、各スライダーにそのタイプに適したルック＆フィールが割り当てられている限り、これらの色をグローバルに変更することができます。
+もちろん、この単純な例では、この方法は[Slider::thumbColourId](https://docs.juce.com/master/classSlider.html#a1012002c53381ccc7c1fe7e604a75f44aee563b22e0033b0ed4f38e5296889835 "親指を描く色。")色をスライダーオブジェクトに直接適用できます。しかし、アプリでは複数のスライダーを異なる目的で使用することがあり、ある目的のスライダーには1つのカラーセットを使用し、他の目的のスライダーには異なるカラーセットを使用したい場合があります。このアプローチでは、各スライダーにそのタイプに適したルック＆フィールが割り当てられている限り、これらの色をグローバルに変更できます。
 
 このアプローチの利点は、実際の描画コードをカスタマイズし始めるとはっきりする。特に、カスタム・ルック＆フィール・クラスを作成する必要がある。
 
@@ -125,7 +125,7 @@ private:
 
 ### スライダーのカスタマイズ
 
-例えば[Slider::LookAndFeelMethods](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html "この抽象基底クラスはLookAndFeelクラスによって実装され、スライダー描画機能を提供する。")JUCE API ドキュメントの中にあります。このリストの中に[Slider::LookAndFeelMethods::drawRotarySlider()](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html#ae63a9d8adce084cd5dbe02b960c73a9a).
+例えば[Slider::LookAndFeelMethods](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html "この抽象基底クラスはLookAndFeelクラスによって実装され、スライダー描画機能を提供する。")JUCE APIドキュメントの中にあります。このリストの中に[Slider::LookAndFeelMethods::drawRotarySlider()](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html#ae63a9d8adce084cd5dbe02b960c73a9a).
 
 これを`OtherLookAndFeel`クラスに追加する。宣言文をクラスに追加する：
 
@@ -148,7 +148,7 @@ private:
 
 :::note
 
-x、y、width、heightの引数は、すべての*テキストボックス*スライダーが使用しているかもしれないそのため、スライダーの位置とサイズにアクセスし、それらの値を使用することができます。
+x、y、width、heightの引数は、すべての*テキストボックス*スライダーが使用しているかもしれないそのため、スライダーの位置とサイズにアクセスし、それらの値を使用できます。
 
 :::
 
@@ -346,7 +346,7 @@ juceDefinition juce_AudioWorkgroup_mac.h:36
 
 :::danger[エクササイズ]
 
-マウスポインタがボタンの上に来たときに反応するように、ボタンの描画に変更を加えます。例えば、背景色を少し調整したり、影の色を変えたり、矩形のサイズや位置を微妙に変えたりすることができます。
+マウスポインタがボタンの上に来たときに反応するように、ボタンの描画に変更を加えます。例えば、背景色を少し調整したり、影の色を変えたり、矩形のサイズや位置を微妙に変えたりできます。
 
 :::
 

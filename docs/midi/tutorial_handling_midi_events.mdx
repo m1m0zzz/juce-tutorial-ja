@@ -30,7 +30,7 @@ tags: [中級]
 
 ## デモ・プロジェクト
 
-このデモ・プロジェクトでは、画面上にMIDIキーボードが表示され、コンボボックスを使ってハードウェア・デバイスのMIDI入力を1つ選択することができます。これらのソースから受信した MIDI イベントはウィンドウの下部に表示されます。これは次のスクリーンショットに示されています：
+このデモ・プロジェクトでは、画面上にMIDIキーボードが表示され、コンボボックスを使ってハードウェア・デバイスのMIDI入力を1つ選択できます。これらのソースから受信したMIDIイベントはウィンドウの下部に表示されます。これは次のスクリーンショットに示されています：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_handling_midi_events_screenshot1.png"
@@ -39,7 +39,7 @@ tags: [中級]
 
 ## MIDI入力
 
-このチュートリアルでは、基本的なアプリケーションで MIDI 入力を扱う方法を示します。JUCEは、接続されているハードウェアMIDIインタフェースのリストを簡単に見つけることができます。また[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")クラスのメンバ変数を見てみよう。まず、このクラスのメンバ変数を見てみよう。`MainContentComponent`クラスである：
+このチュートリアルでは、基本的なアプリケーションでMIDI入力を扱う方法を示します。JUCEは、接続されているハードウェアMIDIインタフェースのリストを簡単に見つけることができます。また[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")クラスのメンバー変数を見てみよう。まず、このクラスのメンバー変数を見てみよう。`MainContentComponent`クラスである：
 
 ```cpp
     juce::AudioDeviceManager deviceManager;           // [1]
@@ -160,7 +160,7 @@ midiInputList.onChange = [this] { setMidiInput (midiInputList.getSelectedItemInd
         keyboardState.addListener (this);
 ```
 
-MidiKeyboardStateListener クラスには、次の 2 つがあります。[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数を実装しなければならない。これらは[MidiKeyboardStateListener::handleNoteOn()](https://docs.juce.com/master/classMidiKeyboardState_1_1Listener.html#a854381a64354389e0cb2c15ec1fb4b01 "MidiKeyboardStateのいずれかのキーが押されたときに呼び出される。")そして[MidiKeyboardStateListener::handleNoteOff()](https://docs.juce.com/master/classMidiKeyboardState_1_1Listener.html#aedc74bd79578cb19edba66d38e9a93cf "MidiKeyboardStateの鍵盤の1つが離されたときに呼ばれる。")の機能がある。
+MidiKeyboardStateListenerクラスには、次の2つがあります。[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数を実装しなければならない。これらは[MidiKeyboardStateListener::handleNoteOn()](https://docs.juce.com/master/classMidiKeyboardState_1_1Listener.html#a854381a64354389e0cb2c15ec1fb4b01 "MidiKeyboardStateのいずれかのキーが押されたときに呼び出される。")そして[MidiKeyboardStateListener::handleNoteOff()](https://docs.juce.com/master/classMidiKeyboardState_1_1Listener.html#aedc74bd79578cb19edba66d38e9a93cf "MidiKeyboardStateの鍵盤の1つが離されたときに呼ばれる。")の機能がある。
 
 ```cpp
     void handleNoteOn (juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override
@@ -184,7 +184,7 @@ MidiKeyboardStateListener クラスには、次の 2 つがあります。[pure 
     }
 ```
 
-ここでは`isAddingFromMidiInput`メンバが使用される。これにより、ハードウェア入力から到着したイベントが複数回リストに投稿されるのを防ぐことができる。
+ここでは`isAddingFromMidiInput`メンバーが使用される。これにより、ハードウェア入力から到着したイベントが複数回リストに投稿されるのを防ぐことができる。
 
 ### メーリングリストへのメッセージ投稿
 
@@ -236,7 +236,7 @@ MidiKeyboardStateListener クラスには、次の 2 つがあります。[pure 
 
 :::danger[エクササイズ]
 
-ユーザー・インターフェースに、モジュレーション・ホイール（CC1）やピッチ・ホイールなどのメッセージを送信し、それに反応するスライダーをいくつか追加する。
+ユーザー・インタフェースに、モジュレーション・ホイール（CC1）やピッチ・ホイールなどのメッセージを送信し、それに反応するスライダーをいくつか追加する。
 
 :::
 
@@ -244,7 +244,7 @@ MidiKeyboardStateListener クラスには、次の 2 つがあります。[pure 
 
 このチュートリアルでは、MIDI入力イベントを処理したり表示したりするためのいくつかのクラスを紹介しました。特に以下のことができるようになるはずです：
 
-- 使用可能な MIDI 入力デバイスをリストアップします。
+- 使用可能なMIDI入力デバイスをリストアップします。
 - MIDI入力デバイスのメニューを作成する。
 - ハードウェア入力に届くMIDIを聞く。
 - を使用してMIDIノートデータを表示します。[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")クラスである。

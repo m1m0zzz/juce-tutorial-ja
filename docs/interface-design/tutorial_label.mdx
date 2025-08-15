@@ -38,7 +38,7 @@ tags: [初級]
   caption="テキスト入力ラベルがフォーカスされたアプリケーション"
 />
 
-このラベルには、以下のようにテキストを入力することができる：
+このラベルには、以下のようにテキストを入力できる：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_label_screenshot3.png"
@@ -62,9 +62,9 @@ tags: [初級]
 
 ## テキストの表示
 
-このチュートリアルでは[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスがあります。ラベルの最も基本的な機能は、テキストを表示することです！コンポーネントの`paint()`関数 ([Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)を使用してテキストのレイアウトを管理する方がはるかに便利です。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクト（または[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")オブジェクトの場合もある）。
+このチュートリアルでは[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスがあります。ラベルの最も基本的な機能は、テキストを表示することです！ コンポーネントの`paint()`関数 ([Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)を使用してテキストのレイアウトを管理する方がはるかに便利です。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクト（または[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")オブジェクトの場合もある）。
 
-ご想像の通り[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトは、任意のフォント、フォントサイズ、太字、斜体などで表示することができます。また、テキストはコンポーネントの境界内で左、右、中央、上、下、その他様々なオプションを使ってジャスティファイ（整列）させることができます。
+ご想像の通り[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトは、任意のフォント、フォントサイズ、太字、斜体などで表示できます。また、テキストはコンポーネントの境界内で左、右、中央、上、下、その他様々なオプションを使ってジャスティファイ（整列）させることができます。
 
 :::note
 
@@ -184,7 +184,7 @@ tags: [初級]
 
 :::danger[エクササイズ]
 
-インターフェイスにボタンを追加し、これを使ってテキスト入力ラベルをクリアする。参照[Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/).)
+インタフェースにボタンを追加し、これを使ってテキスト入力ラベルをクリアする。参照[Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/).)
 
 :::
 
@@ -199,7 +199,7 @@ dontSendNotification@ dontSendNotificationNo notification message should be sent
 
 :::note
 
-を使うことができる。`sendNotification`の代わりに`dontSendNotification`を呼び出すと[Label::setText()](https://docs.juce.com/master/classLabel.html#a3f0ca22cb63e924d3db23da48c210790 "ラベルテキストを変更します。").これにより、ユーザーがユーザーインターフェイスからテキストを変更するだけでなく、ラベルのリスナーにも変更が通知されます（テキストが現在の内容と異なる場合）。
+を使うことができる。`sendNotification`の代わりに`dontSendNotification`を呼び出すと[Label::setText()](https://docs.juce.com/master/classLabel.html#a3f0ca22cb63e924d3db23da48c210790 "ラベルテキストを変更します。").これにより、ユーザーがユーザーインタフェースからテキストを変更するだけでなく、ラベルのリスナーにも変更が通知されます（テキストが現在の内容と異なる場合）。
 
 :::
 
@@ -211,11 +211,11 @@ dontSendNotification@ dontSendNotificationNo notification message should be sent
 
 ## その他のカスタマイズ
 
-他にもいくつかカスタマイズが可能です。特にラベルは複数行のテキストを表示することができます。また、編集可能なラベル用にエディターをカスタマイズすることもできます。
+他にもいくつかカスタマイズが可能です。特にラベルは複数行のテキストを表示できます。また、編集可能なラベル用にエディターをカスタマイズすることもできます。
 
 ### 複数行テキストの表示
 
-一方[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")クラスは大量のテキストに対してより柔軟です。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは複数行のテキストを表示することができます。これを行うには、コンポーネントの高さが1行以上のテキストを表示するのに十分な大きさであることを確認すればよい。
+一方[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")クラスは大量のテキストに対してより柔軟です。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは複数行のテキストを表示できます。これを行うには、コンポーネントの高さが1行以上のテキストを表示するのに十分な大きさであることを確認すればよい。
 
 これを説明するために、以下のメンバーを`MainContentComponent`クラスである：
 
@@ -265,7 +265,7 @@ inputText.setColour (juce::Label::backgroundColourId, juce::Colours::darkblue);
 inputText.setColour (juce::Label::outlineWhenEditingColourId, juce::Colours::orangered);
 ```
 
-その他のカスタマイズは[Label::onEditorShow](https://docs.juce.com/master/classLabel.html#ae8e66977501dc15f678cc1b80fa218ce "このコールバック・オブジェクトにラムダを代入すると、ラベルのエディタが表示されたときにコールされるようになります。")ヘルパー・オブジェクトを使います。例えば、このように編集中のテキストを斜体にすることができる：
+その他のカスタマイズは[Label::onEditorShow](https://docs.juce.com/master/classLabel.html#ae8e66977501dc15f678cc1b80fa218ce "このコールバック・オブジェクトにラムダを代入すると、ラベルのエディタが表示されたときにコールされるようになります。")ヘルパー・オブジェクトを使います。例えば、このように編集中のテキストを斜体にできる：
 
 ```cpp
 inputText.onEditorShow = [this]
@@ -280,7 +280,7 @@ inputText.onEditorShow = [this]
 
 :::note
 
-実際には、特に大規模なアプリケーションでは、おそらく[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスを使用して、アプリケーション全体の一貫性を保つために、すべてのコンポーネントの外観をカスタマイズすることができます。
+実際には、特に大規模なアプリケーションでは、おそらく[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスを使用して、アプリケーション全体の一貫性を保つために、すべてのコンポーネントの外観をカスタマイズできます。
 
 :::
 

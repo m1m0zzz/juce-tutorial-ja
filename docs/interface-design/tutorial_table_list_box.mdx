@@ -8,7 +8,7 @@ tags: [中級]
 
 <SourcePageLink path="tutorial_table_list_box" />
 
-JUCEユーザー・インターフェースにテーブルを組み込む。XMLファイルから読み込んだデータを表示し、テーブルのフォーマットをカスタマイズできます。
+JUCEユーザー・インタフェースにテーブルを組み込む。XMLファイルから読み込んだデータを表示し、テーブルのフォーマットをカスタマイズできます。
 
 レベル：中級
 
@@ -22,7 +22,7 @@ JUCEユーザー・インターフェースにテーブルを組み込む。XML�
 
 :::warning
 
-このプロジェクトのPIPバージョンを使用する場合は、必ず`Resources`フォルダを生成されたProjucerプロジェクトに追加します。
+このプロジェクトのpipバージョンを使用する場合は、必ず`Resources`フォルダを生成されたProjucerプロジェクトに追加します。
 
 :::
 
@@ -30,7 +30,7 @@ JUCEユーザー・インターフェースにテーブルを組み込む。XML�
 
 ## デモ・プロジェクト
 
-デモ・プロジェクトは、JUCE モジュールに関する情報を含む XML ファイルから読み込まれたテーブルを表示します。この表は、好きな列でソートしたり、特定の項目を編集したり、列を非表示にしたりすることができます。
+デモ・プロジェクトは、JUCEモジュールに関する情報を含むXMLファイルから読み込まれたテーブルを表示します。この表は、好きな列でソートしたり、特定の項目を編集したり、列を非表示にしたりできます。
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_table_list_box_screenshot1.png"
@@ -46,7 +46,7 @@ JUCEユーザー・インターフェースにテーブルを組み込む。XML�
 - `getNumRows()`テーブルの現在の行数を返す必要がある。
 - `paintRowBackground()`を使用する。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")コンテキストが提供された場合、行番号で指定された行の背景を描画しなければならない。
 - `paintCell()`を使用する。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")コンテキストが提供されたら、行番号と列番号で指定されたセルを描画しなければならない。
-- `refreshComponentForCell()`オプションでこのメソッドをオーバーライドして、テーブルのカスタムコンポーネントを作成したり更新したりすることができます。
+- `refreshComponentForCell()`オプションでこのメソッドをオーバーライドして、テーブルのカスタムコンポーネントを作成したり更新したりできます。
 - `getColumnAutoSizeWidth()`カラムの幅にオートサイズを使用する場合、このメソッドはカラムのサイズ変更方法をオプションで指定できます。
 - `sortOrderChanged()`カスタムソートを使用する場合は、カラムの並べ替え方法をオプションで指定できます。
 
@@ -75,7 +75,7 @@ JUCEユーザー・インターフェースにテーブルを組み込む。XML�
 
 このプロジェクトのコードの実装は、このファイル構造に合わせてあるが、XMLタグは好きなように変更できる。
 
-の中で`TableTutorialComponent`クラスでは、ファイルの内容を一時的に保存するポインタを定義しています。[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")メンバ変数に2つのXmlElementを追加し、列の内容と行の内容を定義する：
+の中で`TableTutorialComponent`クラスでは、ファイルの内容を一時的に保存するポインタを定義しています。[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")メンバー変数に2つのXmlElementを追加し、列の内容と行の内容を定義する：
 
 ```cpp
 class TableTutorialComponent    : public juce::Component,
@@ -158,7 +158,7 @@ class TableTutorialComponent    : public juce::Component,
 
 ## カスタムセルコンポーネント
 
-A[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")は、テキスト以外のカスタム・コンポーネントをセルに保持することができる。以下のセクションで[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")をカラムの1つに入れ、編集可能な[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")ユーザーの入力をリッスンする。
+A[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")は、テキスト以外のカスタム・コンポーネントをセルに保持できる。以下のセクションで[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")をカラムの1つに入れ、編集可能な[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")ユーザーの入力をリッスンする。
 
 ### 編集可能なラベル
 
@@ -185,7 +185,7 @@ A[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeader
 
 ここでは、このオブジェクトがどの行と列に表示されるかを記録し、実際のテーブルへの参照も保持する。
 
-ユーザーが[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")を拡張しなければならない。`mouseDown()`機能により、テーブルの複数選択を考慮することができる。これは`selectRowsBasedOnModifierKeys()`を呼び出し、モディファイア・キーを引数として渡す。ここでは、元の動作を維持するためにベース・クラスの関数を呼び出す必要があることに注意してください：
+ユーザーが[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")を拡張しなければならない。`mouseDown()`機能により、テーブルの複数選択を考慮できる。これは`selectRowsBasedOnModifierKeys()`を呼び出し、モディファイア・キーを引数として渡す。ここでは、元の動作を維持するためにベース・クラスの関数を呼び出す必要があることに注意してください：
 
 ```cpp
         void mouseDown (const juce::MouseEvent& event) override
@@ -355,7 +355,7 @@ A[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeader
         }
 ```
 
-したがって、上記の関数では、両方のXmlElementの文字列属性を比較するために`compareNatural()`のメソッドを使用する。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスは、同じ規則で int を返す。\[1\].もし2つの文字列が問題の属性に対して等価であれば、これら2つの要素のID列を比較します。\[2\].最後に、ソートの方向が逆の場合は、結果を反転させる必要がある。\[3\].
+したがって、上記の関数では、両方のXmlElementの文字列属性を比較するために`compareNatural()`のメソッドを使用する。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスは、同じ規則でintを返す。\[1\].もし2つの文字列が問題の属性に対して等価であれば、これら2つの要素のID列を比較します。\[2\].最後に、ソートの方向が逆の場合は、結果を反転させる必要がある。\[3\]。
 
 ## モデルの設定
 
@@ -380,9 +380,9 @@ private:
     int numRows = 0;
 ```
 
-ここでは[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")メンバ変数に、このクラスを[TableListBoxModel](https://docs.juce.com/master/classTableListBoxModel.html "これらのうちの1つは、テーブルの内容のデータモデルとしてTableListBoxで使用されます。")つまり、このシナリオでは、モデルクラスが実際にテーブル自身を保持していることを意味します。また、モデルが必要とするテーブルの行数も記録します。
+ここでは[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")メンバー変数に、このクラスを[TableListBoxModel](https://docs.juce.com/master/classTableListBoxModel.html "これらのうちの1つは、テーブルの内容のデータモデルとしてTableListBoxで使用されます。")つまり、このシナリオでは、モデルクラスが実際にテーブル自身を保持していることを意味します。また、モデルが必要とするテーブルの行数も記録します。
 
-クラスのコンストラクタに[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")幼いころ[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。") \[1\].また、輪郭の色や太さなど、表の外観に関するプロパティを指定することもできます。\[2\].
+クラスのコンストラクタに[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")幼いころ[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。") \[1\].また、輪郭の色や太さなど、表の外観に関するプロパティを指定することもできます。\[2\]。
 
 ```cpp
             addAndMakeVisible (table);                                                  // [1]
@@ -397,9 +397,9 @@ private:
             table.setMultipleSelectionEnabled (true);                                   // [4]
 ```
 
-並べ替えカラムとカラムの可視性は、対応する関数を[TableHeaderComponent](https://docs.juce.com/master/classTableHeaderComponent.html "テーブルの列見出しを表示するコンポーネント。")テーブルの\[3\]また、テーブル上での複数選択も可能にしている。\[4\].
+並べ替えカラムとカラムの可視性は、対応する関数を[TableHeaderComponent](https://docs.juce.com/master/classTableHeaderComponent.html "テーブルの列見出しを表示するコンポーネント。")テーブルの\[3\]また、テーブル上での複数選択も可能にしている。\[4\]。
 
-オーバーライドする最初の関数は`getNumRows()`関数は、行数を保持するメンバ変数を返します。この関数は、モデルがテーブルを適切に更新するために必要です：
+オーバーライドする最初の関数は`getNumRows()`関数は、行数を保持するメンバー変数を返します。この関数は、モデルがテーブルを適切に更新するために必要です：
 
 ```cpp
     int getNumRows() override
@@ -464,7 +464,7 @@ private:
 
 ユーザーによってソート順の変更が要求されると`sortOrderChanged()`コールバック関数が呼び出され、ソートカラムが有効であれば`TutorialDataSorter`オブジェクトに正しい属性と方向を与える。そのオブジェクトを`sortChildElements()`の機能である。[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")を呼び出してテーブルを強制的に更新する。`updateContent()`テーブルの上に。
 
-について`refreshComponentForCell()`関数は、カスタム・セル・コンポーネントをインスタンス化し、以下のように更新することができる：
+について`refreshComponentForCell()`関数は、カスタム・セル・コンポーネントをインスタンス化し、以下のように更新できる：
 
 ```cpp
     Component* refreshComponentForCell (int rowNumber, int columnId, bool /*isRowSelected*/,
@@ -501,7 +501,7 @@ private:
 - \[9\]もしこの関数がテキストエディタ・セルの正しい「Description」列で呼び出されたなら、次に`EditableTextCustomComponent`が既にセルに存在する。もし存在しなければ、新しいインスタンスをインスタンス化して`setRowAndColumn()`関数を実行し[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。").
 - \[10\]そうでない場合は、関数が通常のカラムで呼び出されたことを意味します。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")オブジェクトは存在しないはずである。
 
-最後に[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")で定義された自動的な動作に従ってカラムのサイズを変更することができます。`getColumnAutoSizeWidth()`関数である：
+最後に[TableListBox](https://docs.juce.com/master/classTableListBox.html "TableHeaderComponentをヘッダーとして使用した、セルの表。")で定義された自動的な動作に従ってカラムのサイズを変更できます。`getColumnAutoSizeWidth()`関数である：
 
 ```cpp
     int getColumnAutoSizeWidth (int columnId) override

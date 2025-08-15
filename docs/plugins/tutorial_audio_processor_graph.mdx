@@ -676,7 +676,7 @@ public：
 
 :::note
 
-If using a PIP file to follow this tutorial, make sure to change the "mainClass" and "type" fields to reflect the change and amend the "dependencies" field appropriately. If using the ZIP version of the project, make sure that the `メイン.cpp` file follows the "GUI Application" template format.
+If using a pip file to follow this tutorial, make sure to change the "mainClass" and "type" fields to reflect the change and amend the "dependencies" field appropriately. If using the ZIP version of the project, make sure that the `メイン.cpp` file follows the "GUI Application" template format.
 
 :::
 
@@ -718,7 +718,7 @@ auto inputDevice = juce::MidiInput::getDefaultDevice()；
     }
 ```
 
-Here we first initialise the device manager with the default audio device and two inputs and outputs each \[1\]. We then add the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") as an audio callback to the device manager \[2\] and as a midi callback by using the default midi device \[3\]. After graph initialisation, we can set the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") as the processor to play by calling the setProcessor() function on the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") \[4\].
+Here we first initialise the device manager with the default audio device and two inputs and outputs each \[1\]. We then add the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") as an audio callback to the device manager \[2\]and as a midi callback by using the default midi device \[3\]. After graph initialisation, we can set the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") as the processor to play by calling the setProcessor() function on the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") \[4\].
 
 ```
 ~メインコンポーネント() オーバーライド

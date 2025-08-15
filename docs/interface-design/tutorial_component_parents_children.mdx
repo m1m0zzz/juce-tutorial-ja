@@ -37,31 +37,31 @@ tags: [初級]
   caption="別々の要素からなるシーン。"
 />
 
-見覚えがあるだろうか？の結末とよく似ている。[Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)!ここでの違いは、各パーツがそれぞれ独立した[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")オブジェクトを使用します。`paint()`関数である。これからわかるように、これらは論理的にグループ化されている。例えば、家の壁と屋根はひとつの "house "オブジェクトにまとめられている。
+見覚えがあるだろうか？ の結末とよく似ている。[Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)!ここでの違いは、各パーツがそれぞれ独立した[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")オブジェクトを使用します。`paint()`関数である。これからわかるように、これらは論理的にグループ化されている。例えば、家の壁と屋根はひとつの "house "オブジェクトにまとめられている。
 
 これがどのように組み合わされるのか、なぜこのようにコンポーネントを構成するのが良いのか、その理由を探ってみよう。
 
 ## Componentクラスの階層
 
-ほとんどのユーザー・インターフェースは、テキスト、ボタン、スライダー、メニューなど、多くの要素で構成されています。例えば、次のスクリーンショットは[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")クラス（オーディオのハードウェア設定を制御するクラス。[Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)を参照してください)。これには、ボタン、ラベル、メニュー（コンボボックス）、ラジオボタン、オーディオレベルインジケータが含まれます。
+ほとんどのユーザー・インタフェースは、テキスト、ボタン、スライダー、メニューなど、多くの要素で構成されています。例えば、次のスクリーンショットは[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")クラス（オーディオのハードウェア設定を制御するクラス。[Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)を参照してください)。これには、ボタン、ラベル、メニュー（コンボボックス）、ラジオボタン、オーディオレベルインジケータが含まれます。
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_component_parents_children_screenshot2.png"
   caption="オーディオハードウェアの設定を制御するためのユーザーインターフェース。"
 />
 
-個々のユーザー・インターフェース要素の中には、他のユーザー・インターフェース要素をグループ化して、より有用なコントロールを形成するものもあります。例えば、JUCE[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")クラスは、スライダー自体だけでなく、スライダーの現在値を示すテキストボックスも含むことができます。これを次のスクリーンショットに示します：
+個々のユーザー・インタフェース要素の中には、他のユーザー・インタフェース要素をグループ化して、より有用なコントロールを形成するものもあります。例えば、JUCE[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")クラスは、スライダー自体だけでなく、スライダーの現在値を示すテキストボックスも含むことができます。これを次のスクリーンショットに示します：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_component_parents_children_screenshot3.png"
   caption="JUCE Sliderクラス。"
 />
 
-このような場合、個々の要素を別々の階層部分に分離することで、インターフェースのレイアウト設計（およびユーザーとのインタラクションへの対応）が非常に容易になる。コンポーネントによっては`paint()`関数を使って描画する。他のコンポーネントは、単に他のコンポーネントを含んでいるだけかもしれない。あるコンポーネントは他のコンポーネントを含むかもしれない*そして*ドローイングを行う。デザインの選択肢はかなり柔軟だ。
+このような場合、個々の要素を別々の階層部分に分離することで、インタフェースのレイアウト設計（およびユーザーとのインタラクションへの対応）が非常に容易になる。コンポーネントによっては`paint()`関数を使って描画する。他のコンポーネントは、単に他のコンポーネントを含んでいるだけかもしれない。あるコンポーネントは他のコンポーネントを含むかもしれない*そして*ドローイングを行う。デザインの選択肢はかなり柔軟だ。
 
 ## MainContentComponentクラス
 
-このチュートリアルでは`MainContentComponent`クラスは、他のコンポーネント・クラスのインスタンスをメンバーとして含んでいる。これが`SceneComponent`クラスが実際のシーンを描く。クラスを見てみよう。`MainContentComponent`クラスが追加されます。SceneComponent オブジェクトは、プライベートメンバーとして追加されます：
+このチュートリアルでは`MainContentComponent`クラスは、他のコンポーネント・クラスのインスタンスをメンバーとして含んでいる。これが`SceneComponent`クラスが実際のシーンを描く。クラスを見てみよう。`MainContentComponent`クラスが追加されます。SceneComponentオブジェクトは、プライベートメンバーとして追加されます：
 
 ```cpp
 private:
@@ -78,7 +78,7 @@ private:
 
 :::warning
 
-子コンポーネントは常に1つの親を持たなければならない。必要であれば、子コンポーネントを親から削除し、別の親に追加することができます。
+子コンポーネントは常に1つの親を持たなければならない。必要であれば、子コンポーネントを親から削除し、別の親に追加できます。
 
 :::
 
@@ -169,7 +169,7 @@ JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WI
 
 :::note
 
-コンポーネントはまず自分自身を描画し、その上に子コンポーネントを描画します。子コンポーネントの上に描画する必要がある場合は、Component::paintOverChildren()関数をオーバーライドできます。子コンポーネントは、親コンポーネントに追加された順に描画されます。これは、Component::toFront(), Component::toBack(), Component::toBehind(), または Component::setAlwaysOnTop() 関数を使用して後で調整できます。
+コンポーネントはまず自分自身を描画し、その上に子コンポーネントを描画します。子コンポーネントの上に描画する必要がある場合は、Component::paintOverChildren()関数をオーバーライドできます。子コンポーネントは、親コンポーネントに追加された順に描画されます。これは、Component::toFront(), Component::toBack(), Component::toBehind(), またはComponent::setAlwaysOnTop() 関数を使用して後で調整できます。
 
 :::
 
@@ -257,7 +257,7 @@ private:
     }
 ```
 
-の幅を`RoofComponent`オブジェクトwと高さhとすれば、三角形を構成する3点は次のようになる：(0, h),(w, h）,(w⁄2, 0).
+の幅を`RoofComponent`オブジェクトwと高さhとすれば、三角形を構成する3点は次のようになる：(0, h),(w, h）,(w⁄2, 0)。
 
 :::danger[エクササイズ]
 

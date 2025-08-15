@@ -9,7 +9,7 @@ tags: ["初級"]
 <SourcePageLink path="tutorial_audio_parameter" />
 
 オーディオプラグインにパラメータを追加して、デジタルオーディオワークステーションからのコントロールとオートメーションを可能にします。
-オーディオパラメータをオーディオ処理に使用し、そのユーザーインターフェイスを作成する方法を学びます。
+オーディオパラメータをオーディオ処理に使用し、そのユーザーインタフェースを作成する方法を学びます。
 
 レベル：初級
 
@@ -34,7 +34,7 @@ tags: ["初級"]
 [Projucerパート1：Projucerを使い始める](../../getting-started/tutorial_new_projucer_project/)
 を参照してください
 
-また、JUCEを使ってオーディオプラグインを構築し、これをあなたの好きなオーディオホスト（デジタルオーディオワークステーション - DAW とも呼ばれます）
+また、JUCEを使ってオーディオプラグインを構築し、これをあなたの好きなオーディオホスト（デジタルオーディオワークステーション - DAWとも呼ばれます）。
 にロードする方法も知っておく必要があります。
 [基本的なAudio/MIDIプラグインを作る パート1：セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/) を参照してください：
 
@@ -121,7 +121,7 @@ addParameter (gain = new juce::AudioParameterFloat ("gain",                     
 
 ### ゲイン処理の実行
 
-パラメータが作成され、追加されると、プラグインはこれらのパラメータオブジェクトと対話することができます。
+パラメータが作成され、追加されると、プラグインはこれらのパラメータオブジェクトと対話できます。
 この例では、`TutorialProcessor::processBlock()` 関数でゲインの値を取得します：
 
 ```cpp
@@ -193,7 +193,7 @@ addParameter (gain = new juce::AudioParameterFloat ("gain",                     
 
 AudioSampleBufferクラスを使えば、バッファのブロックサイズ全体にわたってゲインのランプ変化を簡単に実行できる。
 そのためには、前のオーディオ・コールバックのゲイン・パラメータの値を保存する必要があります。
-まず、`TutorialProcessor` クラスにメンバ変数を追加します [1]：
+まず、`TutorialProcessor` クラスにメンバー変数を追加します[1]：
 
 ```cpp
 private:
@@ -310,7 +310,7 @@ private:
 
 ### ブーリアン・パラメータの追加
 
-まず、`TutorialProcessor` クラスに AudioParameterBool\* メンバを追加します [2]：
+まず、`TutorialProcessor` クラスにAudioParameterBool\* メンバーを追加します[2]：
 
 ```cpp
 private:
@@ -325,7 +325,7 @@ private:
 };
 ```
 
-次に、`TutorialProcessor` コンストラクタにパラメータを割り当てて追加する必要がある [3]：
+次に、`TutorialProcessor` コンストラクタにパラメータを割り当てて追加する必要がある[3]：
 
 ```cpp
     TutorialProcessor()
@@ -336,7 +336,7 @@ private:
 ```
 
 もちろん、booleanパラメータには指定可能な範囲はなく、デフォルト値しかありません。
-`TutorialProcessor::getStateInformation()` 関数を更新する必要がある [4]：
+`TutorialProcessor::getStateInformation()` 関数を更新する必要がある[4]：
 
 ```cpp
     void getStateInformation (juce::MemoryBlock& destData) override
@@ -348,7 +348,7 @@ private:
     }
 ```
 
-そして、`TutorialProcessor::setStateInformation()` 関数 [5]：
+そして、`TutorialProcessor::setStateInformation()` 関数[5]：
 
 ```cpp
     void setStateInformation (const void* data, int sizeInBytes) override

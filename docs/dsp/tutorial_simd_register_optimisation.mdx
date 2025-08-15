@@ -29,7 +29,7 @@ AudioDataConverters,
 
 ## デモ・プロジェクト
 
-このデモ・プロジェクトでは、読み込んだオーディオ・ファイルをIIRフィルターを通して再生し、試聴時に処理・変更することができます。この最適化の目的は、同じIIRフィルターにSIMD命令セットを使用することで、CPUパワーをどれだけ軽減できるかを確認することです。
+このデモ・プロジェクトでは、読み込んだオーディオ・ファイルをIIRフィルターを通して再生し、試聴時に処理・変更できます。この最適化の目的は、同じIIRフィルターにSIMD命令セットを使用することで、CPUパワーをどれだけ軽減できるかを確認することです。
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_simd_register_optimisation_screenshot1.png"
@@ -107,7 +107,7 @@ SIMDRegister calculateDSPEffect (SIMDRegister x,
 
 ## IIRフィルター
 
-の中で`SIMDTutorialFilter`クラスでは、まずここに示すように、フィルタのパラメータなどのメンバ変数を定義する：
+の中で`SIMDTutorialFilter`クラスでは、まずここに示すように、フィルタのパラメータなどのメンバー変数を定義する：
 
 ```cpp
     dsp::ProcessorDuplicator, dsp::IIR::Coefficients> iir;
@@ -121,7 +121,7 @@ SIMDRegister calculateDSPEffect (SIMDRegister x,
 };
 ```
 
-ProcessorDuplicator内にIIRフィルター・オブジェクトを定義することで、各チャンネルのprepare()、process()、reset()関数を個別に呼び出す心配がなくなり、モノラル・プロセッサーを自動的にマルチチャンネル・プロセッサーに変換することができる。また、通過フィルタのタイプ、カットオフ周波数、シャープネスQなど、フィルタのパラメータも定義します。
+ProcessorDuplicator内にIIRフィルター・オブジェクトを定義することで、各チャンネルのprepare()、process()、reset()関数を個別に呼び出す心配がなくなり、モノラル・プロセッサーを自動的にマルチチャンネル・プロセッサーに変換できる。また、通過フィルタのタイプ、カットオフ周波数、シャープネスQなど、フィルタのパラメータも定義します。
 
 updateParameters()関数では、画面上のコントロールが変更されたときにフィルターのパラメーターが更新されるようにしています：
 
@@ -223,7 +223,7 @@ struct SIMDTutorialFilter
     double sampleRate = 0.0;
 ```
 
-IIR係数をポインタとして定義し、SIMDRegisterクラスを使ってフィルタを一意なポインタとして定義し、サンプル・タイプをラップします。\[1\].サンプル・タイプをラップするためにSIMDRegisterクラスを使用して、インターリーブされたデータを格納するAudioBlockを作成し、後で出力ブロックを格納するために使用するゼロ・データ用に別のAudioBlockを作成します。\[2\].割り当て[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")対応するAudioBlockオブジェクトと、SIMDRegisterベクトルの要素数を持つチャンネルポインタを保持するためのオブジェクト\[3\].
+IIR係数をポインタとして定義し、SIMDRegisterクラスを使ってフィルタを一意なポインタとして定義し、サンプル・タイプをラップします。\[1\].サンプル・タイプをラップするためにSIMDRegisterクラスを使用して、インターリーブされたデータを格納するAudioBlockを作成し、後で出力ブロックを格納するために使用するゼロ・データ用に別のAudioBlockを作成します。\[2\].割り当て[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")対応するAudioBlockオブジェクトと、SIMDRegisterベクトルの要素数を持つチャンネルポインタを保持するためのオブジェクト\[3\]。
 
 prepare()関数で、前と同じようにサンプル・レートを設定し、フィルタのデフォルト係数を計算します。\[4\].サンプル・タイプと先に定義した係数をSIMDRegisterラッパーで包んだ新しいIIRフィルタをインスタンス化して、フィルタをリセットします。\[5\]以下の通りである：
 
@@ -283,7 +283,7 @@ prepare()関数で、前と同じようにサンプル・レートを設定し�
 - \[11\]チャンネル・ポインターをコピーして、異なるチャンネルのすべてのサンプルをインターリーブする。[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")をインターリーブしたAudioBlockに挿入し、サンプル数とチャンネル数をSIMDRegisterのサイズとして指定します。
 - \[12\]サンプル・タイプのSIMDRegisterラッパーを使用したシングル・ブロック・コンテキストで、インターリーブされたデータを使用して、フィルターでオーディオを処理します。
 - \[13\]次に、すべての入力チャンネルについて、出力ブロックのチャンネルポインタを、対応する[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。").
-- \[14\]最後に、インターリーブされたAudioBlockからチャンネルポインタにコピーすることで、異なるチャンネルのすべてのサンプルをデインターリーブします。[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")で、サンプル数とチャンネル数を SIMDRegister のサイズとして指定します。
+- \[14\]最後に、インターリーブされたAudioBlockからチャンネルポインタにコピーすることで、異なるチャンネルのすべてのサンプルをデインターリーブします。[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")で、サンプル数とチャンネル数をSIMDRegisterのサイズとして指定します。
 
 フィルタのreset()関数はどちらの場合も同じままであり、最適化は完了した。
 

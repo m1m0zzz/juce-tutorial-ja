@@ -30,7 +30,7 @@ tags: [上級]
 
 :::warning
 
-このプロジェクトのPIPバージョンを使用する場合は、必ず`Resources`フォルダを生成されたProjucerプロジェクトに追加します。
+このプロジェクトのpipバージョンを使用する場合は、必ず`Resources`フォルダを生成されたProjucerプロジェクトに追加します。
 
 :::
 
@@ -86,7 +86,7 @@ tags: [上級]
 
 :::
 
-macOS と iOS では、アプリケーションに署名するために、Xcode 内の Apple Developer アカウントでサインインし、開発チームを選択する必要があります。あなたのプロジェクトのためのユニークなバンドル ID を選択します。以下のスクリーンショットのように、Xcode は自動的に署名証明書と Provisioning Profile を提供します：
+macOSとiOSでは、アプリケーションに署名するために、Xcode内のApple Developerアカウントでサインインし、開発チームを選択する必要があります。あなたのプロジェクトのためのユニークなバンドルIDを選択します。以下のスクリーンショットのように、Xcodeは自動的に署名証明書とProvisioning Profileを提供します：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot3.png"
@@ -130,7 +130,7 @@ Androidでアプリ内課金を正しく表示するには、Google Play Console
 
 :::note
 
-Google PlayのプロダクトIDに関する制限により、プロダクトIDには数字（0～9）、小文字（a～z）、アンダースコア（\_）、またはフルストップ（.)のみを使用することをお勧めします。こうすることで、AppStoreとPlayStoreの両方で同じプロダクトIDを使用することができます。そうしないと、アプリは同じ商品でも異なるプロダクトIDを扱わなければならなくなります。
+Google PlayのプロダクトIDに関する制限により、プロダクトIDには数字（0～9）、小文字（a～z）、アンダースコア（\_）、またはフルストップ（.)のみを使用することをお勧めします。こうすることで、AppStoreとPlayStoreの両方で同じプロダクトIDを使できますす。そうしないと、アプリは同じ商品でも異なるプロダクトIDを扱わなければならなくなります。
 
 :::
 
@@ -184,13 +184,13 @@ Androidでアプリ内課金を正しく機能させるためには、Android版
 - MainContentComponent：画面上にGUIコンポーネントをレイアウトし、再生/停止ボタンクリック時のサウンドファイルの再生を処理する。
 - フレーズモデル：[ListBoxModel](https://docs.juce.com/master/classListBoxModel.html "このサブクラスはListBoxを駆動するために使用されます。")購入したボイスを使って演奏できるフレーズを説明する。
 - ボイスモデル[ListBoxModel](https://docs.juce.com/master/classListBoxModel.html "このサブクラスはListBoxを駆動するために使用されます。")をクリックすると、フレーズを再生するために購入可能なボイスが表示されます。
-- VoiceRow：カスタム行[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")の VoiceModel クラスを使用して、特定の音声エントリーの画像と情報を表示します。
+- VoiceRow：カスタム行[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")のVoiceModelクラスを使用して、特定の音声エントリーの画像と情報を表示します。
 - VoicePurchases：VoiceProductの購入を管理するクラス。[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")インスタンスだ。
 - VoiceProduct：価格、名前、以前に購入したかどうかなどの情報を持つ、単一の購入可能な製品を記述するための構造。
 
 見てわかるように、これはおおよそ[MVC](https://en.wikipedia.org/wiki/Model–view–controller)デザイン・パターンを使って、アプリケーションの機能を別々のクラスに分離する。
 
-VoiceProduct 構造体には、消耗品以外の製品に役立つ情報、つまり以下の変数が含まれています：
+VoiceProduct構造体には、消耗品以外の製品に役立つ情報、つまり以下の変数が含まれています：
 
 - const char\* identifier：iTunes ConnectやGoogle Playで参照される一意の識別子。
 - const char\* humanReadable：アプリに表示する、人間が読めるバージョンの識別子。
@@ -201,13 +201,13 @@ VoiceProduct 構造体には、消耗品以外の製品に役立つ情報、つ�
 
 :::danger[エクササイズ]
 
-消耗品の購入にはどのような情報が必要だろうか？定期購入についてはどうだろう？何が追加されるべきか、何が削除されるべきかを考えよう。
+消耗品の購入にはどのような情報が必要だろうか？ 定期購入についてはどうだろう？　何が追加されるべきか、何が削除されるべきかを考えよう。
 
 :::
 
 ## 製品の表示
 
-販売したいIAP商品をユーザー・インターフェースに表示することから始めましょう。VoicePurchasesコンストラクタの`VoicePurchases`クラスでは、VoiceProductオブジェクトを上記のような構造で初期化しています：
+販売したいIAP商品をユーザー・インタフェースに表示することから始めましょう。VoicePurchasesコンストラクタの`VoicePurchases`クラスでは、VoiceProductオブジェクトを上記のような構造で初期化しています：
 
 ```cpp
     VoicePurchases()
@@ -242,7 +242,7 @@ VoiceProduct 構造体には、消耗品以外の製品に役立つ情報、つ�
     }
 ```
 
-同じクラス内にもうひとつ、次のようなヘルパー関数を作ってみよう。`findVoiceIndexFromIdentifier()`を使用して、識別子を渡された VoiceProduct のインデックスを取得します。このプライベート関数は、後で[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")オブジェクトがある：
+同じクラス内にもうひとつ、次のようなヘルパー関数を作ってみよう。`findVoiceIndexFromIdentifier()`を使用して、識別子を渡されたVoiceProductのインデックスを取得します。このプライベート関数は、後で[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")オブジェクトがある：
 
 ```cpp
     int findVoiceIndexFromIdentifier (juce::String identifier) const
@@ -317,7 +317,7 @@ public:
 - \[2\]まず、アプリ内課金があなたのプラットフォームでサポートされているか、セットアップが正しく行われているかを確認します。
 - \[3\]: 最初に空いているVoiceProductオブジェクトを除くすべてのVoiceProductオブジェクトについて、商品が入手できないことを反映するように変数を設定する。
 - \[4\]オプションで非同期にメッセージボックスを表示し、ユーザーに問題を説明します。
-- \[5\]: アプリ内課金が可能な場合、すべての VoiceProduct オブジェクトについて、先に実装したヘルパー関数で識別子からインデックスを取得します。
+- \[5\]: アプリ内課金が可能な場合、すべてのVoiceProductオブジェクトについて、先に実装したヘルパー関数で識別子からインデックスを取得します。
 - \[6\]インデックスが有効であれば、商品変数に商品の在庫状況を反映させます。
 - \[7\]オプションで、非同期にユーザーに課金されることを説明するメッセージボックスを表示できます。
 
@@ -341,7 +341,7 @@ public:
 };
 ```
 
-という新しいヘルパー関数も必要だ。`getPurchase()`インデックスから VoiceProduct を取得します。この関数には、この関数が最初に呼ばれたときのための初期化コードも挿入します：
+という新しいヘルパー関数も必要だ。`getPurchase()`インデックスからVoiceProductを取得します。この関数には、この関数が最初に呼ばれたときのための初期化コードも挿入します：
 
 ```cpp
     VoiceProduct getPurchase (int voiceIndex)
@@ -410,12 +410,12 @@ VoicePurchasesクラスは、上記の関数が最初に呼ばれたときにリ
     }
 ```
 
-- \[6\]サーバーからのレスポンスが正常であれば、購入リストを更新することができます。ヘルパー関数を使用して、識別子から音声のインデックスを見つけます。
+- \[6\]サーバーからのレスポンスが正常であれば、購入リストをできますます。ヘルパー関数を使用して、識別子から音声のインデックスを見つけます。
 - \[7\]インデックスが有効であれば、VoiceProductオブジェクトの適切な変数を設定し、購入状態を反映させます。
 - \[8\]このコールバック関数が最初に呼ばれたときは、購入価格を初期化する必要があります。このコードセグメントが2回目に呼ばれないようにしてください。
 - \[9\]の商品価格を取得するリクエストを開始する。[InAppPurchases](https://docs.juce.com/master/classInAppPurchases.html "アプリ内課金機能を提供")インスタンスを呼び出す。`getProductsInformation()`関数である。
 
-これらのアプリ内課金商品のGUIを更新するためには、購入状態を保存する一時変数があると便利です。VoiceRowのサブクラスで、プライベートなメンバ変数として宣言しましょう。`VoiceModel`クラスである：
+これらのアプリ内課金商品のGUIを更新するためには、購入状態を保存する一時変数があると便利です。VoiceRowのサブクラスで、プライベートなメンバー変数として宣言しましょう。`VoiceModel`クラスである：
 
 ```cpp
         bool isSelected = false, hasBeenPurchased = false, purchaseInProgress = false;
@@ -446,7 +446,7 @@ VoicePurchasesクラスは、上記の関数が最初に呼ばれたときにリ
                     g.fillRect (voiceIconBounds);
 ```
 
-また`update()`関数を使用して、名前と価格のラベルに購入ステータスを反映させます。先に定義したヘルパー関数を使用して、まず行インデックスから VoiceProduct を取得します。\[12\]そして、その商品が購入されたかどうかを示す一時変数を設定する。\[13\].その後、以下のようにGUIを更新する：
+また`update()`関数を使用して、名前と価格のラベルに購入ステータスを反映させます。先に定義したヘルパー関数を使用して、まず行インデックスからVoiceProductを取得します。\[12\]そして、その商品が購入されたかどうかを示す一時変数を設定する。\[13\].その後、以下のようにGUIを更新する：
 
 ```cpp
         void update (int rowNumber, bool rowIsSelected)
@@ -479,7 +479,7 @@ VoicePurchasesクラスは、上記の関数が最初に呼ばれたときにリ
                 setInterceptsMouseClicks (! hasBeenPurchased, ! hasBeenPurchased);  // [14]
 ```
 
-このコードでは、主に、商品が購入されたときに名前と価格ラベルのフォントスタイルがデフォルトのままになるように更新し、色を白に変更しています。さらに、対応する商品が購入可能な場合、購入ボタンを有効にします。また、顧客への請求時のエラーを避けるために、購入後にこれらのボタンをマウスでクリックできないようにする必要があります。\[14\].
+このコードでは、主に、商品が購入されたときに名前と価格ラベルのフォントスタイルがデフォルトのままになるように更新し、色を白に変更しています。さらに、対応する商品が購入可能な場合、購入ボタンを有効にします。また、顧客への請求時のエラーを避けるために、購入後にこれらのボタンをマウスでクリックできないようにする必要があります。\[14\]。
 
 ## 商品の購入
 
@@ -540,7 +540,7 @@ VoicePurchasesクラスは、上記の関数が最初に呼ばれたときにリ
     }
 ```
 
-先ほどと同じヘルパー関数を使って、VoiceProductの識別子からインデックスを取得します。\[4\]そして、購入が成功したかどうかに応じて、当該オブジェクトに適切な変数を設定し、購入状態を終了する。\[5\].
+先ほどと同じヘルパー関数を使って、VoiceProductの識別子からインデックスを取得します。\[4\]そして、購入が成功したかどうかに応じて、当該オブジェクトに適切な変数を設定し、購入状態を終了する。\[5\]。
 
 サーバーからの応答を待つ間、ユーザーに購入状態を示すために、回転するアニメーションを`paint()`の機能である。`VoiceModel`クラス\[6\]:
 
@@ -599,7 +599,7 @@ VoicePurchasesクラスは、上記の関数が最初に呼ばれたときにリ
 
 ## 非同期アップデートの処理
 
-購入とIAPサーバーとの同期は別のスレッドで実行されるため、レスポンスを非同期で処理する必要がある。そのため`MainContentComponent`クラスを継承しよう。[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")クラス\[1\]このクラスの参照を VoicePurchases のインスタンスに渡す。\[2\]:
+購入とIAPサーバーとの同期は別のスレッドで実行されるため、レスポンスを非同期で処理する必要がある。そのため`MainContentComponent`クラスを継承しよう。[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")クラス\[1\]このクラスの参照をVoicePurchasesのインスタンスに渡す。\[2\]:
 
 ```cpp
 class MainContentComponent : public juce::Component,
@@ -613,7 +613,7 @@ class MainContentComponent : public juce::Component,
     juce::AudioDeviceManager dm;
 ```
 
-VoicePurchasesコンストラクタとメンバ初期化リストで、VoicePurchasesへの参照を[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")インスタンスをプライベート変数\[3\]:
+VoicePurchasesコンストラクタとメンバー初期化リストで、VoicePurchasesへの参照を[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")インスタンスをプライベート変数\[3\]:
 
 ```cpp
     VoicePurchases (juce::AsyncUpdater& asyncUpdater)   // [3]
@@ -679,7 +679,7 @@ void purchasesListRestored (const juce::Array& infos, bool success, const juce::
 }
 ```
 
-これで、いつでも`triggerAsyncUpdate()`関数が呼び出される。[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")インスタンスでコールバックを処理することができます。`handleAsyncUpdate()`古いGUIコンポーネントを更新する関数\[6\]:
+これで、いつでも`triggerAsyncUpdate()`関数が呼び出される。[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")インスタンスでコールバックを処理できます。`handleAsyncUpdate()`古いGUIコンポーネントを更新する関数\[6\]:
 
 ```cpp
     void handleAsyncUpdate() override
@@ -750,7 +750,7 @@ void purchasesListRestored (const juce::Array& infos, bool success, const juce::
 このチュートリアルでは、モバイルとデスクトップでアプリ内課金を処理する方法を学びました。特に
 
 - さまざまな配備プラットフォームの予備セットアップをカバー。
-- 様々なIAP製品情報をユーザーインターフェースに表示。
+- 様々なIAP製品情報をユーザーインタフェースに表示。
 - 過去のユーザーの購入履歴を取得し、それに応じてGUIを非同期に更新。
 - アプリ内で消耗品以外の商品の購入に対応。
 

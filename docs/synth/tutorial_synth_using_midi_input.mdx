@@ -8,7 +8,7 @@ tags: [中級]
 
 <SourcePageLink path="tutorial_synth_using_midi_input" />
 
-このチュートリアルでは、MIDI 入力に反応するポリフォニックなサイン波シンセサイザーを実装します。これは[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスおよび関連クラス。
+このチュートリアルでは、MIDI入力に反応するポリフォニックなサイン波シンセサイザーを実装します。これは[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスおよび関連クラス。
 
 レベル：中級
 
@@ -37,11 +37,11 @@ JUCEでのMIDI入力の扱い方と、サイン波の生成方法に慣れてい
   caption="MidiKeyboardComponentを含むアプリケーションウィンドウ。"
 />
 
-コンピュータのキーボードのキーを使って、画面上のキーボードをコントロールすることができます（A、S、D、Fなどのキーを使って、音符C、D、E、Fなどをコントロールします）。これにより、シンセサイザーをポリフォニックに演奏することができます。
+コンピュータのキーボードのキーを使って、画面上のキーボードをコントロールできます（A、S、D、Fなどのキーを使って、音符C、D、E、Fなどをコントロールします）。これにより、シンセサイザーをポリフォニックに演奏できます。
 
 ## シンセシザークラス
 
-このチュートリアルでは、JUCE[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスを使用して、ポリフォニック・シンセシスを実装することができます。これは、独自のアプリケーションで独自のサウンドを使ってシンセサイザーをカスタマイズするために必要なすべての基本要素を示しています。これを動作させるために必要なクラスはいろいろあり、標準の`MainContentComponent`クラスがある：
+このチュートリアルでは、JUCE[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスを使用して、ポリフォニック・シンセシスを実装できます。これは、独自のアプリケーションで独自のサウンドを使ってシンセサイザーをカスタマイズするために必要なすべての基本要素を示しています。これを動作させるために必要なクラスはいろいろあり、標準の`MainContentComponent`クラスがある：
 
 - `SynthAudioSource`を実装している。[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")というクラスがあります。`SynthAudioSource`を含む。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスそのものです。これはシンセサイザーからすべてのオーディオを出力する。
 - `SineWaveVoice`これはカスタム[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "SynthesiserがSynthesiserSoundを再生するために使用できる音色を表します。")というクラスがあります。`SineWaveVoice`.ボイスクラスは、シンセサイザーのボイスの1つを、他のボイスとミックスしてレンダリングします。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトを生成します。1つのボイスクラスのインスタンスが1つのボイスをレンダリングします。
@@ -49,7 +49,7 @@ JUCEでのMIDI入力の扱い方と、サイン波の生成方法に慣れてい
 
 ### キーボードの設定
 
-私たちの`MainContentComponent`クラスには以下のデータ・メンバが含まれる。
+私たちの`MainContentComponent`クラスには以下のデータ・メンバーが含まれる。
 
 ```cpp
     juce::MidiKeyboardState keyboardState;
@@ -60,7 +60,7 @@ JUCEでのMIDI入力の扱い方と、サイン波の生成方法に慣れてい
 };
 ```
 
-について`synthAudioSource`そして`keyboardComponent`メンバは`MainContentComponent`ビルダー
+について`synthAudioSource`そして`keyboardComponent`メンバーは`MainContentComponent`ビルダー
 
 ```cpp
     MainContentComponent()
@@ -167,7 +167,7 @@ private:
 
 :::
 
-[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")オブジェクトは[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトを使用することができます。その[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")クラスは[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスの寿命は[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")オブジェクトは自動的に処理される。
+[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")オブジェクトは[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトを使用できます。その[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")クラスは[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスの寿命は[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")オブジェクトは自動的に処理される。
 
 :::note
 
@@ -177,7 +177,7 @@ private:
 
 ### SineWaveSoundクラス
 
-私たちのサウンドクラスはとてもシンプルで、データを含む必要すらありません。ただ、このサウンドが特定のMIDIチャンネルとそのチャンネルの特定の音符または音域で再生されるべきかどうかを報告する必要があるだけです。この単純なケースでは`true`ともに`appliesToNote()`そして`appliesToChannel()`関数を使用します。前述したように、サウンド・クラスには、サウンドを作成するのに必要なデータ（ウェーブテーブルなど）を格納することができる。
+私たちのサウンドクラスはとてもシンプルで、データを含む必要すらありません。ただ、このサウンドが特定のMIDIチャンネルとそのチャンネルの特定の音符または音域で再生されるべきかどうかを報告する必要があるだけです。この単純なケースでは`true`ともに`appliesToNote()`そして`appliesToChannel()`関数を使用します。前述したように、サウンド・クラスには、サウンドを作成するのに必要なデータ（ウェーブテーブルなど）を格納できる。
 
 ```cpp
 struct SineWaveSound   : public juce::SynthesiserSound
@@ -447,7 +447,7 @@ MIDI入力デバイスのリストをユーザーに提示するために、以�
     }
 ```
 
-を追加していることに注意してください。[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")オブジェクトを`SynthAudioSource`オブジェクトを[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。")オブジェクト\[13\]を指定されたMIDI入力デバイスに適用します。また、以前の[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。")ユーザーがコンボボックスを使って選択したデバイスを変更した場合、以前に選択したMIDI入力デバイスのオブジェクトを返します。\[12\].
+を追加していることに注意してください。[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")オブジェクトを`SynthAudioSource`オブジェクトを[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。")オブジェクト\[13\]を指定されたMIDI入力デバイスに適用します。また、以前の[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。")ユーザーがコンボボックスを使って選択したデバイスを変更した場合、以前に選択したMIDI入力デバイスのオブジェクトを返します。\[12\]。
 
 私たちは、これを次のように位置づける必要がある。[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")オブジェクトの位置を調整する。[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")オブジェクトを`resized()`関数である：
 

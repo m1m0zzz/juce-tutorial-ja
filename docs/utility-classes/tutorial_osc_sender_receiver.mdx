@@ -63,7 +63,7 @@ Open Sound Controlプロトコルを利用して、複数のアプリケーシ�
 };
 ```
 
-追加[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを使用してユーザーのインタラクションをキャプチャします。\[1\]そして[OSCSender](https://docs.juce.com/master/classOSCSender.html "OSCメッセージの送信者。")オブジェクトを後でレシーバーに接続する\[2\].
+追加[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを使用してユーザーのインタラクションをキャプチャします。\[1\]そして[OSCSender](https://docs.juce.com/master/classOSCSender.html "OSCメッセージの送信者。")オブジェクトを後でレシーバーに接続する\[2\]。
 
 クラスのコンストラクタで、スライダー・パラメータを設定し、以下のようにネットワークへの接続を試みる：
 
@@ -161,7 +161,7 @@ class MainContentComponent   : public juce::Component,
 public:
 ```
 
-また、メッセージ受信時にコールバックを受け取るために、OSCReceiver::ListenerWithOSCAddress\<OSCReceiver::MessageLoopCallback\>を継承する必要があります。\[2\].
+また、メッセージ受信時にコールバックを受け取るために、OSCReceiver::ListenerWithOSCAddress\<OSCReceiver::MessageLoopCallback\>を継承する必要があります。\[2\]。
 
 クラスのコンストラクタで、同じパラメータを[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを作成する：
 
@@ -186,7 +186,7 @@ public:
     }
 ```
 
-のサブクラスとして[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")メッセージを受信するには、正しいポート番号に直接接続してください。\[3\]をリッスンするアドレスを提供し、このクラスを自分自身のリスナーとして登録する。\[4\].
+のサブクラスとして[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")メッセージを受信するには、正しいポート番号に直接接続してください。\[3\]をリッスンするアドレスを提供し、このクラスを自分自身のリスナーとして登録する。\[4\]。
 
 :::warning
 
@@ -204,7 +204,7 @@ public:
     }
 ```
 
-この関数をオーバーライドして、まずメッセージのサイズと値の型をチェックする。\[5\].次に、ロータリー・ノブの値を設定します。[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")範囲\[6\].
+この関数をオーバーライドして、まずメッセージのサイズと値の型をチェックする。\[5\].次に、ロータリー・ノブの値を設定します。[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")範囲\[6\]。
 
 接続に失敗した場合に備えて、送信側アプリケーションと同じエラー・ロギング機能を実装する：
 
@@ -257,7 +257,7 @@ class MainContentComponent   : public juce::Component,
 public:
 ```
 
-OSCLogListBox と[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")オブジェクトをプライベート・メンバ変数として使用します。\[2\]を定義し、ポート番号を格納する一時的なint変数を定義する。\[3\]以下の通りである：
+OSCLogListBoxと[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")オブジェクトをプライベート・メンバー変数として使用します。\[2\]を定義し、ポート番号を格納する一時的なint変数を定義する。\[3\]以下の通りである：
 
 ```cpp
     OSCLogListBox oscLogListBox;        // [2]
@@ -291,7 +291,7 @@ OSCLogListBox と[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.htm
 - \[5\]このクラスを[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")オブジェクトでコールバックを受け取ります。
 - \[6\]: カスタムエラーハンドラフォーマットを[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")をラムダ関数で返します。ここでは、解析に失敗したデータへのポインタとそのサイズをOSCLogListBoxオブジェクトに渡している。
 
-モニター・アプリケーションのユーザー・インターフェース上でボタンがクリックされると、次のステップで実装する対応する関数を呼び出します。
+モニター・アプリケーションのユーザー・インタフェース上でボタンがクリックされると、次のステップで実装する対応する関数を呼び出します。
 
 ユーザーが "connect "ボタンをクリックした場合、アプリケーションの状態に応じて接続/切断を行う。\[7\].さらに、「接続」ボタンが押されるたびに`updateConnectionStatusLabel()`ヘルパー関数\[8\]この通りである：
 
@@ -405,7 +405,7 @@ OSCLogListBox と[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.htm
     }
 ```
 
-もし[OSCBundle](https://docs.juce.com/master/classOSCBundle.html "OSCバンドル。")を受信すると、別のコールバック関数が呼び出され、バンドルの内容を OSCLogListBox に転送する：
+もし[OSCBundle](https://docs.juce.com/master/classOSCBundle.html "OSCバンドル。")を受信すると、別のコールバック関数が呼び出され、バンドルの内容をOSCLogListBoxに転送する：
 
 ```cpp
     void oscBundleReceived (const juce::OSCBundle& bundle) override

@@ -4,7 +4,7 @@ sidebar_position: 1
 tags: [中級]
 ---
 
-# オーディオプレーヤーの構築
+# オーディオプレイヤーーの構築
 
 <SourcePageLink path="tutorial_playing_sound_files" />
 
@@ -31,13 +31,13 @@ tags: [中級]
 
 ## デモ・プロジェクト
 
-このデモ・プロジェクトでは、サウンド・ファイルの再生をコントロールするための3つのボタン・インターフェースを紹介します。つのボタンは
+このデモ・プロジェクトでは、サウンド・ファイルの再生をコントロールするための3つのボタン・インタフェースを紹介します。つのボタンは
 
 - ユーザーがサウンドファイルを選択するためのファイル選択ボタンを表示します。
 - サウンドを再生するボタン
 - 音を止めるボタン
 
-インターフェイスは以下のスクリーンショットの通り：
+インタフェースは以下のスクリーンショットの通り：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_playing_sound_files_screenshot1.png"
@@ -48,20 +48,20 @@ tags: [中級]
 
 ### AudioSourceクラス
 
-でサンプルごとにオーディオを生成することができます。`getNextAudioBlock()`Audio Application テンプレートには、オーディオを生成・処理するためのツールが組み込まれています。これらにより、アプリケーションコード内でオーディオの各サンプルを処理することなく、高レベルのビルディングブロックをリンクして、強力なオーディオアプリケーションを形成することができます（JUCEがこれを代行します）。これらのビルディングブロックは[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスである。実際、もしあなたが[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスである、[Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)\- を利用している。[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスがすでにある。その[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラス自体は[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスが含まれていることが重要です。[AudioSourcePlayer](https://docs.juce.com/master/classAudioSourcePlayer.html "オーディオ・ソースからAudioIODeviceへ連続的にオーディオをストリーミングするためのラッパークラス。")オブジェクトの間でオーディオをストリーミングする。[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")とオーディオハードウェアデバイスの間で、オーディオサンプルを直接生成することができます。オーディオ・サンプルを直接`getNextAudioBlock()`関数の代わりに[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")オブジェクトを組み合わせて一連のプロセスを形成する。このチュートリアルではこの機能を利用する。
+でサンプルごとにオーディオを生成できます。`getNextAudioBlock()`Audio Applicationテンプレートには、オーディオを生成・処理するためのツールが組み込まれています。これらにより、アプリケーションコード内でオーディオの各サンプルを処理することなく、高レベルのビルディングブロックをリンクして、強力なオーディオアプリケーションを形成できます（JUCEがこれを代行します）。これらのビルディングブロックは[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスである。実際、もしあなたが[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスである、[Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)\- を利用している。[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスがすでにある。その[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラス自体は[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスが含まれていることが重要です。[AudioSourcePlayer](https://docs.juce.com/master/classAudioSourcePlayer.html "オーディオ・ソースからAudioIODeviceへ連続的にオーディオをストリーミングするためのラッパークラス。")オブジェクトの間でオーディオをストリーミングする。[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")とオーディオハードウェアデバイスの間で、オーディオサンプルを直接生成できます。オーディオ・サンプルを直接`getNextAudioBlock()`関数の代わりに[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")オブジェクトを組み合わせて一連のプロセスを形成する。このチュートリアルではこの機能を利用する。
 
 ### オーディオフォーマット
 
-JUCE は、多くの形式のサウンドファイルを読み書きするためのツールを提供しています。このチュートリアルでは、特に以下のクラスを使用します：
+JUCEは、多くの形式のサウンドファイルを読み書きするためのツールを提供しています。このチュートリアルでは、特に以下のクラスを使用します：
 
-- [AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。"):このクラスにはオーディオ・フォーマット（WAV、AIFF、Ogg Vorbisなど）のリストが含まれており、これらのフォーマットからオーディオ・データを読み取るのに適したオブジェクトを作成することができます。
+- [AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。"):このクラスにはオーディオ・フォーマット（WAV、AIFF、Ogg Vorbisなど）のリストが含まれており、これらのフォーマットからオーディオ・データを読み取るのに適したオブジェクトを作成できます。
 - [AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。"):このクラスは、オーディオファイルに対する低レベルのファイル読み込み操作を処理し、オーディオを一貫したフォーマットで読み込むことを可能にします。`float`値)。を指定する。[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")オブジェクトが特定のファイルを開くように要求されると、このクラスのインスタンスを生成する。
 - [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。"):のサブクラスである。[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスです。このクラスは[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。")オブジェクトを使ってオーディオをレンダリングする。`getNextAudioBlock()`関数である。
 - [AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。"):このクラスは[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスです。このクラスは[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを制御する。このコントロールには[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトに変換できます。また、サンプル・レートの変換も可能で、希望すればオーディオを前もってバッファリングすることもできる。
 
 ## まとめる
 
-これから、これらのクラスと適切なユーザー・インターフェース・クラスを組み合わせて、サウンドファイル再生アプリケーションを作ります。この時点で、様々なフェーズについて考えておくと便利です。*運輸省*\- オーディオファイルの再生オーディオファイルがロードされると、以下の4つの状態が考えられる：
+これから、これらのクラスと適切なユーザー・インタフェース・クラスを組み合わせて、サウンドファイル再生アプリケーションを作ります。この時点で、様々なフェーズについて考えておくと便利です。*運輸省*\- オーディオファイルの再生オーディオファイルがロードされると、以下の4つの状態が考えられる：
 
 - *停止*:オーディオ再生が停止し、開始できる状態。
 - *スタート*:オーディオ再生はまだ開始されていないが、開始するように指示されている。
@@ -80,7 +80,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
     };
 ```
 
-### インターフェイスの初期化
+### インタフェースの初期化
 
 のコンストラクタで`MainContentComponent`クラスで、3つのボタンを設定する：
 
@@ -126,7 +126,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
         formatManager.registerBasicFormats();       // [1]
 ```
 
-これにより、最低限[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")オブジェクトを使ってWAVとAIFFフォーマットのリーダーを作成することができます。その他のフォーマットは、プラットフォームと`juce_audio_formats`モジュールをProjucerプロジェクトに追加した：
+これにより、最低限[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")オブジェクトを使ってWAVとAIFFフォーマットのリーダーを作成できます。その他のフォーマットは、プラットフォームと`juce_audio_formats`モジュールをProjucerプロジェクトに追加した：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_playing_sound_files_screenshot2.png"
@@ -162,11 +162,11 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
     }
 ```
 
-これは単にメンバ関数を呼び出しているだけであることがわかる。`changeState()`.
+これは単にメンバー関数を呼び出しているだけであることがわかる。`changeState()`.
 
 ### 州の変更
 
-輸送状態の変化は、この一つの機能に集約される。`changeState()`.これにより、この機能のすべてのロジックを一箇所にまとめることができます。この関数は`state`メンバは、この新しい状態にあるときに起こる必要がある他のオブジェクトへの変更をトリガする。
+輸送状態の変化は、この1つの機能に集約される。`changeState()`.これにより、この機能のすべてのロジックを一箇所にまとめることができます。この関数は`state`メンバーは、この新しい状態にあるときに起こる必要がある他のオブジェクトへの変更をトリガする。
 
 :::note
 
@@ -228,7 +228,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
     }
 ```
 
-有効な[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを最初に生成し、そうでなければ出力をゼロにするだけである（便利な[AudioSourceChannelInfo::clearActiveBufferRegion()](https://docs.juce.com/master/structAudioSourceChannelInfo.html#a6246ca9f1f6ef86dab31fc0eeaacb7a3 "ソースがデータを生成していない場合にバッファをクリアする便利なメソッド。")関数)。その[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")メンバはstd::unique\_ptrオブジェクトに格納される。これは、ユーザーのアクションに基づいて動的にオブジェクトを生成する必要があるからである。また`nullptr`無効なオブジェクトに対して
+有効な[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを最初に生成し、そうでなければ出力をゼロにするだけである（便利な[AudioSourceChannelInfo::clearActiveBufferRegion()](https://docs.juce.com/master/structAudioSourceChannelInfo.html#a6246ca9f1f6ef86dab31fc0eeaacb7a3 "ソースがデータを生成していない場合にバッファをクリアする便利なメソッド。")関数)。その[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")メンバーはstd::unique\_ptrオブジェクトに格納される。これは、ユーザーのアクションに基づいて動的にオブジェクトを生成する必要があるからである。また`nullptr`無効なオブジェクトに対して
 
 を渡すことも忘れてはならない。`prepareToPlay()`コールバックを他の[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")私たちが使っているオブジェクト：
 
@@ -292,7 +292,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 
 :::note
 
-新しく割り当てられた[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを一時的なstd::unique\_ptrオブジェクトに変換することで、例外セーフになるという利点もある。関数呼び出し中に例外がスローされる可能性がある[AudioTransportSource::setSource()](https://docs.juce.com/master/classAudioTransportSource.html#a20a6a91c4505e77207cadef7ddc4dc5c "入力ソースとして使用するリーダーを設定する。")この場合、std::unique\_ptr オブジェクトは[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトが不要になった。もし、この時点で生のポインタを使って[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")例外がスローされた場合、ポインタがぶら下がったままになってしまうからだ。
+新しく割り当てられた[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを一時的なstd::unique\_ptrオブジェクトに変換することで、例外セーフになるという利点もある。関数呼び出し中に例外がスローされる可能性がある[AudioTransportSource::setSource()](https://docs.juce.com/master/classAudioTransportSource.html#a20a6a91c4505e77207cadef7ddc4dc5c "入力ソースとして使用するリーダーを設定する。")この場合、std::unique\_ptrオブジェクトは[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトが不要になった。もし、この時点で生のポインタを使って[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")例外がスローされた場合、ポインタがぶら下がったままになってしまうからだ。
 
 :::
 
@@ -438,7 +438,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 
 :::danger[エクササイズ]
 
-追加[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトをインターフェイスに追加する。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトを使用することができます。オブジェクトは[AudioTransportSource::getCurrentPosition()](https://docs.juce.com/master/classAudioTransportSource.html#a1984ac3a6eafb12d5312c3eab5615810 "次のデータブロックが読み込まれる位置を返します。")関数を使用してこのポジションを取得する。また`MainContentComponent`クラスは[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスで定期的な更新を行います。`timerCallback()`関数を使用してラベルを更新することもできる。さらに[RelativeTime](https://docs.juce.com/master/classRelativeTime.html "相対的な時間の尺度。")クラスを使用して、生の秒単位の時間をより便利な分、秒、ミリ秒の形式に変換することができます。
+追加[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトをインタフェースに追加する。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトを使用できます。オブジェクトは[AudioTransportSource::getCurrentPosition()](https://docs.juce.com/master/classAudioTransportSource.html#a1984ac3a6eafb12d5312c3eab5615810 "次のデータブロックが読み込まれる位置を返します。")関数を使用してこのポジションを取得する。また`MainContentComponent`クラスは[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスで定期的な更新を行います。`timerCallback()`関数を使用してラベルを更新することもできる。さらに[RelativeTime](https://docs.juce.com/master/classRelativeTime.html "相対的な時間の尺度。")クラスを使用して、生の秒単位の時間をより便利な分、秒、ミリ秒の形式に変換できます。
 
 :::
 
@@ -457,7 +457,7 @@ JUCE は、多くの形式のサウンドファイルを読み書きするため
 - その[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")からオーディオを読み込んで再生するクラスです。[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。")そして
 - その[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")クラスの再生を制御する。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトがある。
 
-- また、オーディオファイルの再生状態を管理する一つの方法についても調べた。
+- また、オーディオファイルの再生状態を管理する1つの方法についても調べた。
 
 ## 備考
 

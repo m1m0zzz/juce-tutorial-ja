@@ -32,7 +32,7 @@ tags: [上級]
 
 :::warning
 
-このプロジェクトのPIPバージョンを使用する場合は、必ず`Resources`フォルダを生成されたProjucerプロジェクトに追加します。
+このプロジェクトのpipバージョンを使用する場合は、必ず`Resources`フォルダを生成されたProjucerプロジェクトに追加します。
 
 :::
 
@@ -40,7 +40,7 @@ tags: [上級]
 
 ## デモ・プロジェクト
 
-このプロジェクトは、ローカルとリモートの両方の通知を送受信するための包括的なユーザー・インターフェースを提供します。通知パラメーターと識別子を整理するために、別々のテーブルが表示されます。iOSシミュレーターでモバイル・アプリケーションを実行すると、ウィンドウは次のようになるはずです：
+このプロジェクトは、ローカルとリモートの両方の通知を送受信するための包括的なユーザー・インタフェースを提供します。通知パラメーターと識別子を整理するために、別々のテーブルが表示されます。iOSシミュレーターでモバイル・アプリケーションを実行すると、ウィンドウは次のようになるはずです：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_push_notifications_screenshot1.png"
@@ -113,7 +113,7 @@ tags: [上級]
 
 :::
 
-macOS と iOS では、アプリケーションに署名するために、Xcode 内の Apple Developer アカウントでサインインし、開発チームを選択する必要があります。あなたのプロジェクトのためのユニークなバンドル ID を選択します。以下のスクリーンショットのように、Xcode は自動的に署名証明書と Provisioning Profile を提供します：
+macOSとiOSでは、アプリケーションに署名するために、Xcode内のApple Developerアカウントでサインインし、開発チームを選択する必要があります。あなたのプロジェクトのためのユニークなバンドルIDを選択します。以下のスクリーンショットのように、Xcodeは自動的に署名証明書とProvisioning Profileを提供します：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_push_notifications_screenshot3.png"
@@ -129,7 +129,7 @@ macOS と iOS では、アプリケーションに署名するために、Xcode 
 
 ### Pusher
 
-iOSのリモート通知をテストするには、Apple Push Notification Service（APN）を使って通知を送信するサーバーかアプリケーションが必要です。GoogleのFirebaseを利用してテストすることも可能だが（Android側と同じように）、ありがたいことに、以下のようなアプリを利用することで、より簡単な解決策がある。[Pusher](https://github.com/noodlewerk/NWPusher).このチュートリアルの目的には、このアプリケーションをお勧めしますが、APNを使用する他のお好みのサービスを使用することができます。
+iOSのリモート通知をテストするには、Apple Push Notification Service（APN）を使って通知を送信するサーバーかアプリケーションが必要です。GoogleのFirebaseを利用してテストすることも可能だが（Android側と同じように）、ありがたいことに、以下のようなアプリを利用することで、より簡単な解決策がある。[Pusher](https://github.com/noodlewerk/NWPusher).このチュートリアルの目的には、このアプリケーションをお勧めしますが、APNを使用する他のお好みのサービスを使用できます。
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_push_notifications_pusher_screenshot1.png"
@@ -138,14 +138,14 @@ iOSのリモート通知をテストするには、Apple Push Notification Servi
 
 ### SSL証明書の生成
 
-Pusherアプリを使ってプッシュ通知を送信するには、SSL証明書を生成する必要があります。これを行うには、Apple Developerアカウントにログインし、アプリIDの**証明書、ID、プロフィール**ページをご覧ください。をクリックして、プッシュ通知サービスを設定することができます。**編集**ボタンをクリックします。以下のスクリーンショットのように、ウェブサイトの指示に従って証明書を作成します：
+Pusherアプリを使ってプッシュ通知を送信するには、SSL証明書を生成する必要があります。これを行うには、Apple Developerアカウントにログインし、アプリIDの**証明書、ID、プロフィール**ページをご覧ください。をクリックして、プッシュ通知サービスを設定できます。**編集**ボタンをクリックします。以下のスクリーンショットのように、ウェブサイトの指示に従って証明書を作成します：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_push_notifications_screenshot5.png"
   caption="Apple DeveloperポータルでSSL証明書を生成する"
 />
 
-証明書が生成されダウンロードされたら、それをダブルクリックしてキーチェーンに追加します。Pusherアプリの証明書ドロップダウンで選択できるようになります。
+証明書が生成されダウンロードされたら、それをダブルクリックしてキーチェインに追加します。Pusherアプリの証明書ドロップダウンで選択できるようになります。
 
 ### Google Firebase
 
@@ -155,7 +155,7 @@ macOS/iOS用に開発する場合は、前のセクションにジャンプし�
 
 :::
 
-このチュートリアルでは、Google Firebaseを使ってAndroidのリモート通知をテストする。まず、Firebase コンソールで新しいプロジェクトを作成し、Android アプリをプロジェクトに追加します。プロジェクトにはユニークなパッケージ名を選んでください。プロジェクトの**クラウド・メッセージング**タブをクリックすると、次の画面でサーバー送信者IDにアクセスできます：
+このチュートリアルでは、Google Firebaseを使ってAndroidのリモート通知をテストする。まず、Firebaseコンソールで新しいプロジェクトを作成し、Androidアプリをプロジェクトに追加します。プロジェクトにはユニークなパッケージ名を選んでください。プロジェクトの**クラウド・メッセージング**タブをクリックすると、次の画面でサーバー送信者IDにアクセスできます：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_push_notifications_screenshot6.png"
@@ -184,7 +184,7 @@ macOS/iOS用に開発する場合は、前のセクションにジャンプし�
 
 :::note
 
-Google Firebase のバンドル ID が、プロジェクト設定のバンドル ID と一致していることを確認してください（すべて小文字）。
+Google FirebaseのバンドルIDが、プロジェクト設定のバンドルIDと一致していることを確認してください（すべて小文字）。
 
 :::
 
@@ -197,7 +197,7 @@ Google Firebase のバンドル ID が、プロジェクト設定のバンドル
   caption="Google Firebaseからjsonファイルをダウンロードする"
 />
 
-JUCEプロジェクト・ディレクトリにファイルをコピーし、Android exporter settings の**リモート通知設定ファイル**フィールドにいる：
+JUCEプロジェクト・ディレクトリにファイルをコピーし、Android exporter settingsの**リモート通知設定ファイル**フィールドにいる：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_push_notifications_screenshot8.png"
@@ -216,14 +216,14 @@ google-services.jsonへのパスは、"Debug "セクションと "Release "セ�
 
 通知は、アプリが起動しているかどうかに関わらず、関連するコンテンツをユーザーに通知するのに便利です。単にメッセージを表示したり、ダイアログボックスを表示したり、音を鳴らしたりすることもできます。一般的に、すべての関連プラットフォームでは、主に2種類の通知があります：
 
-- ローカル：システムによってローカルにトリガーされるため、インターネット接続を必要とせず、アプリがアクティブでないときでも起動するようにアプリによってスケジュールすることができる。
+- ローカル：システムによってローカルにトリガーされるため、インターネット接続を必要とせず、アプリがアクティブでないときでも起動するようにアプリによってスケジュールできる。
 - リモート：リモートサーバーから送信されるため、インターネット接続が必要だが、顧客のデバイスから受信したデータに基づいていつでも送信できる。
 
 まず、アプリ内で実行できる簡単なローカル通知を見てみよう。
 
 ## リスナーとして登録する
 
-について[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")クラスは[singleton](https://en.wikipedia.org/wiki/Singleton_pattern)そのグローバル・インスタンスには、関数`PushNotifications::getInstance()`.その[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")クラスは、アクションの結果が[PushNotifications::Listener](https://docs.juce.com/master/structPushNotifications_1_1Listener.html "リスナーを登録し（アプリケーションの起動時が理想的）、通知受信に関する情報を受け取る。")インターフェイスにリスナーを登録するだけです。リスナーを[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンスがコールバックを受け取る。その結果`MainContentComponent`クラスを継承している。[PushNotifications::Listener](https://docs.juce.com/master/structPushNotifications_1_1Listener.html "リスナーを登録し（アプリケーションの起動時が理想的）、通知受信に関する情報を受け取る。") \[1\]:
+について[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")クラスは[singleton](https://en.wikipedia.org/wiki/Singleton_pattern)そのグローバル・インスタンスには、関数`PushNotifications::getInstance()`.その[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")クラスは、アクションの結果が[PushNotifications::Listener](https://docs.juce.com/master/structPushNotifications_1_1Listener.html "リスナーを登録し（アプリケーションの起動時が理想的）、通知受信に関する情報を受け取る。")インタフェースにリスナーを登録するだけです。リスナーを[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンスがコールバックを受け取る。その結果`MainContentComponent`クラスを継承している。[PushNotifications::Listener](https://docs.juce.com/master/structPushNotifications_1_1Listener.html "リスナーを登録し（アプリケーションの起動時が理想的）、通知受信に関する情報を受け取る。") \[1\]:
 
 ```cpp
 class MainContentComponent   : public juce::Component,
@@ -250,7 +250,7 @@ class MainContentComponent   : public juce::Component,
 
 ## アクセス許可の申請
 
-通知を送信する前に、まずユーザーから許可を得る必要があります。これはアプリが最初に起動されたときに一度だけ要求され、アプリが削除されるか、ユーザーがシステム設定で権限を取り消すまで、設定は保存されたままになります。そのため、アプリケーションの起動ごとに許可を要求し、許可が下りない場合にのみユーザーに許可を求めるのが良い習慣です。macOS/iOSでは`requestPermissionsWithSettings()`関数は[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")オブジェクトを引数\[4\].Androidでは`setupChannels()`関数は[PushNotifications::ChannelGroup](https://docs.juce.com/master/structPushNotifications_1_1ChannelGroup.html "Android APIレベル26以上のみ：チャネルグループを表す。")オブジェクトと[PushNotifications::Channel](https://docs.juce.com/master/structPushNotifications_1_1Channel.html "Android APIレベル26以上のみ：通知チャネルを表します。")オブジェクトを引数に取る\[5\].
+通知を送信する前に、まずユーザーから許可を得る必要があります。これはアプリが最初に起動されたときに一度だけ要求され、アプリが削除されるか、ユーザーがシステム設定で権限を取り消すまで、設定は保存されたままになります。そのため、アプリケーションの起動ごとに許可を要求し、許可が下りない場合にのみユーザーに許可を求めるのが良い習慣です。macOS/iOSでは`requestPermissionsWithSettings()`関数は[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")オブジェクトを引数\[4\].Androidでは`setupChannels()`関数は[PushNotifications::ChannelGroup](https://docs.juce.com/master/structPushNotifications_1_1ChannelGroup.html "Android APIレベル26以上のみ：チャネルグループを表す。")オブジェクトと[PushNotifications::Channel](https://docs.juce.com/master/structPushNotifications_1_1Channel.html "Android APIレベル26以上のみ：通知チャネルを表します。")オブジェクトを引数に取る\[5\]。
 
 ```cpp
       #if JUCE_IOS || JUCE_MAC
@@ -343,7 +343,7 @@ setupChannels()はAndroid Oreo（API 26）以降でのみ必要で、それ以�
 - OK/キャンセルカテゴリー：OKアクション」と「キャンセルアクション」を表す。
 - テキストカテゴリー：テキスト・アクション」のみを表し、却下アクションが送信されることを指定する。
 
-これらのカテゴリーはすべて[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")オブジェクト\[7\].
+これらのカテゴリーはすべて[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")オブジェクト\[7\]。
 
 ### Androidでパーミッションを要求する
 
@@ -418,7 +418,7 @@ getAndroidChannels()の実装は、チャンネルごとに少なくとも識別
 
 ## ローカル通知
 
-ユーザーがローカル通知タブの送信ボタンをクリックすると、以下のようになる。`sendLocalNotification()`関数が呼び出される。この関数はまず[PushNotifications::Notification](https://docs.juce.com/master/structPushNotifications_1_1Notification.html "送受信可能な通知を表します。")オブジェクトを作成し、そのオブジェクトにユーザーインターフェースの入力から対応するパラメータを入力する。\[1\].通知オブジェクトが不正なパラメータのために無効である場合、このチュートリアルの目的のために、オプションでメッセージを表示します。\[2\].そうでなければ、オブジェクトが有効であれば`sendLocalNotification()`関数を使用する。[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンス\[3\].
+ユーザーがローカル通知タブの送信ボタンをクリックすると、以下のようになる。`sendLocalNotification()`関数が呼び出される。この関数はまず[PushNotifications::Notification](https://docs.juce.com/master/structPushNotifications_1_1Notification.html "送受信可能な通知を表します。")オブジェクトを作成し、そのオブジェクトにユーザーインタフェースの入力から対応するパラメータを入力する。\[1\].通知オブジェクトが不正なパラメータのために無効である場合、このチュートリアルの目的のために、オプションでメッセージを表示します。\[2\].そうでなければ、オブジェクトが有効であれば`sendLocalNotification()`関数を使用する。[PushNotifications](https://docs.juce.com/master/classPushNotifications.html "プッシュ通知機能を担当するシングルトン・クラス。")インスタンス\[3\]。
 
 ```cpp
     void sendLocalNotification()
@@ -455,7 +455,7 @@ getAndroidChannels()の実装は、チャンネルごとに少なくとも識別
     }
 ```
 
-今のところ、必要なパラメータに焦点を当てる。`fillRequiredParams()`関数に渡す。[PushNotifications::Notification](https://docs.juce.com/master/structPushNotifications_1_1Notification.html "送受信可能な通知を表します。")オブジェクトを引数\[4\].
+今のところ、必要なパラメータに焦点を当てる。`fillRequiredParams()`関数に渡す。[PushNotifications::Notification](https://docs.juce.com/master/structPushNotifications_1_1Notification.html "送受信可能な通知を表します。")オブジェクトを引数\[4\]。
 
 :::note
 
@@ -510,9 +510,9 @@ getAndroidChannels()の実装は、チャンネルごとに少なくとも識別
 - タイトル\[5.2\]バブルの上部に表示される通知のタイトル。
 - ボディ\[5.3\]: トリミングすると全体が表示されるように展開できる通知の内容。
 
-macOS/iOSでは、表示するアクションを選択するための通知カテゴリも提供しています。\[6.1\].Androidでは、チャネル番号を指定して通知の重要度を指定します。\[6.2\].
+macOS/iOSでは、表示するアクションを選択するための通知カテゴリも提供しています。\[6.1\].Androidでは、チャネル番号を指定して通知の重要度を指定します。\[6.2\]。
 
-macOSとAndroidでは、通知内に表示するアイコンを提供する必要があり、パスがプラットフォーム固有であることを確認します。\[7\].最後にアンドロイドでは、必要に応じて、デバイスのロック画面に表示される通知の別バージョンを提供することができます。\[8\].
+macOSとAndroidでは、通知内に表示するアイコンを提供する必要があり、パスがプラットフォーム固有であることを確認します。\[7\].最後にアンドロイドでは、必要に応じて、デバイスのロック画面に表示される通知の別バージョンをできますます。\[8\]。
 
 ローカル通知の実装はかなり簡単なので、次はリモート通知に飛び込もう。
 
@@ -570,7 +570,7 @@ Pusherに飛び、macOS/iOS上のアプリにプッシュ通知を送る方法�
 }
 ```
 
-aps "と呼ばれる最初の要素には、通知に必要な情報が含まれます。上記の例では、アラート、バッジカウント、トリガー時に再生するサウンドを記述しています。また、"aps "エレメントに続くkey/valueペアの例で示したように、アプリケーション固有のデータを送信することもできます。
+aps "と呼ばれる最初の要素には、通知に必要な情報が含まれます。上記の例では、アラート、バッジカウント、トリガー時に再生するサウンドを記述しています。また、"aps "要素に続くkey/valueペアの例で示したように、アプリケーション固有のデータを送信することもできます。
 
 この2つ目のペイロードの例では、タイトルフィールドに加えて、本文やアクションボタンなど、より多くの情報を含むようにアラートをカスタマイズします。また、通知がトリガーされた時にカスタムサウンドファイルを再生することにしました：
 
@@ -590,7 +590,7 @@ aps "と呼ばれる最初の要素には、通知に必要な情報が含まれ
 }
 ```
 
-3つ目の例では、次のように定義された通知カテゴリーを使用します。[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")アクションを簡単に定義することができます。また、通知をバックグラウンドで静かに配信するようOSに指示します。`content-available`財産である：
+3つ目の例では、次のように定義された通知カテゴリーを使用します。[PushNotifications::Settings](https://docs.juce.com/master/structPushNotifications_1_1Settings.html "現在のデバイスで使用したい設定を記述する。")アクションを簡単に定義できます。また、通知をバックグラウンドで静かに配信するようOSに指示します。`content-available`財産である：
 
 ```cpp
 {
@@ -858,7 +858,7 @@ Notificationには、このチュートリアルでこれまでに発見した�
 - サウンド\[1.3\]: 通知がトリガーされたときに再生するカスタムサウンド。通知を無音にしたい場合は、このフィールドを空にしておくか、"default\_os\_sound "を使ってデフォルトのOSサウンドをトリガーしてください。
 - プロパティ\[1.4\]辞書として渡すことができる追加プロパティ。
 
-macOSとiOSでは、通知のトリガーを指定した秒数だけ遅らせたり、当該通知を繰り返すかどうかを決定したりすることもできます。Androidでは、通知の内容に表示する大きな画像を提供し、これらの追加パラメータを指定することができます：
+macOSとiOSでは、通知のトリガーを指定した秒数だけ遅らせたり、当該通知を繰り返すかどうかを決定したりすることもできます。Androidでは、通知の内容に表示する大きな画像を提供し、これらの追加パラメータを指定できます：
 
 - バッジ・アイコンタイプ\[2.1\]バッジアイコンの大きさ、またはバッジアイコンを隠すかどうか。
 - ティッカーテキスト\[2.2\]アクセシビリティのための追加テキスト。

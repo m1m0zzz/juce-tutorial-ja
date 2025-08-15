@@ -26,7 +26,7 @@ tags: [上級]
 
 ## デモ・プロジェクト
 
-のデモ・プロジェクトと同様の動作を実装している。[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/).バッファにロードされたオーディオファイルを開き、ループで再生することができます。このチュートリアルで大きく異なる点は、ファイルを参照するたびにシャットダウンするのではなく、オーディオシステムを実行し続けることです。これは、スレッドセーフな方法でスレッド間の通信を行うためのいくつかの便利なクラスを使用することで実現されています。
+のデモ・プロジェクトと同様の動作を実装している。[Tutorial: Looping audio using the AudioSampleBuffer class](../tutorial_looping_audio_sample_buffer/).バッファにロードされたオーディオファイルを開き、ループで再生できます。このチュートリアルで大きく異なる点は、ファイルを参照するたびにシャットダウンするのではなく、オーディオシステムを実行し続けることです。これは、スレッドセーフな方法でスレッド間の通信を行うためのいくつかの便利なクラスを使用することで実現されています。
 
 ## スレッドセーフ・テクニック
 
@@ -34,7 +34,7 @@ tags: [上級]
 
 ### 参照カウントされるオブジェクト
 
-について[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスは、スレッド間でメッセージやデータを受け渡すのに便利なツールだ。ここでは[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトの再生位置と[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスを作成しました。デバッグの助けとなるように、また、このクラスがどのように動作するかを説明するのに役立つように、次のようなものもあります。`name`メンバ（ただし、これはクラスが機能するために厳密には必要ではない）：
+について[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスは、スレッド間でメッセージやデータを受け渡すのに便利なツールだ。ここでは[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトの再生位置と[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスを作成しました。デバッグの助けとなるように、また、このクラスがどのように動作するかを説明するのに役立つように、次のようなものもあります。`name`メンバー（ただし、これはクラスが機能するために厳密には必要ではない）：
 
 ```cpp
     class ReferenceCountedBuffer  : public juce::ReferenceCountedObject
@@ -81,7 +81,7 @@ tags: [上級]
     ReferenceCountedBuffer::Ptr currentBuffer;
 ```
 
-について`buffers`メンバは、オーディオスレッドがバッファを必要としないと確信するまで、バッファを配列に保持する。この`currentBuffer`メンバは現在選択されているバッファを保持する。
+について`buffers`メンバーは、オーディオスレッドがバッファを必要としないと確信するまで、バッファを配列に保持する。この`currentBuffer`メンバーは現在選択されているバッファを保持する。
 
 ### バックグラウンド・スレッドの実装
 
@@ -124,7 +124,7 @@ public:
 
 - \[1\]このような状況では、配列を逆に反復処理することを覚えておくと便利である。配列を繰り返しながら項目を削除していけば、配列のインデックス・アクセスが壊れるのを防ぐことができる。
 - \[2\]指定されたインデックスのバッファのコピーを保持する。
-- \[3\]この時点での参照カウントが2であれば、オーディオスレッドがバッファを使用していないことがわかるので、バッファを配列から削除することができる。この2つの参照のうち1つは`buffers`もう一方はローカル`buffer`変数として削除されます。削除されたバッファは`buffer`変数がスコープ外になる（これが最後に残った参照となるため）。
+- \[3\]この時点での参照カウントが2であれば、オーディオスレッドがバッファを使用していないことがわかるので、バッファを配列からできる。る。この2つの参照のうち1つは`buffers`もう一方はローカル`buffer`変数として削除されます。削除されたバッファは`buffer`変数がスコープ外になる（これが最後に残った参照となるため）。
 
 もちろん、アプリケーションの起動と同時にスレッドを開始する必要がある。`MainContentComponent`ビルダー
 
@@ -261,7 +261,7 @@ public:
 
 重要な変更点は以下の通りだ：
 
-- \[4\]私たちはそのコピーを保管します。`currentBuffer`のメンバーでなければならない。この関数では、この時点で`currentBuffer`メンバが別のスレッドで変更された場合、ローカル・コピーを取っているので、このようなことは起こりません。へのアクセス待ちでオーディオ・スレッドが立ち往生しないように、ここではtryロックを使用していることに注意してください。`currentBuffer`他のスレッドが現在修正中である場合。
+- \[4\]私たちはそのコピーを保管します。`currentBuffer`のメンバーでなければならない。この関数では、この時点で`currentBuffer`メンバーが別のスレッドで変更された場合、ローカル・コピーを取っているので、このようなことは起こりません。へのアクセス待ちでオーディオ・スレッドが立ち往生しないように、ここではtryロックを使用していることに注意してください。`currentBuffer`他のスレッドが現在修正中である場合。
 - \[5\]の場合は無音を出力する。`currentBuffer`コピーを取ったとき、メンバーはNULLだった。
 - \[6\]にアクセスする。[AudioSampleBuffer](https://docs.juce.com/master/group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトを`ReferenceCountedBuffer`オブジェクトがある。
 - \[7\]バッファの現在の再生位置を得る。
@@ -282,7 +282,7 @@ public:
     juce::String chosenPath;
 ```
 
-を変更する。`openButtonClicked()`関数を*スワップ*ファイルのフル・パスをこのメンバに渡す。文字列の入れ替えは技術的にスレッドセーフではないので、他のスレッドがファイルを変更しようとしないようにロックをかける必要がある。`chosenPath`このスレッドが使っている間は。
+を変更する。`openButtonClicked()`関数を*スワップ*ファイルのフル・パスをこのメンバーに渡す。文字列の入れ替えは技術的にスレッドセーフではないので、他のスレッドがファイルを変更しようとしないようにロックをかける必要がある。`chosenPath`このスレッドが使っている間は。
 
 ```cpp
     void openButtonClicked()

@@ -8,7 +8,7 @@ tags: [初級]
 
 <SourcePageLink path="tutorial_animation" />
 
-JUCE アプリケーションで簡単なアニメーションを作成できます。静的なジオメトリ形状に生命を吹き込むには[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスである。
+JUCEアプリケーションで簡単なアニメーションを作成できます。静的なジオメトリ形状に生命を吹き込むには[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスである。
 
 レベル初心者
 
@@ -41,9 +41,9 @@ JUCE アプリケーションで簡単なアニメーションを作成できま
 
 単純なアニメーションJUCEアプリケーションを作成する場合、継承すると便利なクラスがあります。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスである。ちょうど[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")または[OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスは、それぞれオーディオ・アプリケーションとOpenGLアプリケーションに役立ちます。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")というアニメーション制作に有益な機能を提供している：
 
-- setFramesPerSecond()：この関数を使うと、アニメーションをできるだけスムーズに実行するために、アプリケーションの開始時にFPSを設定することができます。また、この関数が呼び出されると、指定された頻度で再描画処理が開始されます。
+- setFramesPerSecond()：この関数を使うと、アニメーションをできるだけスムーズに実行するために、アプリケーションの開始時にFPSを設定できます。また、この関数が呼び出されると、指定された頻度で再描画処理が開始されます。
 - update()：この関数は、setFramesPerSecond() 関数で設定された割合で呼び出され、アニメーションのパラメータを段階的に進めていきます。
-- getFrameCounter()：定義された FPS レートでアニメーションを開始して以来、update() 関数が呼び出された回数の合計を返します。これは、アニメーションを計算するための周期的な数学関数で有用です。
+- getFrameCounter()：定義されたFPSレートでアニメーションを開始して以来、update() 関数が呼び出された回数の合計を返します。これは、アニメーションを計算するための周期的な数学関数で有用です。
 - getMillisecondsSinceLastUpdate()：フレームレートに関係なく正確なタイミングでアニメーションを作成するために、最後のupdate()関数呼び出しからの所要時間をミリ秒で返すもう1つの便利な関数です。
 
 これらの関数と親のpaint()関数を併用することで、以下のようになる。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスを使えば、簡単なアニメーションを作ることができる。
@@ -87,7 +87,7 @@ Slider::thumbColourId@ thumbColourIdThe colour to draw the thumb with.Definition
 
 最後に、fillEllipse() 関数を使って実際の円を描きます。[Point](https://docs.juce.com/master/classPoint.html "x,y）座標のペア。")座標と直径30を引数に取る。
 
-今、アプリケーションを実行すると、円がどうなるかわかりますか？座標系が左上から始まっているため、円は半径の値だけ反対方向に押されるのだ：
+今、アプリケーションを実行すると、円がどうなるかわかりますか？ 座標系が左上から始まっているため、円は半径の値だけ反対方向に押されるのだ：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_animation_screenshot2.png"
@@ -275,7 +275,7 @@ void paint (juce::Graphics& g) override
 
 :::danger[エクササイズ]
 
-同様の方法で、魚の長さを変更したり、独自のアニメーション形状を作成することができます。
+同様の方法で、魚の長さを変更したり、独自のアニメーション形状を作成できます。
 
 :::
 
@@ -287,7 +287,7 @@ void paint (juce::Graphics& g) override
 
 ## 概要
 
-このチュートリアルでは、JUCE アプリケーションでジオメトリ形状をアニメートする方法を学びました。特に
+このチュートリアルでは、JUCEアプリケーションでジオメトリ形状をアニメートする方法を学びました。特に
 
 - のメカニズムを探った。[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html "シンプルな1ページのグラフィカル・アプリケーションを書くための基本クラス。")クラスである。
 - を使用して描かれた図形。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスである。

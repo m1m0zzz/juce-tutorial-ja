@@ -45,13 +45,13 @@ JUCEプロジェクトがどのように構成されているかについての�
 ## GUIプロジェクト
 
 全てのGUIプロジェクトテンプレートは、開発を始めるためのソースファイルを提供します。
-アプリケーションはグラフィカル・ユーザー・インターフェースを表示するので、テンプレートは
+アプリケーションはグラフィカル・ユーザー・インタフェースを表示するので、テンプレートは
 [JUCEApplication](https://docs.juce.com/master/classJUCEApplication.html)
-から派生したクラスが作成された Main.cpp ファイルを提供します。
+から派生したクラスが作成されたMain.cppファイルを提供します。
 
 [JUCEApplication](https://docs.juce.com/master/classJUCEApplication.html)
 クラスは、アプリケーションのスタートアップとシャットダウンの機能を提供する抽象基底クラスです。
-また、Main.cpp ファイルは GUI が存在するアプリケーション・ウィンドウを作成します。
+また、Main.cppファイルはGUIが存在するアプリケーション・ウィンドウを作成します。
 
 
 ### GUIアプリケーション
@@ -70,7 +70,7 @@ GUIアプリケーション・プロジェクトが作成されると、ソー�
 
 - Main.cpp：[JUCEApplication](https://docs.juce.com/master/classJUCEApplication.html) クラスから派生したもので、アプリケーションとウィンドウの初期化コードを提供します
 - MainComponent.h：[Component](https://docs.juce.com/master/classComponent.html) クラスから派生したMainComponentのヘッダーファイル
-- MainComponent.cpp：[Component](https://docs.juce.com/master/classComponent.html) クラスから派生した MainComponent の実装ファイル
+- MainComponent.cpp：[Component](https://docs.juce.com/master/classComponent.html) クラスから派生したMainComponentの実装ファイル
 
 このプロジェクト・タイプは、アプリケーションにGUIが必要であることはわかっているが、アプリケーションの機能について確信が持てない、あるいは柔軟性が必要な場合に使用します。
 
@@ -105,7 +105,7 @@ Audio Applicationプロジェクトが作成されると、ソースフォルダ
 
 :::note
 
-Audio Application プロジェクトの詳細については、
+Audio Applicationプロジェクトの詳細については、
 [チュートリアル：ホワイトノイズジェネレーターを作る](../../synth/tutorial_simple_synth_noise/) を参照してください。
 
 :::
@@ -128,7 +128,7 @@ Audio Application プロジェクトの詳細については、
 - Main.cpp：[JUCEApplication](https://docs.juce.com/master/classJUCEApplication.html) クラスから派生したもので、アプリケーションとウィンドウの初期化コードを提供します。
 - MainComponent.cpp：[AnimatedAppComponent](https://docs.juce.com/master/classAnimatedAppComponent.html) クラスから派生したMainComponentのヘッダーと実装ファイルです。
 
-アプリケーションの GUI に簡単なアニメーションを作成する場合にこのプロジェクトタイプを使用します。
+アプリケーションのGUIに簡単なアニメーションを作成する場合にこのプロジェクトタイプを使用します。
 
 :::note
 
@@ -153,7 +153,7 @@ OpenGLアプリケーションはGUIアプリケーションに似ているが�
 OpenGLアプリケーション・プロジェクトが作成されると、ソース・フォルダーに以下のファイルがあります：
 
 - Main.cpp：[JUCEApplication](https://docs.juce.com/master/classJUCEApplication.html) クラスから派生したもので、アプリケーションとウィンドウの初期化コードを提供します。
-- MainComponent.cpp：[OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent.html) クラスから派生した MainComponent のヘッダーと実装ファイルです。
+- MainComponent.cpp：[OpenGLAppComponent](https://docs.juce.com/master/classOpenGLAppComponent.html) クラスから派生したMainComponentのヘッダーと実装ファイルです。
 
 アプリケーションのGUIでOpenGLを使用して複雑なグラフィック要素をレンダリングしたい場合にこのプロジェクトタイプを使用します。
 :::note
@@ -169,7 +169,7 @@ OpenGLアプリケーション・プロジェクトの詳細については、�
 
 コンソールアプリケーションのプロジェクトが作成されると、ソースフォルダに以下のファイルがあります：
 
-Main.cpp：Main.cpp：Cスタイルの main() 関数を提供し、対応するコマンドライン引数でアプリケーションを実行します。
+Main.cpp：Main.cpp：Cスタイルのmain() 関数を提供し、対応するコマンドライン引数でアプリケーションを実行します。
 バイナリがコマンドラインで実行されると、以下の関数が呼び出されます
 
 ```cpp
@@ -182,8 +182,8 @@ int main (int argc, char* argv[])
 }
 ```
 
-このプロジェクト・タイプでは、Main.cpp ファイルにクラスは作成されず、
-ベース・クラスも継承されませんが、`.jucer` ファイルと JUCE ライブラリ・コード・フォルダが作成されます。
+このプロジェクト・タイプでは、Main.cppファイルにクラスは作成されず、
+ベース・クラスも継承されませんが、`.jucer` ファイルとJUCEライブラリ・コード・フォルダが作成されます。
 
 このプロジェクト・タイプは、アプリケーションにGUIを必要とせず、コマンドライン・コンソールでアプリケーションを実行したい場合に使用します。
 
@@ -209,10 +209,10 @@ Audio Pluginプロジェクトが作成されると、ソースフォルダに�
 
 - PluginProcessor.h：[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html) クラスから派生したPluginProcessorのヘッダーファイル。
 - PluginProcessor.cpp：[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html) クラスから派生したPluginProcessorの実装ファイル。
-- PluginEditor.h：[AudioProcessorEditor](https://docs.juce.com/master/classAudioProcessorEditor.html) クラスから派生した PluginEditor のヘッダーファイル。
+- PluginEditor.h：[AudioProcessorEditor](https://docs.juce.com/master/classAudioProcessorEditor.html) クラスから派生したPluginEditorのヘッダーファイル。
 - PluginEditor.cpp：[AudioProcessorEditor](https://docs.juce.com/master/classAudioProcessorEditor.html) クラスから派生したPluginEditorの実装ファイル。
 
-このプロジェクト・タイプは、DAWまたはGUIを備えたスタンドアロン・アプリケーションでホストできるプラグインを作成する場合に使用します。
+このプロジェクト・タイプは、DAWまたはGUIを備えたスタンドアローン・アプリケーションでホストできるプラグインを作成する場合に使用します。
 
 :::note
 
@@ -229,7 +229,7 @@ Audio Pluginプロジェクトの詳細については、チュートリアル
 
 このプロジェクトタイプでは、ソースファイルは作成されませんが、.jucerファイルとJUCEライブラリコードフォルダが作成されます。
 
-そして、いつでもJUCEモジュールにアクセスできる利便性と共に、ファイルを自由に追加することができます。
+そして、いつでもJUCEモジュールにアクセスできる利便性と共に、ファイルを自由に追加できます。
 
 ## 概要
 

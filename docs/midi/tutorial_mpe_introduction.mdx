@@ -58,7 +58,7 @@ MIDI入力を1つ有効にする必要があります。[Seaboard RISE](https://
   caption="ビジュアライザー"
 />
 
-の重要な特徴のひとつである。[MPE](https://support.roli.com/article/what-is-mpe/)は、特定のコントローラー・キーボードからのすべてのノートが同じMIDI チャンネルに割り当てられるのではなく、それぞれの新しいMIDI ノート・イベントに独自のMIDI チャンネルが割り当てられます。これにより、コントロール・チェンジ・メッセージやピッチ・ベンド・メッセージなどによって、個々のノートを独立してコントロールできるようになります。JUCEの実装では[MPE](https://support.roli.com/article/what-is-mpe/)演奏音は[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")オブジェクト。或いは[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")オブジェクトは以下のデータをカプセル化する：
+の重要な特徴のひとつである。[MPE](https://support.roli.com/article/what-is-mpe/)は、特定のコントローラー・キーボードからのすべてのノートが同じMIDIチャンネルに割り当てられるのではなく、それぞれの新しいMIDIノート・イベントに独自のMIDIチャンネルが割り当てられます。これにより、コントロール・チェンジ・メッセージやピッチ・ベンド・メッセージなどによって、個々のノートを独立してコントロールできるようになります。JUCEの実装では[MPE](https://support.roli.com/article/what-is-mpe/)演奏音は[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")オブジェクト。或いは[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")オブジェクトは以下のデータをカプセル化する：
 
 - ノートのMIDIチャンネル
 - MIDIノートの初期値
@@ -68,7 +68,7 @@ MIDI入力を1つ有効にする必要があります。[Seaboard RISE](https://
 - について*ベル*通常、このノートのMIDIチャンネルにあるコントローラー74のコントローラー・メッセージに由来する。
 - ノートオフ速度（または*リフト*)：ノート・オフ・イベントを受信した後、再生音が止まるまで有効。
 
-ノートを演奏していない状態では、ビジュアライザーが従来の MIDI キーボードレイアウトを表していることがわかります。デモアプリケーションのビジュアライザーでは、各ノートを以下のように表現しています：
+ノートを演奏していない状態では、ビジュアライザーが従来のMIDIキーボードレイアウトを表していることがわかります。デモアプリケーションのビジュアライザーでは、各ノートを以下のように表現しています：
 
 - 灰色で塗りつぶされた円はノートオンの速度を表す（速度が速いほど円は大きくなる）。
 - ノートのMIDIチャンネルは、この円内の "+"シンボルの上に表示されます；
@@ -108,7 +108,7 @@ public:
 };
 ```
 
-について[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。") \[3\]クラスはコンピュータのオーディオとMIDIのコンフィギュレーションを処理します。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。") \[4\]クラスは、グラフィカル・ユーザー・インターフェースからこれを設定する手段を与えてくれる ([Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)).その[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。") \[5\]クラスを使用すると、オーディオ・コールバックでタイムスタンプ付きMIDIメッセージのブロックにメッセージを簡単に集めることができます ([Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/)).
+について[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。") \[3\]クラスはコンピュータのオーディオとMIDIのコンフィギュレーションを処理します。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。") \[4\]クラスは、グラフィカル・ユーザー・インタフェースからこれを設定する手段を与えてくれる ([Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)).その[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。") \[5\]クラスを使用すると、オーディオ・コールバックでタイムスタンプ付きMIDIメッセージのブロックにメッセージを簡単に集めることができます ([Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/)).
 
 が重要である。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")のコンストラクタに渡すので、オブジェクトが最初にリストされる。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")オブジェクトがある：
 
@@ -119,7 +119,7 @@ public:
                           true, true, false)
 ```
 
-に渡されるもう一つの重要な引数に注目してほしい。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")コンストラクタ`showMidiInputOptions`でなければならない。`true`をクリックして、使用可能なMIDI入力を表示します。
+に渡されるもう1つの重要な引数に注目してほしい。[AudioDeviceSelectorComponent](https://docs.juce.com/master/classAudioDeviceSelectorComponent.html "AudioDeviceManagerオブジェクトのオーディオ設定を変更するためのコントロールを含むコンポーネント。")コンストラクタ`showMidiInputOptions`でなければならない。`true`をクリックして、使用可能なMIDI入力を表示します。
 
 をセットアップした。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトと同様の方法で[Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)しかし、MIDI入力コールバックも追加する必要がある。\[6\]:
 
@@ -131,7 +131,7 @@ public:
 
 #### MIDI入力コールバック
 
-について`handleIncomingMidiMessage()`は、ユーザーインターフェイスのアクティブなMIDI入力のいずれかからMIDIメッセージが受信されるたびに呼び出されます：
+について`handleIncomingMidiMessage()`は、ユーザーインタフェースのアクティブなMIDI入力のいずれかからMIDIメッセージが受信されるたびに呼び出されます：
 
 ```cpp
     void handleIncomingMidiMessage (juce::MidiInput* /*source*/,
@@ -198,7 +198,7 @@ public:
 
 ### MPEInstrument クラス
 
-について[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")クラスは、MPE仕様に従って、現在演奏中の音符の状態を保持する。このクラスは[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトには、1つ以上のリスナーをアタッチすることができ、ノートに変更が発生するとそれをブロードキャストすることができます。必要なことは[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトにMIDIデータを入力し、残りを処理する。
+について[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")クラスは、MPE仕様に従って、現在演奏中の音符の状態を保持する。このクラスは[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトには、1つ以上のリスナーをアタッチでき、ノートに変更が発生するとそれをブロードキャストできます。必要なことは[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")オブジェクトにMIDIデータを入力し、残りを処理する。
 
 の中で`MainComponent`コンストラクタで[MPEInstrument](https://docs.juce.com/master/classMPEInstrument.html "このクラスは、MPE を扱う楽器を表します。")で*レガシーモード*を選択し、デフォルトのピッチベンド範囲を24半音に設定します：
 
@@ -280,7 +280,7 @@ class MPEDemoSynthVoice : public juce::MPESynthesiserVoice
 
 #### 声の開始と停止
 
-を使用する上で重要なことである。[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")クラスにアクセスすることである。[MPESynthesiserVoice::currentlyPlayingNote](https://docs.juce.com/master/classMPESynthesiserVoice.html#aea34fcbdb3fa0961f73d5f9a1f34e255)(保護されている)[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")メンバをオーバーライドして、さまざまなコールバック時にノートの制御情報にアクセスできるようにします。例えば[MPESynthesiserVoice::noteStarted()](https://docs.juce.com/master/classMPESynthesiserVoice.html#ae10c1cdfb37208b96b56863d47a3a193 "MPESynthesiserによって呼び出され、音声に新しいノートが始まったことを知らせる。")関数はこのようになる：
+を使用する上で重要なことである。[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")クラスにアクセスすることである。[MPESynthesiserVoice::currentlyPlayingNote](https://docs.juce.com/master/classMPESynthesiserVoice.html#aea34fcbdb3fa0961f73d5f9a1f34e255)(保護されている)[MPENote](https://docs.juce.com/master/structMPENote.html "この構造体は、演奏中のMPEノートを表します。")メンバーをオーバーライドして、さまざまなコールバック時にノートの制御情報にアクセスできるようにします。例えば[MPESynthesiserVoice::noteStarted()](https://docs.juce.com/master/classMPESynthesiserVoice.html#ae10c1cdfb37208b96b56863d47a3a193 "MPESynthesiserによって呼び出され、音声に新しいノートが始まったことを知らせる。")関数はこのようになる：
 
 ```cpp
     void noteStarted() override
@@ -310,7 +310,7 @@ class MPEDemoSynthVoice : public juce::MPESynthesiserVoice
 - *ベル*にある。[MPENote::timbre](https://docs.juce.com/master/structMPENote.html#aea15b7b7d5b9c55cbf7d479aa8e46a90 "音符の3つ目の表現次元の現在値で、通常、何らかの音色のパラメ...")メンバー
 - *ノートオフ速度*にある。[MPENote::noteOffVelocity](https://docs.juce.com/master/structMPENote.html#a9e46888c40a2d3eaf4b8c5129b21de6e "ノートオフを受信した後のノートのリリース・ベロシティ（「リフト」）。")メンバー
 
-[MPEValue](https://docs.juce.com/master/classMPEValue.html "このクラスは、MPE の制御次元のいずれかの単一の値を表します。")オブジェクトを使用すると、7ビットまたは14ビットのMIDI値ソースから値を簡単に作成し、これらの値を0〜1または-1〜+1の範囲の浮動小数点値として取得することができます。
+[MPEValue](https://docs.juce.com/master/classMPEValue.html "このクラスは、MPE の制御次元のいずれかの単一の値を表します。")オブジェクトを使用すると、7ビットまたは14ビットのMIDI値ソースから値を簡単に作成し、これらの値を0〜1または-1〜+1の範囲の浮動小数点値として取得できます。
 
 :::note
 
@@ -351,7 +351,7 @@ class MPEDemoSynthVoice : public juce::MPESynthesiserVoice
 
 :::danger[エクササイズ]
 
-を変更する。`MainComponent::noteStopped()`関数を使って、ノートオフ速度(*リフト*)でノートのリリース速度を変更することができます。リフトを速くすると、リリース時間が短くなります。
+を変更する。`MainComponent::noteStopped()`関数を使って、ノートオフ速度(*リフト*)でノートのリリース速度を変更できます。リフトを速くすると、リリース時間が短くなります。
 
 :::
 

@@ -28,11 +28,11 @@ tags: [中級]
 
 ### ValueTreeクラスの概要
 
-について[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスは究極のコンテナ・クラスであり、あらゆる種類の情報を保持することができる。これが型の明らかな役割かもしれないが、型には他にも多くの側面があり、単なる構造的な役割を超えている。
+について[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスは究極のコンテナ・クラスであり、あらゆる種類の情報を保持できる。これが型の明らかな役割かもしれないが、型には他にも多くの側面があり、単なる構造的な役割を超えている。
 
 #### データ保管
 
-A[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトは柔軟な多目的データオブジェクトです。基本的な*タイプ*という名前を持ち、名前付きプロパティの任意のセットを保持することができる。これは一種の*ユニバーサル構造体*どのような（あるいはどの程度の）データを保持するかを定義する必要はない。
+A[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトは柔軟な多目的データオブジェクトです。基本的な*タイプ*という名前を持ち、名前付きプロパティの任意のセットを保持できる。これは一種の*ユニバーサル構造体*どのような（あるいはどの程度の）データを保持するかを定義する必要はない。
 
 説明のために、1つのオブジェクト（ここでは*疑似データ*)は以下の情報を保持しているかもしれない：
 
@@ -59,19 +59,19 @@ Pet
 ColourRepresents a colour, also including a transparency value.Definition juce_Colour.h:50
 ```
 
-これらの構造は、XMLフォーマットで形成される構造と非常によく似ている。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードは[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")オブジェクトで、名前、プロパティ、子を持つ。大きな違いは、プロパティが、XMLフォーマットで使用されるテキスト・フォー・エヴリシング表現ではなく、実際の型付きデータとして格納されることである。つまり、より複雑なタイプのデータを保持し、より効率的にアクセスすることができ、一般的に（シリアライズだけでなく）データモデルでの使用に適しています。実際、XMLテキスト（または特殊なバイナリ形式）を任意の[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードを作成し、後でその構造を復元する。
+これらの構造は、XMLフォーマットで形成される構造と非常によく似ている。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードは[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")オブジェクトで、名前、プロパティ、子を持つ。大きな違いは、プロパティが、XMLフォーマットで使用されるテキスト・フォー・エヴリシング表現ではなく、実際の型付きデータとして格納されることである。つまり、より複雑なタイプのデータを保持し、より効率的にアクセスでき、一般的に（シリアライズだけでなく）データモデルでの使用に適しています。実際、XMLテキスト（または特殊なバイナリ形式）を任意の[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードを作成し、後でその構造を復元する。
 
 #### 参考カウント
 
-各ノードは参照カウントされるため、その寿命は簡単に管理できる。データ自体は、実際には隠された共有インスタンスに格納される。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスは、軽い、参照を保持するラッパー・インターフェイスに過ぎない。
+各ノードは参照カウントされるため、その寿命は簡単に管理できる。データ自体は、実際には隠された共有インスタンスに格納される。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスは、軽い、参照を保持するラッパー・インタフェースに過ぎない。
 
 を返すことで、ポインタを直接使用することなく、値で素早く渡すことができます。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトを関数からコピーしても、データはコピーされず、参照だけがコピーされる。
 
 自分でノードを削除する心配はありません。ノードが使われなくなると、自動的に破棄されます。これは、非同期UIでダングリングポインタが発生しないようにするために特に便利です。
 
-#### シンプルなインターフェース
+#### シンプルなインタフェース
 
-プロパティや子プロパティを操作するためのシンプルで汎用的なインターフェイスを持つ。汎用的であることで、コンテンツの種類や構成に関係なく、コンテンツにアクセスするための単一のインターフェイスを持つことができます。普遍的な[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")クラスを共通のプロパティ・タイプとすることで、さまざまな入力を取ることができる。そのため[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")クラスを使って、これらのプロパティを名前別に保存したり取得したりすることで、直感的にデータを整理することができます。
+プロパティや子プロパティを操作するためのシンプルで汎用的なインタフェースを持つ。汎用的であることで、コンテンツの種類や構成に関係なく、コンテンツにアクセスするための単一のインタフェースを持つことができます。普遍的な[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")クラスを共通のプロパティ・タイプとすることで、さまざまな入力を取ることができる。そのため[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")クラスを使って、これらのプロパティを名前別に保存したり取得したりすることで、直感的にデータを整理できます。
 
 #### 取り消しとやり直し
 
@@ -79,7 +79,7 @@ ColourRepresents a colour, also including a transparency value.Definition juce_C
 
 #### お知らせ
 
-もう一つの非常に強力な機能は、バリューツリーのコンテンツが変更されたときに通知を送信する機能である。例えば[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")ノードの内容を表示するために使用されているオブジェクトは、データが編集されたことを確認するたびに、それ自身をリフレッシュすることができます。[ValueTree::Listener](https://docs.juce.com/master/classValueTree_1_1Listener.html "ValueTree に発生するイベントのリスナークラスです。")サブクラスである。
+もう1つの非常に強力な機能は、バリューツリーのコンテンツが変更されたときに通知を送信する機能である。例えば[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")ノードの内容を表示するために使用されているオブジェクトは、データが編集されたことを確認するたびに、それ自身をリフレッシュできます。[ValueTree::Listener](https://docs.juce.com/master/classValueTree_1_1Listener.html "ValueTree に発生するイベントのリスナークラスです。")サブクラスである。
 
 #### 概要
 
@@ -95,7 +95,7 @@ ColourRepresents a colour, also including a transparency value.Definition juce_C
 
 この多用途性により、一般的なコンテナ（たとえば[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")基本的な型には暗黙のキャスト（とオーバーロードされた代入演算子）があり、コード上のやりとりをシンプルにする。さらに、現在の値の文字列表現を自動的に返すこともできる（テキスト以外の型も含む）。これらの贅沢がすべて適用されないのは[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトは[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")オブジェクトにキャストする必要があります。これらは未知の型なので、自分でキャストしなければならない。`dynamic_cast`を返す。`nullptr`正しい型でない場合）。
 
-においてである。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトとして保持されます。[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトにアクセスできます。この多目的クラスをプロパティタイプとして選択することで、どのようなものであれ、それらにアクセスするための関数を1つにまとめることができます。のために1つの関数を使う必要はない。`int`このような関数はすべて、以下のように統一することができる。[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトがある。
+においてである。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトとして保持されます。[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトにアクセスできます。この多目的クラスをプロパティタイプとして選択することで、どのようなものであれ、それらにアクセスするための関数を1つにまとめることができます。のために1つの関数を使う必要はない。`int`このような関数はすべて、以下のように統一できる。[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトがある。
 
 ### 識別子クラスの概要
 
@@ -107,7 +107,7 @@ ColourRepresents a colour, also including a transparency value.Definition juce_C
 
 汎用クラスではなく特殊クラスを使う主な理由は2つある。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスである。
 
-- 限られた文字セットを強制することができる：第一に、このクラスは有効なキーを構成する文字の制限を強制します。`_-:#$%`.これは少しくだらなく聞こえるかもしれないが、同じ制限（例えばXMLフォーマットやスクリプト）を持つ他のシステムとの互換性を確保することが可能になる。
+- 限られた文字セットを強制できる：第一に、このクラスは有効なキーを構成する文字の制限を強制します。`_-:#$%`.これは少しくだらなく聞こえるかもしれないが、同じ制限（例えばXMLフォーマットやスクリプト）を持つ他のシステムとの互換性を確保することが可能になる。
 - 目的に応じて最適化できる：2つ目の（しかし最も重要な）理由は、それらをどのように使いたいかに起因する。リストは、任意のサイズのリストから1つの項目を特定するためのキーとして機能するものであり、そのため、それらを使って実行される最も一般的な操作は比較である。しかし[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトはかなり時間がかかる。実際にテキストをチェックする必要があり、最初に異なる文字を見つけて初めて、2つの[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトは同じではない。ほとんど同じ文字列の場合、ほとんどの文字をチェックすることになるかもしれない（一致する文字列はすべての文字がテストされることになる）。しかし、1つの文字列を1つのリストと比較する場合（キーとして使用する場合）、すべての処理に長い時間がかかる可能性があります。
 
 特別なクラスを使うことで、素早く比較できるように最適化されていることを保証できる。この最適化（と文字セットの制限）のため、一般的なテキスト・ハンドリングに使用することは意図されていないが、文字列のようなデータをキーとして使用するには最適である。
@@ -144,7 +144,7 @@ ColourRepresents a colour, also including a transparency value.Definition juce_C
 
 #### コストを最小限に抑える方法
 
-を初期化するのが良い方法です。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")インスタンスに変換されます。コードから、リテラル文字列の代わりにこれらのインスタンスを使用することができます。グローバルにアクセス可能な名前空間に置いたり、ファイルの静的インスタンスを使ったり、静的クラス・メンバを使って整理することもできます。
+を初期化するのが良い方法です。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")インスタンスに変換されます。コードから、リテラル文字列の代わりにこれらのインスタンスを使用できます。グローバルにアクセス可能な名前空間に置いたり、ファイルの静的インスタンスを使ったり、静的クラス・メンバーを使って整理することもできます。
 
 ## ValueTreeクラスの基本的な使い方
 
@@ -166,13 +166,13 @@ A[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式の�
 juce::ValueTree myNode; // this object is invalid - it does not hold any node data
 ```
 
-これはヌル・ポインタに似ているが（実際、内部的にはまさにそうである）、固有の危険性はない。有効なノードが割り当てられるまでは、何も参照しない。ここでの主な違いは、（操作されるものが何もないため）ほとんど何の効果もないとはいえ、インターフェース関数をまだ使用できることである。
+これはヌル・ポインタに似ているが（実際、内部的にはまさにそうである）、固有の危険性はない。有効なノードが割り当てられるまでは、何も参照しない。ここでの主な違いは、（操作されるものが何もないため）ほとんど何の効果もないとはいえ、インタフェース関数をまだ使用できることである。
 
 無効なノードでアクセス関数を "偶然 "呼び出すことは安全だが、それはあまり得策ではない！
 
 ### ノードが無効かどうかをチェックする方法
 
-あなたのコードでは、メンバ関数[ValueTree::isValid()](https://docs.juce.com/master/classValueTree.html#a9c1506afbe6b840e4ab43fabf275845a "このツリーが有効なデータを参照している場合に真を返します。")を確認する。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")は空である：
+あなたのコードでは、メンバー関数[ValueTree::isValid()](https://docs.juce.com/master/classValueTree.html#a9c1506afbe6b840e4ab43fabf275845a "このツリーが有効なデータを参照している場合に真を返します。")を確認する。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")は空である：
 
 ```cpp
 if (myNode.isValid())
@@ -192,11 +192,11 @@ juce::ValueTree myNode (myNodeType);           // This is a valid node, of type 
 
 :::note
 
-を明示的に指定する代わりに、文字列リテラルを使用することができます。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトを使用するのがよいでしょう。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")インスタンスを作成する。参照[Identifier class overview](https://docs.juce.com/master/#tutorial_value_tree_indentifier_overview)を参照)。
+を明示的に指定する代わりに、文字列リテラルを使用できます。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトを使用するのがよいでしょう。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")インスタンスを作成する。参照[Identifier class overview](https://docs.juce.com/master/#tutorial_value_tree_indentifier_overview)を参照)。
 
 :::
 
-有効なノードが型を持つことを要求することで、どのようなデータを含むべきかを示すメカニズムができる。逆に[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトの型をチェックすることができます。[ValueTree::getType()](https://docs.juce.com/master/classValueTree.html#aaba6256213ee02c418e9ef3d320f0ff1 "このツリーの型を返します。")関数の中に何があるのかを知ることができる。
+有効なノードが型を持つことを要求することで、どのようなデータを含むべきかを示すメカニズムができる。逆に[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトの型をチェックできます。[ValueTree::getType()](https://docs.juce.com/master/classValueTree.html#aaba6256213ee02c418e9ef3d320f0ff1 "このツリーの型を返します。")関数の中に何があるのかを知ることができる。
 
 ```cpp
 void foo (const juce::ValueTree& someNode)
@@ -236,11 +236,11 @@ void foo (const juce::ValueTree& someNode)
 
 ここで質問がある：
 
-で作成されたノード・インスタンスはどうなるのか？\[3\]で置き換えると、次のようになる。\[4\]?
+で作成されたノード・インスタンスはどうなるのか？ \[3\]で置き換えると、次のようになる。\[4\]?
 
 最後には、3つの変数はすべて同じ初期インスタンスを指している。もはや[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトは2番目のインスタンスを参照している。**滅びる**.
 
-を使用する場合は常に[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトが再割り当てされる（あるいはスコープ外に出る）と、そのオブジェクトが指していた基礎データは参照を失う。そのデータが他の場所に保持されていなければ、自動的に破棄される。これは、データがいつ自己破壊してもおかしくない世界で操作しているようで怖く聞こえるかもしれないが、実際には、不注意でノードを失うことはほとんどない！非常に堅牢なシステムなのだ。その上、データが重要であれば、すでにどこかに保存されていることに気づくでしょう。
+を使用する場合は常に[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトが再割り当てされる（あるいはスコープ外に出る）と、そのオブジェクトが指していた基礎データは参照を失う。そのデータが他の場所に保持されていなければ、自動的に破棄される。これは、データがいつ自己破壊してもおかしくない世界で操作しているようで怖く聞こえるかもしれないが、実際には、不注意でノードを失うことはほとんどない！ 非常に堅牢なシステムなのだ。その上、データが重要であれば、すでにどこかに保存されていることに気づくでしょう。
 
 :::warning
 
@@ -274,7 +274,7 @@ struct ExampleListener  : public juce::ValueTree::Listener
 AccessibilityRole::tree@ tree
 ```
 
-そして、通知を受けたい動作に応じて、以下のコールバック関数を実装することができる：
+そして、通知を受けたい動作に応じて、以下のコールバック関数を実装できる：
 
 - valueTreePropertyChanged()：でプロパティの変更が発生したときに呼び出されます。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")またはその子である。
 - valueTreeChildAdded()：子ノードが[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")またはその子である。
@@ -318,7 +318,7 @@ nameint UnityEventModifiers const char * nameDefinition juce_UnityPluginInterfac
 name = myNode[propertyName];
 ```
 
-上記の行はどちらも、同じ結果を`name`変数に格納することができます。これらのプロパティは[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")型である。したがって、以下のコードも有効である：
+上記の行はどちらも、同じ結果を`name`変数に格納できます。これらのプロパティは[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")型である。したがって、以下のコードも有効である：
 
 ```cpp
 static juce::Identifier propertySize ("size");
@@ -332,7 +332,7 @@ double size = myNode[propertySize];
 
 ### 物件を探す
 
-構造体を使う場合は、これらのメンバ変数を直接設定したり取得したりする機能しかない。しかし[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードを使用することで、(実行時に)*変数*がある。
+構造体を使う場合は、これらのメンバー変数を直接設定したり取得したりする機能しかない。しかし[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードを使用することで、(実行時に)*変数*がある。
 
 について[ValueTree::getNumProperties()](https://docs.juce.com/master/classValueTree.html#a018730ee95c743705aa9132a37829b32 "ツリーに含まれるプロパティの総数を返します。")関数は、ノードが持つプロパティの数を示します：
 
@@ -340,7 +340,7 @@ double size = myNode[propertySize];
 int numProperties = myNode.getNumProperties();
 ```
 
-について[ValueTree::getPropertyName()](https://docs.juce.com/master/classValueTree.html#a6ea2ce53b4759a37d58e3f99d9702e36 "指定されたインデックスを持つプロパティの識別子を返します。")関数は[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトが、指定された位置のプロパティ名を与える。これを[ValueTree::getNumProperties()](https://docs.juce.com/master/classValueTree.html#a018730ee95c743705aa9132a37829b32 "ツリーに含まれるプロパティの総数を返します。")関数を使えば、そのプロパティの内容を事前に知らなくても、繰り返し実行することができる。
+について[ValueTree::getPropertyName()](https://docs.juce.com/master/classValueTree.html#a6ea2ce53b4759a37d58e3f99d9702e36 "指定されたインデックスを持つプロパティの識別子を返します。")関数は[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトが、指定された位置のプロパティ名を与える。これを[ValueTree::getNumProperties()](https://docs.juce.com/master/classValueTree.html#a018730ee95c743705aa9132a37829b32 "ツリーに含まれるプロパティの総数を返します。")関数を使えば、そのプロパティの内容を事前に知らなくても、繰り返し実行できる。
 
 ```cpp
 for (int i = 0; i < numProperties; ++i)
@@ -367,7 +367,7 @@ if (myNode.hasProperty (nameProperty))
 
 ### 子供の追加
 
-ノードには多くのプロパティを付加することができるが、配列のようにいくつかの子ノードを含むこともできる。
+ノードには多くのプロパティを付加できるが、配列のようにいくつかの子ノードを含むこともできる。
 
 子ノードとして追加したいノードがあれば、単純に[ValueTree::addChild](https://docs.juce.com/master/classValueTree.html#a93d639299ef9dfedc651544e05f06693 "このツリーに子を追加する。")()関数を呼び出す。当然、新しい子ノードを渡しますが、その子ノードの位置も指定しなければなりません。特定の位置に子ノードを挿入する必要がない場合は、次のように指定します。`-1`を端に置くだけでいい。
 

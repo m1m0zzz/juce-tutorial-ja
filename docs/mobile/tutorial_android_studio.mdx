@@ -77,7 +77,7 @@ Android Studio自体がインストールされたので、追加のツールが
   caption="必要なSDKプラットフォームを選択する"
 />
 
-もうひとつ必要なのは*アンドロイドNDK*.JUCEはAndroidアプリケーションを書くためのC/C++ APIを提供するので、これはJUCEがAndroidで動作するために非常に重要です。アプリのビルドに必要な CMake と、C/C++ コードのデバッグに必要な LLDB がインストールされていることを確認する必要があります。これらはすでにインストールされている可能性があります。これらをインストールするには、SDK Manager内のSDK Toolsタブを選択し、項目を選択して**応募する**次のスクリーンショットのように：
+もうひとつ必要なのは*アンドロイドNDK*.JUCEはAndroidアプリケーションを書くためのC/C++ APIを提供するので、これはJUCEがAndroidで動作するために非常に重要です。アプリのビルドに必要なCMakeと、C/C++ コードのデバッグに必要なLLDBがインストールされていることを確認する必要があります。これらはすでにインストールされている可能性があります。これらをインストールするには、SDK Manager内のSDK Toolsタブを選択し、項目を選択して**応募する**次のスクリーンショットのように：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_android_studio_screenshot7.png"
@@ -88,7 +88,7 @@ Android Studio自体がインストールされたので、追加のツールが
 
 ## プロジューサーを使う
 
-Android Studio、Android SDK、Android NDK がインストールされたので、JUCE ベースの Android Studio プロジェクトを作成するように Projucer を設定します。(Projucer に慣れていない方は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).)そのためには、Android SDK（とNDK）がどこにインストールされているかを知る必要がある。
+Android Studio、Android SDK、Android NDKがインストールされたので、JUCEベースのAndroid Studioプロジェクトを作成するようにProjucerを設定します。(Projucerに慣れていない方は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).)そのためには、Android SDK（とNDK）がどこにインストールされているかを知る必要がある。
 
 アンドロイドSDKの場所は**SDKマネージャー**ウィンドウを開きます。パスは以下のようになる（"username "はあなたのユーザー名）：
 
@@ -186,7 +186,7 @@ Android Studioが、どのデバイスを使用するか尋ねてきます。ア
   caption="仮想デバイス上での実行"
 />
 
-これで、デバイス上でアプリケーションが起動するはずです！以下のスクリーンショットのようになるはずです（これはデバイスを横向きに回転させた状態を示しています）：
+これで、デバイス上でアプリケーションが起動するはずです！ 以下のスクリーンショットのようになるはずです（これはデバイスを横向きに回転させた状態を示しています）：
 
 <CaptionImage
   src="https://docs.juce.com/master/tutorial_android_studio_screenshot15.png"
@@ -206,7 +206,7 @@ Android Studioが、どのデバイスを使用するか尋ねてきます。ア
 - Android Studioのダウンロードとインストール
 - Android SDKとAndroid NDKのダウンロード
 - Android Studio用のProjucerプロジェクトを作成する
-- Projucer で生成したプロジェクトを Android Studio で開く
+- Projucerで生成したプロジェクトをAndroid Studioで開く
 - 仮想（または実）デバイス上でプロジェクトを実行する
 
 ## 参照

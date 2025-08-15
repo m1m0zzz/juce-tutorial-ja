@@ -20,7 +20,7 @@ tags: [中級]
 
 :::note
 
-このチュートリアルは[Tutorial: Build an audio player](../tutorial_playing_sound_files/)を読んで理解する必要がある。また、本書は、あなたが以下の項目について熟知していることを前提としている。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスと、コンポーネント内で描画を行うための Component::paint() 関数 ([Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)).
+このチュートリアルは[Tutorial: Build an audio player](../tutorial_playing_sound_files/)を読んで理解する必要がある。また、本書は、あなたが以下の項目について熟知していることを前提としている。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスと、コンポーネント内で描画を行うためのComponent::paint() 関数 ([Tutorial: The Graphics class](../../graphics/tutorial_graphics_class/)).
 
 :::
 
@@ -54,7 +54,7 @@ tags: [中級]
 
 ### 追加オブジェクト
 
-我々の`MainContentComponent`クラスに2つのメンバを追加する必要があります。[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトと[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトになる。その[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")クラスは、1つまたは複数のオーディオファイルの必要な低解像度バージョンをキャッシュするために使用されます。これは、例えば、あるファイルを閉じて新しいファイルを開き、また最初のファイルを開こうとすると[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")には最初のファイルの低解像度バージョンが残っているので、データを再スキャンして再計算する必要はない。もうひとつの便利な機能は[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")の異なるインスタンス間で共有できる。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラス
+我々の`MainContentComponent`クラスに2つのメンバーを追加する必要があります。[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトと[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトになる。その[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")クラスは、1つまたは複数のオーディオファイルの必要な低解像度バージョンをキャッシュするために使用されます。これは、例えば、あるファイルを閉じて新しいファイルを開き、また最初のファイルを開こうとすると[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")には最初のファイルの低解像度バージョンが残っているので、データを再スキャンして再計算する必要はない。もうひとつの便利な機能は[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")の異なるインスタンス間で共有できる。[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラス
 
 ```cpp
     juce::TextButton openButton;
@@ -89,9 +89,9 @@ tags: [中級]
 ```
 
 - \[4\](その)[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトは、保存するサムネイルの数で構築されなければならない。
-- \[5\](その)[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトは、1 つのサムネイルサンプルを作成するために使用されるソースサンプルの数を指定することで、それ自体を構築する必要があります。これが低解像度バージョンの解像度を決定します。他の 2 つの引数は[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")そして[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトがある。
+- \[5\](その)[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトは、1つのサムネイルサンプルを作成するために使用されるソースサンプルの数を指定することで、それ自体を構築する必要があります。これが低解像度バージョンの解像度を決定します。他の2つの引数は[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")そして[AudioThumbnailCache](https://docs.juce.com/master/classAudioThumbnailCache.html "このクラスのインスタンスは、複数の AudioThumbnail オブジェクトを管理するために使用されます。")オブジェクトがある。
 
-について[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスも[ChangeBroadcaster](https://docs.juce.com/master/classChangeBroadcaster.html "ChangeListenersのリストを保持し、指示があったときにメッセージを送信する。")クラスに登録することができます。変更のリスナーとして登録できる\[6\](私たちの`MainContentComponent`コンストラクタ)。これらの変更は[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトが変更されたので、波形の描画を更新する必要がある。
+について[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")クラスも[ChangeBroadcaster](https://docs.juce.com/master/classChangeBroadcaster.html "ChangeListenersのリストを保持し、指示があったときにメッセージを送信する。")クラスに登録できます。変更のリスナーとして登録できる\[6\](私たちの`MainContentComponent`コンストラクタ)。これらの変更は[AudioThumbnail](https://docs.juce.com/master/classAudioThumbnail.html "オーディオファイルの波形形状の拡大縮小図を簡単に描画できます。")オブジェクトが変更されたので、波形の描画を更新する必要がある。
 
 ```cpp
         thumbnail.addChangeListener (this);            // [6]

@@ -9,9 +9,9 @@ tags: ["中級"]
 <SourcePageLink path="tutorial_code_basic_plugin" />
 
 このチュートリアルでは、コンピュータをセットアップし、
-JUCE を使ってオーディオプラグイン（VST3 と AudioUnit）を開発するための Projucer プロジェクトを作成します。
+JUCEを使ってオーディオプラグイン（VST3とAudioUnit）を開発するためのProjucerプロジェクトを作成します。
 最後には、"Hello, World!" と言って、
-Cubase や REAPER のような VST3 ホストにロードできるオーディオプラグインが完成します。
+CubaseやREAPERのようなVST3ホストにロードできるオーディオプラグインが完成します。
 
 レベル：中級
 
@@ -35,9 +35,9 @@ Projucerを起動し、**TutorialPlugin** という名前で新しいオーデ�
 ## オリエンテーション
 
 新しく作成されたオーディオ・プラグイン・プロジェクトには、主に2つのクラスが含まれます。
-`PluginProcessor` はオーディオと MIDIのIOと処理ロジックを処理し、`PluginEditor` は画面上のGUIコントロールやビジュアライゼーションを処理します。
+`PluginProcessor` はオーディオとMIDIのI/Oと処理ロジックを処理し、`PluginEditor` は画面上のGUIコントロールやビジュアライゼーションを処理します。
 
-この2つの間で情報をやり取りする場合、プロセッサをエディタの親と考えるのがベストです。プラグイン・プロセッサは1つしかありませんが、エディタは複数作成できます。各エディターはプロセッサーへの参照を持ち、オーディオスレッドの情報やパラメータを編集したり、アクセスしたりすることができます。
+この2つの間で情報をやり取りする場合、プロセッサをエディタの親と考えるのがベストです。プラグイン・プロセッサは1つしかありませんが、エディタは複数作成できます。各エディターはプロセッサーへの参照を持ち、オーディオスレッドの情報やパラメータを編集したり、アクセスしたりできます。
 このプロセッサー・スレッドに情報を設定したり取得したりするのはエディターの仕事であり、その逆はありません。
 
 `PluginProcessor.cpp` で編集する主な関数は `processBlock()` メソッドです。
@@ -89,7 +89,7 @@ private:
 :::note
 
 [AudioProcessorEditor](https://docs.juce.com/master/classAudioProcessorEditor.html)
-は、オーディオプラグインにおいて、スタンドアロンアプリの *メインコンテンツコンポーネント* と同じ役割を果たします。
+は、オーディオプラグインにおいて、スタンドアローンアプリの *メインコンテンツコンポーネント* と同じ役割を果たします。
 [チュートリアル：メインコンポーネント](../../graphics/tutorial_main_component/) を参照してください
 
 :::
@@ -121,7 +121,7 @@ TutorialPluginAudioProcessorEditor::TutorialPluginAudioProcessorEditor (Tutorial
 
 JUCEのウィンドウには `resized()` というメソッドがあり、ウィンドウの初期化時に一度呼び出され、
 ユーザによってウィンドウのサイズが変更されるたびに呼び出されます（リサイズが有効な場合）。
-これは、スライダー（および他の GUI コンポーネント）のサイズと位置を設定するのに適した場所です。
+これは、スライダー（および他のGUIコンポーネント）のサイズと位置を設定するのに適した場所です。
 
 ```cpp
 void TutorialPluginAudioProcessorEditor::resized()
@@ -171,7 +171,7 @@ void TutorialPluginAudioProcessorEditor::paint (juce::Graphics& g)
 プロセッサー・スレッドでMIDIエフェクトをコントロールするためにスライダーの値を取得するには、
 プロセッサー・スレッドに新しい変数を作成し、スライダーを使って変更できるようにする必要があります。
 
-プロセッサークラスのヘッダーに `noteOnVel` という新しい public float 変数を作成します。
+プロセッサークラスのヘッダーに `noteOnVel` という新しいpublic float変数を作成します。
 これはスライダーで設定する変数です。
 
 ```cpp
@@ -284,7 +284,7 @@ void TutorialPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
 
 ホスト環境でプラグインを実行すると、プラグインを通して送られてくるすべてのMIDIノートオン信号が、スライダーで設定した値を持っていることがわかります。
 上記の `if()` ステートメントは、他のタイプの入力MIDI信号を変更したり、様々な変換やエフェクトを適用したりするのにも使えます。
-これらのメソッドを使えば、より複雑なエフェクトやGUIを構築することができます。
+これらのメソッドを使えば、より複雑なエフェクトやGUIを構築できます。
 
 :::danger[エクササイズ]
 

@@ -65,7 +65,7 @@ private:
 
 を追加していることに注意してください。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトは[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを表示します。これらはテキストを表示する**頻度**そして**期間**をスライダーの左に置く。スライダー・コントロールのすぐ左にあるボックスは、現在のスライダー値を表示するもので、実際には[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトがある。
 
-を追加した。[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスを基底クラスとして使用することで、スライダーの変更を受け取るようにクラスを登録することができます。
+を追加した。[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスを基底クラスとして使用することで、スライダーの変更を受け取るようにクラスを登録できます。
 
 ```cpp
 class MainContentComponent   : public juce::Component,
@@ -152,7 +152,7 @@ public:
 
 ## いくつかのカスタマイズ
 
-インターフェイスをより効果的にするために、ここにいくつかの簡単なカスタマイズを加えることができる。
+インタフェースをより効果的にするために、ここにいくつかの簡単なカスタマイズを加えることができる。
 
 ### テキストボックスを広くする
 
@@ -172,7 +172,7 @@ public:
 
 ### スライダー値の歪み
 
-デフォルトでは、スライダートラックはリニアで、スライダーの値はスライダートラックに沿ったスライダーサムの位置に比例します。インターフェイスを操作してみると、これがどうもしっくりこないのは明らかだ。スライダーを調整する*スキュー*を使ってスライダーの軌跡を対数にすることができます。これを行うには[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "値の分布方法を変更するためのスキュー係数を設定する。")関数に追加します。以下の2行のコードを`MainContentComponent`のコンストラクタは、スライダが設定された後に使用します：
+デフォルトでは、スライダートラックはリニアで、スライダーの値はスライダートラックに沿ったスライダーサムの位置に比例します。インタフェースを操作してみると、これがどうもしっくりこないのは明らかだ。スライダーを調整する*スキュー*を使ってスライダーの軌跡を対数にできます。これを行うには[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "値の分布方法を変更するためのスキュー係数を設定する。")関数に追加します。以下の2行のコードを`MainContentComponent`のコンストラクタは、スライダが設定された後に使用します：
 
 ```cpp
         frequencySlider.setSkewFactorFromMidPoint (500);
@@ -195,7 +195,7 @@ public:
 
 ### スライダー・コールバックの簡素化
 
-このチュートリアルで示したようなリスナーやブロードキャスターのパラダイムを使う代わりに、最新の C++ 標準のラムダ関数を使うことで、スライダーのコールバックを単純化することができます。これは、複雑な実装を必要としない単純なコールバックには特に効果的です。
+このチュートリアルで示したようなリスナーやブロードキャスターのパラダイムを使う代わりに、最新のC++ 標準のラムダ関数を使うことで、スライダーのコールバックを単純化できます。これは、複雑な実装を必要としない単純なコールバックには特に効果的です。
 
 まずは[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスを作成し、次のようにMainContentComponentクラスの定義を復元する：
 

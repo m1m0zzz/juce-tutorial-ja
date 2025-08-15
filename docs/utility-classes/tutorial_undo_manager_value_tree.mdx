@@ -33,7 +33,7 @@ tags: [中級]
   caption="デモプロジェクトのアプリケーション・ウィンドウ"
 />
 
-現時点では、ドラッグ＆ドロップで[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードを作成し、データ構造の階層を変更することができます。子ノードを展開したり折りたたんだりすることもできるが、変更を元に戻したりやり直したりすることはできない。この機能を[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")クラスである。
+現時点では、ドラッグ&ドロップで[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードを作成し、データ構造の階層を変更できます。子ノードを展開したり折りたたんだりすることもできるが、変更を元に戻したりやり直したりすることはできない。この機能を[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")クラスである。
 
 :::note
 
@@ -43,7 +43,7 @@ tags: [中級]
 
 ## 元に戻す／やり直しボタンの追加
 
-まず、次の2つを加えてみよう。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトをユーザー・インターフェースに追加し、アンドゥとリドゥの機能を使えるようにしました。このセクションではラムダ関数に慣れている必要があります。[Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)チュートリアル
+まず、次の2つを加えてみよう。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトをユーザー・インタフェースに追加し、アンドゥとリドゥの機能を使えるようにしました。このセクションではラムダ関数に慣れている必要があります。[Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)チュートリアル
 
 の中で`MainContentComponent`クラスを宣言します。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")各ボタンの変数\[1\]:
 
@@ -53,7 +53,7 @@ tags: [中級]
     std::unique_ptr rootItem;
 ```
 
-コンストラクタのメンバ初期化リストで、以下のテキストを設定する。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクト\[2\]:
+コンストラクタのメンバー初期化リストで、以下のテキストを設定する。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクト\[2\]:
 
 ```cpp
     MainContentComponent()
@@ -120,7 +120,7 @@ private:
     juce::UndoManager& undoManager; // [2]
 ```
 
-クラス・コンストラクタのメンバ初期化リストに[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")参照\[3\]:
+クラス・コンストラクタのメンバー初期化リストに[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")参照\[3\]:
 
 ```cpp
     ValueTreeItem (const juce::ValueTree& v, juce::UndoManager& um)
@@ -140,7 +140,7 @@ ValueTreeItemのサブ項目が再帰的に作成されるときは、必ず[Und
     }
 ```
 
-これで、ルート ValueTreeItem をインスタンス化できます。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")インスタンス\[5\]での`MainContentComponent`クラスである：
+これで、ルートValueTreeItemをインスタンス化できます。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")インスタンス\[5\]での`MainContentComponent`クラスである：
 
 ```cpp
         tree.setDefaultOpenness (true);
@@ -170,7 +170,7 @@ ValueTreeItemのサブ項目が再帰的に作成されるときは、必ず[Und
                     newParent.addChild (v, insertIndex, &undoManager);                  // [3]
 ```
 
-- \[1\]アイテムがドラッグ＆ドロップされるたびに、移動を処理する静的関数に undoManager を渡します。
+- \[1\]アイテムがドラッグ&ドロップされるたびに、移動を処理する静的関数にundoManagerを渡します。
 - \[2\]このアクションをundoManagerに登録する必要がある。
 - \[3\]次に、その子を新しい親に追加し、新しいアクションをundoManagerに登録します。
 
@@ -184,7 +184,7 @@ ValueTreeItemのサブ項目が再帰的に作成されるときは、必ず[Und
 
 ## イベントをトランザクションとして扱う
 
-のもう一つの便利な機能である。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")は、複数のアクションを1つのアンドゥ／リドゥ・トランザクションとしてグループ化できる機能である。この機能は`beginNewTransaction()`関数を使用する。`undoManager`インスタンスへの呼び出しはすべて`perform()`の機能である。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")は、次の`beginNewTransaction()`コール。
+のもう1つの便利な機能である。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")は、複数のアクションを1つのアンドゥ／リドゥ・トランザクションとしてグループ化できる機能である。この機能は`beginNewTransaction()`関数を使用する。`undoManager`インスタンスへの呼び出しはすべて`perform()`の機能である。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")は、次の`beginNewTransaction()`コール。
 
 例として[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")を呼び出す。`beginNewTransaction()`関数を定期的に実行し、アクションのグループをトランザクションとしてまとめて保存する。トランザクションは`MainContentComponent`を継承する。[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")タイマー・コールバックを受け取るクラス\[1\]:
 
