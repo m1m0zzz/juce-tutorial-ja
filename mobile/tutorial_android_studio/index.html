@@ -6,8 +6,8 @@
 <title data-rh="true">アンドロイド入門 | JUCE日本語版チュートリアル</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://m1m0zzz.github.io/juce-tutorial-ja/img/juce-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://m1m0zzz.github.io/juce-tutorial-ja/img/juce-social-card.jpg"><meta data-rh="true" property="og:url" content="https://m1m0zzz.github.io/juce-tutorial-ja/mobile/tutorial_android_studio/"><meta data-rh="true" property="og:locale" content="ja"><meta data-rh="true" name="docusaurus_locale" content="ja"><meta data-rh="true" name="docsearch:language" content="ja"><meta data-rh="true" name="keywords" content="JUCE, plugin, VST, 日本語, チュートリアル"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="アンドロイド入門 | JUCE日本語版チュートリアル"><meta data-rh="true" name="description" content="このチュートリアルでは、JUCEベースのプロジェクトを作成するためのAndroid Studioの使い方を紹介します。"><meta data-rh="true" property="og:description" content="このチュートリアルでは、JUCEベースのプロジェクトを作成するためのAndroid Studioの使い方を紹介します。"><link data-rh="true" rel="icon" href="/juce-tutorial-ja/img/juce.png"><link data-rh="true" rel="canonical" href="https://m1m0zzz.github.io/juce-tutorial-ja/mobile/tutorial_android_studio/"><link data-rh="true" rel="alternate" href="https://m1m0zzz.github.io/juce-tutorial-ja/mobile/tutorial_android_studio/" hreflang="ja"><link data-rh="true" rel="alternate" href="https://m1m0zzz.github.io/juce-tutorial-ja/mobile/tutorial_android_studio/" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Mobile","item":"https://m1m0zzz.github.io/juce-tutorial-ja/category/mobile"},{"@type":"ListItem","position":2,"name":"アンドロイド入門","item":"https://m1m0zzz.github.io/juce-tutorial-ja/mobile/tutorial_android_studio"}]}</script><link rel="preconnect" href="https://www.google-analytics.com">
 <link rel="preconnect" href="https://www.googletagmanager.com">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-1662Y26YFC"></script>
-<script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-1662Y26YFC",{anonymize_ip:!0})</script><link rel="stylesheet" href="/juce-tutorial-ja/assets/css/styles.ea2af4b5.css">
-<script src="/juce-tutorial-ja/assets/js/runtime~main.357a0198.js" defer="defer"></script>
+<script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-1662Y26YFC",{anonymize_ip:!0})</script><link rel="stylesheet" href="/juce-tutorial-ja/assets/css/styles.975efe75.css">
+<script src="/juce-tutorial-ja/assets/js/runtime~main.a65cd0b8.js" defer="defer"></script>
 <script src="/juce-tutorial-ja/assets/js/main.a4f1eeca.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -40,11 +40,11 @@
 <figure><img src="https://docs.juce.com/master/tutorial_android_studio_screenshot5.png" alt="SDKマネージャーを選択します。"><figcaption><b>SDKマネージャーを選択し ます。</b></figcaption></figure>
 <p>他のSDKプラットフォームが必要な場合は、次のセクションで必要なSDKを選択できます。<strong>SDKプラットフォーム</strong>タブを使用してください。今のところはデフォルトのままで大丈夫です。</p>
 <figure><img src="https://docs.juce.com/master/tutorial_android_studio_screenshot6.png" alt="必要なSDKプラットフォームを選択する"><figcaption><b>必要なSDKプラットフォームを選択する</b></figcaption></figure>
-<p>もうひとつ必要なのは<em>アンドロイドNDK</em>.JUCEはAndroidアプリケーションを書くためのC/C++ APIを提供するので、これはJUCEがAndroidで動作するために非常に重要です。アプリのビルドに必要な CMake と、C/C++ コードのデバッグに必要な LLDB がインストールされていることを確認する必要があります。これらはすでにインストールされている可能性があります。これらをインストールするには、SDK Manager内のSDK Toolsタブを選択し、項目を選択して<strong>応募する</strong>次のスクリーンショットのように：</p>
+<p>もうひとつ必要なのは<em>アンドロイドNDK</em>.JUCEはAndroidアプリケーションを書くためのC/C++ APIを提供するので、これはJUCEがAndroidで動作するために非常に重要です。アプリのビルドに必要なCMakeと、C/C++ コードのデバッグに必要なLLDBがインストールされていることを確認する必要があります。これらはすでにインストールされている可能性があります。これらをインストールするには、SDK Manager内のSDK Toolsタブを選択し、項目を選択して<strong>応募する</strong>次のスクリーンショットのように：</p>
 <figure><img src="https://docs.juce.com/master/tutorial_android_studio_screenshot7.png" alt="NDKとその他のツールをインストールする"><figcaption><b>NDKとその他のツールをインストールする</b></figcaption></figure>
 <p>であることを確認する。<em>最低</em>上のスクリーンショットで選択されている項目は、お使いのシステム（WindowsまたはMac OS X）で選択されています。お望みであれば、追加の項目をインストールしてもかまいません。をクリックしてください。<strong>応募する</strong>ボタンをクリックする。</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="プロジューサーを使う">プロジューサーを使う<a href="#プロジューサーを使う" class="hash-link" aria-label=" プロジューサーを使う への直接リンク" title="プロジューサーを使う への直接リンク">​</a></h2>
-<p>Android Studio、Android SDK、Android NDK がインストールされたので、JUCE ベースの Android Studio プロジェクトを作成するように Projucer を設定します。(Projucer に慣れていない方は、以下を参照してください。<a href="/juce-tutorial-ja/getting-started/tutorial_new_projucer_project/">Tutorial: Projucer Part 1: Getting started with the Projucer</a>.)そのためには、Android SDK（とNDK）がどこにインストールされているかを知る必要がある。</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="プロジューサーを使う">プロジューサーを使う<a href="#プロジューサーを使う" class="hash-link" aria-label="プ  ロジューサーを使う への直接リンク" title="プロジューサーを使う への直接リンク">​</a></h2>
+<p>Android Studio、Android SDK、Android NDKがインストールされたので、JUCEベースのAndroid Studioプロジェクトを作成するようにProjucerを設定します。(Projucerに慣れていない方は、以下を参照してください。<a href="/juce-tutorial-ja/getting-started/tutorial_new_projucer_project/">Tutorial: Projucer Part 1: Getting started with the Projucer</a>.)そのためには、Android SDK（とNDK）がどこにインストールされているかを知る必要がある。</p>
 <p>アンドロイドSDKの場所は<strong>SDKマネージャー</strong>ウィンドウを開きます。パスは以下のようになる（&quot;username &quot;はあなたのユーザー名）：</p>
 <ul>
 <li><code>C:\Users\username\AppData\Local\Android\sdk</code>(Windowsの場合）</li>
@@ -53,7 +53,7 @@
 <p>このパスを<strong>SDKマネージャー</strong>ウィンドウをクリップボードにコピーする（Mac OS Xでは &quot;CMD-C&quot;、Windowsでは &quot;Ctrl-C&quot;）。</p>
 <p>Projucerアプリケーションを開き、メニュー項目<strong>Projucer &gt; グローバル検索パス...<strong>パス（Mac OS Xの場合は &quot;CMD-V&quot;、Windowsの場合は &quot;Ctrl-V&quot;）を</strong>アンドロイドSDK</strong>フィールドに入力してください。Return」を押すと、テキストが白い文字で表示されるはずです。これは次のスクリーンショットに示されている：</p>
 <figure><img src="https://docs.juce.com/master/tutorial_android_studio_screenshot8.png" alt="Android SDKへのパスを入力します（Mac OS Xの場合）。"><figcaption><b>Android SDKへのパスを入力します（Mac OS Xの場合）。</b></figcaption></figure>
-<p>SDKが見つからない、または正しくインストールされていない 場合、Projucerは入力したパスを赤字で表示します。</p>
+<p>SDKが見つからない、または正しくインストールされていない場合、Projucerは入力したパスを赤字で表示します。</p>
 <p>NDKはSDK内の<code>ndk-bundle</code>ディレクトリに保存されます。こんな感じだ：</p>
 <ul>
 <li><code>C:\Users\username\AppData\Local\Android\sdk\ndk-bundle</code>(Windowsの場合）</li>
@@ -79,7 +79,7 @@
 <figure><img src="https://docs.juce.com/master/tutorial_android_studio_screenshot13.png" alt="実行ボタンを押す"><figcaption><b>実行ボタンを押す</b></figcaption></figure>
 <p>Android Studioが、どのデバイスを使用するか尋ねてきます。アプリを起動するのは初めてなので、アプリを実行するための仮想デバイスを作成する必要があります。をクリックします。<strong>新規仮想デバイスの作成</strong>ボタンをクリックして新しいデバイスをセットアップし、希望のデバイスを選択します。これで仮想デバイスができたはずなので、それをリストで選択して<strong>OK</strong>ボタンをクリックします。(AndroidデバイスをUSBで接続している場合は、そのウィンドウにも表示されるはずです)。これは以下のスクリーンショットの通りです：</p>
 <figure><img src="https://docs.juce.com/master/tutorial_android_studio_screenshot14.png" alt="仮想デバイス上での実行"><figcaption><b>仮想デバイス上での実行</b></figcaption></figure>
-<p>これで、デバイ  ス上でアプリケーションが起動するはずです！以下のスクリーンショットのようになるはずです（これはデバイスを横向きに回転させた状態を示しています）：</p>
+<p>これで、デバイス上でア プリケーションが起動するはずです！ 以下のスクリーンショットのようになるはずです（これはデバイスを横向きに回転させた状態を示しています）：</p>
 <figure><img src="https://docs.juce.com/master/tutorial_android_studio_screenshot15.png" alt="ハロー・ワールド！アプリを端末に"><figcaption><b>ハロー・ワールド！アプリを端末に</b></figcaption></figure>
 <div class="theme-admonition theme-admonition-note admonition_xJq3 alert alert--secondary"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M6.3 5.69a.942.942 0 0 1-.28-.7c0-.28.09-.52.28-.7.19-.18.42-.28.7-.28.28 0 .52.09.7.28.18.19.28.42.28.7 0 .28-.09.52-.28.7a1 1 0 0 1-.7.3c-.28 0-.52-.11-.7-.3zM8 7.99c-.02-.25-.11-.48-.31-.69-.2-.19-.42-.3-.69-.31H6c-.27.02-.48.13-.69.31-.2.2-.3.44-.31.69h1v3c.02.27.11.5.31.69.2.2.42.31.69.31h1c.27 0 .48-.11.69-.31.2-.19.3-.42.31-.69H8V7.98v.01zM7 2.3c-3.14 0-5.7 2.54-5.7 5.68 0 3.14 2.56 5.7 5.7 5.7s5.7-2.55 5.7-5.7c0-3.15-2.56-5.69-5.7-5.69v.01zM7 .98c3.86 0 7 3.14 7 7s-3.14 7-7 7-7-3.12-7-7 3.14-7 7-7z"></path></svg></span>注記</div><div class="admonitionContent_BuS1"><p>仮想デバイスを回転させるには、&quot;Control-F11 &quot;で反時計回りに、&quot;Control-F12 &quot;で時計回りに回転させます。(Mac OS Xでは &quot;fn &quot;キーも押したままにする必要があります）。</p></div></div>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="概要">概要<a href="#概要" class="hash-link" aria-label="概要 への直接リンク" title="概要 への直接リンク">​</a></h2>
@@ -88,7 +88,7 @@
 <li>Android Studioのダウンロードとインストール</li>
 <li>Android SDKとAndroid NDKのダウンロード</li>
 <li>Android Studio用のProjucerプロジェクトを作成する</li>
-<li>Projucer で生成したプロジェクトを Android Studio で開く</li>
+<li>Projucerで生成したプロジェクトをAndroid Studioで開く</li>
 <li>仮想（または実）デバイス上でプロジェクトを実行する</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="参照">参照<a href="#参照" class="hash-link" aria-label="参照 への直接リンク" title="参照 への直接リンク">​</a></h2>
