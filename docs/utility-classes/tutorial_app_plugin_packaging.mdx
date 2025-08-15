@@ -36,26 +36,28 @@ tags: [上級]
 
 プラグインを配布する場合、さまざまなプラグインラッパーのインストール場所を理解することが重要です。以下の表は、ターゲットOSによって、インストーラがファイルをコピーしなければならないディレクトリの一覧です：
 
-| プラグインタイプ | ディレクトリタイプ | Macインストールディレクトリ |
+| プラグインタイプ | ディレクトリタイプ | パス |
 | --- | --- | --- |
-| VST | ユーザー | ~/Library/Audio/Plug-Ins/VST |
-| システム | Macintosh HD/ライブラリ/オーディオ/プラグイン/VST |
-| VST3 | ユーザー | ~/Library/Audio/Plug-Ins/VST3 |
-| システム | Macintosh HD/ライブラリ/オーディオ/プラグイン/VST3 |
-| AU | ユーザー | ~/Library/Audio/Plug-Ins/Components |
-| システム | Macintosh HD/ライブラリ/オーディオ/プラグイン/コンポーネント |
-| RTAS | システム | Macintosh HD/ライブラリ/アプリケーションサポート/Digidesign/プラグイン |
-| AAX | システム | Macintosh HD/ライブラリ/アプリケーションサポート/Avid/Audio/プラグイン |
+| VST | User | ~/Library/Audio/Plug-Ins/VST |
+| VST | System | /Library/Audio/Plug-Ins/VST |
+| VST3 | User | ~/Library/Audio/Plug-Ins/VST3 |
+| VST3 | System | /Library/Audio/Plug-Ins/VST3 |
+| AU | User | ~/Library/Audio/Plug-Ins/Components |
+| AU | System | /Library/Audio/Plug-Ins/Components |
+| RTAS | System | /Library/Application Support/Digidesign/Plug-Ins |
+| AAX | System | /Library/Application Support/Avid/Audio/Plug-Ins |
 
-| プラグインタイプ | ディレクトリタイプ | Windowsインストールディレクトリ |
+Windowsインストールディレクトリ
+
+| プラグインタイプ | ディレクトリタイプ | パス |
 | --- | --- | --- |
-| VST | 共有 | C:\\Program Files\\VstPlugins |
-| 共有 | C:\\Program Files |
-| 共有 | C:\\Program Files\\Common Files\\VST2 |
-| 共有 | C:\\Program Files |
-| VST3 | 共有 | C:\\Program Files\\Common Files\\VST3 |
-| RTAS | 共有 | C:\\Program Files\\Common Files |
-| AAX | 共有 | C:\\Program Files\\ Common Files |
+| VST | Shared | C:\\Program Files\\VstPlugins |
+| VST | Shared | C:\\Program Files\\Steinberg\\VstPlugins |
+| VST | Shared | C:\\Program Files\\Common Files\\VST2 |
+| VST | Shared | C:\\Program Files\\Common Files\\SteinbergVST2 |
+| VST3 | Shared | C:\\Program Files\\Common Files\\VST3 |
+| RTAS | Shared | C:\\Program Files\\Common Files\\Digidesign\\DAE\\Plug-Ins |
+| AAX | Shared | C:\\Program Files\\Common Files\\AvidAudio\\Plug-Ins |
 
 :::note
 

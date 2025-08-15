@@ -1,3 +1,8 @@
+figure > img {
+  margin: auto;
+  display: block;
+}
+
 figure > figcaption {
   text-align: center;
 }
