@@ -8,7 +8,6 @@
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
-    "deploy:owner": "USE_SSH=true GIT_USER_NAME=m1m0zzz GIT_USER_EMAIL=contact.m1m0zzz@gmail.com docusaurus deploy",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",

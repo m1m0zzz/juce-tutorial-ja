@@ -9,12 +9,24 @@
   },
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true
     },
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "matchPackagePatterns": ["eslint"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "matchPackagePatterns": [
+        "eslint"
+      ],
       "groupName": "eslint",
       "automerge": true
     }

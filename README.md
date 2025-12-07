@@ -1,15 +1,20 @@
 # juce-tutorial-ja
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+このサイトは、[JUCE Tutorial](https://juce.com/learn/tutorials/) の非公式翻訳で、オープンソースで誰でも編集できます。
 
-### Status
+現在、翻訳途中です。[翻訳状況](https://github.com/m1m0zzz/juce-tutorial-ja#status) をご確認ください。
+
+翻訳間違い、不具合などは [GitHub Issues](https://github.com/m1m0zzz/juce-tutorial-ja/issues) までお願いします。
+
+## Status
 
 ルール:
+
 - 🤖 ... 機械翻訳 (スクリプト)
 - ✅ ... 機械翻訳と正常なリンク
 - 💯 ... 正しい日本語と正しいフォーマット
 
-#### Getting Started
+## Getting Started
 
 | タイトル | ステータス |
 | --- | :---: |
@@ -19,13 +24,15 @@ This website is built using [Docusaurus](https://docusaurus.io/), a modern stati
 | 基本的なオーディオプラグインの作成 パート2 | ✅ |
 | アプリケーションに適したProjucerテンプレートの選択 | ✅ |
 
-#### Audio
+## Audio
+
 all: 🤖
 
-#### MIDI
+## MIDI
+
 all: 🤖
 
-#### Plugins
+## Plugins
 
 | タイトル | ステータス |
 | --- | :---: |
@@ -35,7 +42,7 @@ all: 🤖
 | カスケードプラグインエフェクト | 🤖 |
 | プラグインの例 | ✅ |
 
-#### DSP
+## DSP
 
 | タイトル | ステータス |
 | --- | :---: |
@@ -46,38 +53,40 @@ all: 🤖
 | 高速フーリエ変換 | 🤖 |
 | 信号の周波数をリアルタイムで可視化する | 🤖 |
 
+## Graphics
 
-#### Graphics
 all: 🤖
 
-#### Interface Design
+## Interface Design
+
 all: 🤖
 
-#### Mobile
+## Mobile
+
 all: 🤖
 
-#### Utility Classes
+## Utility Classes
+
 all: 🤖
 
+## Installation
 
-### Installation
-
-```
-$ npm
+```bash
+npm i 
 ```
 
 ### Local Development
 
-```
-$ npm start
+```bash
+npm start
 ```
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
 ### Build
 
-```
-$ npm run build
+```bash
+npm run build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.

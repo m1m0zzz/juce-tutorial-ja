@@ -5,11 +5,11 @@ slug: /
 
 # About / このサイトについて
 
-- このサイトは、[JUCE Tutorial](https://juce.com/learn/tutorials/) の非公式翻訳である。
-- オープンソースで誰ても編集できる。
-- [Docusaurus](https://docusaurus.io/) を使用している
-- 現在、翻訳途中である。[翻訳状況](https://github.com/m1m0zzz/juce-tutorial-ja#status) をご確認ください。
-- 翻訳間違い、不具合などは [GitHub Issues](https://github.com/m1m0zzz/juce-tutorial-ja/issues) もしくは、[こちらのJUCE Forum](https://forum.juce.com/t/translate-the-tutorial-documentation-into-japanese/60223) まで
+このサイトは、[JUCE Tutorial](https://juce.com/learn/tutorials/) の非公式翻訳で、オープンソースで誰でも編集できます。
+
+現在、翻訳途中です。[翻訳状況](https://github.com/m1m0zzz/juce-tutorial-ja#status) をご確認ください。
+
+翻訳間違い、不具合などは [GitHub Issues](https://github.com/m1m0zzz/juce-tutorial-ja/issues) までお願いします。
 
 ## [Getting Started](/category/getting-started/)
 

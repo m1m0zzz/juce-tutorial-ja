@@ -1,48 +1,48 @@
 {
-    "words": [
-        "APVTS",
-        "ARGB",
-        "Arpeggiator",
-        "aufx",
-        "auval",
-        "constexpr",
-        "Cubase",
-        "deepl",
-        "Digidesign",
-        "GLSL",
-        "Inno",
-        "jassert",
-        "jlimit",
-        "jmap",
-        "jmax",
-        "jmin",
-        "juce",
-        "jucer",
-        "lowp",
-        "mimoz",
-        "Pitchbend",
-        "Projucer",
-        "ROLI",
-        "sidechain",
-        "tagline",
-        "textblock",
-        "textlint",
-        "Tracktion",
-        "waveshaping",
-        "Wavetable",
-        "yourcompany"
-    ],
-    "language": "en-GB",
-    "languageSettings": [
-        {
-            // use with Markdown files
-            "languageId": "markdown,mdx",
-            // Exclude code.
-            "ignoreRegExpList": [
-                "/^\\s*```[\\s\\S]*?^\\s*```/gm",
-                "/`.+`/",
-                "/\\[.+\\]\\(.+\\)/"
-            ]
-        }
-    ]
+  "words": [
+    "APVTS",
+    "ARGB",
+    "Arpeggiator",
+    "aufx",
+    "auval",
+    "constexpr",
+    "Cubase",
+    "deepl",
+    "Digidesign",
+    "GLSL",
+    "Inno",
+    "jassert",
+    "jlimit",
+    "jmap",
+    "jmax",
+    "jmin",
+    "juce",
+    "jucer",
+    "lowp",
+    "mimoz",
+    "Pitchbend",
+    "Projucer",
+    "ROLI",
+    "sidechain",
+    "tagline",
+    "textblock",
+    "textlint",
+    "Tracktion",
+    "waveshaping",
+    "Wavetable",
+    "yourcompany"
+  ],
+  "language": "en-GB",
+  "languageSettings": [
+    {
+      // use with Markdown files
+      "languageId": "markdown,mdx",
+      // Exclude code.
+      "ignoreRegExpList": [
+        "/^\\s*```[\\s\\S]*?^\\s*```/gm",
+        "/`.+`/",
+        "/\\[.+\\]\\(.+\\)/"
+      ]
+    }
+  ]
 }
