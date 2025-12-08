@@ -33,14 +33,14 @@ tags: [上級]
 デモ・プロジェクトは、2つのボタンを持つ非常にシンプルなUIを示しており、そのうちの1つは、登録によってもう1つへのアクセスをロック解除するために使用されます。Unlock "ボタンが押されると、ユーザーが認証情報を入力するための登録フォームが開きます。現時点では、バックエンドサーバーの実装を開始するまで、登録プロセスは失敗します。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot1.png"
+  src="/_images/tutorial_online_unlock_status_screenshot1.png"
   caption="ロックされたアプリケーション・ウィンドウ"
 />
 
 アプリケーションの実装と認証に成功すると、このチュートリアルの最後には、以下のようにアプリのロックが解除された状態が表示されるはずです。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot2.png"
+  src="/_images/tutorial_online_unlock_status_screenshot2.png"
   caption="ロック解除されたアプリケーション・ウィンドウ"
 />
 
@@ -271,14 +271,14 @@ public:
 アプリケーションを実行すると、登録フォームを表示できるようになりました。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot3.png"
+  src="/_images/tutorial_online_unlock_status_screenshot3.png"
   caption="登録フォーム"
 />
 
 しかし、任意のメールアドレスとパスワードの組み合わせでアプリを登録しようとすると、以下のようなエラーメッセージが表示される：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot4.png"
+  src="/_images/tutorial_online_unlock_status_screenshot4.png"
   caption="接続問題ダイアログ"
 />
 
@@ -367,21 +367,21 @@ type stunnel.key stunnel.cert > stunnel.pem
 macOSでは、PEMファイルをダブルクリックします。`Finder`をクリックして、証明書をキーチェインに追加します。これで`Keychain Access`アプリケーションは`Applications/Utilities`フォルダに追加します。リスト内の新しく追加された証明書をダブルクリックして、詳細ビューを開き**信頼**ビューを表示します。AlwaysTrust（常に信頼する）\]オプションを選択し、以下のように、証明書をmacの現在のユーザーアカウントで信頼できるようにします：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot5.png"
+  src="/_images/tutorial_online_unlock_status_screenshot5.png"
   caption="自己署名証明書"
 />
 
 Windowsの場合は`Microsoft Management Console`に「MMC」と入力してください。`Run`プロンプトを表示し**ファイル > スナップインの追加...**をクリックし、"Certificates "を選択する。をクリックしてください。**追加**をクリックして、現在のユーザーの証明書を追加し**OK**を終了する。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot9.png"
+  src="/_images/tutorial_online_unlock_status_screenshot9.png"
   caption="証明書スナップインの追加"
 />
 
 次に、自己署名証明書を**信頼できるルート認証局 > 証明書**左のパネルで対応するフォルダに移動し、次の項目を選択します。**アクション > すべてのタスク > インポート...**を選択します。証明書を探す手順が表示されますので、その時点で`.cert`拡張子がMMCで受け入れられるフォーマットである。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot10.png"
+  src="/_images/tutorial_online_unlock_status_screenshot10.png"
   caption="証明書のインポート"
 />
 
@@ -420,7 +420,7 @@ C:\path-to-php\php -S 127.0.0.1:8080 & C:\path-to-stunnel\stunnel stunnel.conf
 すべてが正常に動作している場合、アプリケーションを起動し、任意の電子メールとパスワードの組み合わせを送信して認証を試みます。表示されるエラーメッセージは、前回の試行とは異なり、ブラウザに表示されるメッセージと一致するはずです：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot6.png"
+  src="/_images/tutorial_online_unlock_status_screenshot6.png"
   caption="エラーメッセージダイアログ"
 />
 
@@ -514,14 +514,14 @@ $response .= 'INSERT_KEY_HERE';
 サーバーを起動してアプリケーションを実行し、PHPスクリプトで定義された適切な電子メールとパスワードの組み合わせを送信して認証を試みます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot7.png"
+  src="/_images/tutorial_online_unlock_status_screenshot7.png"
   caption="資格証明書の記入"
 />
 
 すべてがうまくいけば、次のような成功メッセージが表示され、登録フォームが自動的に解除された後、アプリケーションのロックが解除されるはずです：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_online_unlock_status_screenshot8.png"
+  src="/_images/tutorial_online_unlock_status_screenshot8.png"
   caption="登録成功ダイアログ"
 />
 

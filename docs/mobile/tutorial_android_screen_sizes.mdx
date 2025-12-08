@@ -62,14 +62,14 @@ tags: [中級]
 この例では、スライダーとボタンのコレクションを含む単純なインタフェースを使用します。これらの子コンポーネントには、それぞれ画面の高さ（端の小さな枠を除く）の割合が与えられている。水平方向でも同様のアプローチが可能です。簡単にするために、スライダーとボタンは、画面の幅全体を占めるだけです（ここでも、小さなボーダーを除きます）。画面が縦向きで、サイズが数百ピクセルの場合、以下のスクリーンショットのようになります：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot1.png"
+  src="/_images/tutorial_android_screen_sizes_screenshot1.png"
   caption="子コンポーネントの簡単なサイズ変更：ポートレート"
 />
 
 横向きの場合は、以下のスクリーンショットのようになります：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot2.png"
+  src="/_images/tutorial_android_screen_sizes_screenshot2.png"
   caption="子コンポーネントの簡単なサイズ変更ランドスケープ"
 />
 
@@ -185,7 +185,7 @@ tags: [中級]
 画面サイズが小さすぎると、以下のスクリーンショットのようにインタフェースが使用できなくなり、読めなくなる：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot3.png"
+  src="/_images/tutorial_android_screen_sizes_screenshot3.png"
   caption="画面が小さすぎる場合のシンプルなリサイズ"
 />
 
@@ -221,7 +221,7 @@ tags: [中級]
 このコードは、公称サイズと実際の画面サイズの比率をソフトウェア・ピクセルで計算します。そして、アスペクト比を維持し、すべてのコンテンツを画面に表示するために、これらの比率のうち最小のものを選択します。次に[AffineTransform](https://docs.juce.com/master/classAffineTransform.html "2次元アフィン変換行列を表す．")クラスを使用しています。[AffineTransform::scale()](https://docs.juce.com/master/classAffineTransform.html#a43665170b0ec3ef0d1afef4053e77a24 "原点に対して再縮小した新しい変換を返します。")関数を使用して、スケール変換を画面の中央に配置します。このトランスフォームは、Component::setTransform()関数を使用してコンポーネントに適用されます。結果は[simple resize](https://docs.juce.com/master/#tutorial_android_screen_sizes_resizing_child_components)メソッドを使用する。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot4.png"
+  src="/_images/tutorial_android_screen_sizes_screenshot4.png"
   caption="縦向きと横向きの両方を表示するトランスフォームを使用して、UI全体を拡大縮小する。"
 />
 
@@ -271,7 +271,7 @@ tags: [中級]
 横向きの場合、ボタンとスライダーは1列ではなく2列で表示されます。これは以下のスクリーンショットに示されています：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot5.png"
+  src="/_images/tutorial_android_screen_sizes_screenshot5.png"
   caption="横向きで別のレイアウトを使う"
 />
 
@@ -449,7 +449,7 @@ tags: [中級]
 スクリーンのサイズが "small "と判断された場合[TabbedComponent](https://docs.juce.com/master/classTabbedComponent.html "TabbedButtonBarを持つコンポーネント。")は以下のスクリーンショットのように使用される。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_android_screen_sizes_screenshot6.png"
+  src="/_images/tutorial_android_screen_sizes_screenshot6.png"
   caption="タブ付きインターフェイス"
 />
 

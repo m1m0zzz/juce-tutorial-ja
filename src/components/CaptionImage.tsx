@@ -1,3 +1,5 @@
+import useBaseUrl from "@docusaurus/useBaseUrl";
+
 interface Props {
   src: string;
   caption: string;
@@ -6,11 +8,19 @@ interface Props {
   height?: string | number;
 }
 
-export default function CaptionImage({ src, caption, alt, width, height }: Props): JSX.Element {
+export default function CaptionImage({
+  src,
+  caption,
+  alt,
+  width,
+  height,
+}: Props): JSX.Element {
+  const imgSrc = useBaseUrl(src);
+
   return (
     <figure>
-      <img src={src} alt={alt || caption} width={width} height={height} />
-      <figcaption><b>{caption}</b></figcaption>
+      <img src={imgSrc} alt={alt || caption} width={width} height={height} />
+      <figcaption>{caption}</figcaption>
     </figure>
   );
 }

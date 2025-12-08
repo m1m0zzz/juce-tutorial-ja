@@ -33,7 +33,7 @@ tags: [中級]
 デモ・プロジェクトでは、ホワイト・ノイズ・ジェネレーターの出力レベルを制御するために使用できるスライダーを1つ含むウィンドウが表示されます。これは次のスクリーンショットに示されています。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_synth_level_control_screenshot1.png"
+  src="/_images/tutorial_synth_level_control_screenshot1.png"
   caption="レベル・コントロール・スライダーを表示したデモ・プロジェクトのメイン・ウィンドウ。"
 />
 
@@ -60,14 +60,14 @@ IDEからプロジェクトを実行し、発生するホワイトノイズの�
 スライダーで指定されたレベルのホワイトノイズを生成するには、基本的な演算を行う必要がある。その[Random::nextFloat()](https://docs.juce.com/master/classRandom.html#aec88d4e5cf44faaa038f6cfb41e96406 "次のランダムな浮動小数点数を返します。")関数は常に0.0から1.0の間の値を生成する。これをオーディオ波形としてプロットすると、次のようになる：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_synth_level_control_graph1.png"
+  src="/_images/tutorial_synth_level_control_graph1.png"
   caption="0.0から1.0の間で生成された乱数"
 />
 
 これにアプローチする簡単な方法は、まずノイズをスケーリングし、常に-1.0から1.0の間でスケーリングされるようにすることである。これを行うには、2.0を掛け、1.0を引く。そうすると、下図のような信号になります：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_synth_level_control_graph2.png"
+  src="/_images/tutorial_synth_level_control_graph2.png"
   caption="1.0～1.0の間で生成された乱数"
 />
 
@@ -96,14 +96,14 @@ IDEからプロジェクトを実行し、発生するホワイトノイズの�
 算術演算の回数を減らすことは、しばしばDSPの目標である。これは、1サンプルにつき1回の乗算演算を行わずに済むケースの1つである。これを実現するには、まず、0.0と1.0の間の値に、次の値を掛け合わせればよい。*ダブル*必要な出力レベル。例えば、レベルを0.25にしたいとしよう。ランダムな値に0.5を掛けると次のようになる：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_synth_level_control_graph3.png"
+  src="/_images/tutorial_synth_level_control_graph3.png"
   caption="0.0から0.5の間でスケーリングされた乱数"
 />
 
 最後に、乱数値がゼロを中心とするようにオフセットする必要がある。これを行うには、乗算した値の半分に相当する値を引く。これはもちろん元のレベル値である。最終結果はこのようになる：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_synth_level_control_graph4.png"
+  src="/_images/tutorial_synth_level_control_graph4.png"
   caption="乱数を-0.25から0.25の間でスケーリングしオフセットする。"
 />
 

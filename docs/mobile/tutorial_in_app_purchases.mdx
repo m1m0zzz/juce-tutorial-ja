@@ -41,7 +41,7 @@ tags: [上級]
 このプロジェクトでは、音声ディクテーションを使用してフレーズを再生する際に、いくつかの聴覚的なフレーバーを提供するために、アプリ内課金で取得できるさまざまな音声を提供しています。デフォルトでは、ユーザーは一般的なロボット音声を利用できますが、必然的にJUCE開発者の音声を試したくなります。iOSシミュレータでモバイル・アプリケーションを実行すると、ウィンドウは次のようになります：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot1.png"
+  src="/_images/tutorial_in_app_purchases_screenshot1.png"
   caption="iOSのデモ・プロジェクト・アプリケーションのウィンドウ"
 />
 
@@ -68,11 +68,11 @@ tags: [上級]
 このプロジェクトが適切に機能するためには、特定のデプロイメント・プラットフォームに適した開発者コンソールで、いくつかの初期設定手順を実行する必要があります。まず、Projucerでアプリ内課金の適切なパーミッションを許可しましょう。macOS/iOSでは**アプリ内課金機能**のチェックボックスがオンになっていることを確認してください。Androidで**アプリ内課金**チェックボックスをオンにする。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot2_ios.png"
+  src="/_images/tutorial_in_app_purchases_screenshot2_ios.png"
   caption="iOSのプロジェクト設定ウィンドウ"
 />
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot2_android.png"
+  src="/_images/tutorial_in_app_purchases_screenshot2_android.png"
   caption="Androidのプロジェクト設定ウィンドウ"
 />
 
@@ -89,14 +89,14 @@ tags: [上級]
 macOSとiOSでは、アプリケーションに署名するために、Xcode内のApple Developerアカウントでサインインし、開発チームを選択する必要があります。あなたのプロジェクトのためのユニークなバンドルIDを選択します。以下のスクリーンショットのように、Xcodeは自動的に署名証明書とProvisioning Profileを提供します：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot3.png"
+  src="/_images/tutorial_in_app_purchases_screenshot3.png"
   caption="Xcodeの一般設定ウィンドウ"
 />
 
 また、正しいアプリの機能がチェックされ、承認されていることも確認してください。**能力**設定ウィンドウを開きます。以下のように同じ情報が表示されるはずです：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot4.png"
+  src="/_images/tutorial_in_app_purchases_screenshot4.png"
   caption="Xcodeの機能設定ウィンドウ"
 />
 
@@ -105,7 +105,7 @@ macOSとiOSでは、アプリケーションに署名するために、Xcode内�
 iOSでアプリ内課金を正しく表示するには、iTunes ConnectでIAP商品を作成する必要があります。まず、ダッシュボードの**私のアプリ**.に移動すると**特徴**タブにアクセスできます。**アプリ内課金**機能を以下の画面で見ることができる：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot5.png"
+  src="/_images/tutorial_in_app_purchases_screenshot5.png"
   caption="iTunes ConnectでIAP製品を作成する"
 />
 
@@ -122,7 +122,7 @@ macOS/iOS用に開発する場合は、前のセクションにジャンプし�
 Androidでアプリ内課金を正しく表示するには、Google Play Consoleでアプリ内課金商品を作成する必要があります。まず、アプリのページを**すべてのアプリケーション**パネルを開き**アプリ内商品**ページ下**店舗プレゼンス**.の下にある項目にアクセスできます。**マネージド製品**タブをクリックする：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot6.png"
+  src="/_images/tutorial_in_app_purchases_screenshot6.png"
   caption="Google Play ConsoleでIABプロダクトを作成する"
 />
 
@@ -139,28 +139,28 @@ Google PlayのプロダクトIDに関する制限により、プロダクトID�
 Androidでアプリ内課金を正しく機能させるためには、Android版アプリに署名し、Google PlayストアAPIへのリクエストを認証する必要があります。まずAndroid Studioを起動し、メニューバーの**ビルド > 署名付きAPKの生成...**:
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot7.png"
+  src="/_images/tutorial_in_app_purchases_screenshot7.png"
   caption="メニューバーから署名付きAPKを生成する"
 />
 
 すると、キーストア・ファイルの場所、エイリアス、パスワードを入力するようプロンプトが表示される：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot8.png"
+  src="/_images/tutorial_in_app_purchases_screenshot8.png"
   caption="キーストア・ファイルのエイリアスとパスワードを入力する。"
 />
 
 次に、リリースビルドタイプの "release\_"フレーバーを選択し、V1とV2の両方の署名がチェックされていることを確認する。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot9.png"
+  src="/_images/tutorial_in_app_purchases_screenshot9.png"
   caption="ビルド・タイプ、フレーバー、シグネチャー・バージョン"
 />
 
 これでキーストア・ファイルが生成され、Projucerで参照できるようになる。Androidリリース設定で、キーストア・ファイルへの相対パス、エイリアス、パスワードを**鍵の署名**の分野だ：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_in_app_purchases_screenshot10.png"
+  src="/_images/tutorial_in_app_purchases_screenshot10.png"
   caption="リリース設定のキーストアファイルのパス"
 />
 

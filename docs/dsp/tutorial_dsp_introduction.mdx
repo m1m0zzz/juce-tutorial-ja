@@ -43,11 +43,11 @@ MPEについてもっと知りたい方は、こちらのチュートリアル�
 
 プロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメント・ターゲットを選択することで、スタンドアローン・アプリケーションとして実行できます。Xcodeでは、以下のスクリーンショットのように、メインウィンドウの左上でターゲットを変更できます：
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_standalone_screenshot1.png" caption="Xcodeでデプロイ先を変更する" />
+<CaptionImage src="/_images/tutorial_dsp_introduction_standalone_screenshot1.png" caption="Xcodeでデプロイ先を変更する" />
 
 デモ・プロジェクトでは、プラグインの上半分にMIDIキーボードが画面上に表示され、下半分にはオシロスコープを通して信号が視覚的に表示されます。現在のところ、鍵盤が押されても、オシレーターの実装を提供しない限り、プラグインは音を出力しません。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot1.png" caption="デモプロジェクト・プラグイン・ウィンドウ" />
+<CaptionImage src="/_images/tutorial_dsp_introduction_screenshot1.png" caption="デモプロジェクト・プラグイン・ウィンドウ" />
 
 :::note
 
@@ -190,7 +190,7 @@ process()関数では、プロセッサー・チェイン内の各プロセッ�
 
 CustomOscillatorクラスで上記の変更を実装した後にこのコードを実行すると、JUCE DSPモジュールを使った簡単なサイン波合成を聞くことができるはずです。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot2.png" caption="Sine wave synthesiser with the JUCE DSP module" />
+<CaptionImage src="/_images/tutorial_dsp_introduction_screenshot2.png" caption="Sine wave synthesiser with the JUCE DSP module" />
 
 ## オシレーター波形の変更
 
@@ -217,7 +217,7 @@ public:
 
 このプログラムを実行することで、よりアグレッシブなサウンドが得られるはずだ。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot3.png" caption="Sawtooth synthesiser with the JUCE DSP module" />
+<CaptionImage src="/_images/tutorial_dsp_introduction_screenshot3.png" caption="Sawtooth synthesiser with the JUCE DSP module" />
 
 :::danger[エクササイズ]
 
@@ -279,7 +279,7 @@ private:
 
 プログラムを実行し、どのように聞こえるか見てみよう。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot4.png" caption="Synthesiser with a second sawtooth oscillator" />
+<CaptionImage src="/_images/tutorial_dsp_introduction_screenshot4.png" caption="Synthesiser with a second sawtooth oscillator" />
 
 :::danger[エクササイズ]
 
@@ -326,7 +326,7 @@ Voice()
 
 信号の高域が減衰し、よりこもった音になるはずです。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot5.png" caption="Synthesiser with a ladder filter" />
+<CaptionImage src="/_images/tutorial_dsp_introduction_screenshot5.png" caption="Synthesiser with a ladder filter" />
 
 :::danger[エクササイズ]
 
@@ -405,7 +405,7 @@ void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, i
 
 UFO型のサイレン音が聞こえるはずだ。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot6.png" caption="Synthesiser with an LFO" />
+<CaptionImage src="/_images/tutorial_dsp_introduction_screenshot6.png" caption="Synthesiser with an LFO" />
 
 :::danger[エクササイズ]
 
@@ -459,7 +459,7 @@ UFO型のサイレン音が聞こえるはずだ。
 
 これでシンセは、信号の最後にスムースなリバーブのテールが追加されるはずです。
 
-<CaptionImage src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot7.png" caption="Synthesiser with reverb" />
+<CaptionImage src="/_images/tutorial_dsp_introduction_screenshot7.png" caption="Synthesiser with reverb" />
 
 :::note
 

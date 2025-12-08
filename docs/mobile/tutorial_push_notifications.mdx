@@ -43,7 +43,7 @@ tags: [上級]
 このプロジェクトは、ローカルとリモートの両方の通知を送受信するための包括的なユーザー・インタフェースを提供します。通知パラメーターと識別子を整理するために、別々のテーブルが表示されます。iOSシミュレーターでモバイル・アプリケーションを実行すると、ウィンドウは次のようになるはずです：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot1.png"
+  src="/_images/tutorial_push_notifications_screenshot1.png"
   caption="iOSのデモ・プロジェクト・アプリケーションのウィンドウ"
 />
 
@@ -58,33 +58,33 @@ tags: [上級]
 このプロジェクトが正しく機能するためには、特定のデプロイメント・プラットフォームに適した開発者コンソールで、いくつかの初期設定手順を実行する必要がある。まず、Projucerでプッシュ通知の適切なパーミッションを許可しよう。macOSとiOSでは**プッシュ通知機能**フィールドに移動します。Androidでは**リモート通知**フィールドにいる。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_ios.png"
+  src="/_images/tutorial_push_notifications_screenshot2_ios.png"
   caption="iOSのプロジェクト設定ウィンドウ"
 />
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_android.png"
+  src="/_images/tutorial_push_notifications_screenshot2_android.png"
   caption="Androidのプロジェクト設定ウィンドウ"
 />
 
 また、以下のように実行ファイルにリソースをバンドルするために、macOSとiOSの両方でカスタムXcodeリソースフォルダを指定する必要があります：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_resources_macos.png"
+  src="/_images/tutorial_push_notifications_screenshot2_resources_macos.png"
   caption="macOSのカスタムリソース"
 />
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_resources_ios.png"
+  src="/_images/tutorial_push_notifications_screenshot2_resources_ios.png"
   caption="iOSのカスタムリソース"
 />
 
 最後に、Androidの場合、「Debug」と「Release」の両方のエクスポーター設定で、実行ファイルに追加したい各リソースをrawリソースとして、以下のように個別に指定する必要がある：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_resources_android_debug.png"
+  src="/_images/tutorial_push_notifications_screenshot2_resources_android_debug.png"
   caption="Androidの生リソース（デバッグ）"
 />
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot2_resources_android_release.png"
+  src="/_images/tutorial_push_notifications_screenshot2_resources_android_release.png"
   caption="アンドロイドの生リソース（リリース）"
 />
 
@@ -116,14 +116,14 @@ tags: [上級]
 macOSとiOSでは、アプリケーションに署名するために、Xcode内のApple Developerアカウントでサインインし、開発チームを選択する必要があります。あなたのプロジェクトのためのユニークなバンドルIDを選択します。以下のスクリーンショットのように、Xcodeは自動的に署名証明書とProvisioning Profileを提供します：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot3.png"
+  src="/_images/tutorial_push_notifications_screenshot3.png"
   caption="Xcodeの一般設定ウィンドウ"
 />
 
 また、正しいアプリの機能がチェックされ、承認されていることも確認してください。**能力**設定ウィンドウを開きます。以下のように同じ情報が表示されるはずです（macOSにはBackground Modesのセクションがないことに注意してください）：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot4.png"
+  src="/_images/tutorial_push_notifications_screenshot4.png"
   caption="Xcodeの機能設定ウィンドウ"
 />
 
@@ -132,7 +132,7 @@ macOSとiOSでは、アプリケーションに署名するために、Xcode内�
 iOSのリモート通知をテストするには、Apple Push Notification Service（APN）を使って通知を送信するサーバーかアプリケーションが必要です。GoogleのFirebaseを利用してテストすることも可能だが（Android側と同じように）、ありがたいことに、以下のようなアプリを利用することで、より簡単な解決策がある。[Pusher](https://github.com/noodlewerk/NWPusher).このチュートリアルの目的には、このアプリケーションをお勧めしますが、APNを使用する他のお好みのサービスを使用できます。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_pusher_screenshot1.png"
+  src="/_images/tutorial_push_notifications_pusher_screenshot1.png"
   caption="リモート通知をテストするPusherアプリ"
 />
 
@@ -141,7 +141,7 @@ iOSのリモート通知をテストするには、Apple Push Notification Servi
 Pusherアプリを使ってプッシュ通知を送信するには、SSL証明書を生成する必要があります。これを行うには、Apple Developerアカウントにログインし、アプリIDの**証明書、ID、プロフィール**ページをご覧ください。をクリックして、プッシュ通知サービスを設定できます。**編集**ボタンをクリックします。以下のスクリーンショットのように、ウェブサイトの指示に従って証明書を作成します：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot5.png"
+  src="/_images/tutorial_push_notifications_screenshot5.png"
   caption="Apple DeveloperポータルでSSL証明書を生成する"
 />
 
@@ -158,7 +158,7 @@ macOS/iOS用に開発する場合は、前のセクションにジャンプし�
 このチュートリアルでは、Google Firebaseを使ってAndroidのリモート通知をテストする。まず、Firebaseコンソールで新しいプロジェクトを作成し、Androidアプリをプロジェクトに追加します。プロジェクトにはユニークなパッケージ名を選んでください。プロジェクトの**クラウド・メッセージング**タブをクリックすると、次の画面でサーバー送信者IDにアクセスできます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot6.png"
+  src="/_images/tutorial_push_notifications_screenshot6.png"
   caption="Google Firebaseのサーバー送信者ID"
 />
 
@@ -193,14 +193,14 @@ Google FirebaseのバンドルIDが、プロジェクト設定のバンドルID�
 また、Androidのリモート通知用のFirebase設定ファイルをダウンロードする必要がある。設定ファイルを**一般**タブをクリックし、ダウンロードをクリックします。**google-services.json**次のスクリーンショットのように：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot7.png"
+  src="/_images/tutorial_push_notifications_screenshot7.png"
   caption="Google Firebaseからjsonファイルをダウンロードする"
 />
 
 JUCEプロジェクト・ディレクトリにファイルをコピーし、Android exporter settingsの**リモート通知設定ファイル**フィールドにいる：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_push_notifications_screenshot8.png"
+  src="/_images/tutorial_push_notifications_screenshot8.png"
   caption="エクスポート設定にあるgoogle-servicesファイルのパス"
 />
 

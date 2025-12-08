@@ -7,6 +7,8 @@ const config: Config = {
   tagline: 'JUCEを始めよう',
   favicon: 'img/juce.png',
 
+  staticDirectories: ['static', 'JUCE-tutorials'],
+
   // Set the production url of your site here
   url: 'https://m1m0zzz.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served

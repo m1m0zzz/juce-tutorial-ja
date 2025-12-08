@@ -49,7 +49,7 @@ tags: [上級]
 プロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメント・ターゲットを選択することで、スタンドアローン・アプリケーションとして実行できます。Xcodeでは、以下のスクリーンショットのように、メインウィンドウの左上でターゲットを変更できます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_standalone_screenshot1.png"
+  src="/_images/tutorial_dsp_introduction_standalone_screenshot1.png"
   caption="Xcodeでデプロイメント・ターゲットを変更する"
 />
 
@@ -61,7 +61,7 @@ tags: [上級]
 
 :::
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_introduction_screenshot1.png"
+  src="/_images/tutorial_dsp_introduction_screenshot1.png"
   caption="デモプロジェクトのプラグインウィンドウ"
 />
 
@@ -88,14 +88,14 @@ MIDIコントローラーをお持ちの場合は、このチュートリアル�
 例えば、単純な正弦波を考えてみよう。sin(x)これをプロットすると次のようになる：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_graph1.png"
+  src="/_images/tutorial_dsp_convolution_graph1.png"
   caption="正弦波"
 />
 
 符号伝達関数を正弦波に適用すると、入力された数値の符号を本質的に出力する関数になる。sgn(sin(x))これは矩形波を完璧に表現している：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_graph2.png"
+  src="/_images/tutorial_dsp_convolution_graph2.png"
   caption="シグナム機能付き方形波"
 />
 
@@ -104,14 +104,14 @@ MIDIコントローラーをお持ちの場合は、このチュートリアル�
 ソフトクリッピングと呼ばれる、より穏やかな歪みを作るには、双曲線正接の伝達関数を使うことができる。tanh(sin(x))これは正弦波に近い信号を出力するが、カーブはこのように丸くなる：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_graph3.png"
+  src="/_images/tutorial_dsp_convolution_graph3.png"
   caption="tanh関数による方形波"
 />
 
 そして、正方形のような形状にするために、伝達関数を適用する前に、信号をクリップするようにブーストできる。tanh(n\*sin(x))つまり、ベル形状の頂点を切り捨て、下のようにソフトエッジの矩形波にしているのだ：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_graph4.png"
+  src="/_images/tutorial_dsp_convolution_graph4.png"
   caption="tanh関数をクリップした矩形波"
 />
 
@@ -126,28 +126,28 @@ JUCEでは、ウェーブシェーピングは[dsp::WaveShaper](https://docs.juc
 インパルス・レスポンスとは、プロファイリングする空間で短いインパルスを録音することで生成されるオーディオファイルのことですが、必ずしも実際の物理的な空間である必要はありません。例えば、このようにキャビネットを通してインパルスを再生し、その効果を録音することで、ギターアンプのプロファイルをキャプチャできます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_graph5.png"
+  src="/_images/tutorial_dsp_convolution_graph5.png"
   caption="ギター・アンプのインパルス・レスポンス"
 />
 
 同じことをカセットレコーダーを通して行い、生成されたインパルス応答は以下の通りである：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_graph6.png"
+  src="/_images/tutorial_dsp_convolution_graph6.png"
   caption="カセット・レコーダーのインパルス応答"
 />
 
 入力信号がインパルス応答とコンボリューションされると、元のドライ信号は、両方の特性を保持したウェットな残響音に変換されます。例えば、100msの440Hzの正弦波を、上図のギター・アンプのインパルス応答でコンボリューションすると、次のような結果が得られます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_graph7.png"
+  src="/_images/tutorial_dsp_convolution_graph7.png"
   caption="ギター・アンプのインパルス・レスポンスによるサイン波"
 />
 
 先に紹介したカセット・レコーダーのインパルス応答と同じ正弦波信号が、最終的にこの波形を生成する：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_graph8.png"
+  src="/_images/tutorial_dsp_convolution_graph8.png"
   caption="カセット・レコーダーのインパルス応答による正弦波"
 />
 
@@ -220,7 +220,7 @@ xfloat xDefinition juce_UnityPluginInterface.h:200
 で上記の変更を行った後にこのコードを実行すると、次のようになる。`Distortion`クラスであれば、ウェーブシェイパーがオシレーター信号に与える影響を聴き取ることができるはずだ。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_screenshot1.png"
+  src="/_images/tutorial_dsp_convolution_screenshot1.png"
   caption="オシレーター信号の波形整形"
 />
 
@@ -276,7 +276,7 @@ public:
 プログラムを実行すると、また違った歪んだサウンドが得られるはずだ。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_screenshot2.png"
+  src="/_images/tutorial_dsp_convolution_screenshot2.png"
   caption="双曲線正接関数による波形整形"
 />
 
@@ -326,7 +326,7 @@ private:
 信号の低域が減衰し、よりクリアなサウンドになるはずです。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_screenshot3.png"
+  src="/_images/tutorial_dsp_convolution_screenshot3.png"
   caption="ウェーブシェイパーの前のフィルタリング"
 />
 
@@ -440,7 +440,7 @@ public:
 プログラムを実行し、どのように聞こえるか見てみよう。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_dsp_convolution_screenshot4.png"
+  src="/_images/tutorial_dsp_convolution_screenshot4.png"
   caption="コンボリューションによるギター・アンプ・シミュレーション"
 />
 

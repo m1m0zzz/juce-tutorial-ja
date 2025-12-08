@@ -86,14 +86,14 @@ Windows版のみの配布を希望する場合は、次のセクションに進�
 ウェブサイトからソフトウェアをインストールし、アプリケーションを起動します。作成するプロジェクトの種類を尋ねるウィンドウが表示されるはずです：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot1.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot1.png"
   caption="新しいプロジェクト・ウィンドウ"
 />
 
 ディストリビューション」を選択し、「次へ」をクリックする。**次のページ**ボタンをクリックしてください。次の画面で、プロジェクトの名前と保存場所、必要なリソースを選択できます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot2.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot2.png"
   caption="プロジェクトの名前と場所を決める"
 />
 
@@ -102,28 +102,28 @@ Windows版のみの配布を希望する場合は、次のセクションに進�
 メインウィンドウで**+**ユーザーのコンピュータにインストールしたいプラグインフォーマットの数を、左のパネルにサインしてください。例えば、VST/VST3/AU/RTAS/AAXをインストールする場合、以下のスクリーンショットのように、対応する識別子とそれに応じた名前の5つのパッケージを追加します：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot3.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot3.png"
   caption="パッケージの追加"
 />
 
 次に、左側のパネルで各パッケージを選択し、"com.yourcompany.pkg.format "のような一意の識別子を割り当て、"Require admin password for installation "チェックボックスがチェックされていることを確認してください（これは、ユーザーディレクトリではなくシステムフォルダにプラグインをインストールするために必要です）。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot4.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot4.png"
   caption="識別子の設定"
 />
 
 次のステップではペイロードを設定し、インストーラにプラグインをコピーする場所を指示します。参照しやすいように、プラグインがプロジェクトディレクトリのどこかにコピーされていることを確認してください。プラグインを選択します。**ペイロード**タブをクリックし、このチュートリアルの前のセクションで説明したように、対応するプラグインフォーマットのインストールディレクトリに移動します。必要なフォルダ構造がナビゲーションウィンドウに表示されない場合は、以下の方法で足りないフォルダを追加できます。**階層 > 新規フォルダ**をクリックし、それに従って名前を付けます。次に、プラグインを希望の場所に追加するには**階層 > ファイルの追加...**を選択し、プロジェクトフォルダから以前にコピーしたプラグインを選択します。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot5.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot5.png"
   caption="ペイロードの設定"
 />
 
 では、インストール中に表示されるメッセージをカスタマイズしてみましょう。**プロジェクト**左のパネルから**プレゼンテーション**タブをご覧ください：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot6.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot6.png"
   caption="メッセージのカスタマイズ"
 />
 
@@ -132,14 +132,14 @@ Windows版のみの配布を希望する場合は、次のセクションに進�
 インタフェースの "Installation Type "ステップを選択することで、インストー ルするパッケージ名の順序を変更したり、パッケージに説明を追加したり、 デフォルトの状態や可視性を指定したりできる。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot7.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot7.png"
   caption="リスティング・パッケージ"
 />
 
 ディストリビューションとパッケージの設定に問題がなければ、最終段階に進むことができます。ヒット**ファイル > 保存**では**ビルド > ビルド**をクリックしてインストーラのビルドを開始する。手順がエラーなく成功すると、以下のような画面が表示されるはずです：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot8.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot8.png"
   caption="ディストリビューションの構築"
 />
 
@@ -154,21 +154,21 @@ Windows版のみの配布を希望する場合は、次のセクションに進�
 打ち上げ`Disk Utility`に移動する。**ファイル > 新しい画像 > フォルダから画像...**を選択し、作成したフォルダを選択します。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot9.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot9.png"
   caption="ディスクイメージの作成"
 />
 
 新しいディスクイメージを`.dmg`拡張子から "read/write "オプションを選択する。**画像フォーマット**フィールドでを打つとき**セーブ**これで、次のステップでカスタマイズできる、変更可能なディスクイメージが生成されるはずです。新しく作成されたディスクイメージを開くと、作成に使用したフォルダの内容が表示されているはずです。項目を移動したり、オプションで背景画像を選択したりできます。**表示 > 表示オプションを表示**メニュー項目から
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot10.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot10.png"
   caption="外観のカスタマイズ"
 />
 
 ディスクイメージの外観に満足したら、イメージを取り出すだけで、変更は自動的に保存されます。戻る`Disk Utility`に移動する。**画像 > 変換...**を選択してください。`.dmg`ファイルを作成します。ファイル名に`.dmg`拡張機能から "read-only "オプションを選択する。**画像フォーマット**フィールドにいる。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot11.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot11.png"
   caption="ディスクイメージの変換"
 />
 
@@ -185,7 +185,7 @@ Windows版のみの配布を希望する場合は、次のセクションに進�
 サポートするプラグインフォーマット（チュートリアル冒頭の表を参考にしてください）のインストール場所に移動し、フォルダを選択して、エイリアスを作成します。**ファイル > エイリアスの作成**をクリックします。新しく作成されたエイリアスはディスクイメージに移動でき、フォルダはシステム内の場所を指すようになります。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot12.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot12.png"
   caption="代替ディスクイメージ"
 />
 
@@ -210,7 +210,7 @@ Windows版のみの配布を希望する場合は、次のセクションに進�
 ウェブサイトからソフトウェアをインストールし、アプリケーションを起動する。インストーラー・スクリプトを書くためのコード・エディターが表示されるはずだ。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot13.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot13.png"
   caption="Inno Setup メインウィンドウ"
 />
 
@@ -242,7 +242,7 @@ Windowsの一般的なパスの位置に対する特定のショットカット�
 デフォルトのインストール・ディレクトリを指定するために`DefaultDirName`変数を "Common Files "ディレクトリに追加することもできますが、セットアップインストーラを実行する際に、このようにプラグインを別の場所にインストールすることもできます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot14.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot14.png"
   caption="アプリケーション・ディレクトリの選択"
 />
 
@@ -257,7 +257,7 @@ Inno Setup内で直接インストーラをテストするには、次のコマ�
 ユーザーが**インストール**ボタンをクリックすると、プラグインがスクリプトで指定された適切なフォルダにコピーされます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot15.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot15.png"
   caption="プラグインのインストール"
 />
 
@@ -282,7 +282,7 @@ Windows用プラグインをビルドする際、JUCEはデフォルトでラン
 JUCEがProjucerでランタイム・ライブラリをリンクする方法は、ここで変更できます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot16.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot16.png"
   caption="ランタイム・ライブラリのリンク"
 />
 
@@ -297,43 +297,43 @@ JUCEがProjucerでランタイム・ライブラリをリンクする方法は�
 Projucerエクスポーターの設定から、以下のように、マイクまたはカメラアクセスを使用する際に、簡単に説明テキストを提供できます：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot17.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot17.png"
   caption="マイクアクセスの理由の説明"
 />
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot18.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot18.png"
   caption="カメラにアクセスする理由の説明"
 />
 
 アプリ内課金」や「プッシュ通知」機能など、macOS/iOSに必要なすべての機能/権限を登録してください：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot19.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot19.png"
   caption="iOSの機能を有効にする"
 />
 
 Androidでは、関連するProjucerフィールドを有効にすることで、Androidマニフェストに必要なすべての機能をリストすることを意味します：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot20.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot20.png"
   caption="アンドロイドの機能を有効にする"
 />
 
 アイコンの正しい画像サイズを提供しないことは、リジェクトされるアプリの一般的な理由です。大小のアイコンなど、必要なリソースがすべて含まれていることを確認してください：
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot21.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot21.png"
   caption="大小のアイコンを割り当てる"
 />
 
 最高のユーザー・エクスペリエンスを提供するために、iOSの場合は「iOS Deployment Target」、Androidの場合は「Minimum SDK version」など、OSの最小バージョン要件を必ず設定してください。
 
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot22.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot22.png"
   caption="iOSの最小バージョンの設定"
 />
 <CaptionImage
-  src="https://docs.juce.com/master/tutorial_app_plugin_distribution_screenshot23.png"
+  src="/_images/tutorial_app_plugin_distribution_screenshot23.png"
   caption="Androidの最小バージョンの設定"
 />
 
