@@ -14,7 +14,7 @@ export default function CaptionImage({
   alt,
   width,
   height,
-}: Props): JSX.Element {
+}: Props) {
   const imgSrc = useBaseUrl(src);
 
   return (

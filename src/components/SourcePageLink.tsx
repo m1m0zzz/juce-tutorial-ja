@@ -2,8 +2,15 @@ interface Props {
   path: string;
 }
 
-export default function SourcePageLink({ path }: Props): JSX.Element {
+export default function SourcePageLink({ path }: Props) {
   return (
-    <p><a href={`https://docs.juce.com/master/${path}.html`}>📚 Source Page</a></p>
+    <a
+      className="sourcePageLink"
+      href={`https://docs.juce.com/master/${path}.html`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      📚 Source Page
+    </a>
   );
 }

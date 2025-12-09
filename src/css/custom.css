@@ -6,3 +6,22 @@ figure > img {
 figure > figcaption {
   text-align: center;
 }
+
+.sourcePageLink {
+  display: block;
+  width: fit-content;
+  text-decoration: none;
+  border: 1px solid oklch(70.8% 0 0 / 0.7);
+  padding: 0.5rem 1rem;
+  color: inherit;
+  outline: none;
+  border-radius: 0.25rem;
+  margin-bottom: var(--ifm-leading);
+
+  &:hover {
+    color: inherit;
+    text-decoration: none;
+
+    background-color: oklch(70.8% 0 0 / 0.1);
+  }
+}
