@@ -4,464 +4,427 @@ sidebar_position: 1
 tags: [中級]
 ---
 
-# オーディオプレイヤーーの構築
+# チュートリアル: オーディオプレーヤーの構築
 
 <SourcePageLink path="tutorial_playing_sound_files" />
 
-このチュートリアルでは、サウンドファイルを開いて再生する方法について説明します。これには、JUCEでサウンドファイルを扱うためのいくつかの重要なクラスが含まれます。
+このチュートリアルでは、サウンドファイルを開いて再生する方法について説明します。JUCEでサウンドファイルを扱うための重要なクラスをいくつか紹介します。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi..."), [AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "Reads samples from an audio file stream."), [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader."), [AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,..."), [FileChooser](https://docs.juce.com/master/classFileChooser.html "Creates a dialog box to choose a file or directory to load or save."), [ChangeListener](https://docs.juce.com/master/classChangeListener.html "Receives change event callbacks that are sent out by a ChangeBroadcaster."), [File](https://docs.juce.com/master/classFile.html "Represents a local file or directory."), [FileChooser](https://docs.juce.com/master/classFileChooser.html "Creates a dialog box to choose a file or directory to load or save.")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。"),
-[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。"),
-[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。"),
-[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。"),
-[FileChooser](https://docs.juce.com/master/classFileChooser.html "ロードまたは保存するファイルまたはディレクトリを選択するダイアログボックスを作成します。"),
-[ChangeListener](https://docs.juce.com/master/classChangeListener.html "ChangeBroadcasterから発信される変更イベントコールバックを受信する。"),
-[File](https://docs.juce.com/master/classFile.html "ローカルのファイルまたはディレクトリを表す。"),
-[FileChooser](https://docs.juce.com/master/classFileChooser.html "ロードまたは保存するファイルまたはディレクトリを選択するダイアログボックスを作成します。")
+このチュートリアルのデモプロジェクトをここからダウンロードしてください: [PIP](https://docs.juce.com/tutorials/PIPs/PlayingSoundFilesTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/PlayingSoundFilesTutorial.zip)。プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開きます。
 
-## スタート
+このステップに関するヘルプが必要な場合は、[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/PlayingSoundFilesTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/PlayingSoundFilesTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+デモプロジェクトは、サウンドファイルの再生を制御するための3つのボタンのインターフェースを提供します。3つのボタンは次のとおりです:
 
-## デモ・プロジェクト
-
-このデモ・プロジェクトでは、サウンド・ファイルの再生をコントロールするための3つのボタン・インタフェースを紹介します。つのボタンは
-
-- ユーザーがサウンドファイルを選択するためのファイル選択ボタンを表示します。
+- サウンドファイルを選択するためのファイルチューザーをユーザーに提示するボタン
 - サウンドを再生するボタン
-- 音を止めるボタン
+- サウンドを停止するボタン
 
-インタフェースは以下のスクリーンショットの通り：
+インターフェースを次のスクリーンショットに示します:
 
 <CaptionImage
   src="/_images/tutorial_playing_sound_files_screenshot1.png"
-  caption="3つのボタンでサウンドファイルの再生をコントロールするインターフェース。"
+  caption="サウンドファイルの再生を制御する3つのボタンのインターフェース。"
+  alt=""
 />
 
-## 役に立つクラス
+## 便利なクラス
 
 ### AudioSourceクラス
 
-でサンプルごとにオーディオを生成できます。`getNextAudioBlock()`Audio Applicationテンプレートには、オーディオを生成・処理するためのツールが組み込まれています。これらにより、アプリケーションコード内でオーディオの各サンプルを処理することなく、高レベルのビルディングブロックをリンクして、強力なオーディオアプリケーションを形成できます（JUCEがこれを代行します）。これらのビルディングブロックは[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスである。実際、もしあなたが[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスである、[Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)\- を利用している。[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスがすでにある。その[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラス自体は[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスが含まれていることが重要です。[AudioSourcePlayer](https://docs.juce.com/master/classAudioSourcePlayer.html "オーディオ・ソースからAudioIODeviceへ連続的にオーディオをストリーミングするためのラッパークラス。")オブジェクトの間でオーディオをストリーミングする。[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")とオーディオハードウェアデバイスの間で、オーディオサンプルを直接生成できます。オーディオ・サンプルを直接`getNextAudioBlock()`関数の代わりに[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")オブジェクトを組み合わせて一連のプロセスを形成する。このチュートリアルではこの機能を利用する。
+Audio Applicationテンプレートの`getNextAudioBlock()`でオーディオをサンプル単位で生成することもできますが、オーディオを生成および処理するための組み込みツールがいくつかあります。これらにより、アプリケーションコード内でオーディオの各サンプルを処理することなく、高レベルのビルディングブロックをリンクして強力なオーディオアプリケーションを形成できます(JUCEが代わりにこれを行います)。これらのビルディングブロックは、[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")クラスに基づいています。実際、[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "A base class for writing audio apps that stream from the audio i/o devices.")クラスに基づくチュートリアル---例えば、[Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)---のいずれかに従っている場合、すでに[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")クラスを使用しています。[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "A base class for writing audio apps that stream from the audio i/o devices.")クラス自体は[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")クラスから継承しており、重要なことに、[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "A base class for writing audio apps that stream from the audio i/o devices.")とオーディオハードウェアデバイス間でオーディオをストリーミングする[AudioSourcePlayer](https://docs.juce.com/master/classAudioSourcePlayer.html "Wrapper class to continuously stream audio from an audio source to an AudioIODevice.")オブジェクトを含んでいます。`getNextAudioBlock()`関数で直接オーディオサンプルを生成することもできますが、代わりに複数の[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")オブジェクトを連鎖させて一連のプロセスを形成することもできます。このチュートリアルではこの機能を利用します。
 
 ### オーディオフォーマット
 
-JUCEは、多くの形式のサウンドファイルを読み書きするためのツールを提供しています。このチュートリアルでは、特に以下のクラスを使用します：
+JUCEは、さまざまなフォーマットでサウンドファイルを読み書きするための多数のツールを提供します。このチュートリアルでは、これらのいくつかを使用します。特に、次のクラスを使用します:
 
-- [AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。"):このクラスにはオーディオ・フォーマット（WAV、AIFF、Ogg Vorbisなど）のリストが含まれており、これらのフォーマットからオーディオ・データを読み取るのに適したオブジェクトを作成できます。
-- [AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。"):このクラスは、オーディオファイルに対する低レベルのファイル読み込み操作を処理し、オーディオを一貫したフォーマットで読み込むことを可能にします。`float`値)。を指定する。[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")オブジェクトが特定のファイルを開くように要求されると、このクラスのインスタンスを生成する。
-- [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。"):のサブクラスである。[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスです。このクラスは[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。")オブジェクトを使ってオーディオをレンダリングする。`getNextAudioBlock()`関数である。
-- [AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。"):このクラスは[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスです。このクラスは[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを制御する。このコントロールには[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトに変換できます。また、サンプル・レートの変換も可能で、希望すればオーディオを前もってバッファリングすることもできる。
+- [AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi..."): このクラスは、オーディオフォーマット(WAV、AIFF、Ogg Vorbisなど)のリストを含み、これらのフォーマットからオーディオデータを読み取るための適切なオブジェクトを作成できます。
+- [AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "Reads samples from an audio file stream."): このクラスは、オーディオファイルの低レベルのファイル読み取り操作を処理し、一貫したフォーマット(一般的には`float`値の配列)でオーディオを読み取ることができます。[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")オブジェクトが特定のファイルを開くように要求されると、このクラスのインスタンスが作成されます。
+- [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader."): これは[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")クラスのサブクラスです。[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "Reads samples from an audio file stream.")オブジェクトからオーディオデータを読み取り、`getNextAudioBlock()`関数を介してオーディオをレンダリングできます。
+- [AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,..."): このクラスは、[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")クラスの別のサブクラスです。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトの再生を制御できます。この制御には、[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトの再生の開始と停止が含まれます。また、サンプルレート変換を実行したり、必要に応じて事前にオーディオをバッファリングしたりすることもできます。
 
 ## まとめる
 
-これから、これらのクラスと適切なユーザー・インタフェース・クラスを組み合わせて、サウンドファイル再生アプリケーションを作ります。この時点で、様々なフェーズについて考えておくと便利です。*運輸省*\- オーディオファイルの再生オーディオファイルがロードされると、以下の4つの状態が考えられる：
+これらのクラスを適切なユーザーインターフェースクラスと組み合わせて、サウンドファイル再生アプリケーションを作成します。この時点で、オーディオファイルを再生するさまざまなフェーズ---または_トランスポート状態_---について考えることが役立ちます。オーディオファイルが読み込まれると、次の4つの可能な状態が考えられます:
 
-- *停止*:オーディオ再生が停止し、開始できる状態。
-- *スタート*:オーディオ再生はまだ開始されていないが、開始するように指示されている。
-- *プレー*:オーディオ再生中
-- *停止*:音声は再生中ですが、再生停止を指示されます。*停止*の状態だ。
+- _Stopped_: オーディオ再生が停止されており、開始する準備ができています。
+- _Starting_: オーディオ再生はまだ開始されていませんが、開始するように指示されています。
+- _Playing_: オーディオが再生中です。
+- _Stopping_: オーディオが再生中ですが、再生が停止するように指示されており、その後_Stopped_状態に戻ります。
 
-これらの状態を表すために`enum`我々の`MainContentComponent`クラスである：
-
+これらの状態を表すために、`MainContentComponent`クラス内に`enum`を作成します:
 ```cpp
-    enum TransportState
-    {
-        Stopped,
-        Starting,
-        Playing,
-        Stopping
-    };
+enum TransportState {
+    Stopped,
+    Starting,
+    Playing,
+    Stopping
+};
 ```
 
-### インタフェースの初期化
+### インターフェースの初期化
 
-のコンストラクタで`MainContentComponent`クラスで、3つのボタンを設定する：
-
+`MainContentComponent`クラスのコンストラクタで、3つのボタンを設定します:
 ```cpp
-    MainContentComponent()
-        : state (Stopped)
-    {
-        addAndMakeVisible (&openButton);
-        openButton.setButtonText ("Open...");
-        openButton.onClick = [this] { openButtonClicked(); };
- 
-        addAndMakeVisible (&playButton);
-        playButton.setButtonText ("Play");
-        playButton.onClick = [this] { playButtonClicked(); };
-        playButton.setColour (juce::TextButton::buttonColourId, juce::Colours::green);
-        playButton.setEnabled (false);
- 
-        addAndMakeVisible (&stopButton);
-        stopButton.setButtonText ("Stop");
-        stopButton.onClick = [this] { stopButtonClicked(); };
-        stopButton.setColour (juce::TextButton::buttonColourId, juce::Colours::red);
-        stopButton.setEnabled (false);
+MainContentComponent()
+    : state (Stopped)
+{
+    addAndMakeVisible (&openButton);
+    openButton.setButtonText ("Open...");
+    openButton.onClick = [this] { openButtonClicked(); };
+
+    addAndMakeVisible (&playButton);
+    playButton.setButtonText ("Play");
+    playButton.onClick = [this] { playButtonClicked(); };
+    playButton.setColour (juce::TextButton::buttonColourId, juce::Colours::green);
+    playButton.setEnabled (false);
+
+    addAndMakeVisible (&stopButton);
+    stopButton.setButtonText ("Stop");
+    stopButton.onClick = [this] { stopButtonClicked(); };
+    stopButton.setColour (juce::TextButton::buttonColourId, juce::Colours::red);
+    stopButton.setEnabled (false);
 ```
 
-特に**プレー**そして**ストップ**ボタンは初期状態ではその**プレー**ボタンは、有効なファイルがロードされると有効になる。ここでは、ラムダ関数を[Button::onClick](https://docs.juce.com/master/classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "このコールバック・オブジェクトにラムダを代入すると、ボタンがクリックされたときに呼び出されるようになります。")これら3つのボタンそれぞれに対応するヘルパー・オブジェクト ([Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)).また、コンストラクタのイニシャライザーリストでトランスポートの状態を初期化する。
+特に、最初に**Play**ボタンと**Stop**ボタンを無効にしていることに注目してください。**Play**ボタンは、有効なファイルが読み込まれると有効になります。ここでは、これら3つのボタンのそれぞれに対して[Button::onClick](https://docs.juce.com/master/classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "You can assign a lambda to this callback object to have it called when the button is clicked.")ヘルパーオブジェクトにラムダ関数を割り当てていることがわかります([Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)を参照)。また、コンストラクタの初期化リストでトランスポート状態を初期化します。
 
 ### その他の初期化
 
-の3つである。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")には他に4人のメンバーがいる。`MainContentComponent`クラスである：
-
+3つの[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")オブジェクトに加えて、`MainContentComponent`クラスには他に4つのメンバーがあります:
 ```cpp
-    juce::AudioFormatManager formatManager;
-    std::unique_ptr readerSource;
-    juce::AudioTransportSource transportSource;
-    TransportState state;
+juce::AudioFormatManager formatManager;
+std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
+juce::AudioTransportSource transportSource;
+TransportState state;
 ```
 
-ここでは[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。"),[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")そして[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")先に述べたクラスである。
+ここでは、前述の[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")、[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")、[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")クラスが表示されます。
 
-の中で`MainContentComponent`コンストラクタで[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")オブジェクトに標準フォーマットのリストを登録する。\[1\]:
-
+`MainContentComponent`コンストラクタでは、標準フォーマットのリストを登録するために[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")オブジェクトを初期化する必要があります [1]:
 ```cpp
-        formatManager.registerBasicFormats();       // [1]
+formatManager.registerBasicFormats(); // [1]
 ```
 
-これにより、最低限[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")オブジェクトを使ってWAVとAIFFフォーマットのリーダーを作成できます。その他のフォーマットは、プラットフォームと`juce_audio_formats`モジュールをProjucerプロジェクトに追加した：
+最低限、これにより[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")オブジェクトがWAVおよびAIFFフォーマットのリーダーを作成できるようになります。他のフォーマットは、次のスクリーンショットに示すように、プラットフォームとProjucerプロジェクト内の`juce_audio_formats`モジュールで有効になっているオプションによって利用可能になる場合があります:
 
 <CaptionImage
   src="/_images/tutorial_playing_sound_files_screenshot2.png"
-  caption="juce_audio_formatsモジュールのオプションは、オーディオフォーマットのオプションを表示します。"
+  caption="オーディオフォーマットオプションを示すjuce_audio_formatsモジュールオプション。"
+  alt=""
 />
 
-の中で`MainContentComponent`コンストラクタに`MainContentComponent`オブジェクトをリスナーとして\[2\]に対する[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトの状態の変化（たとえば、停止したときなど）に対応できるようにする：
-
+`MainContentComponent`コンストラクタでは、`MainContentComponent`オブジェクトを[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")オブジェクトにリスナー [2] として追加して、その状態の変化(例えば、停止したとき)に応答できるようにします:
 ```cpp
-        transportSource.addChangeListener (this);   // [2]
+transportSource.addChangeListener (this); // [2]
 ```
 
-:::note
-
-関数名は`addChangeListener()`この場合、単に`addListener()`JUCEの他の多くのリスナー・クラスと同様です。
-
+:::tip
+この場合、関数名は、JUCEの他の多くのリスナークラスのように単に`addListener()`ではなく、`addChangeListener()`です。
 :::
 
-### AudioTransportSourceの変更への対応
+### AudioTransportSourceの変更への応答
 
-輸送の変更が報告されると`changeListenerCallback()`関数が呼び出される。この関数はメッセージスレッド上で非同期に呼び出される：
-
+トランスポートの変更が報告されると、`changeListenerCallback()`関数が呼び出されます。これは、メッセージスレッドで非同期に呼び出されます:
 ```cpp
-    void changeListenerCallback (juce::ChangeBroadcaster* source) override
+void changeListenerCallback (juce::ChangeBroadcaster* source) override
+{
+    if (source == &transportSource)
     {
-        if (source == &transportSource)
-        {
-            if (transportSource.isPlaying())
-                changeState (Playing);
-            else
-                changeState (Stopped);
-        }
+        if (transportSource.isPlaying())
+            changeState (Playing);
+        else
+            changeState (Stopped);
     }
+}
 ```
 
-これは単にメンバー関数を呼び出しているだけであることがわかる。`changeState()`.
+これは、単にメンバー関数`changeState()`を呼び出すだけです。
 
-### 州の変更
+### 状態の変更
 
-輸送状態の変化は、この1つの機能に集約される。`changeState()`.これにより、この機能のすべてのロジックを一箇所にまとめることができます。この関数は`state`メンバーは、この新しい状態にあるときに起こる必要がある他のオブジェクトへの変更をトリガする。
+トランスポート状態の変更は、この単一の関数`changeState()`にローカライズされます。これにより、この機能のすべてのロジックを1か所に保つことができます。この関数は、`state`メンバーを更新し、この新しい状態になったときに発生する必要がある他のオブジェクトへの変更をトリガーします。
 
-:::note
-
-経験豊富な読者の方は[state design pattern](https://en.wikipedia.org/wiki/State_pattern)このコードを構成する別の方法として。
-
+:::tip
+より経験豊富な読者は、このコードを構造化する別の方法として、[ステートデザインパターン](https://en.wikipedia.org/wiki/State_pattern)を使用することをお勧めします。
 :::
-
 ```cpp
-    void changeState (TransportState newState)
+void changeState (TransportState newState)
+{
+    if (state != newState)
     {
-        if (state != newState)
+        state = newState;
+
+        switch (state)
         {
-            state = newState;
- 
-            switch (state)
-            {
-                case Stopped:                           // [3]
-                    stopButton.setEnabled (false);
-                    playButton.setEnabled (true);
-                    transportSource.setPosition (0.0);
-                    break;
- 
-                case Starting:                          // [4]
-                    playButton.setEnabled (false);
-                    transportSource.start();
-                    break;
- 
-                case Playing:                           // [5]
-                    stopButton.setEnabled (true);
-                    break;
- 
-                case Stopping:                          // [6]
-                    transportSource.stop();
-                    break;
-            }
+            case Stopped: // [3]
+                stopButton.setEnabled (false);
+                playButton.setEnabled (true);
+                transportSource.setPosition (0.0);
+                break;
+
+            case Starting: // [4]
+                playButton.setEnabled (false);
+                transportSource.start();
+                break;
+
+            case Playing: // [5]
+                stopButton.setEnabled (true);
+                break;
+
+            case Stopping: // [6]
+                transportSource.stop();
+                break;
         }
     }
+}
 ```
 
-- \[3\]トランスポートが*停止*を無効にする。**ストップ**ボタンを押すと**プレー**ボタンをクリックし、トランスポートポジションをファイルの最初に戻す。
-- \[4\](その)*スタート*の状態は、ユーザーが**プレー**ボタンを押すと[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトの再生を開始する。この時点で**プレー**ボタンもある。
-- \[5\](その)*プレー*状態がトリガーされる。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトが`changeListenerCallback()`関数を使用します。ここでは**ストップ**ボタンをクリックする。
-- \[6\](その)*停止*の状態は、ユーザーが**ストップ**ボタンをクリックします。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトを停止させる。
+- \[3\]: トランスポートが_Stopped_状態に戻ると、**Stop**ボタンを無効にし、**Play**ボタンを有効にし、トランスポート位置をファイルの先頭にリセットします。
+- \[4\]: _Starting_状態は、ユーザーが**Play**ボタンをクリックすることによってトリガーされ、これにより[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")オブジェクトに再生を開始するように指示します。この時点で、**Play**ボタンも無効にします。
+- \[5\]: _Playing_状態は、[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")オブジェクトが`changeListenerCallback()`関数を介して変更を報告することによってトリガーされます。ここでは、**Stop**ボタンを有効にします。
+- \[6\]: _Stopping_状態は、ユーザーが**Stop**ボタンをクリックすることによってトリガーされるため、[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")オブジェクトに停止するように指示します。
 
 ### オーディオの処理
 
-このデモ・プロジェクトでのオーディオ処理は非常に単純である。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトに渡す。[AudioSourceChannelInfo](https://docs.juce.com/master/structAudioSourceChannelInfo.html "AudioSource::getNextAudioBlock() で使用されます。")を介して渡された[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")クラスである：
-
+このデモプロジェクトのオーディオ処理は非常に簡単です:[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "A base class for writing audio apps that stream from the audio i/o devices.")クラスを介して渡された[AudioSourceChannelInfo](structAudioSourceChannelInfo.html "Used by AudioSource::getNextAudioBlock().")構造体を[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")オブジェクトに渡すことで、処理を委譲するだけです:
 ```cpp
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+{
+    if (readerSource.get() == nullptr)
     {
-        if (readerSource.get() == nullptr)
-        {
-            bufferToFill.clearActiveBufferRegion();
-            return;
-        }
- 
-        transportSource.getNextAudioBlock (bufferToFill);
+        bufferToFill.clearActiveBufferRegion();
+        return;
     }
+
+    transportSource.getNextAudioBlock (bufferToFill);
+}
 ```
 
-有効な[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを最初に生成し、そうでなければ出力をゼロにするだけである（便利な[AudioSourceChannelInfo::clearActiveBufferRegion()](https://docs.juce.com/master/structAudioSourceChannelInfo.html#a6246ca9f1f6ef86dab31fc0eeaacb7a3 "ソースがデータを生成していない場合にバッファをクリアする便利なメソッド。")関数)。その[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")メンバーはstd::unique\_ptrオブジェクトに格納される。これは、ユーザーのアクションに基づいて動的にオブジェクトを生成する必要があるからである。また`nullptr`無効なオブジェクトに対して
+有効な[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトがあるかどうかを最初にチェックし、そうでない場合は出力を単にゼロにします(便利な[AudioSourceChannelInfo::clearActiveBufferRegion()](structAudioSourceChannelInfo.html#a6246ca9f1f6ef86dab31fc0eeaacb7a3 "Convenient method to clear the buffer if the source is not producing any data.")関数を使用)。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")メンバーはstd::unique_ptrオブジェクトに格納されています。これは、ユーザーのアクションに基づいてこれらのオブジェクトを動的に作成する必要があるためです。また、無効なオブジェクトに対して`nullptr`をチェックすることもできます。
 
-を渡すことも忘れてはならない。`prepareToPlay()`コールバックを他の[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")私たちが使っているオブジェクト：
-
+また、使用している他の[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")オブジェクトに`prepareToPlay()`コールバックを渡すことも忘れないでください:
 ```cpp
-    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override
-    {
-        transportSource.prepareToPlay (samplesPerBlockExpected, sampleRate);
-    }
+void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override
+{
+    transportSource.prepareToPlay (samplesPerBlockExpected, sampleRate);
+}
 ```
 
-そして`releaseResources()`コールバックも：
-
+そして、`releaseResources()`コールバックも:
 ```cpp
-    void releaseResources() override
-    {
-        transportSource.releaseResources();
-    }
+void releaseResources() override
+{
+    transportSource.releaseResources();
+}
 ```
 
 ### ファイルを開く
 
-ファイルを開くには[FileChooser](https://docs.juce.com/master/classFileChooser.html "ロードまたは保存するファイルまたはディレクトリを選択するダイアログボックスを作成します。")オブジェクトに応答する。**オープン...**ボタンがクリックされる：
-
+ファイルを開くには、**Open...**ボタンがクリックされたときに[FileChooser](https://docs.juce.com/master/classFileChooser.html "Creates a dialog box to choose a file or directory to load or save.")オブジェクトをポップアップします:
 ```cpp
-    void openButtonClicked()
-    {
-        chooser = std::make_unique ("Select a Wave file to play...",
-                                                       juce::File{},
-                                                       "*.wav");                     // [7]
-        auto chooserFlags = juce::FileBrowserComponent::openMode
-                          | juce::FileBrowserComponent::canSelectFiles;
- 
-        chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)     // [8]
+void openButtonClicked()
+{
+    chooser = std::make_unique<juce::FileChooser> ("Select a Wave file to play...",
+        juce::File {},
+        "*.wav"); // [7]
+    auto chooserFlags = juce::FileBrowserComponent::openMode
+                        | juce::FileBrowserComponent::canSelectFiles;
+
+    chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc) // [8]
         {
             auto file = fc.getResult();
- 
-            if (file != juce::File{})                                                // [9]
+
+            if (file != juce::File {}) // [9]
             {
-                auto* reader = formatManager.createReaderFor (file);                 // [10]
- 
+                auto* reader = formatManager.createReaderFor (file); // [10]
+
                 if (reader != nullptr)
                 {
-                    auto newSource = std::make_unique (reader, true);   // [11]
-                    transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);       // [12]
-                    playButton.setEnabled (true);                                                      // [13]
-                    readerSource.reset (newSource.release());                                          // [14]
+                    auto newSource = std::make_unique<juce::AudioFormatReaderSource> (reader, true); // [11]
+                    transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate); // [12]
+                    playButton.setEnabled (true); // [13]
+                    readerSource.reset (newSource.release()); // [14]
                 }
             }
         });
-    }
+}
 ```
 
-- \[7\]を作成する。[FileChooser](https://docs.juce.com/master/classFileChooser.html "ロードまたは保存するファイルまたはディレクトリを選択するダイアログボックスを作成します。")オブジェクトに短いメッセージを添えて、ユーザーが以下のものだけを選択できるようにする。`.wav`ファイルである。
-- \[8\]をポップアップします。[FileChooser](https://docs.juce.com/master/classFileChooser.html "ロードまたは保存するファイルまたはディレクトリを選択するダイアログボックスを作成します。")オブジェクトがある。
-- \[9\]もし`if()`ユーザが（キャンセルではなく）実際にファイルを選択した場合に成功します。
-- \[10\](その)[AudioFormatManager::createReaderFor()](https://docs.juce.com/master/classAudioFormatManager.html#a4eed7ecbb353d3d85154182de5057221 "既知のフォーマットを検索して、このファイルに適したリーダーを作成しようとする。")関数は、この特定のファイル用のリーダーを作成するために使用される。これは`nullptr`失敗した場合（たとえば、ファイルがオーディオフォーマットでない場合[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")オブジェクトが処理できる)。
-- \[11\]新しい[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを作成した。番目の引数`true`が欲しいことを示している。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを管理する。[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。")オブジェクトを保存し、不要になったら削除する。私たちは[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを一時的なstd::unique\_ptrオブジェクトに変換することで、以前に割り当てられた[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")それ以降のファイルを開くコマンドの実行を早める。
-- \[12\](その)[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトが[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトで使用されています。`getNextAudioBlock()`関数を使用します。ファイルのサンプル・レートがハードウェアのサンプル・レートと一致しない場合は、第4引数としてこれを渡します。[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。")オブジェクトを参照してください。参照[Notes](https://docs.juce.com/master/#tutorial_playing_sound_files_notes)第2引数と第3引数の詳細はこちら。その[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")ソースは、必要なサンプルレート変換を処理します。
-- \[13\](その)**プレー**ボタンをクリックできるようにする。
-- \[14\]としている。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")は、新しく割り当てられた[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトに安全に格納できる。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを`readerSource`メンバーです。(で述べたように[Processing the audio](https://docs.juce.com/master/#tutorial_playing_sound_files_processing_the_audio)上記参照)。そのためには、所有権をローカルの`newSource`変数は、std::unique\_ptr::release() を使う。
+- \[7\]: 短いメッセージで[FileChooser](https://docs.juce.com/master/classFileChooser.html "Creates a dialog box to choose a file or directory to load or save.")オブジェクトを作成し、ユーザーが`.wav`ファイルのみを選択できるようにします。
+- \[8\]: [FileChooser](https://docs.juce.com/master/classFileChooser.html "Creates a dialog box to choose a file or directory to load or save.")オブジェクトをポップアップします。
+- \[9\]: ユーザーが実際にファイルを選択した場合(キャンセルではなく)、この`if()`は成功します。
+- \[10\]: [AudioFormatManager::createReaderFor()](https://docs.juce.com/master/classAudioFormatManager.html#a4eed7ecbb353d3d85154182de5057221 "Searches through the known formats to try to create a suitable reader for this file.")関数を使用して、この特定のファイルのリーダーを作成しようとします。これは、失敗した場合(例えば、ファイルが[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")オブジェクトが処理できるオーディオフォーマットでない場合)、`nullptr`値を返します。
+- \[11\]: 先ほど作成したリーダーを使用して、新しい[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトを作成します。2番目の引数`true`は、[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトに[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "Reads samples from an audio file stream.")オブジェクトを管理し、不要になったときに削除するように指示します。以前に割り当てられた[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")を後続のファイルを開くコマンドで早期に削除しないように、[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトを一時的なstd::unique_ptrオブジェクトに格納します。
+- \[12\]: [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトは、`getNextAudioBlock()`関数で使用されている[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")オブジェクトに接続されます。ファイルのサンプルレートがハードウェアのサンプルレートと一致しない場合に備えて、[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "Reads samples from an audio file stream.")オブジェクトから取得したこれを4番目の引数として渡します。2番目と3番目の引数の詳細については、[注意事項](#tutorial_playing_sound_files_notes)を参照してください。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")ソースは、必要なサンプルレート変換を処理します。
+- \[13\]: **Play**ボタンが有効になり、ユーザーがクリックできるようになります。
+- \[14\]: [AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")が新しく割り当てられた[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトを使用しているはずなので、[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトを`readerSource`メンバーに安全に格納できます。(上記の[オーディオの処理](#tutorial_playing_sound_files_processing_the_audio)で述べたとおり。)これを行うには、std::unique_ptr::release()を使用してローカル変数`newSource`から所有権を譲渡する必要があります。
 
-:::note
-
-新しく割り当てられた[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトを一時的なstd::unique\_ptrオブジェクトに変換することで、例外セーフになるという利点もある。関数呼び出し中に例外がスローされる可能性がある[AudioTransportSource::setSource()](https://docs.juce.com/master/classAudioTransportSource.html#a20a6a91c4505e77207cadef7ddc4dc5c "入力ソースとして使用するリーダーを設定する。")この場合、std::unique\_ptrオブジェクトは[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトが不要になった。もし、この時点で生のポインタを使って[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")例外がスローされた場合、ポインタがぶら下がったままになってしまうからだ。
-
+:::tip
+新しく割り当てられた[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトを一時的なstd::unique_ptrオブジェクトに格納することには、例外セーフであるという追加の利点があります。[AudioTransportSource::setSource()](https://docs.juce.com/master/classAudioTransportSource.html#a20a6a91c4505e77207cadef7ddc4dc5c "Sets the reader that is being used as the input source.")関数呼び出し中に例外がスローされる可能性があり、その場合、std::unique_ptrオブジェクトは不要になった[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトを削除します。この時点で生ポインタが使用されていた場合、[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトを格納するために、例外がスローされるとポインタが宙ぶらりんのままになるため、メモリリークが発生する可能性があります。
 :::
 
 ### ファイルの再生と停止
 
-実際にファイルを再生するコードはすでにセットアップしてあるので、あとは`changeState()`関数に適切な引数を与えてファイルを再生する。その際**プレー**ボタンがクリックされたら、次のようにする：
-
+ファイルを実際に再生するコードをすでに設定しているので、適切な引数で`changeState()`関数を呼び出すだけでファイルを再生できます。**Play**ボタンがクリックされたら、次のようにします:
 ```cpp
-    void playButtonClicked()
-    {
-        changeState (Starting);
-    }
+void playButtonClicked()
+{
+    changeState (Starting);
+}
 ```
 
-ファイルの停止も同様に簡単だ。**ストップ**ボタンがクリックされる：
-
+ファイルの停止も同様に簡単です。**Stop**ボタンがクリックされたとき:
 ```cpp
-    void stopButtonClicked()
-    {
-        changeState (Stopping);
-    }
+void stopButtonClicked()
+{
+    changeState (Stopping);
+}
 ```
 
-:::danger[エクササイズ]
-
-3番目の(`filePatternsAllowed`を作成する際の引数）。[FileChooser](https://docs.juce.com/master/classFileChooser.html "ロードまたは保存するファイルまたはディレクトリを選択するダイアログボックスを作成します。")オブジェクトを使うことで、アプリケーションがAIFFファイルもロードできるようになる。ファイル・パターンはセミコロンで区切ることができるので、次のようにします。`"*.wav;*.aif;*.aiff"`の2つの一般的なファイル拡張子を使用できるようにします。
-
+:::note
+演習: [FileChooser](https://docs.juce.com/master/classFileChooser.html "Creates a dialog box to choose a file or directory to load or save.")オブジェクトを作成するときの3番目の引数(`filePatternsAllowed`)を変更して、アプリケーションがAIFFファイルも読み込めるようにします。ファイルパターンはセミコロンで区切ることができるため、このフォーマットの2つの一般的なファイル拡張子を許可するには`"*.wav;*.aif;*.aiff"`にする必要があります。
 :::
 
-## 一時停止機能の追加
+## ポーズ機能の追加
 
-を追加する手順を説明します。*ポーズ*機能をアプリケーションに追加します。ここでは**プレー**ボタンが**ポーズ**ボタンを無効にする代わりに）ファイル再生中にまた**ストップ**ボタンが**ゼロに戻す**ボタンをクリックします。
+それでは、アプリケーションに_ポーズ_機能を追加する手順を説明します。ここでは、ファイルの再生中に**Play**ボタンを**Pause**ボタンにします(単に無効にするのではなく)。また、サウンドファイルが一時停止されている間、**Stop**ボタンを**Return to zero**ボタンにします。
 
-まず、2つの状態を追加する必要がある。*一時停止*そして*休止*私たちの`TransportState`を列挙する：
+まず、`TransportState`列挙型に_Pausing_と_Paused_の2つの状態を追加する必要があります:
 
 ```cpp
-    enum TransportState
-    {
-        Stopped,
-        Starting,
-        Playing,
-        Pausing,
-        Paused,
-        Stopping
-    };
+enum TransportState {
+    Stopped,
+    Starting,
+    Playing,
+    Pausing,
+    Paused,
+    Stopping
+};
 ```
 
-私たちの`changeState()`関数は2つの新しいステートを処理する必要があり、他のステートのコードも更新する必要がある：
+`changeState()`関数は2つの新しい状態を処理する必要があり、他の状態のコードも更新する必要があります:
 
 ```cpp
-    void changeState (TransportState newState)
+void changeState (TransportState newState)
+{
+    if (state != newState)
     {
-        if (state != newState)
+        state = newState;
+
+        switch (state)
         {
-            state = newState;
- 
-            switch (state)
-            {
-                case Stopped:
-                    playButton.setButtonText ("Play");
-                    stopButton.setButtonText ("Stop");
-                    stopButton.setEnabled (false);
-                    transportSource.setPosition (0.0);
-                    break;
- 
-                case Starting:
-                    transportSource.start();
-                    break;
- 
-                case Playing:
-                    playButton.setButtonText ("Pause");
-                    stopButton.setButtonText ("Stop");
-                    stopButton.setEnabled (true);
-                    break;
- 
-                case Pausing:
-                    transportSource.stop();
-                    break;
- 
-                case Paused:
-                    playButton.setButtonText ("Resume");
-                    stopButton.setButtonText ("Return to Zero");
-                    break;
- 
-                case Stopping:
-                    transportSource.stop();
-                    break;
-            }
+            case Stopped:
+                playButton.setButtonText ("Play");
+                stopButton.setButtonText ("Stop");
+                stopButton.setEnabled (false);
+                transportSource.setPosition (0.0);
+                break;
+
+            case Starting:
+                transportSource.start();
+                break;
+
+            case Playing:
+                playButton.setButtonText ("Pause");
+                stopButton.setButtonText ("Stop");
+                stopButton.setEnabled (true);
+                break;
+
+            case Pausing:
+                transportSource.stop();
+                break;
+
+            case Paused:
+                playButton.setButtonText ("Resume");
+                stopButton.setButtonText ("Return to Zero");
+                break;
+
+            case Stopping:
+                transportSource.stop();
+                break;
         }
     }
+}
 ```
 
-ボタンを適切に有効・無効にし、それぞれの状態でボタンのテキストを正しく更新します。
+各状態でボタンを適切に有効/無効にし、ボタンのテキストを正しく更新します。
 
-で一時停止を求められたときに、実際にトランスポートを停止していることに注目してほしい。*一時停止*の状態である。その中で`changeListenerCallback()`関数では、一時停止リクエストか停止リクエストかによって、正しい状態に移行するようにロジックを変更する必要がある：
-
-```cpp
-    void changeListenerCallback (juce::ChangeBroadcaster* source) override
-    {
-        if (source == &transportSource)
-        {
-            if (transportSource.isPlaying())
-                changeState (Playing);
-            else if ((state == Stopping) || (state == Playing))
-                changeState (Stopped);
-            else if (Pausing == state)
-                changeState (Paused);
-        }
-    }
-```
-
-を変更する必要がある。**プレー**ボタンがクリックされる：
+_Pausing_状態で一時停止を求められたときに、実際にトランスポートを停止していることに注意してください。`changeListenerCallback()`関数では、一時停止または停止リクエストが行われたかどうかに応じて、正しい状態に移動するようにロジックを変更する必要があります:
 
 ```cpp
-    void playButtonClicked()
+void changeListenerCallback (juce::ChangeBroadcaster* source) override
+{
+    if (source == &transportSource)
     {
-        if ((state == Stopped) || (state == Paused))
-            changeState (Starting);
-        else if (state == Playing)
-            changeState (Pausing);
-    }
-```
-
-そして**ストップ**ボタンがクリックされる：
-
-```cpp
-    void stopButtonClicked()
-    {
-        if (state == Paused)
+        if (transportSource.isPlaying())
+            changeState (Playing);
+        else if ((state == Stopping) || (state == Playing))
             changeState (Stopped);
-        else
-            changeState (Stopping);
+        else if (Pausing == state)
+            changeState (Paused);
     }
+}
 ```
 
-これでアプリケーションをビルドして実行できるはずだ。
+**Play**ボタンがクリックされたときのコードを変更する必要があります:
+
+```cpp
+void playButtonClicked()
+{
+    if ((state == Stopped) || (state == Paused))
+        changeState (Starting);
+    else if (state == Playing)
+        changeState (Pausing);
+}
+```
+
+そして、**Stop**ボタンがクリックされたとき:
+
+```cpp
+void stopButtonClicked()
+{
+    if (state == Paused)
+        changeState (Stopped);
+    else
+        changeState (Stopping);
+}
+```
+
+以上です。これで、アプリケーションをビルドして実行できるはずです。
+
+:::tip
+このアプリケーションの変更されたバージョンのソースコードは、デモプロジェクトの`PlayingSoundFilesTutorial_02.h`ファイルにあります。
+:::
 
 :::note
-
-この修正版アプリケーションのソースコードは`PlayingSoundFilesTutorial_02.h`ファイルにある。
-
+演習: [AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")オブジェクトの現在の時間位置を表示する[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")オブジェクトをインターフェースに追加します。この位置を取得するには、[AudioTransportSource::getCurrentPosition()](https://docs.juce.com/master/classAudioTransportSource.html#a1984ac3a6eafb12d5312c3eab5615810 "Returns the position that the next data block will be read from.")関数を使用できます。また、`MainContentComponent`クラスを[Timer](https://docs.juce.com/master/classTimer.html "Makes repeated callbacks to a virtual method at a specified time interval.")クラスから継承させ、`timerCallback()`関数で定期的な更新を実行してラベルを更新する必要があります。[RelativeTime](https://docs.juce.com/master/classRelativeTime.html "A relative measure of time.")クラスを使用して、秒単位の生の時間を分、秒、ミリ秒のより便利なフォーマットに変換することもできます。
 :::
 
-:::danger[エクササイズ]
-
-追加[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトをインタフェースに追加する。[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")オブジェクトを使用できます。オブジェクトは[AudioTransportSource::getCurrentPosition()](https://docs.juce.com/master/classAudioTransportSource.html#a1984ac3a6eafb12d5312c3eab5615810 "次のデータブロックが読み込まれる位置を返します。")関数を使用してこのポジションを取得する。また`MainContentComponent`クラスは[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスで定期的な更新を行います。`timerCallback()`関数を使用してラベルを更新することもできる。さらに[RelativeTime](https://docs.juce.com/master/classRelativeTime.html "相対的な時間の尺度。")クラスを使用して、生の秒単位の時間をより便利な分、秒、ミリ秒の形式に変換できます。
-
+:::tip
+この演習のソースコードは、デモプロジェクトの`PlayingSoundFilesTutorial_03.h`ファイルにあります。
 :::
 
-:::note
+## まとめ
 
-この演習のソースコードは`PlayingSoundFilesTutorial_03.h`ファイルにある。
+このチュートリアルでは、サウンドファイルの読み取りと再生について紹介しました。特に、次のことを扱いました:
 
-:::
+- [AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")クラスを使用して、一般的なオーディオフォーマット用の[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "Reads samples from an audio file stream.")オブジェクトを作成する。
+- さまざまな[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")クラスを使用して、それらを作成して接続する。特に:
+  - [AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "Reads samples from an audio file stream.")オブジェクトからオーディオを読み取って再生するための[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")クラス、および
+  - [AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトの再生を制御するための[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")クラス。
+- オーディオファイル再生の状態を管理する1つの方法についても見ました。
 
-## 概要
+## 注意事項
 
-このチュートリアルでは、サウンドファイルの読み込みと再生について紹介しました。特に、以下の事柄を取り上げました：
-
-- を使用している。[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "利用可能なオーディオフォーマットのリストを保持し、どのフォーマットを使ってファイルを開くかを決定するクラス。")クラスを作成する。[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。")オブジェクトは、一般的なオーディオフォーマットに対応しています。
-- 様々な[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスを作成し、それらを結びつける。特に
-- その[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")からオーディオを読み込んで再生するクラスです。[AudioFormatReader](https://docs.juce.com/master/classAudioFormatReader.html "オーディオファイルストリームからサンプルを読み込む。")そして
-- その[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "AudioSourceは、PositionableAudioSourceを受け取り、再生、停止、...を可能にします。")クラスの再生を制御する。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "AudioFormatReaderから読み込むAudioSourceの型。")オブジェクトがある。
-
-- また、オーディオファイルの再生状態を管理する1つの方法についても調べた。
-
-## 備考
-
-の2番目と3番目の引数である。[AudioTransportSource::setSource()](https://docs.juce.com/master/classAudioTransportSource.html#a20a6a91c4505e77207cadef7ddc4dc5c "入力ソースとして使用するリーダーを設定する。")関数を使用すると、バックグラウンド・スレッドで先読みバッファリングを制御できる。第2引数は使用するバッファサイズ、第3引数は[TimeSliceThread](https://docs.juce.com/master/classTimeSliceThread.html "クライアントのリストを保持し、順番に各クライアントを呼び出し、すべてのクライアントに実行するチャンスを与えるスレッド。")このオブジェクトはバックグラウンド処理に使用される。この例では、バッファサイズをゼロにして`nullptr`これはデフォルトである。
+[AudioTransportSource::setSource()](https://docs.juce.com/master/classAudioTransportSource.html#a20a6a91c4505e77207cadef7ddc4dc5c "Sets the reader that is being used as the input source.")関数の2番目と3番目の引数を使用すると、バックグラウンドスレッドでの先読みバッファリングを制御できます。2番目の引数は使用するバッファサイズで、3番目の引数はバックグラウンド処理に使用される[TimeSliceThread](https://docs.juce.com/master/classTimeSliceThread.html "A thread that keeps a list of clients, and calls each one in turn, giving them all a chance to run so...")オブジェクトへのポインタです。この例では、バッファサイズとしてゼロを使用し、スレッドオブジェクトには`nullptr`値を使用しています。これがデフォルトです。
 
 ## 参照
 
