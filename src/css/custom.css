@@ -21,7 +21,10 @@ figure > figcaption {
   &:hover {
     color: inherit;
     text-decoration: none;
+    background-color: oklch(70.8% 0 0 / 0.1);
+  }
 
+  &:active {
     background-color: oklch(70.8% 0 0 / 0.1);
   }
 }
