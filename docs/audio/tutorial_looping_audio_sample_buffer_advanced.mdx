@@ -8,7 +8,7 @@ tags: [上級]
 
 <SourcePageLink path="tutorial_looping_audio_sample_buffer_advanced" />
 
-このチュートリアルでは、スレッドセーフな技術を使用して、[AudioSampleBuffer](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトに格納された音声を再生およびループする方法を説明します。また、バックグラウンドスレッドで音声データを読み込む技術も紹介します。
+このチュートリアルでは、スレッドセーフな技術を使用して、[AudioSampleBuffer](#)オブジェクトに格納された音声を再生およびループする方法を説明します。また、バックグラウンドスレッドで音声データを読み込む技術も紹介します。
 
 **レベル:** 上級<br/>
 **プラットフォーム:** Windows, macOS, Linux<br/>
@@ -32,7 +32,7 @@ tags: [上級]
 
 ### 参照カウントオブジェクト
 
-[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "A base class which provides methods for reference-counting.")クラスは、スレッド間でメッセージやデータを渡すための便利なツールです。ここでは、[AudioSampleBuffer](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトと再生位置を[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "A base class which provides methods for reference-counting.")クラスに格納します。デバッグを支援し、クラスの動作を説明するために、`name`メンバーも含めています(ただし、これはクラスが機能するために厳密には必要ありません):
+[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "A base class which provides methods for reference-counting.")クラスは、スレッド間でメッセージやデータを渡すための便利なツールです。ここでは、[AudioSampleBuffer](#)オブジェクトと再生位置を[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "A base class which provides methods for reference-counting.")クラスに格納します。デバッグを支援し、クラスの動作を説明するために、`name`メンバーも含めています(ただし、これはクラスが機能するために厳密には必要ありません):
 
 ```cpp
 class ReferenceCountedBuffer : public juce::ReferenceCountedObject
@@ -235,7 +235,7 @@ void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) overri
 
 - \[4\]: `currentBuffer`メンバーのコピーを保持します。この関数のこの時点以降、別のスレッドで`currentBuffer`メンバーが変更されても問題ありません。ここではトライロックを使用しているため、別のスレッドが現在変更している場合に、オーディオスレッドが`currentBuffer`へのアクセスを待機してブロックされることはありません。
 - \[5\]: コピーを取得したときに`currentBuffer`メンバーがnullだった場合、無音を出力します。
-- \[6\]: `ReferenceCountedBuffer`オブジェクト内の[AudioSampleBuffer](group__juce__audio__basics-buffers.html#gab339ebab0d3b10c91c0d47c8fd2e50d2)オブジェクトにアクセスします。
+- \[6\]: `ReferenceCountedBuffer`オブジェクト内の[AudioSampleBuffer](#)オブジェクトにアクセスします。
 - \[7\]: バッファの現在の再生位置を取得します。
 - \[8\]: 現在の再生位置を変更した後、`ReferenceCountedBuffer`オブジェクトに保存し直します。
 

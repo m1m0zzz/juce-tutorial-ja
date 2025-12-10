@@ -108,7 +108,7 @@ TransportState state;
 
 ここでは、前述の[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")、[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")、[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")クラスが表示されます。
 
-`MainContentComponent`コンストラクタでは、標準フォーマットのリストを登録するために[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")オブジェクトを初期化する必要があります [1]:
+`MainContentComponent`コンストラクタでは、標準フォーマットのリストを登録するために[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")オブジェクトを初期化する必要があります \[1\]:
 ```cpp
 formatManager.registerBasicFormats(); // [1]
 ```
@@ -194,7 +194,7 @@ void changeState (TransportState newState)
 
 ### オーディオの処理
 
-このデモプロジェクトのオーディオ処理は非常に簡単です:[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "A base class for writing audio apps that stream from the audio i/o devices.")クラスを介して渡された[AudioSourceChannelInfo](structAudioSourceChannelInfo.html "Used by AudioSource::getNextAudioBlock().")構造体を[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")オブジェクトに渡すことで、処理を委譲するだけです:
+このデモプロジェクトのオーディオ処理は非常に簡単です:[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "A base class for writing audio apps that stream from the audio i/o devices.")クラスを介して渡された[AudioSourceChannelInfo](# "Used by AudioSource::getNextAudioBlock().")構造体を[AudioTransportSource](https://docs.juce.com/master/classAudioTransportSource.html "An AudioSource that takes a PositionableAudioSource and allows it to be played, stopped,...")オブジェクトに渡すことで、処理を委譲するだけです:
 ```cpp
 void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
 {
@@ -208,7 +208,7 @@ void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) overri
 }
 ```
 
-有効な[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトがあるかどうかを最初にチェックし、そうでない場合は出力を単にゼロにします(便利な[AudioSourceChannelInfo::clearActiveBufferRegion()](structAudioSourceChannelInfo.html#a6246ca9f1f6ef86dab31fc0eeaacb7a3 "Convenient method to clear the buffer if the source is not producing any data.")関数を使用)。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")メンバーはstd::unique_ptrオブジェクトに格納されています。これは、ユーザーのアクションに基づいてこれらのオブジェクトを動的に作成する必要があるためです。また、無効なオブジェクトに対して`nullptr`をチェックすることもできます。
+有効な[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")オブジェクトがあるかどうかを最初にチェックし、そうでない場合は出力を単にゼロにします(便利な[AudioSourceChannelInfo::clearActiveBufferRegion()](# "Convenient method to clear the buffer if the source is not producing any data.")関数を使用)。[AudioFormatReaderSource](https://docs.juce.com/master/classAudioFormatReaderSource.html "A type of AudioSource that will read from an AudioFormatReader.")メンバーはstd::unique_ptrオブジェクトに格納されています。これは、ユーザーのアクションに基づいてこれらのオブジェクトを動的に作成する必要があるためです。また、無効なオブジェクトに対して`nullptr`をチェックすることもできます。
 
 また、使用している他の[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")オブジェクトに`prepareToPlay()`コールバックを渡すことも忘れないでください:
 ```cpp
