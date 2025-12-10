@@ -4,253 +4,246 @@ sidebar_position: 2
 tags: [中級]
 ---
 
-# MIDIイベントの処理
+# チュートリアル: MIDIイベントの処理
 
 <SourcePageLink path="tutorial_handling_midi_events" />
 
-このチュートリアルでは、MIDI入力イベントの扱い方を説明します。外部ソースからMIDIデータを渡すことに加えて、オンスクリーンキーボードコンポーネントを紹介します。
+このチュートリアルでは、MIDI入力イベントの処理方法を示します。外部ソースからのMIDIデータの処理に加えて、画面上のキーボードコンポーネントも紹介します。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "Manages the state of some audio and midi i/o devices."), [MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message."), [MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "Receives incoming messages from a physical MIDI input device."), [ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices."), [MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "A component that displays a piano keyboard, whose notes can be clicked on."), [MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "Represents a piano keyboard, keeping track of which keys are currently pressed."), [CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "A message that invokes a callback method when it gets delivered."), [ScopedValueSetter](https://docs.juce.com/master/classScopedValueSetter.html "Helper class providing an RAII-based mechanism for temporarily setting and then re-setting a value.")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。"),[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。"),[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。"),[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。"),[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。"),[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。"),[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "配信されたときにコールバック・メソッドを呼び出すメッセージ。"),[ScopedValueSetter](https://docs.juce.com/master/classScopedValueSetter.html "一時的に値を設定し、再度設定するための RAII ベースのメカニズムを提供するヘルパークラス。")
+このチュートリアルのデモプロジェクトをダウンロードしてください: [PIP](https://docs.juce.com/tutorials/PIPs/HandlingMidiEventsTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/HandlingMidiEventsTutorial.zip)。プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開いてください。
 
-## スタート
+この手順でヘルプが必要な場合は、[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/HandlingMidiEventsTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/HandlingMidiEventsTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
-
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-:::note
-
-コンピュータに外部MIDIソースを接続するのが理想的です。そうでない場合は、ある種のバーチャルMIDI音源（コンピューター上にバーチャルMIDIポートを作るもの）があると便利です。
-
+:::tip
+理想的には、コンピュータに外部MIDIソースを接続する必要があります。それができない場合は、コンピュータ上に仮想MIDIポートを作成する何らかの仮想MIDIソース)が役立ちます。
 :::
 
-## デモ・プロジェクト
+## デモプロジェクト
 
-このデモ・プロジェクトでは、画面上にMIDIキーボードが表示され、コンボボックスを使ってハードウェア・デバイスのMIDI入力を1つ選択できます。これらのソースから受信したMIDIイベントはウィンドウの下部に表示されます。これは次のスクリーンショットに示されています：
+このデモプロジェクトは、画面上のMIDIキーボードを表示し、ユーザーがコンボボックスを使用してハードウェアデバイスのMIDI入力の1つを選択できるようにします。これらのソースのいずれかから受信したMIDIイベントは、ウィンドウの下部に表示されます。これは次のスクリーンショットに示されています:
 
 <CaptionImage
   src="/_images/tutorial_handling_midi_events_screenshot1.png"
-  caption="アプリケーション・ウィンドウ"
+  caption="The application window"
+  alt=""
 />
 
 ## MIDI入力
 
-このチュートリアルでは、基本的なアプリケーションでMIDI入力を扱う方法を示します。JUCEは、接続されているハードウェアMIDIインタフェースのリストを簡単に見つけることができます。また[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")クラスのメンバー変数を見てみよう。まず、このクラスのメンバー変数を見てみよう。`MainContentComponent`クラスである：
+このチュートリアルでは、基本的なアプリケーションでMIDI入力を処理する方法を示します。JUCEを使用すると、接続されているハードウェアMIDIインターフェイスのリストを簡単に見つけることができます。また、画面上のキーボードを表示できる[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "A component that displays a piano keyboard, whose notes can be clicked on.")クラスも提供します。まず、`MainContentComponent`クラスのメンバー変数を見てみましょう:
 
 ```cpp
-    juce::AudioDeviceManager deviceManager;           // [1]
-    juce::ComboBox midiInputList;                     // [2]
-    juce::Label midiInputListLabel;
-    int lastInputIndex = 0;                           // [3]
-    bool isAddingFromMidiInput = false;               // [4]
- 
-    juce::MidiKeyboardState keyboardState;            // [5]
-    juce::MidiKeyboardComponent keyboardComponent;    // [6]
- 
-    juce::TextEditor midiMessagesBox;
-    double startTime;
+juce::AudioDeviceManager deviceManager; // [1]
+juce::ComboBox midiInputList; // [2]
+juce::Label midiInputListLabel;
+int lastInputIndex = 0; // [3]
+bool isAddingFromMidiInput = false; // [4]
+
+juce::MidiKeyboardState keyboardState; // [5]
+juce::MidiKeyboardComponent keyboardComponent; // [6]
+
+juce::TextEditor midiMessagesBox;
+double startTime;
 ```
 
-- \[1\]を使用します。[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")クラスを使用して、どのMIDI入力デバイスが有効になっているかを調べます。
-- \[2\]MIDI入力デバイスの名前をこのコンボボックスに表示し、ユーザーが選択できるようにします。
-- \[3\]別の入力を選択した際に、以前に選択したMIDI入力の登録を解除するために使用します。
-- \[4\]このフラグは、オンスクリーンキーボードのマウスクリックではなく、外部ソースからMIDIデータが届いていることを示します。
-- \[5\](その)[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。")クラスは、現在どのMIDI鍵盤が押されているかを記録します。
-- \[6\]これはオンスクリーンキーボードコンポーネントです。
+- \[1\]: [AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "Manages the state of some audio and midi i/o devices.")クラスを使用して、有効になっているMIDI入力デバイスを見つけます。
+- \[2\]: ユーザーが選択できるように、MIDI入力デバイスの名前をこのコンボボックスに表示します。
+- \[3\]: これは、ユーザーが別の入力を選択したときに、以前に選択したMIDI入力の登録を解除するために使用されます。
+- \[4\]: このフラグは、画面上のキーボードのマウスクリックではなく、外部ソースからMIDIデータが到着していることを示すために使用されます。
+- \[5\]: [MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "Represents a piano keyboard, keeping track of which keys are currently pressed.")クラスは、現在押されているMIDIキーを追跡します。
+- \[6\]: これは、画面上のキーボードコンポーネントです。
 
-の中で`MainContentComponent`コンストラクタで初期化します。\[3\],\[4\]そして\[6\].また、MIDIデータのタイムスタンプを相対的に表示できるように、アプリケーションの開始時間も記録します。
+`MainContentComponent`コンストラクタでは、\[3\]、\[4\]、および\[6\]を初期化します。また、MIDIデータのタイムスタンプをこれに対して相対的に表示できるように、アプリケーションの開始時刻をメモします。
 
 ```cpp
-    MainContentComponent()
-      : keyboardComponent (keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard),
-        startTime (juce::Time::getMillisecondCounterHiRes() * 0.001)
-    {
+MainContentComponent()
+    : keyboardComponent (keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard),
+      startTime (juce::Time::getMillisecondCounterHiRes() * 0.001)
+{
 ```
 
-を通過させなければならない。[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。")オブジェクトを初期化する。[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")オブジェクトである。そして、これらは静的に割り当てられたオブジェクトなので[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。")は、メンバー変数の最初にリストされなければならない。
+[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "A component that displays a piano keyboard, whose notes can be clicked on.")オブジェクトを初期化するには、[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "Represents a piano keyboard, keeping track of which keys are currently pressed.")オブジェクトを渡す必要があります。また、これらは静的に割り当てられたオブジェクトであるため、[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "Represents a piano keyboard, keeping track of which keys are currently pressed.")はメンバー変数で最初にリストする必要があります。
 
 ### MIDI入力リスト
 
-MIDI入力のリストを含むコンボボックスは、コンピュータに接続されているMIDI入力のリストを[MidiInput](https://docs.juce.com/master/classMidiInput.html "MIDI入力デバイスを表す。")クラスでは、MidiInput::getDevices() 関数を使います：
+MIDI入力のリストを含むコンボボックスは、[MidiInput](https://docs.juce.com/master/classMidiInput.html "Represents a midi input device.")クラスからMidiInput::getDevices()関数を使用してコンピュータに接続されているMIDI入力のリストを取得することで入力されます:
 
 ```cpp
-        addAndMakeVisible (midiInputList);
-        midiInputList.setTextWhenNoChoicesAvailable ("No MIDI Inputs Enabled");
-        auto midiInputs = juce::MidiInput::getAvailableDevices();
- 
-        juce::StringArray midiInputNames;
- 
-        for (auto input : midiInputs)
-            midiInputNames.add (input.name);
- 
-        midiInputList.addItemList (midiInputNames, 1);
-        midiInputList.onChange = [this] { setMidiInput (midiInputList.getSelectedItemIndex()); };
- 
-        // find the first enabled device and use that by default
-        for (auto input : midiInputs)
-        {
-            if (deviceManager.isMidiInputDeviceEnabled (input.identifier))
-            {
-                setMidiInput (midiInputs.indexOf (input));
-                break;
-            }
-        }
- 
-        // if no enabled devices were found just use the first one in the list
-        if (midiInputList.getSelectedId() == 0)
-            setMidiInput (0);
+addAndMakeVisible (midiInputList);
+midiInputList.setTextWhenNoChoicesAvailable ("No MIDI Inputs Enabled");
+auto midiInputs = juce::MidiInput::getAvailableDevices();
+
+juce::StringArray midiInputNames;
+
+for (auto input : midiInputs)
+    midiInputNames.add (input.name);
+
+midiInputList.addItemList (midiInputNames, 1);
+midiInputList.onChange = [this] { setMidiInput (midiInputList.getSelectedItemIndex()); };
+
+// find the first enabled device and use that by default
+for (auto input : midiInputs)
+{
+    if (deviceManager.isMidiInputDeviceEnabled (input.identifier))
+    {
+        setMidiInput (midiInputs.indexOf (input));
+        break;
+    }
+}
+
+// if no enabled devices were found just use the first one in the list
+if (midiInputList.getSelectedId() == 0)
+    setMidiInput (0);
 ```
 
-ユーザーが選択されたMIDI入力を変更した場合、そのMIDI入力に割り当てられたラムダ関数は、そのMIDI入力に割り当てられたラムダ関数に変更されます。[ComboBox::onChange](https://docs.juce.com/master/classComboBox.html#a9cf2e20990541b9fbb539cd4a8e0ac4e "このコールバック・オブジェクトにラムダを割り当てることで、セレクテッドIDが変更されたときに呼び出されるようにすることができる。")ヘルパー・オブジェクトが呼び出される：
+ユーザーが選択したMIDI入力を変更すると、[ComboBox::onChange](https://docs.juce.com/master/classComboBox.html#a9cf2e20990541b9fbb539cd4a8e0ac4e "You can assign a lambda to this callback object to have it called when the selected ID is changed.")ヘルパーオブジェクトに割り当てられたラムダ関数が呼び出されます:
 
 ```cpp
 midiInputList.onChange = [this] { setMidiInput (midiInputList.getSelectedItemIndex()); };
 ```
 
-について`setMidiInput()`関数は、アプリケーションが選択されたデバイスのリッスンを開始するようにします。また、そのデバイスが現在無効になっている場合は有効にします：
+`setMidiInput()`関数により、アプリケーションは選択したデバイスをリスニングし始めます。また、現在無効になっている場合は、デバイスを有効にします:
 
 ```cpp
-    void setMidiInput (int index)
-    {
-        auto list = juce::MidiInput::getAvailableDevices();
- 
-        deviceManager.removeMidiInputDeviceCallback(list[lastInputIndex].identifier, this);
- 
-        auto newInput = list[index];
- 
-        if (! deviceManager.isMidiInputDeviceEnabled (newInput.identifier))
-            deviceManager.setMidiInputDeviceEnabled (newInput.identifier, true);
- 
-        deviceManager.addMidiInputDeviceCallback (newInput.identifier, this);
-        midiInputList.setSelectedId (index + 1, juce::dontSendNotification);
- 
-        lastInputIndex = index;
-    }
+void setMidiInput (int index)
+{
+    auto list = juce::MidiInput::getAvailableDevices();
+
+    deviceManager.removeMidiInputDeviceCallback (list[lastInputIndex].identifier, this);
+
+    auto newInput = list[index];
+
+    if (!deviceManager.isMidiInputDeviceEnabled (newInput.identifier))
+        deviceManager.setMidiInputDeviceEnabled (newInput.identifier, true);
+
+    deviceManager.addMidiInputDeviceCallback (newInput.identifier, this);
+    midiInputList.setSelectedId (index + 1, juce::dontSendNotification);
+
+    lastInputIndex = index;
+}
 ```
 
-### 外部MIDI入力を扱う
+### 外部MIDI入力の処理
 
-を実施する。[MidiInputCallback::handleIncomingMidiMessage()](https://docs.juce.com/master/classMidiInputCallback.html#acdf6d7e27b96a50fe06922737f0d082e "着信メッセージを受信する。") [pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数を使う。これによりキーボードの状態が更新され（これにより[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")オブジェクト)：
+[MidiInputCallback::handleIncomingMidiMessage()](https://docs.juce.com/master/classMidiInputCallback.html#acdf6d7e27b96a50fe06922737f0d082e "Receives an incoming message.")[純粋仮想](http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数を実装します。これにより、キーボードの状態が更新されます(これにより、[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "A component that displays a piano keyboard, whose notes can be clicked on.")オブジェクトも更新されます):
 
 ```cpp
-    void handleIncomingMidiMessage (juce::MidiInput* source, const juce::MidiMessage& message) override
-    {
-        const juce::ScopedValueSetter scopedInputFlag (isAddingFromMidiInput, true);
-        keyboardState.processNextMidiEvent (message);
-        postMessageToList (message, source->getName());
-    }
+void handleIncomingMidiMessage (juce::MidiInput* source, const juce::MidiMessage& message) override
+{
+    const juce::ScopedValueSetter<bool> scopedInputFlag (isAddingFromMidiInput, true);
+    keyboardState.processNextMidiEvent (message);
+    postMessageToList (message, source->getName());
+}
 ```
 
-に注目してほしい。`scopedInputFlag`変数は[ScopedValueSetter](https://docs.juce.com/master/classScopedValueSetter.html "一時的に値を設定し、再度設定するための RAII ベースのメカニズムを提供するヘルパークラス。")クラスを作成します。これは次のようなものである：
+`scopedInputFlag`変数は、[ScopedValueSetter](https://docs.juce.com/master/classScopedValueSetter.html "Helper class providing an RAII-based mechanism for temporarily setting and then re-setting a value.")クラスを利用していることに注意してください。これは次のことを行います:
 
-- の現在の状態を保存する。`isAddingFromMidiInput`メンバーだ。
-- を設定する。`isAddingFromMidiInput`メンバーをtrueに設定する。
-- 関数が終了すると`isAddingFromMidiInput`メンバーを関数開始時の状態に戻す。
+- `isAddingFromMidiInput`メンバーの現在の状態を保存します。
+- `isAddingFromMidiInput`メンバーをtrueに設定します。
+- 関数が終了すると、`isAddingFromMidiInput`メンバーの値を関数の開始時の状態にリセットします。
 
 ### MIDIキーボードの状態とコンポーネント
 
-の中で`MainContentComponent`コンストラクタは[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")オブジェクトが`MainContentComponent`親コンポーネントを可視化する。また[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。")オブジェクト(*ない*コンポーネント)：
+`MainContentComponent`コンストラクタでは、[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "A component that displays a piano keyboard, whose notes can be clicked on.")オブジェクトを`MainContentComponent`親コンポーネントに追加して表示します。また、[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "Represents a piano keyboard, keeping track of which keys are currently pressed.")オブジェクト(コンポーネント_ではなく_)をリスニングします:
 
 ```cpp
-        addAndMakeVisible (keyboardComponent);
-        keyboardState.addListener (this);
+addAndMakeVisible (keyboardComponent);
+keyboardState.addListener (this);
 ```
 
-MidiKeyboardStateListenerクラスには、次の2つがあります。[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数を実装しなければならない。これらは[MidiKeyboardStateListener::handleNoteOn()](https://docs.juce.com/master/classMidiKeyboardState_1_1Listener.html#a854381a64354389e0cb2c15ec1fb4b01 "MidiKeyboardStateのいずれかのキーが押されたときに呼び出される。")そして[MidiKeyboardStateListener::handleNoteOff()](https://docs.juce.com/master/classMidiKeyboardState_1_1Listener.html#aedc74bd79578cb19edba66d38e9a93cf "MidiKeyboardStateの鍵盤の1つが離されたときに呼ばれる。")の機能がある。
+MidiKeyboardStateListenerクラスには、実装する必要がある2つの[純粋仮想](http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数があります。これらは、[MidiKeyboardStateListener::handleNoteOn()](https://docs.juce.com/master/classMidiKeyboardState_1_1Listener.html#a854381a64354389e0cb2c15ec1fb4b01 "Called when one of the MidiKeyboardState's keys is pressed.")および[MidiKeyboardStateListener::handleNoteOff()](https://docs.juce.com/master/classMidiKeyboardState_1_1Listener.html#aedc74bd79578cb19edba66d38e9a93cf "Called when one of the MidiKeyboardState's keys is released.")関数です。
 
 ```cpp
-    void handleNoteOn (juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override
+void handleNoteOn (juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override
+{
+    if (!isAddingFromMidiInput)
     {
-        if (! isAddingFromMidiInput)
-        {
-            auto m = juce::MidiMessage::noteOn (midiChannel, midiNoteNumber, velocity);
-            m.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001);
-            postMessageToList (m, "On-Screen Keyboard");
-        }
+        auto m = juce::MidiMessage::noteOn (midiChannel, midiNoteNumber, velocity);
+        m.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001);
+        postMessageToList (m, "On-Screen Keyboard");
     }
- 
-    void handleNoteOff (juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float /*velocity*/) override
+}
+
+void handleNoteOff (juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float /*velocity*/) override
+{
+    if (!isAddingFromMidiInput)
     {
-        if (! isAddingFromMidiInput)
-        {
-            auto m = juce::MidiMessage::noteOff (midiChannel, midiNoteNumber);
-            m.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001);
-            postMessageToList (m, "On-Screen Keyboard");
-        }
+        auto m = juce::MidiMessage::noteOff (midiChannel, midiNoteNumber);
+        m.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001);
+        postMessageToList (m, "On-Screen Keyboard");
     }
+}
 ```
 
-ここでは`isAddingFromMidiInput`メンバーが使用される。これにより、ハードウェア入力から到着したイベントが複数回リストに投稿されるのを防ぐことができる。
+ここで、`isAddingFromMidiInput`メンバーがどのように使用されているかを確認できます。これにより、ハードウェア入力から到着したイベントが複数回リストに投稿されるのを防ぎます。
 
-### メーリングリストへのメッセージ投稿
+### リストへのメッセージの投稿
 
-について`postMessageToList()`関数は、最初は少し変わって見えるかもしれない：
+`postMessageToList()`関数は、最初は少し異常に見えるかもしれません:
 
 ```cpp
-    void postMessageToList (const juce::MidiMessage& message, const juce::String& source)
-    {
-        (new IncomingMessageCallback (this, message, source))->post();
-    }
+void postMessageToList (const juce::MidiMessage& message, const juce::String& source)
+{
+    (new IncomingMessageCallback (this, message, source))->post();
+}
 ```
 
-について`IncomingMessageCallback`クラスは[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "配信されたときにコールバック・メソッドを呼び出すメッセージ。")クラスを使用する必要がある。どのスレッドから`postMessageToList()`関数が呼び出されます。この関数は、ユーザーが[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")オブジェクトから呼び出されます。しかし、データが外部MIDIソースから到着した場合は、バックグラウンドのMIDIスレッド（おそらくオペレーティング・システムのスレッド）から呼び出されます。
+`IncomingMessageCallback`クラスは、[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "A message that invokes a callback method when it gets delivered.")クラスのサブクラスです。`postMessageToList()`関数がどのスレッドから呼び出されるかわからないため、これを使用する必要があります。ユーザーが[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "A component that displays a piano keyboard, whose notes can be clicked on.")オブジェクトをクリックすると、メッセージスレッドから呼び出されます。しかし、データが外部MIDIソースから到着した場合は、バックグラウンドMIDIスレッド(おそらくオペレーティングシステムのスレッド)から呼び出されます。
 
-について[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "配信されたときにコールバック・メソッドを呼び出すメッセージ。")クラスは、メッセージ・スレッド上で関数を呼び出す手段を提供します。この[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "配信されたときにコールバック・メソッドを呼び出すメッセージ。")クラスは[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスに保存されます。そのため、（どうやら）このクラスには`IncomingMessageCallback`オブジェクトはどこにでもある。実際`IncomingMessageCallback::post()`関数（これは[MessageManager::MessageBase::post()](https://docs.juce.com/master/classMessageManager_1_1MessageBase.html#a2bcdf57123967a59650bd46543906796)関数）が処理するキューにオブジェクトを追加する。[MessageManager](https://docs.juce.com/master/classMessageManager.html "このクラスはアプリケーションのイベント・ディスパッチ・ループを担当する。")クラスである。その[MessageManager](https://docs.juce.com/master/classMessageManager.html "このクラスはアプリケーションのイベント・ディスパッチ・ループを担当する。")クラスは最終的にこのオブジェクトをキューで見つけ`IncomingMessageCallback::messageCallback()`関数を呼び出す。この関数が呼び出されると`IncomingMessageCallback`オブジェクトは削除される。したがって、このオブジェクトの寿命は（ほぼ）自動的に処理される。
+[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "A message that invokes a callback method when it gets delivered.")クラスは、メッセージスレッドで関数を呼び出す手段を提供します。[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "A message that invokes a callback method when it gets delivered.")クラスは、[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "A base class which provides methods for reference-counting.")クラスの一種です。これが、`IncomingMessageCallback`オブジェクトをどこかに保存する必要がない(見かけ上)理由です。実際、`IncomingMessageCallback::post()`関数([MessageManager::MessageBase::post()](https://docs.juce.com/master/classMessageManager_1_1MessageBase.html#a2bcdf57123967a59650bd46543906796)関数)は、オブジェクトを[MessageManager](https://docs.juce.com/master/classMessageManager.html "This class is in charge of the application's event-dispatch loop.")クラスによって処理されるキューに追加します。[MessageManager](https://docs.juce.com/master/classMessageManager.html "This class is in charge of the application's event-dispatch loop.")クラスは、最終的にキュー内のこのオブジェクトを見つけて、メッセージスレッドで`IncomingMessageCallback::messageCallback()`関数を呼び出します。この関数が呼び出されると、`IncomingMessageCallback`オブジェクトは削除されます。したがって、このオブジェクトの寿命は(ほぼ)自動的に処理されます。
 
-:::note
-
-これは、データをメッセージスレッドに送る必要があるので、本当に必要なだけです。MIDIアプリケーションでは何らかのスレッド間通信が必要だと思われるが、正確な実装は状況による。
-
+:::tip
+これは、データをメッセージスレッドに送信する必要があるため、実際に必要なだけです。MIDIアプリケーションでは、何らかのスレッド間通信が必要になる可能性がありますが、正確な実装は状況によって異なります。
 :::
 
 ### メッセージの表示
 
-について`addMessageToList()`そして`getMidiMessageDescription()`の関数と非常によく似ている。[Tutorial: Create MIDI data](../tutorial_midi_message/).主な違いは、出典を記録することである。\[7\]MIDIメッセージ（どのハードウェア入力、またはオンスクリーンキーボード）の
+`addMessageToList()`および`getMidiMessageDescription()`関数は、[Tutorial: Create MIDI data](../tutorial_midi_message/)のこれらの関数と非常に似ています。主な違いは、MIDIメッセージのソース\[7\](どのハードウェア入力、または画面上のキーボード)をメモすることです:
 
 ```cpp
-    void addMessageToList (const juce::MidiMessage& message, const juce::String& source)
-    {
-        auto time = message.getTimeStamp() - startTime;
- 
-        auto hours   = ((int) (time / 3600.0)) % 24;
-        auto minutes = ((int) (time / 60.0)) % 60;
-        auto seconds = ((int) time) % 60;
-        auto millis  = ((int) (time * 1000.0)) % 1000;
- 
-        auto timecode = juce::String::formatted ("%02d:%02d:%02d.%03d",
-                                                 hours,
-                                                 minutes,
-                                                 seconds,
-                                                 millis);
- 
-        auto description = getMidiMessageDescription (message);
- 
-        juce::String midiMessageString (timecode + "  -  " + description + " (" + source + ")"); // [7]
-        logMessage (midiMessageString);
-    }
+void addMessageToList (const juce::MidiMessage& message, const juce::String& source)
+{
+    auto time = message.getTimeStamp() - startTime;
+
+    auto hours = ((int) (time / 3600.0)) % 24;
+    auto minutes = ((int) (time / 60.0)) % 60;
+    auto seconds = ((int) time) % 60;
+    auto millis = ((int) (time * 1000.0)) % 1000;
+
+    auto timecode = juce::String::formatted ("%02d:%02d:%02d.%03d",
+        hours,
+        minutes,
+        seconds,
+        millis);
+
+    auto description = getMidiMessageDescription (message);
+
+    juce::String midiMessageString (timecode + " - " + description + " (" + source + ")"); // [7]
+    logMessage (midiMessageString);
+}
 ```
 
-:::danger[エクササイズ]
-
-ユーザー・インタフェースに、モジュレーション・ホイール（CC1）やピッチ・ホイールなどのメッセージを送信し、それに反応するスライダーをいくつか追加する。
-
+:::note
+演習: ユーザーインターフェイスにいくつかのスライダーを追加して、モジュレーションホイール(CC1)やピッチホイールなどのメッセージを送信および応答します。
 :::
 
-## 概要
+## まとめ
 
-このチュートリアルでは、MIDI入力イベントを処理したり表示したりするためのいくつかのクラスを紹介しました。特に以下のことができるようになるはずです：
+このチュートリアルでは、MIDI入力イベントを処理および表示するためのいくつかのクラスを紹介しました。特に、次のことができるようになります:
 
-- 使用可能なMIDI入力デバイスをリストアップします。
+- 利用可能なMIDI入力デバイスをリストする。
 - MIDI入力デバイスのメニューを作成する。
-- ハードウェア入力に届くMIDIを聞く。
-- を使用してMIDIノートデータを表示します。[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")クラスである。
-- を使って、他のスレッドからのメッセージをメッセージスレッドに投稿する。[CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "配信されたときにコールバック・メソッドを呼び出すメッセージ。")クラスである。
+- ハードウェア入力に到着したMIDIをリスニングする。
+- [MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "A component that displays a piano keyboard, whose notes can be clicked on.")クラスを使用してMIDIノートデータを表示する。
+- [CallbackMessage](https://docs.juce.com/master/classCallbackMessage.html "A message that invokes a callback method when it gets delivered.")クラスを使用して、他のスレッドからメッセージスレッドで処理されるメッセージを投稿する。
 
-## 参照
+## 関連項目
 
 - [Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)
 - [Tutorial: Create MIDI data](../tutorial_midi_message/)

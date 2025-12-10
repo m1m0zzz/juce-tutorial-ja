@@ -1,171 +1,162 @@
 ---
-title: MPEゾーンの理解
+title: MPE ゾーンを理解する
 sidebar_position: 5
 tags: [中級]
 ---
 
-# MPEゾーンの理解
+# チュートリアル: MPE ゾーンを理解する
 
 <SourcePageLink path="tutorial_mpe_zones" />
 
-MPE規格で定義されているゾーンの概念とゾーンレイアウトの規約を学びます。MPEシンセサイザーをMPE対応機器に接続します。
+MPE 規格で定義されているゾーンの概念とゾーンレイアウトの規約を学びます。MPE シンセサイザーを MPE 対応デバイスに接続しましょう。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "This class represents the current MPE zone layout of a device capable of handling MPE."), MPEZoneLayout::Zone, [MPEMessages](https://docs.juce.com/master/classMPEMessages.html "This helper class contains the necessary helper functions to generate MIDI messages that are exclusiv..."), [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "Base class for an MPE-compatible musical device that can play sounds.")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。")MPEZoneLayout::Zone、[MPEMessages](https://docs.juce.com/master/classMPEMessages.html "このヘルパー・クラスは、MIDIメッセージを生成するために必要なヘルパー関数を含んでいます。"),[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。")
+このチュートリアルのデモプロジェクトをダウンロードしてください: [PIP](https://docs.juce.com/tutorials/PIPs/MPEZonesTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/MPEZonesTutorial.zip) 。プロジェクトを解凍し、最初のヘッダーファイルを Projucer で開きます。
 
-## スタート
+この手順でヘルプが必要な場合は、[チュートリアル: Projucer Part 1: Projucer の使い方](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/MPEZonesTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/MPEZonesTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
-
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-:::note
-
-を読むと役に立つだろう。[Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/)これは多くの場所で基準点として使われているからだ。
-
+:::tip
+いくつかの箇所で参考にしているため、先に[チュートリアル: マルチポリフォニックシンセサイザーの構築](../tutorial_mpe_introduction/)を読んでおくと役立ちます。
 :::
 
-## デモ・プロジェクト
+## デモプロジェクト
 
-デモ・プロジェクトは`MPEDemo`のプロジェクトである。`JUCE/examples`ディレクトリにある簡略化されたバージョンをベースにしている。[Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/).このチュートリアルを最大限に活用するためには、以下のものが必要です。[MPE](https://support.roli.com/article/what-is-mpe/)互換性のあるコントローラー。[MPE](https://support.roli.com/article/what-is-mpe/)を表す。*MIDIポリフォニック・エクスプレッション*オーディオ製品間で多次元データの通信を可能にする仕様。
+デモプロジェクトは、`JUCE/examples` ディレクトリにある `MPEDemo` プロジェクトに似ており、[チュートリアル: マルチポリフォニックシンセサイザーの構築](../tutorial_mpe_introduction/)の簡略版を基にしています。このチュートリアルを最大限に活用するには、[MPE](https://support.roli.com/article/what-is-mpe/) 対応コントローラーが必要です。[MPE](https://support.roli.com/article/what-is-mpe/) は _MIDI Polyphonic Expression_ の略で、オーディオ製品間で多次元データを通信できるようにする仕様です。
 
-そのような例をいくつか挙げよう。[MPE](https://support.roli.com/article/what-is-mpe/)互換性のある機器は、ROLIのSeaboardシリーズ（例えば、以下のようなもの）である。[Seaboard RISE](https://roli.com/products/seaboard-rise)やBLOCKSレンジ（例えば[Lightpad Block](https://roli.com/products/lightpad-block)).
+このような [MPE](https://support.roli.com/article/what-is-mpe/) 対応デバイスの例としては、ROLI の Seaboard シリーズ（[Seaboard RISE](https://roli.com/products/seaboard-rise) など）や BLOCKS シリーズ（[Lightpad Block](https://roli.com/products/lightpad-block) など）があります。
 
-を持っている。[Lightpad Block](https://roli.com/products/lightpad-block)あなたのコンピューターに接続されたデモ・アプリケーションのウィンドウは、以下のスクリーンショットのようになっているはずです：
+コンピューターに [Lightpad Block](https://roli.com/products/lightpad-block) を接続すると、デモアプリケーションのウィンドウは次のスクリーンショットのようになります:
 
 <CaptionImage
   src="/_images/tutorial_mpe_zones_screenshot1.png"
-  caption="デモ・アプリケーション"
+  caption="The demo application"
 />
 
-MIDI入力の1つを有効にする必要があります。[Lightpad Block](https://roli.com/products/lightpad-block)はオプションとして表示される）。
+MIDI 入力のいずれかを有効にする必要があります（ここでは [Lightpad Block](https://roli.com/products/lightpad-block) がオプションとして表示されています）。
 
-で演奏されたすべての音符は、その音符に対応する。[MPE](https://support.roli.com/article/what-is-mpe/)で説明したように、対応デバイスはウィンドウの下部に表示されます。[Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/)チュートリアル
+[MPE](https://support.roli.com/article/what-is-mpe/) 対応デバイスで演奏されたノートは、[チュートリアル: マルチポリフォニックシンセサイザーの構築](../tutorial_mpe_introduction/)チュートリアルで説明されているように、ウィンドウの下部に表示されます。
 
-## MPE仕様
+## MPE 仕様
 
-入門チュートリアルでは[Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/)このチュートリアルでは、レガシーモードを使用して標準のMPE設定プロセスをバイパスすることで、MPE互換のシンセサイザーを簡単に実装できます。このチュートリアルでは、最新のMPE標準に記載されている手順に従ってシンセサイザーを構成してみよう。
+入門チュートリアル[チュートリアル: マルチポリフォニックシンセサイザーの構築](../tutorial_mpe_introduction/)では、レガシーモードを使用して標準の MPE 設定プロセスをバイパスすることで、MPE 対応シンセサイザーを簡単に実装できました。このチュートリアルでは、最新の MPE 規格で説明されている手順に従ってシンセサイザーを設定しましょう。
 
-シンセサイザがMPEモードで動作しているかどうかを判断するためには、MPEゾーンの概念が必要である。MPEコンフィギュレーション・メッセージ(MCM)を使用して少なくとも1つのゾーンが定義されていれば、MPEモードである。そうでない場合、ゾーンが定義されていなければMPEモードはオフです。では、ゾーンとは何でしょうか？
+シンセサイザーが MPE モードで動作しているかどうかを判断できるようにすることは、MPE ゾーンの概念に関係しています。MPE Configuration Message（MCM）を使用して少なくとも 1 つのゾーンが定義されている場合、MPE モードになります。それ以外の場合、ゾーンが定義されていない場合は、MPE モードはオフです。では、ゾーンとは何でしょうか？
 
-### MPEゾーン
+### MPE ゾーン
 
-ゾーンの概念はMPE固有の用語で、1つのマスタ・チャンネルと1つ以上のメンバー・チャンネルからなる連続したMIDIチャンネルのグループを表す。
+ゾーンの概念は、1 つのマスターチャンネルと 1 つ以上のメンバーチャンネルで構成される連続した MIDI チャンネルのグループを表す MPE 固有の用語です。
 
-マスタ・チャンネルはゾーン全体に適用されるメッセージを受信するのに対し、メンバー・チャンネルは個別に適用されるメッセージのみを受信する。
+マスターチャンネルは、ゾーン全体に適用されるメッセージを受信し、メンバーチャンネルは、個別にのみ適用されるメッセージを受信します。
 
-MPEでは、最大2つのゾーンを持つことができ、それらはロワーゾーンとアッパーゾーンとして定義される。
+MPE では、最大 2 つのゾーンを持つことができ、Lower ゾーンと Upper ゾーンとして定義されます。
 
-- *下部ゾーン*:チャンネル1をマスタ・チャンネルとし、チャンネル2から順に1つ以上のメンバー・チャンネルを割り当てる。
-- *アッパーゾーン*:チャンネル16をマスタ・チャンネルとし、チャンネル15から順に1つ以上のメンバー・チャンネルを割り当てる。
+- _Lower Zone_: チャンネル 1 をマスターチャンネルとし、チャンネル 2 から増加して割り当てられる 1 つ以上のメンバーチャンネル。
+- _Upper Zone_: チャンネル 16 をマスターチャンネルとし、チャンネル 15 から減少して割り当てられる 1 つ以上のメンバーチャンネル。
 
-メンバー・チャンネルは一度に1つのゾーンにしか所属できず、最新のMCMが以前のものより優先される。
+メンバーチャンネルは一度に 1 つのゾーンにのみ属することができ、最新の MCM が以前のものより優先されます。
 
-例として、Lower Zoneにチャンネル2から10を、Upper Zoneにチャンネル11から15を設定できる。
+例として、Lower Zone にチャンネル 2 から 10 を含み、Upper Zone にチャンネル 11 から 15 を含むように設定できます。
 
-また、「下部ゾーン」または「上部ゾーン」のいずれかを使用して、単一のゾーンに制限することもできる。ただし、デフォルトでは「下部ゾーン」を使用することを推奨する。単一ゾーンのシナリオでは、未使用のマスタ・チャンネルを他のゾーンのメンバー・チャンネルとして使用できる。
+あるいは、Lower ゾーンまたは Upper ゾーンのいずれかを使用して、単一のゾーンに制限することもできます。ただし、デフォルトでは Lower Zone を使用することをお勧めします。単一ゾーンのシナリオでは、残りの未使用のマスターチャンネルを他のゾーンのメンバーチャンネルとして使用でき、最大 15 個のメンバーチャンネルが得られます。
 
-MPEゾーンは、ゾーンのマスタ・チャンネルにメンバー・チャンネルのないMCMを送信することでオフにでき、したがってMPEモードは、すべてのゾーンが空になるとオフになる。
+MPE ゾーンは、メンバーチャンネルなしで MCM をゾーンのマスターチャンネルに送信することでオフにでき、したがって、すべてのゾーンが空の場合、MPE モードはオフになります。
 
-JUCEでは、ゾーンの実装はMPEZoneLayout::Zone構造体にカプセル化されており、異なるゾーン設定は[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。")クラスである。
+JUCE では、ゾーンの実装は MPEZoneLayout::Zone 構造体にカプセル化されており、[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "This class represents the current MPE zone layout of a device capable of handling MPE.") クラスを使用してさまざまなゾーン設定を定義できます。
 
-ゾーンは、1つのMPEコントローラーを使用して異なる音色特性を提供する便利な手段であり、マスタ・チャンネルを使用してチャンネル・グループにまたがるMIDIメッセージの伝搬を容易にします。
+ゾーンは、1 つの MPE コントローラーのみを使用してさまざまな音色特性を提供するための便利な手段であり、マスターチャンネルを使用してチャンネルグループ間で MIDI メッセージの伝播を容易にします。
 
-### MIDIモード
+### MIDI モード
 
-MPEでサポートされているMIDIモードは、主にMIDIモード3と4の2つです。
+MPE でサポートされている主な MIDI モードは、MIDI Mode 3 と 4 の 2 つです。
 
-- **MIDIモード3**(*ポリモード*):ポリ・モードでは、1つのMIDIチャンネルに複数のノートを同時に入力できますが、チャンネル・メッセージはそのチャンネルのすべてのアクティブ・ノートに影響します。新しいMIDIノートが作成されると、コントローラーは可能な限り空のチャンネルに割り当てようとします。
-- **MIDIモード4**(*モノ・モード*):Monoモードでは、1つのMIDIチャンネルは1つの音符しか保持できず、新しいMIDI音符が作成された場合、他のチャンネルが一杯であれば、コントローラーは既存のアクティブな音符を上書きします。
+- **MIDI Mode 3**（_Poly Mode_）: Poly Mode では、単一の MIDI チャンネルで複数のノートを同時に保持できますが、チャンネルメッセージはそのチャンネル上のすべてのアクティブなノートに影響します。新しい MIDI ノートが作成されると、コントローラーは可能な場合は空のチャンネルに割り当てようとし、そうでない場合は既存のアクティブなノートを持つチャンネルに割り当てます。
+- **MIDI Mode 4**（_Mono Mode_）: Mono Mode では、単一の MIDI チャンネルは単一のノートのみを保持でき、新しい MIDI ノートが作成されたときに他のチャンネルがいっぱいの場合、コントローラーは既存のアクティブなノートを上書きします。
 
-MPEはMIDIモード3（ポリ・モード）で正しく動作するように設計されていますが、MIDIモード4（モノ・モード）でも使用できます。
+MPE は MIDI Mode 3（Poly Mode）を使用して適切に動作するように設計されていますが、MIDI Mode 4（Mono Mode）を使用しても使用できます。
 
-### ノート・レベルとゾーン・レベルのメッセージ
+### Note Level メッセージと Zone Level メッセージ
 
-MIDIメッセージがマスタ・チャンネルとメンバー・チャンネルのどちらに送信されるかに応じて、それぞれゾーン・レベル・メッセージまたはノート・レベル・メッセージと呼ぶことにします。ゾーン内のマスタ・チャンネルとメンバー・チャンネルの両方に送信されるメッセージもあります。このような場合、受信側のシンセサイザーは両方の情報を適切な方法で組み合わせなければなりません。
+MIDI メッセージがマスターチャンネルで送信されるか、メンバーチャンネルで送信されるかによって、それぞれ Zone Level メッセージまたは Note Level メッセージと呼びます。一部のメッセージは、ゾーン内のマスターチャンネルとメンバーチャンネルの両方に送信できます。これが発生した場合、受信シンセサイザーは両方の情報を適切な方法で組み合わせる必要があります。
 
-ゾーン・レベルとして送信しなければならないメッセージは以下の通り：
+Zone Level として送信する必要があるメッセージは次のとおりです:
 
-- **CC#1、#33**:支配権の変更*変調*.このCCはノート・レベルでも送信できるが、無視される。
-- **CC7位、39位**:支配権の変更*ボリューム*.このCCはノート・レベルでも送信できるが、無視される。
-- **CC64号**:某企業の支配権変更*ダンパーペダル*.このCCはノート・レベルでも送信できるが、無視される。
-- **CC #120**:すべてのサウンドをオフにするコントロール・チェンジ。このCCはノート・レベルでも送信できるが、無視される。
-- **CC127号**:すべてのコントローラーをリセットするコントロールチェンジ。このCCはゾーンレベルでしか送信できない。
-- *ポリフォニック・キー・プレッシャー*:PKPは、マスタ・チャネルで送信されるMPE仕様の将来の拡張である。
-- *MPEコンフィギュレーション*(MCM）：MCMはマスタ・チャンネルで送信され、前述のように設定される。
+- **CC #1, #33**: _Modulation_ の Control Change。この CC は Note Level で送信できますが、無視されます。
+- **CC #7, #39**: _Volume_ の Control Change。この CC は Note Level で送信できますが、無視されます。
+- **CC #64**: _Damper Pedal_ の Control Change。この CC は Note Level で送信できますが、無視されます。
+- **CC #120**: すべてのサウンドをオフにする Control Change。この CC は Note Level で送信できますが、無視されます。
+- **CC #127**: すべてのコントローラーをリセットする Control Change。この CC は Zone Level でのみ送信できます。
+- _Polyphonic Key Pressure_: PKP は、マスターチャンネルで送信される MPE 仕様の将来の拡張です。
+- _MPE Configuration_（MCM）: MCM は、前述のように設定するためにマスターチャンネルで送信されます。
 
-ゾーン・レベルおよびノート・レベルとして送信できるメッセージは以下の通り：
+Zone Level と Note Level の両方として送信できるメッセージは次のとおりです:
 
-- *ピッチベンド*:最初の次元のコントロール変更*グライド*.*ピッチベンド*の情報は、両方のメッセージレベルで受信された場合、組み合わされなければならない。
-- *チャンネル圧力*:2次元のコントロール変更*プレス*.*チャンネル圧力*の情報は、両方のメッセージレベルで受信された場合、組み合わされなければならない。
-- *スタンプ*(**CC74号**):と呼ばれる3次元のコントロール変更。*スライド*.*スタンプ*の情報は、両方のメッセージレベルで受信された場合、組み合わされなければならない。
-- *ピッチベンド感度*:ノート・レベルとして使用する場合、すべてのメンバー・チャンネルに送られるピッチベンドの強弱を変更するためのコントロール・チェンジ。
-- *プログラム変更／銀行選択*:プログラム・チェンジはマスタ・チャンネルで送信されますが、MIDIモード4ではメンバー・チャンネルで送信されます。
+- _Pitch Bend_: _Glide_ とも呼ばれる第 1 次元の Control Change。_Pitch Bend_ 情報は、両方のメッセージレベルで受信した場合、組み合わせる必要があります。
+- _Channel Pressure_: _Press_ とも呼ばれる第 2 次元の Control Change。_Channel Pressure_ 情報は、両方のメッセージレベルで受信した場合、組み合わせる必要があります。
+- _Timbre_（**CC #74**）: _Slide_ とも呼ばれる第 3 次元の Control Change。_Timbre_ 情報は、両方のメッセージレベルで受信した場合、組み合わせる必要があります。
+- _Pitch Bend Sensitivity_: ピッチベンド感度を変更する Control Change で、Note Level として使用する場合はすべてのメンバーチャンネルに送信する必要があります。
+- _Program Change/Bank Select_: Program Change は、MIDI Mode 4 でメンバーチャンネルに送信される場合を除き、マスターチャンネルで送信されます。
 
-通常、ノート・レベルとして送信されるメッセージは以下の通り：
+通常 Note Level として送信されるメッセージは次のとおりです:
 
-- *ノート・オン／オフ*:*注*そして*ノートオフ*メッセージは適切なメンバー・チャネルで送信されるべきであるが、後方互換性のためにマスタ・チャネルで許可されている。
-- *MIDIモード*(**CC＃126、＃127**):MIDIモード3と4を切り替えるためのコントロール・チェンジは、最下位のメンバー・チャンネルに送られます。
+- _Note On/Off_: _Note On_ および _Note Off_ メッセージは、適切なメンバーチャンネルで送信する必要がありますが、下位互換性のためにマスターチャンネルでも許可されます。
+- _MIDI Mode_（**CC #126, #127**）: MIDI Mode 3 と 4 を切り替える Control Change は、最も低いメンバーチャンネルに送信されます。
 
-これらのメッセージレベルは、シンセサイザー内のゾーンを定義する際の設計上の決定に影響を与えるので、覚えておくことが重要です。
+これらのメッセージレベルは、シンセサイザー内でゾーンを定義する際の設計上の決定に影響するため、覚えておくことが重要です。
 
 ## ゾーンの設定
 
-で実装されているようなレガシー・モードがない場合[Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/)少なくとも1つのゾーンを設定するまで、シンセは音を出力しません。
+[チュートリアル: マルチポリフォニックシンセサイザーの構築](../tutorial_mpe_introduction/)で実装されたレガシーモードがない場合、少なくとも 1 つのゾーンを設定するまでシンセサイザーは音を出力しません。
 
-の中で`MPESetupComponent`クラスに、ゾーンの作成と削除を可能にするラムダ関数を使用した3つのボタン・コールバックを追加します。下部と上部のゾーンを作成するか、ゾーン・レイアウトのすべてのゾーンを消去します。
+`MPESetupComponent` クラスでは、ゾーンの作成と削除を可能にするラムダ関数を使用して 3 つのボタンコールバックを追加します。Lower ゾーンと Upper ゾーンを作成するか、ゾーンレイアウトのすべてのゾーンをクリアできます。
 
 ```cpp
-    MPESetupComponent()
-    {
-        addAndMakeVisible (isLowerZoneButton);
-        isLowerZoneButton.setToggleState (true, juce::NotificationType::dontSendNotification);
+MPESetupComponent()
+{
+    addAndMakeVisible (isLowerZoneButton);
+    isLowerZoneButton.setToggleState (true, juce::NotificationType::dontSendNotification);
 ```
 
 ```cpp
-        addAndMakeVisible (setZoneButton);
-        setZoneButton.onClick = [this] { setZoneButtonClicked(); };
-        addAndMakeVisible (clearAllZonesButton);
-        clearAllZonesButton.onClick = [this] { clearAllZonesButtonClicked(); };
-```
+addAndMakeVisible (setZoneButton);
+setZoneButton.onClick = [this]
+{
+    auto isLowerZone = isLowerZoneButton.getToggleState();
+    auto numMemberChannels = memberChannels.getValue();
+    auto perNotePb = notePitchbendRange.getValue();
+    auto masterPb = masterPitchbendRange.getValue();
 
-ユーザーがゾーンの設定を決定すると`setZoneButtonClicked()`関数が呼び出される：
+    setZoneButtonClicked (isLowerZone, numMemberChannels, perNotePb, masterPb);
+};
+```
 
 ```cpp
-    void setZoneButtonClicked()
-    {
-        auto isLowerZone = isLowerZoneButton.getToggleState();
-        auto numMemberChannels = memberChannels.getText().getIntValue();
-        auto perNotePb = notePitchbendRange.getText().getIntValue();
-        auto masterPb = masterPitchbendRange.getText().getIntValue();
- 
-        if (isLowerZone)
-            zoneLayout.setLowerZone (numMemberChannels, perNotePb, masterPb);
-        else
-            zoneLayout.setUpperZone (numMemberChannels, perNotePb, masterPb);
- 
-        listeners.call ([&] (Listener& l) { l.zoneChanged (isLowerZone, numMemberChannels, perNotePb, masterPb); });
-    }
+addAndMakeVisible (clearAllZonesButton);
+clearAllZonesButton.onClick = [this]
+{
+    clearAllZonesButtonClicked();
+};
 ```
 
-まず新しいローカル変数を作成し、ロワー／アッパー・ゾーンの選択、メンバー・チャンネルの数、ゾーン・レベルのピッチベンド、ノート・レベルのピッチベンドを格納する。次に[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。")オブジェクトに対応する`setLowerZone()`または`setUpperZone()`関数である。
+まず、Lower/Upper ゾーンの選択、メンバーチャンネルの数、Zone Level のピッチベンド、Note Level のピッチベンドを保存する新しいローカル変数を作成します。次に、対応する `setLowerZone()` または `setUpperZone()` 関数を呼び出して、[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "This class represents the current MPE zone layout of a device capable of handling MPE.") オブジェクトにゾーンを設定します。
 
-ゾーンをクリアする際のコールバックを処理するには、単純に`clearAllZones()`関数を使用する。[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。")オブジェクトは以下のようにすべてのゾーンを削除する：
+ゾーンをクリアするときのコールバックを処理するには、次のように [MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "This class represents the current MPE zone layout of a device capable of handling MPE.") オブジェクトで `clearAllZones()` 関数を呼び出すだけです:
 
 ```cpp
-    void clearAllZonesButtonClicked()
-    {
-        zoneLayout.clearAllZones();
-        listeners.call ([] (Listener& l) { l.allZonesCleared(); });
-    }
+void clearAllZonesButtonClicked()
+{
+    zoneLayout.clearAllZones();
+    listeners.call ([] (Listener& l) { l.allZonesCleared(); });
+}
 ```
 
-## シンクの設定
+## シンセサイザーの設定
 
-以来`MPESetupComponent`クラスはブロードキャスターとして機能するので、リスナーとして`MainComponent`クラスは、ゾーンレイアウトが変更されたときにコールバックを受け取れるようにする。
+`MPESetupComponent` クラスはブロードキャスターとして機能するため、ゾーンレイアウトが変更されたときにコールバックを受信するために、`MainComponent` クラスでリスナーとして登録できます。
 
 ```cpp
 class MainComponent : public juce::Component,
@@ -176,98 +167,95 @@ class MainComponent : public juce::Component,
 public:
 ```
 
-そして、対応する関数をオーバーライドして、それに応じてシンセサイザーを設定できる。
+その後、対応する関数をオーバーライドして、シンセサイザーを適切に設定できます。
 
-の中で`zoneChanged()`コールバックは、新しく作成されたZoneを[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。")メンバー変数\[1\].を渡すことができます。[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。")オブジェクトを[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")電話で`setZoneLayout()`それについて\[2\]:
+`zoneChanged()` コールバックでは、新しく作成されたゾーンを [MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "This class represents the current MPE zone layout of a device capable of handling MPE.") メンバー変数に設定します \[1\]。その後、`setZoneLayout()` を呼び出して [MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "This class represents the current MPE zone layout of a device capable of handling MPE.") オブジェクトを [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "Base class for an MPE-compatible musical device that can play sounds.") に渡すことができます \[2\]:
 
 ```cpp
-    void zoneChanged (bool isLowerZone, int numMemberChannels,
-                      int perNotePitchbendRange, int masterPitchbendRange) override
+void zoneChanged (bool isLowerZone, int numMemberChannels, int perNotePitchbendRange, int masterPitchbendRange) override
+{
+    auto* midiOutput = audioDeviceManager.getDefaultMidiOutput();
+    if (midiOutput != nullptr)
     {
-        auto* midiOutput = audioDeviceManager.getDefaultMidiOutput();
-        if (midiOutput != nullptr)
-        {
-            if (isLowerZone)
-                midiOutput->sendBlockOfMessagesNow (juce::MPEMessages::setLowerZone (numMemberChannels, perNotePitchbendRange, masterPitchbendRange));
-            else
-                midiOutput->sendBlockOfMessagesNow (juce::MPEMessages::setUpperZone (numMemberChannels, perNotePitchbendRange, masterPitchbendRange));
-        }
- 
         if (isLowerZone)
-            zoneLayout.setLowerZone (numMemberChannels, perNotePitchbendRange, masterPitchbendRange);
+            midiOutput->sendBlockOfMessagesNow (juce::MPEMessages::setLowerZone (numMemberChannels, perNotePitchbendRange, masterPitchbendRange));
         else
-            zoneLayout.setUpperZone (numMemberChannels, perNotePitchbendRange, masterPitchbendRange);
- 
-        visualiserInstrument.setZoneLayout (zoneLayout);
-        synth.setZoneLayout (zoneLayout);
-        colourPicker.setZoneLayout (zoneLayout);
+            midiOutput->sendBlockOfMessagesNow (juce::MPEMessages::setUpperZone (numMemberChannels, perNotePitchbendRange, masterPitchbendRange));
     }
+
+    if (isLowerZone)
+        zoneLayout.setLowerZone (numMemberChannels, perNotePitchbendRange, masterPitchbendRange);
+    else
+        zoneLayout.setUpperZone (numMemberChannels, perNotePitchbendRange, masterPitchbendRange);
+
+    visualiserInstrument.setZoneLayout (zoneLayout);
+    synth.setZoneLayout (zoneLayout);
+    colourPicker.setZoneLayout (zoneLayout);
+}
 ```
 
-の中で`allZonesCleared()`のすべてのゾーンを空にします。[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。")メンバー変数\[3\].同様に[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。")オブジェクトを[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことができる MPE 互換の音楽装置の基底クラス。")電話で`setZoneLayout()`それについて\[4\]:
+`allZonesCleared()` コールバックでは、[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "This class represents the current MPE zone layout of a device capable of handling MPE.") メンバー変数のすべてのゾーンを空にします \[3\]。その後、同様に `setZoneLayout()` を呼び出して [MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "This class represents the current MPE zone layout of a device capable of handling MPE.") オブジェクトを [MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "Base class for an MPE-compatible musical device that can play sounds.") に渡すことができます \[4\]:
 
 ```cpp
-    void allZonesCleared() override
-    {
-        auto* midiOutput = audioDeviceManager.getDefaultMidiOutput();
-        if (midiOutput != nullptr)
-            midiOutput->sendBlockOfMessagesNow (juce::MPEMessages::clearAllZones());
- 
-        zoneLayout.clearAllZones();
-        visualiserInstrument.setZoneLayout (zoneLayout);
-        synth.setZoneLayout (zoneLayout);
-        colourPicker.setZoneLayout (zoneLayout);
-    }
+void allZonesCleared() override
+{
+    auto* midiOutput = audioDeviceManager.getDefaultMidiOutput();
+    if (midiOutput != nullptr)
+        midiOutput->sendBlockOfMessagesNow (juce::MPEMessages::clearAllZones());
+
+    zoneLayout.clearAllZones();
+    visualiserInstrument.setZoneLayout (zoneLayout);
+    synth.setZoneLayout (zoneLayout);
+    colourPicker.setZoneLayout (zoneLayout);
+}
 ```
 
-の数が増える。[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "MPESynthesiserが音を再生するために使用できるMPE音色を表す。")オブジェクトが変更されると`numberOfVoicesChanged()`コールバックは、それぞれ`reduceNumVoices()`そして`addVoice()`の関数である。[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "音を鳴らすことのできる MPE 互換の音楽装置の基底クラス。")オブジェクトがある：
+[MPESynthesiserVoice](https://docs.juce.com/master/classMPESynthesiserVoice.html "Represents an MPE voice that an MPESynthesiser can use to play a sound.") オブジェクトの数が変更されると、`numberOfVoicesChanged()` コールバックを受信します。これにより、[MPESynthesiser](https://docs.juce.com/master/classMPESynthesiser.html "Base class for an MPE-compatible musical device that can play sounds.") オブジェクトでそれぞれ `reduceNumVoices()` および `addVoice()` 関数を使用して、ボイスを削除または追加できます:
 
 ```cpp
-    void numberOfVoicesChanged (int numberOfVoices) override
-    {
-        if (numberOfVoices < synth.getNumVoices())
-            synth.reduceNumVoices (numberOfVoices);
-        else
-            while (synth.getNumVoices() < numberOfVoices)
-                synth.addVoice (new MPEDemoSynthVoice());
-    }
+void numberOfVoicesChanged (int numberOfVoices) override
+{
+    if (numberOfVoices < synth.getNumVoices())
+        synth.reduceNumVoices (numberOfVoices);
+    else
+        while (synth.getNumVoices() < numberOfVoices)
+            synth.addVoice (new MPEDemoSynthVoice());
+}
 ```
 
 ## ピッチベンドの割り当て
 
-シンセサイザーを走らせれば、1ゾーンあたりのメンバー・チャンネル数をカスタマイズしながら、ロワーゾーンとアッパーゾーンを追加できる。
+シンセサイザーを実行すると、ゾーンごとにカスタマイズ可能な数のメンバーチャンネルで Lower ゾーンと Upper ゾーンを追加できます。
 
 <CaptionImage
   src="/_images/tutorial_mpe_zones_screenshot2.png"
-  caption="デモ・アプリケーションのさまざまなゾーン"
+  caption="Different zones in the demo application"
 />
 
-ロワーゾーンとアッパーゾーンに異なるピッチベンド感度を割り当ててみて、異なるゾーンのMIDIチャンネルにアサインされたノートのピッチベンドに与える影響に注目してください。
-
-:::danger[エクササイズ]
-
-の下位ゾーンと上位ゾーンに異なるサウンドを割り当てます。`MPEDemoSynthVoice`クラスで、三角波形とノコギリ波形の間でクロスフェードする。*ベル*パラメータが必要だ。
-
-:::
+Lower ゾーンと Upper ゾーンに異なるピッチベンド感度を割り当てて、異なるゾーンの MIDI チャンネルに割り当てられたノートのピッチベンドへの影響に注目してください。
 
 :::note
-
-この演習のソースコードは`MPEZonesTutorial_02.h`ファイルにある。
-
+演習: `MPEDemoSynthVoice` クラスで Lower ゾーンと Upper ゾーンに異なるサウンドを割り当て、_timbre_ パラメーターに応じて三角波とノコギリ波の間でクロスフェードします。
 :::
 
-## 概要
+<!-- -->
 
-このチュートリアルでは、MPEゾーンとノートの管理方法について学びました。特に
+:::tip
+この演習のソースコードは、デモプロジェクトの `MPEZonesTutorial_02.h` ファイルにあります。
+:::
 
-- Zoneとnextを設定する際の規約を学ぶ。[MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "このクラスは、MPE を扱えるデバイスの現在の MPE ゾーンレイアウトを表す。").
-- MPEと互換性のある2つのMIDIモードを理解。
-- ノート・レベルとゾーン・レベルのメッセージの違いについて調べました。
-- ロワーゾーンとアッパーゾーンに異なるピッチベンド感度を割り当てる。
+## まとめ
 
-## 参照
+このチュートリアルでは、MPE ゾーンとノートを管理する方法を学びました。特に、次のことを行いました:
 
-- [Tutorial: Build a multi-polyphonic synthesiser](../tutorial_mpe_introduction/)
-- [Tutorial: Handling MIDI events](../tutorial_handling_midi_events/)
-- [Tutorial: Create MIDI data](../tutorial_midi_message/)
-- [Tutorial: Build a MIDI synthesiser](../../synth/tutorial_synth_using_midi_input/)
+- Zone と [MPEZoneLayout](https://docs.juce.com/master/classMPEZoneLayout.html "This class represents the current MPE zone layout of a device capable of handling MPE.") を設定する際の規約を学びました。
+- MPE と互換性のある 2 つの MIDI モードを理解しました。
+- さまざまな Note Level および Zone Level メッセージを探求しました。
+- Lower ゾーンと Upper ゾーンに異なるピッチベンド感度を割り当てました。
+
+## 関連項目
+
+- [チュートリアル: マルチポリフォニックシンセサイザーの構築](../tutorial_mpe_introduction/)
+- [チュートリアル: MIDI イベントの処理](../tutorial_handling_midi_events/)
+- [チュートリアル: MIDI データの作成](../tutorial_midi_message/)
+- [チュートリアル: MIDI シンセサイザーの構築](../../synth/tutorial_synth_using_midi_input/)

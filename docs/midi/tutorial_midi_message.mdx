@@ -4,329 +4,314 @@ sidebar_position: 1
 tags: [初級]
 ---
 
-# MIDIデータの作成
+# チュートリアル: MIDIデータの作成
 
 <SourcePageLink path="tutorial_midi_message" />
 
-このチュートリアルでは[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")クラスはMIDIデータを表現するために使われます。このクラスは[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")クラスもMIDIメッセージのバッファを扱うために導入されている。
+このチュートリアルでは、MIDIデータを表現するために使用される[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")クラスを紹介します。タイムスタンプ付きのMIDIメッセージのバッファを処理するための[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")クラスも紹介します。
 
-レベル初心者
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message."), [MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events."), [Time](https://docs.juce.com/master/classTime.html "Holds an absolute date and time."), [Timer](https://docs.juce.com/master/classTimer.html "Makes repeated callbacks to a virtual method at a specified time interval.")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。"),[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。"),[Time](https://docs.juce.com/master/classTime.html "絶対日時を保持する。"),[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")
-
-## スタート
-
-:::note
-
-このチュートリアルは、あなたがMIDI一般に精通していることを前提としています。また、JUCEのボタンやスライダーの使い方にも慣れているはずです([Tutorial: The Slider class](../../interface-design/tutorial_slider_values/)そして[Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)).
-
+:::tip
+このチュートリアルでは、MIDI全般に精通していることを前提としています。また、JUCEのボタンとスライダーの使用にも精通している必要があります([Tutorial: The Slider class](../../interface-design/tutorial_slider_values/)と[Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)を参照してください)。
 :::
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/MidiMessageTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/MidiMessageTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このチュートリアルのデモプロジェクトをダウンロードしてください: [PIP](https://docs.juce.com/tutorials/PIPs/MidiMessageTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/MidiMessageTutorial.zip)。プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開いてください。
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+この手順でヘルプが必要な場合は、[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-## デモ・プロジェクト
+## デモプロジェクト
 
-デモプロジェクトでは、MIDIチャンネル10にMIDIメッセージを作成するための4つのボタンを用意しています。バスドラム、スネアドラム、クローズドハイハット、オープンハイハットです。また、ボリュームコントローラーメッセージ（連続コントローラー7）を作成するスライダーもあります。インタフェースは次のスクリーンショットのとおりです。
+このデモプロジェクトは、MIDIチャンネル10でMIDIメッセージを作成するための4つのボタンを表示します。これらのボタンは、標準の(General MIDI)ドラムサウンドの4つのノートオンメッセージを作成します: バスドラム、スネアドラム、クローズドハイハット、オープンハイハット。また、ボリュームコントローラーメッセージ(連続コントローラー7)を作成するスライダーもあります。インターフェイスは次のスクリーンショットに示されています。
 
 <CaptionImage
   src="/_images/tutorial_midi_message_screenshot1.png"
-  caption="ドラムパッドボタンとボリュームスライダー"
+  caption="Drum pad buttons and a volume slider"
+  alt=""
 />
 
-右側のパネルには、生成されたMIDIメッセージのリストがタイムスタンプ（アプリケーショ ンの起動時刻からの相対時間）とともに表示されます。
+右側のパネルには、生成されたMIDIメッセージのリストがタイムスタンプ(アプリケーションが起動されたときからの相対時間)とともに表示されます。
 
-:::note
-
-アプリケーションはMIDIデータを送信したり、音を出したりせず、MIDIデータを表示するだけです。
-
+:::tip
+アプリケーションはMIDIデータを送信したり、音を出したりしません。MIDIデータを表示するだけです。
 :::
 
 ## MidiMessageクラス
 
-このチュートリアルでは、いくつかのMIDIメッセージタイプを作成するのに必要なコードを説明します。また、ほとんどのMIDIメッセージタイプを解析するコードも含まれています。一般的に[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")クラスには`static`を作成するためのメンバー関数です。[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")オブジェクト（例えば[MidiMessage::noteOn()](https://docs.juce.com/master/classMidiMessage.html#a24e09d2737c08842a6e4902554d2899c "キーダウンメッセージを作成する（浮動小数点速度を使用）。")関数があります）。また、以下のような問い合わせやアクセスのためのメンバー関数もあります。[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")オブジェクト（例えば[MidiMessage::isNoteOn()](https://docs.juce.com/master/classMidiMessage.html#a590da92c0536e23f9d3c90c99278d789 "このメッセージが'key-down'イベントであればtrueを返す。")そして[MidiMessage::getNoteNumber()](https://docs.juce.com/master/classMidiMessage.html#a6a5f965e98254fb026c5a20b64edcbc1 "ノートオンおよびノートオフ・メッセージのMIDIノート番号を返す。")関数)。
+このチュートリアルでは、いくつかのMIDIメッセージタイプを作成するために必要なコードを示します。また、ほとんどのMIDIメッセージタイプを解析するためのコードも含まれています。一般的に、[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")クラスには、[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトを作成するための`static`メンバー関数の範囲が含まれています(たとえば、ノートオンメッセージを作成するための[MidiMessage::noteOn()](https://docs.juce.com/master/classMidiMessage.html#a24e09d2737c08842a6e4902554d2899c "Creates a key-down message (using a floating-point velocity).")関数)。また、[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトをクエリおよびアクセスするためのメンバー関数の範囲もあります(たとえば、[MidiMessage::isNoteOn()](https://docs.juce.com/master/classMidiMessage.html#a590da92c0536e23f9d3c90c99278d789 "Returns true if this message is a 'key-down' event.")および[MidiMessage::getNoteNumber()](https://docs.juce.com/master/classMidiMessage.html#a6a5f965e98254fb026c5a20b64edcbc1 "Returns the midi note number for note-on and note-off messages.")関数)。
 
 ### MidiMessageオブジェクトの作成
 
-をご覧ください。[public static member functions](https://docs.juce.com/master/classMidiMessage.html#pub-static-methods)のために[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")クラスを作成します。これには、異なるタイプのMIDIメッセージを作成するためのすべての関数がリストされています。また[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")個々のバイトや生データからオブジェクトを作成するが、これらは*マスト*はMIDI仕様に従った有効なMIDIメッセージです。(無効な[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")オブジェクト)
+[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")クラスの[公開静的メンバー関数](https://docs.juce.com/master/classMidiMessage.html#pub-static-methods)を見てください。これは、さまざまなタイプのMIDIメッセージを作成するためのすべての関数をリストしています。個々のバイトまたは生データから[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトを作成することもできますが、これらはMIDI仕様に従って有効なMIDIメッセージでなければなりません。(デバッグビルドで無効な[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトを作成すると、アサーションが生成されます。)
 
-:::note
-
-[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")オブジェクトは通常、ローカル変数またはメンバー変数として格納され、値で渡されるべきである。
-
+:::tip
+[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトは、通常、ローカル変数またはメンバー変数として格納し、値で渡す必要があります。
 :::
 
-ノートオン・メッセージを作成するには[MidiMessage::noteOn()](https://docs.juce.com/master/classMidiMessage.html#a24e09d2737c08842a6e4902554d2899c "キーダウンメッセージを作成する（浮動小数点速度を使用）。")関数を使用します。これにはMIDIチャンネル（番号1 .. 16)、ノート番号(0 .. 127)、速度(as a`uint8`価値0 .. 127).あるいは、速度は次のように表すこともできる。`float`に変換される。0 .. 127内部的に（最も近い整数に四捨五入）。
+ノートオンメッセージを作成するには、[MidiMessage::noteOn()](https://docs.juce.com/master/classMidiMessage.html#a24e09d2737c08842a6e4902554d2899c "Creates a key-down message (using a floating-point velocity).")関数を使用します。これには、MIDIチャンネル(`1 .. 16`で番号付け)、ノート番号(`0 .. 127`)、およびベロシティ(`uint8`値`0 .. 127`)が必要です。または、ベロシティを`float`値として表現することもでき、内部的に`0 .. 127`に変換されます(最も近い整数に丸められます)。
 
-:::note
-
-ベロシティがゼロのノートオンは、実際にはノートオフのメッセージである。1 .. 127(を中心としたノートオンの最小浮動小数点速度となる）。`0.004f`).また[MidiMessage::noteOff()](https://docs.juce.com/master/classMidiMessage.html#a8f2c46b2cf557f4e4f55174a68915587 "キーアップメッセージを作成する。")ノートオフ・メッセージを特別に作成するための機能で、ノートオフ・ベロシティも指定できます（一部のシンセサイザーで認識されます）。
-
+:::tip
+ゼロベロシティのノートオンは実際にはノートオフメッセージであるため、ノートオンベロシティは`1 .. 127`の範囲です(これにより、ノートオンの最小浮動小数点ベロシティは約`0.004f`になります)。また、ノートオフベロシティを指定できる[MidiMessage::noteOff()](https://docs.juce.com/master/classMidiMessage.html#a8f2c46b2cf557f4e4f55174a68915587 "Creates a key-up message.")関数もあります(一部のシンセサイザーで認識されます)。
 :::
 
-デモ・プロジェクトでは、ベロシティが100で、どのボタンがクリックされたかによって異なるノート番号のノートオン・メッセージを作成します：
+デモプロジェクトでは、ベロシティ100のノートオンメッセージを作成し、クリックされたボタンに応じて異なるノート番号を設定します:
 
 ```cpp
-    void setNoteNumber (int noteNumber)
-    {
-        auto message = juce::MidiMessage::noteOn (midiChannel, noteNumber, (juce::uint8) 100);
-        message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
-        addMessageToList (message);
-    }
+void setNoteNumber (int noteNumber)
+{
+    auto message = juce::MidiMessage::noteOn (midiChannel, noteNumber, (juce::uint8) 100);
+    message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
+    addMessageToList (message);
+}
 ```
 
-に注目してほしい。`noteNumber`の値はボタンによって設定され、setNoteNumber()関数に渡されます。また`100`に対する`uint8`型になります。このようにしないと、コンパイラが、どのバージョンの[MidiMessage::noteOn()](https://docs.juce.com/master/classMidiMessage.html#a24e09d2737c08842a6e4902554d2899c "キーダウンメッセージを作成する（浮動小数点速度を使用）。")関数が呼び出されるべきである。
+`noteNumber`値はボタンの1つによって設定され、setNoteNumber()関数に渡されることに注意してください。また、値`100`を`uint8`型にキャストする必要があります。これを行わないと、[MidiMessage::noteOn()](https://docs.juce.com/master/classMidiMessage.html#a24e09d2737c08842a6e4902554d2899c "Creates a key-down message (using a floating-point velocity).")関数のどのバージョンを呼び出すべきかについて、コンパイラの曖昧さが生じます。
 
-のタイムスタンプを設定する。[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")はオプションだが、イベントが生成されたり受信されたりした時刻を記録するのに非常に便利である。デフォルトのタイムスタンプはゼロで、タイムスタンプの時間単位は定義されていません。一般的に、どの時間単位を使うかはアプリケーション次第です。この単純なケースでは、秒を単位としています。[Time::getMillisecondCounterHiRes()](https://docs.juce.com/master/classTime.html#a3f2fcf93d44c6b3828c82f5d4c18b0e4 "固定イベント（通常はシステム起動）からのミリ秒数を返します。")関数を使用し、0.001を乗算する（その時点からの相対時間となるように、アプリケーションの起動時間を差し引く）。
+[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")のタイムスタンプを設定することはオプションですが、イベントが生成または受信された時刻を追跡するのに非常に便利です。デフォルトのタイムスタンプはゼロであり、タイムスタンプの時間単位は定義されていません。一般的に、使用する時間単位を決定するのはアプリケーション次第です。このシンプルなケースでは、[Time::getMillisecondCounterHiRes()](https://docs.juce.com/master/classTime.html#a3f2fcf93d44c6b3828c82f5d4c18b0e4 "Returns the number of millisecs since a fixed event (usually system startup).")関数を使用して現在の時刻を取得し、0.001を掛けることで、単位として秒を使用しています(アプリケーションが開始された時刻を引いて、その時点からの相対時間にしています)。
 
-ボリューム・スライダーは、コンティニュアス・コントローラー（CC）メッセージの作成に使用されます。CC7はボリューム・コントロール変更メッセージです：
+ボリュームスライダーは、連続コントローラー(CC)メッセージを作成するために使用されます。CC7は、ボリュームコントロール変更メッセージです:
 
 ```cpp
-        volumeSlider.onValueChange = [this]
-        {
-            auto message = juce::MidiMessage::controllerEvent (midiChannel, 7, (int) volumeSlider.getValue());
-            message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
-            addMessageToList (message);
-        };
+volumeSlider.onValueChange = [this] {
+    auto message = juce::MidiMessage::controllerEvent (midiChannel, 7, (int) volumeSlider.getValue());
+    message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
+    addMessageToList (message);
+};
 ```
 
 ### MidiMessageオブジェクトの解析
 
-私たちの`addMessageToList()`関数はタイムスタンプとMIDIメッセージを解析し、インタフェースのメッセージリストに表示できるようにします：
+`addMessageToList()`関数は、タイムスタンプとMIDIメッセージを解析して、インターフェイスのメッセージのリストに表示できるようにします:
 
 ```cpp
-    void addMessageToList (const juce::MidiMessage& message)
-    {
-        auto time = message.getTimeStamp();
- 
-        auto hours   = ((int) (time / 3600.0)) % 24;
-        auto minutes = ((int) (time / 60.0)) % 60;
-        auto seconds = ((int) time) % 60;
-        auto millis  = ((int) (time * 1000.0)) % 1000;
- 
-        auto timecode = juce::String::formatted ("%02d:%02d:%02d.%03d",
-                                                 hours,
-                                                 minutes,
-                                                 seconds,
-                                                 millis);
- 
-        logMessage (timecode + "  -  " + getMidiMessageDescription (message));
-    }
+void addMessageToList (const juce::MidiMessage& message)
+{
+    auto time = message.getTimeStamp();
+
+    auto hours = ((int) (time / 3600.0)) % 24;
+    auto minutes = ((int) (time / 60.0)) % 60;
+    auto seconds = ((int) time) % 60;
+    auto millis = ((int) (time * 1000.0)) % 1000;
+
+    auto timecode = juce::String::formatted ("%02d:%02d:%02d.%03d",
+        hours,
+        minutes,
+        seconds,
+        millis);
+
+    logMessage (timecode + " - " + getMidiMessageDescription (message));
+}
 ```
 
-について`getMidiMessageDescription()`関数は実際にMIDIデータを解析し、人間が読めるメッセージの説明を得ます。
+`getMidiMessageDescription()`関数は、実際にMIDIデータを解析して、メッセージの人間が読める説明を取得します。
 
 ```cpp
-    static juce::String getMidiMessageDescription (const juce::MidiMessage& m)
+static juce::String getMidiMessageDescription (const juce::MidiMessage& m)
+{
+    if (m.isNoteOn())
+        return "Note on " + juce::MidiMessage::getMidiNoteName (m.getNoteNumber(), true, true, 3);
+    if (m.isNoteOff())
+        return "Note off " + juce::MidiMessage::getMidiNoteName (m.getNoteNumber(), true, true, 3);
+    if (m.isProgramChange())
+        return "Program change " + juce::String (m.getProgramChangeNumber());
+    if (m.isPitchWheel())
+        return "Pitch wheel " + juce::String (m.getPitchWheelValue());
+    if (m.isAftertouch())
+        return "After touch " + juce::MidiMessage::getMidiNoteName (m.getNoteNumber(), true, true, 3) + ": " + juce::String (m.getAfterTouchValue());
+    if (m.isChannelPressure())
+        return "Channel pressure " + juce::String (m.getChannelPressureValue());
+    if (m.isAllNotesOff())
+        return "All notes off";
+    if (m.isAllSoundOff())
+        return "All sound off";
+    if (m.isMetaEvent())
+        return "Meta event";
+
+    if (m.isController())
     {
-        if (m.isNoteOn())           return "Note on "          + juce::MidiMessage::getMidiNoteName (m.getNoteNumber(), true, true, 3);
-        if (m.isNoteOff())          return "Note off "         + juce::MidiMessage::getMidiNoteName (m.getNoteNumber(), true, true, 3);
-        if (m.isProgramChange())    return "Program change "   + juce::String (m.getProgramChangeNumber());
-        if (m.isPitchWheel())       return "Pitch wheel "      + juce::String (m.getPitchWheelValue());
-        if (m.isAftertouch())       return "After touch "      + juce::MidiMessage::getMidiNoteName (m.getNoteNumber(), true, true, 3) +  ": " + juce::String (m.getAfterTouchValue());
-        if (m.isChannelPressure())  return "Channel pressure " + juce::String (m.getChannelPressureValue());
-        if (m.isAllNotesOff())      return "All notes off";
-        if (m.isAllSoundOff())      return "All sound off";
-        if (m.isMetaEvent())        return "Meta event";
- 
-        if (m.isController())
-        {
-            juce::String name (juce::MidiMessage::getControllerName (m.getControllerNumber()));
- 
-            if (name.isEmpty())
-                name = "[" + juce::String (m.getControllerNumber()) + "]";
- 
-            return "Controller " + name + ": " + juce::String (m.getControllerValue());
-        }
- 
-        return juce::String::toHexString (m.getRawData(), m.getRawDataSize());
+        juce::String name (juce::MidiMessage::getControllerName (m.getControllerNumber()));
+
+        if (name.isEmpty())
+            name = "[" + juce::String (m.getControllerNumber()) + "]";
+
+        return "Controller " + name + ": " + juce::String (m.getControllerValue());
     }
+
+    return juce::String::toHexString (m.getRawData(), m.getRawDataSize());
+}
 ```
 
-:::note
-
-同じ機能は、メンバー関数[MidiMessage::getDescription()](https://docs.juce.com/master/classMidiMessage.html#a868d95a096fad999de5ba11f9a2f6340 "例えば "Note On C#3 Veloci... "のように。").ここでは、既製の実装は使用せず、異なるタイプのMIDIメッセージの扱い方を説明するために独自に実装します。
-
+:::tip
+同じ機能は、メンバー関数[MidiMessage::getDescription()](https://docs.juce.com/master/classMidiMessage.html#a868d95a096fad999de5ba11f9a2f6340 "Returns a human-readable description of the midi message as a string, for example "Note On C#3 Veloci...")を通じてすでに利用可能です。ここでは既製の実装を使用せず、さまざまなタイプのMIDIメッセージを操作する方法を説明するために自分で実装します。
 :::
 
-この関数はすべてのタイプのMIDIメッセージを解析しようとします（ここまではノートオンとコントローラーメッセージの作成しか見ていませんが）。のデータにアクセスするお勧めの方法をご覧ください。[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")オブジェクトがある：
+この関数は、すべてのタイプのMIDIメッセージを解析しようとします(これまでにノートオンとコントローラーメッセージの作成しか見ていませんが)。ここで、[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトのデータにアクセスする推奨方法を確認できます:
 
-- MIDIメッセージのタイプを決定する（"is "で始まる関数のいずれかを使う）。
+- MIDIメッセージのタイプを判断します(「is」で始まる関数の1つを使用)。次に
 - そのタイプのMIDIメッセージにアクセスするための適切な関数を使用します。
 
-この関数の最終行に到達するのは、メッセージがシステム・メッセージの場合だけである（例えば、システム・エクスクルーシブ）。メッセージの生データにアクセスするには[MidiMessage::getRawData()](https://docs.juce.com/master/classMidiMessage.html#acb371198496cdac48c2fe2a96c884913 "生のMIDIデータへのポインタを返す。")しかし、一般的には、ほとんどの目的で組み込み関数の範囲を使用する方が簡単（そして読みやすい）です。
+メッセージがシステムメッセージ(たとえば、システムエクスクルーシブ)である場合にのみ、この関数の最後の行に到達します。[MidiMessage::getRawData()](https://docs.juce.com/master/classMidiMessage.html#acb371198496cdac48c2fe2a96c884913 "Returns a pointer to the raw midi data.")を使用して任意のメッセージの生データにアクセスできますが、通常、ほとんどの目的では、組み込み関数の範囲を使用する方が簡単(そしてより読みやすい)です。
 
 :::warning
-
-関数を使って[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")間違ったタイプのメッセージはエラーになる。例えば[MidiMessage::getNoteNumber()](https://docs.juce.com/master/classMidiMessage.html#a6a5f965e98254fb026c5a20b64edcbc1 "ノートオンおよびノートオフ・メッセージのMIDIノート番号を返す。")関数は[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")オブジェクトがありますが、これはそのメッセージがノート・オン・メッセージかノート・オフ・メッセージかを確認するものではありません。あなたは*マスト*のいずれかの関数でまずチェックする。[MidiMessage::isNoteOn()](https://docs.juce.com/master/classMidiMessage.html#a590da92c0536e23f9d3c90c99278d789 "このメッセージが'key-down'イベントであればtrueを返す。"),[MidiMessage::isNoteOff()](https://docs.juce.com/master/classMidiMessage.html#af66814dee34738882ba39d8796b77be0 "このメッセージが'key-up'イベントであればtrueを返す。")あるいは[MidiMessage::isNoteOnOrOff()](https://docs.juce.com/master/classMidiMessage.html#a0d1c1c5927eb898dbacb832f768299bc "このメッセージが'key-down'または'key-up'イベントであればtrueを返す。").
-
+間違ったタイプのメッセージの[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")のデータにアクセスするために関数を使用すると、エラーが発生します。たとえば、[MidiMessage::getNoteNumber()](https://docs.juce.com/master/classMidiMessage.html#a6a5f965e98254fb026c5a20b64edcbc1 "Returns the midi note number for note-on and note-off messages.")関数は、任意の[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトから値を返しますが、これはメッセージがノートオンまたはノートオフメッセージのいずれかであることを確認するものではありません。関数[MidiMessage::isNoteOn()](https://docs.juce.com/master/classMidiMessage.html#a590da92c0536e23f9d3c90c99278d789 "Returns true if this message is a 'key-down' event.")、[MidiMessage::isNoteOff()](https://docs.juce.com/master/classMidiMessage.html#af66814dee34738882ba39d8796b77be0 "Returns true if this message is a 'key-up' event.")、または[MidiMessage::isNoteOnOrOff()](https://docs.juce.com/master/classMidiMessage.html#a0d1c1c5927eb898dbacb832f768299bc "Returns true if this message is a 'key-down' or 'key-up' event.")のいずれかで最初にチェックする*必要*があります。
 :::
 
-:::danger[エクササイズ]
-
-を変更する。`getMidiMessageDescription()`関数を使用して、ノートオン・メッセージの速度をリストする。どの関数を使うべきかについては、APIリファレンスを確認してください。
-
+:::note
+演習: `getMidiMessageDescription()`関数を変更して、ノートオンメッセージのベロシティをリストします。使用する関数を見つけるには、APIリファレンスを確認してください。
 :::
 
 ## MidiBufferクラス
 
-私たちのデモ・アプリケーションの1つの問題は、ノートオフ・メッセージを作成しないことです。私たちはパーカッション・サウンド用のMIDIメッセージを作成しているだけなので、これは大きな問題ではないように思えます。しかし、ノート・オン・メッセージに対応するノート・オフ・メッセージを作成しないのはバッドプラクティスです。*スタック*注釈）。
+デモアプリケーションの1つの問題は、ノートオフメッセージを作成しないことです。パーカッション音用のMIDIメッセージを作成しているだけなので、これは大きな問題のようには見えません。しかし、対応するノートオンメッセージのノートオフメッセージを作成しないのは悪い習慣です(持続音では、_スタック_したノートにつながります)。
 
-のノート・オンの直後にノート・オフを追加すればいい。`setNoteNumber()`関数である：
+`setNoteNumber()`関数でノートオンの直後にノートオフを追加することができます:
 
 ```cpp
 auto message = juce::MidiMessage::noteOn (1, noteNumber, (uint8) 100);
 message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
 addMessageToList (message);
- 
+
 auto messageOff = juce::MidiMessage::noteOff (message.getChannel(), message.getNoteNumber());
 messageOff.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
 addMessageToList (messageOff);
-uint8unsigned char uint8A platform-independent 8-bit unsigned integer type.Definition juce_MathsFunctions.h:52
 ```
 
-ノートオフメッセージのタイムスタンプを変更することもできますが（例えばノートオンメッセージの0.1秒後）、これはメッセージがリストに投稿されるときには変更されません：
+ノートオフメッセージのタイムスタンプを変更することもできます(たとえば、ノートオンメッセージの0.1秒後)が、これはメッセージがリストに投稿されるタイミングを変更しません:
 
 ```cpp
 auto message = juce::MidiMessage::noteOn (1, noteNumber, (uint8) 100);
 message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
 addMessageToList (message);
- 
+
 auto messageOff = juce::MidiMessage::noteOff (message.getChannel(), message.getNoteNumber());
 messageOff.setTimeStamp (message.getTimeStamp() + 0.1);
 addMessageToList (messageOff);
 ```
 
-について[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")クラスはMIDIメッセージのバッファをタイムスタンプに基づいて繰り返し処理する関数を提供します。これを説明するために、簡単なスケジューリング・システムをセットアップします。[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")特定のタイムスタンプを持つオブジェクトを[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトを使用します。次に[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")MIDIメッセージが配信される予定になっているかどうかを定期的にチェックするオブジェクト。
+[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")クラスは、タイムスタンプに基づいてMIDIメッセージのバッファを反復処理するための関数を提供します。これを説明するために、特定のタイムスタンプを持つ[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトを[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")オブジェクトに追加するシンプルなスケジューリングシステムをセットアップします。次に、[Timer](https://docs.juce.com/master/classTimer.html "Makes repeated callbacks to a virtual method at a specified time interval.")オブジェクトを使用して、MIDIメッセージが配信される予定かどうかを定期的にチェックします。
 
 :::warning
-
-について[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスは高精度のタイミングには適していません。これは、すべての関数呼び出しを*メッセージスレッド*.より堅牢なタイミングを得るには、別のスレッドを使用する必要があります（ほとんどの場合、オーディオスレッドはレンダリングに適しています）。[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトをオーディオに取り込む)。
-
+[Timer](https://docs.juce.com/master/classTimer.html "Makes repeated callbacks to a virtual method at a specified time interval.")クラスは、高精度のタイミングには適していません。これは、すべての関数呼び出しを_メッセージスレッド_に保つことで例をシンプルに保つために使用されます。より堅牢なタイミングには、別のスレッドを使用する必要があります(ほとんどの場合、音声スレッドが[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")オブジェクトを音声にレンダリングするのに適しています)。
 :::
 
-メンバーを追加する`MainContentComponent`クラスである：
+`MainContentComponent`クラスにいくつかのメンバーを追加します:
 
 ```cpp
-    juce::MidiBuffer midiBuffer;        // [1]
-    double sampleRate = 44100.0;        // [2]
-    int previousSampleNumber = 0;       // [3]
+juce::MidiBuffer midiBuffer; // [1]
+double sampleRate = 44100.0; // [2]
+int previousSampleNumber = 0; // [3]
 ```
 
-- \[1\]:その[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトそのものである。
-- \[2\](その)[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")クラス使用*サンプル*をMIDIメッセージのタイムスタンプの単位とします。オーディオを生成するわけではありませんが、MIDIメッセージのタイムスタンプとして使うものを選ぶ必要があります。*サンプルレート*.このメンバーを使ってサンプルレートを格納する。(一般的な値なので44,100を使用する）。
-- \[3\]の中でどのタイムスタンプに到達したかを追跡する必要がある。[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。").このメンバーは、このタイムスタンプをサンプルとして保存するために使用します。
+- \[1\]: [MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")オブジェクト自体。
+- \[2\]: [MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")クラスは、MIDIメッセージのタイムスタンプの単位として_サンプル_を使用します。音声を生成していませんが、_サンプルレート_として使用するものを選択する必要があります。このメンバーを使用してサンプルレートを保存します。(一般的な値であるため、44,100を使用します。)
+- \[3\]: [MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")内でどのタイムスタンプにすでに到達したかを追跡する必要があります。このメンバーを使用して、このタイムスタンプをサンプル単位で保存します。
 
-### MidiBufferオブジェクトにMIDIメッセージを追加する
+### MidiBufferオブジェクトへのMIDIメッセージの追加
 
-MIDIメッセージをメッセージ・リストに直接追加する代わりに、MIDIメッセージを[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトを呼び出します。この関数は[MidiBuffer::addEvent()](https://docs.juce.com/master/classMidiBuffer.html#a845368d1fa4a8b3f315e2f3508b2003a "バッファにイベントを追加する。")関数である：
+MIDIメッセージをメッセージのリストに直接追加する代わりに、[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")オブジェクトに追加します。[MidiBuffer::addEvent()](https://docs.juce.com/master/classMidiBuffer.html#a845368d1fa4a8b3f315e2f3508b2003a "Adds an event to the buffer.")関数を呼び出すこの関数を追加します:
 
 ```cpp
-    void addMessageToBuffer (const juce::MidiMessage& message)
-    {
-        auto timestamp = message.getTimeStamp();
-        auto sampleNumber =  (int) (timestamp * sampleRate);
-        midiBuffer.addEvent (message, sampleNumber);
-    }
+void addMessageToBuffer (const juce::MidiMessage& message)
+{
+    auto timestamp = message.getTimeStamp();
+    auto sampleNumber = (int) (timestamp * sampleRate);
+    midiBuffer.addEvent (message, sampleNumber);
+}
 ```
 
-を修正する。`setNoteNumber()`関数と[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "このコールバックオブジェクトにラムダを代入して、スライダーの値が変更されたときにコールさせることができます。")ヘルパー・オブジェクトでこの関数を使用します。これにより、MIDIメッセージ・イベントを未来にスケジューリングできます：
+次に、`setNoteNumber()`関数と[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "You can assign a lambda to this callback object to have it called when the slider value is changed.")ヘルパーオブジェクトを変更して、この関数を使用します。これにより、MIDIメッセージイベントを将来にスケジュールできます:
 
 ```cpp
-    void setNoteNumber (int noteNumber)
-    {
-        auto message = juce::MidiMessage::noteOn (1, noteNumber, (juce::uint8) 100);
-        message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
-        addMessageToBuffer (message);
- 
-        auto messageOff = juce::MidiMessage::noteOff (message.getChannel(), message.getNoteNumber());
-        messageOff.setTimeStamp (message.getTimeStamp() + 0.1);
-        addMessageToBuffer (messageOff);
-    }
+void setNoteNumber (int noteNumber)
+{
+    auto message = juce::MidiMessage::noteOn (1, noteNumber, (juce::uint8) 100);
+    message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
+    addMessageToBuffer (message);
+
+    auto messageOff = juce::MidiMessage::noteOff (message.getChannel(), message.getNoteNumber());
+    messageOff.setTimeStamp (message.getTimeStamp() + 0.1);
+    addMessageToBuffer (messageOff);
+}
 ```
 
 ```cpp
-        volumeSlider.onValueChange = [this]
-        {
-            auto message = juce::MidiMessage::controllerEvent (10, 7, (int) volumeSlider.getValue());
-            message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
-            addMessageToBuffer (message);
-        };
+volumeSlider.onValueChange = [this] {
+    auto message = juce::MidiMessage::controllerEvent (10, 7, (int) volumeSlider.getValue());
+    message.setTimeStamp (juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime);
+    addMessageToBuffer (message);
+};
 ```
 
 ### MidiBufferオブジェクトの反復処理
 
-バッファからメッセージを読み出すには、タイマーを実装する必要がある。バッファに[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスを基本クラスとする：
+バッファからメッセージを読み取るには、タイマーを実装する必要があります。[Timer](https://docs.juce.com/master/classTimer.html "Makes repeated callbacks to a virtual method at a specified time interval.")クラスを基本クラスとして追加します:
 
 ```cpp
-class MainContentComponent   : public juce::Component,
-                               private juce::Timer
+class MainContentComponent : public juce::Component,
+                             private juce::Timer
 {
 ```
 
-そして[Timer::timerCallback()](https://docs.juce.com/master/classTimer.html#a8adc40ca0fb4170737ba12e30481b9d8 "実際に定期的に呼び出されるユーザー定義のコールバック・ルーチン。")関数である：
+そして、[Timer::timerCallback()](https://docs.juce.com/master/classTimer.html#a8adc40ca0fb4170737ba12e30481b9d8 "The user-defined callback routine that actually gets called periodically.")関数を実装します:
 
 ```cpp
-    void timerCallback() override
+void timerCallback() override
+{
+    auto currentTime = juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime;
+    auto currentSampleNumber = (int) (currentTime * sampleRate); // [4]
+
+    for (const auto metadata : midiBuffer) // [5]
     {
-        auto currentTime = juce::Time::getMillisecondCounterHiRes() * 0.001 - startTime;
-        auto currentSampleNumber = (int) (currentTime * sampleRate);     // [4]
- 
-        for (const auto metadata : midiBuffer)                           // [5]
-        {
-            if (metadata.samplePosition > currentSampleNumber)           // [6]
-                break;
- 
-            auto message = metadata.getMessage();
-            message.setTimeStamp (metadata.samplePosition / sampleRate); // [7]
-            addMessageToList (message);
-        }
- 
-        midiBuffer.clear (previousSampleNumber, currentSampleNumber - previousSampleNumber); // [8]
-        previousSampleNumber = currentSampleNumber;                                          // [9]
+        if (metadata.samplePosition > currentSampleNumber) // [6]
+            break;
+
+        auto message = metadata.getMessage();
+        message.setTimeStamp (metadata.samplePosition / sampleRate); // [7]
+        addMessageToList (message);
     }
+
+    midiBuffer.clear (previousSampleNumber, currentSampleNumber - previousSampleNumber); // [8]
+    previousSampleNumber = currentSampleNumber; // [9]
+}
 ```
 
-- \[4\]現在時刻をサンプル単位で計算します。
-- \[5\]バッファ内のメッセージを繰り返し処理する。
-- \[6\]から直近に取得されたMIDIメッセージのタイムスタンプが、そのMIDIメッセージのタイムスタンプと一致しない場合。[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトが未来にある場合は、処理を終了して`while()`走る。
-- \[7\]のタイムスタンプ。[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")オブジェクトのタイムスタンプは、サンプル数に基づいています。これを秒ベースのタイムスタンプシステムにリセットして、私たちの`addMessageToList()`関数を修正する必要はない。
-- \[8\]:その[MidiBuffer::clear()](https://docs.juce.com/master/classMidiBuffer.html#a220d909954450942ecd87a945a82e7aa "バッファからすべてのイベントを削除する。")関数はある範囲内のタイムスタンプを持つMIDIメッセージをバッファからクリアします。この関数は、処理したばかりのメッセージを削除するために使います。
-- \[9\]この関数が実行された時間を記録しておく。`timerCallback()`関数が呼び出される。
+- \[4\]: 現在の時刻をサンプル単位で計算します。
+- \[5\]: バッファ内のメッセージを反復処理します。
+- \[6\]: [MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")オブジェクトから最近取得したMIDIメッセージのタイムスタンプが将来の場合、処理を終了し、`while()`ループを終了します。
+- \[7\]: 取得した[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトのタイムスタンプは、サンプル番号に基づいたタイムスタンプになります。これを秒ベースのタイムスタンプシステムにリセットして、`addMessageToList()`関数を変更せずに動作するようにしましょう。
+- \[8\]: [MidiBuffer::clear()](https://docs.juce.com/master/classMidiBuffer.html#a220d909954450942ecd87a945a82e7aa "Removes all events from the buffer.")関数は、特定の範囲内のタイムスタンプを持つMIDIメッセージをバッファから削除します。これを使用して、処理したばかりのメッセージを削除します。
+- \[9\]: 次回`timerCallback()`関数が呼び出されたときに使用するために、この関数が実行された時刻を追跡します。
 
-最後に、タイマーを`MainContentComponent`ビルダー
+最後に、`MainContentComponent`コンストラクタでタイマーを開始する必要があります:
 
 ```cpp
-        setSize (800, 300);
-        startTimer (1);
-    }
+setSize (800, 300);
+startTimer (1);
+}
 ```
+
+:::tip
+これらの変更のコードは、デモプロジェクトの`MidiMessageTutorial_02.h`ファイルにあります。
+:::
 
 :::note
-
-これらの修正のコードは`MidiMessageTutorial_02.h`ファイルにある。
-
+演習: クラッシュシンバル(ノート番号49)とライドシンバル(ノート番号51)のボタンを追加します。パンニングコントロール(CC10)のスライダーを追加します。`resized()`関数には、これら3つのコンポーネントを追加するためのスペースが残されています。
 :::
 
-:::danger[エクササイズ]
+## まとめ
 
-クラッシュシンバル（音符番号49）とライドシンバル（音符番号51）のボタンを追加する。パンコントロール用のスライダー（CC10）を追加します。の中に、これら3つのコンポーネントを追加するためのスペースが残されています。`resized()`関数である。
+このチュートリアルでは、[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")クラスと[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")クラスを紹介しました。このチュートリアルを読んだ後、次のことができるようになります:
 
-:::
+- 特定のタイプの[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトを作成する --- ノートオン、ノートオフ、連続コントローラー(コントロールチェンジ)など。
+- [MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")オブジェクトを解析して、そのタイプを発見し、有用なデータを取得する。
+- MIDIメッセージを[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")オブジェクトに保存する。
+- タイムスタンプに基づいて[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")オブジェクト内のMIDIメッセージを反復処理する。
 
-## 概要
-
-このチュートリアルでは[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")クラスと[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")クラスです。このチュートリアルを読めば、次のことができるようになるでしょう：
-
-- 作成[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")ノートオン、ノートオフ、コンティニュアス・コントローラー（コントロール・チェンジ）など。
-- を解析する。[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "MIDIメッセージをカプセル化する。")オブジェクトの型を発見し、そこから有用なデータを取得する。
-- MIDIメッセージを[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトがある。
-- でMIDIメッセージを反復処理する。[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "タイムスタンプされたMIDIイベントのシーケンスを保持する。")オブジェクトのタイムスタンプに基づく。
-
-## 参照
+## 関連項目
 
 - [Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)
 - [Tutorial: Handling MIDI events](../tutorial_handling_midi_events/)

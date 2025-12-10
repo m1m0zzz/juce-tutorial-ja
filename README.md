@@ -92,3 +92,7 @@ This command generates static content into the `build` directory and can be serv
 
 Github Actions
 [File .github/workflows/deploy.yml](.github/workflows/deploy.yml)
+
+## TODO: Send PullRequests to Original Docs
+
+- structMPENote.html -> https://docs.juce.com/master/structjuce_1_1MPENote.html
