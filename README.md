@@ -13,19 +13,23 @@
 - 🤖 ... 機械翻訳 (v1)
 - ✅ ... 機械翻訳 (v2) と校正
 
-## Getting Started
+### Getting Started
 
 all: ✅
 
-## Audio
+### Audio
 
 all: ✅
 
-## MIDI
+### Synth
+
+all: ✅
+
+### MIDI
 
 all: 🤖
 
-## Plugins
+### Plugins
 
 | タイトル | ステータス |
 | --- | :---: |
@@ -35,7 +39,7 @@ all: 🤖
 | カスケードプラグインエフェクト | 🤖 |
 | プラグインの例 | ✅ |
 
-## DSP
+### DSP
 
 | タイトル | ステータス |
 | --- | :---: |
@@ -46,19 +50,19 @@ all: 🤖
 | 高速フーリエ変換 | 🤖 |
 | 信号の周波数をリアルタイムで可視化する | 🤖 |
 
-## Graphics
+### Graphics
 
 all: 🤖
 
-## Interface Design
+### Interface Design
 
 all: 🤖
 
-## Mobile
+### Mobile
 
 all: 🤖
 
-## Utility Classes
+### Utility Classes
 
 all: 🤖
 
@@ -84,7 +88,7 @@ npm run build
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
-### Deployment
+## Deployment
 
 Github Actions
 [File .github/workflows/deploy.yml](.github/workflows/deploy.yml)

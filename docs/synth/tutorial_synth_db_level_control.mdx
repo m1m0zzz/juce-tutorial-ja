@@ -1,172 +1,161 @@
 ---
-title: デシベルでオーディオレベルをコントロール
+title: デシベルを使った音声レベルの制御
 sidebar_position: 3
 tags: [中級]
 ---
 
-# デシベルを使ってオーディオレベルをコントロールする
+# チュートリアル: デシベルを使った音声レベルの制御
 
 <SourcePageLink path="tutorial_synth_db_level_control" />
 
-このチュートリアルでは、デシベルスケールを使ってオーディオの出力レベルを変更する方法を示します。これは、オーディオアプリケーションでオーディオレベルの値をユーザーに表示する、より一般的な方法です。
+このチュートリアルでは、デシベルスケールを使用して出力レベルを変更するために音声を処理する方法を示します。これは、オーディオアプリケーション内でユーザーに音声レベル値を提示するより一般的な方法です。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values."), [Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value."), [String](https://docs.juce.com/master/classString.html "The JUCE String class!")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。"),[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。"),[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")
+このチュートリアルのデモプロジェクトをダウンロードしてください: [PIP](https://docs.juce.com/tutorials/PIPs/SynthDecibelLevelControlTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/SynthDecibelLevelControlTutorial.zip)。プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開いてください。
 
-## スタート
+この手順でヘルプが必要な場合は、[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/SynthDecibelLevelControlTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/SynthDecibelLevelControlTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
-
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-:::note
-
-このチュートリアルは[Tutorial: Control audio levels](../tutorial_synth_level_control/).そのチュートリアルに従うべきだった。
-
+:::tip
+このチュートリアルは、[Tutorial: Control audio levels](../tutorial_synth_level_control/)から続きます。続ける前に、そのチュートリアルに従っておく必要があります。
 :::
 
-## デモ・プロジェクト
+## デモプロジェクト
 
-と似たようなものだ。[Tutorial: Control audio levels](../tutorial_synth_level_control/)このチュートリアルのデモ・プロジェクトでは、1つのスライダーを含むウィンドウを表示します。今回、スライダーの値は[decibels](https://en.wikipedia.org/wiki/Decibel).この値は[decibels](https://en.wikipedia.org/wiki/Decibel)オーディオ処理アルゴリズムで使用する前に、線形ゲイン値に変換する必要がある。ほとんどのオーディオアプリケーションは、ゲインを[decibels](https://en.wikipedia.org/wiki/Decibel)このように*フィーリング*値が変化（または比較）するにつれて、より自然になります。デモ・プロジェクトのユーザー・インタフェースを以下のスクリーンショットに示す。
+[Tutorial: Control audio levels](../tutorial_synth_level_control/)のデモプロジェクトと同様に、このチュートリアルのデモプロジェクトは、単一のスライダーを含むウィンドウを表示します。今回、スライダーの値は[デシベル](https://en.wikipedia.org/wiki/Decibel)で表されます。この[デシベル](https://en.wikipedia.org/wiki/Decibel)の値は、音声処理アルゴリズムで使用される前に、リニアゲイン値に変換する必要があります。ほとんどのオーディオアプリケーションは、値が変化(または比較)されるときにより*自然*に感じることが多いため、[デシベル](https://en.wikipedia.org/wiki/Decibel)でユーザーにゲインを表現します。デモプロジェクトのユーザーインターフェイスを次のスクリーンショットに示します。
 
 <CaptionImage
   src="/_images/tutorial_synth_db_level_control_screenshot1.png"
-  caption="デシベル単位のコントロール・スライダーを表示したデモ・プロジェクトのメイン・ウィンドウ。"
+  caption="The demo project main window showing the control slider in decibels."
 />
 
 ## カスタマイズされたスライダーの作成
 
-今回は、スライダーに隣接して表示されるテキストが、スライダー内の値を示すだけでなく、スライダー内の値を示していることに注目してください。[decibels](https://en.wikipedia.org/wiki/Decibel)と表示されますが、接尾辞 "dB "も表示されます。これはカスタム・スライダー・クラスを作ることで実現できます、`DecibelSlider`を継承している。[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")クラスを作成しました。このカスタム・スライダー・クラスでは、テキストボックスのインタフェースは、値を[decibels](https://en.wikipedia.org/wiki/Decibel).の中に表示されるテキストの接尾辞は[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトのテキストボックスは[Slider::setTextValueSuffix()](https://docs.juce.com/master/classSlider.html#ac416a101b5d9a504f61e2f50dc593f61 "数値を文字列として表示する際に、数値の末尾に付加するサフィックスを設定する。")関数を使うには、もうひとつカスタマイズが必要だ。これは、値が変換される方法をカスタマイズすることである。**\-INF dB**レベルが非常に低くなったとき
+今回は、スライダーの横に表示されるテキストが[デシベル](https://en.wikipedia.org/wiki/Decibel)の値を表示するだけでなく、サフィックス「dB」も表示することに注意してください。これは、[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")クラスを継承するカスタムスライダークラス`DecibelSlider`を作成することで実現されます。このカスタムスライダークラスでは、テキストボックスインターフェイスがカスタマイズされ、[デシベル](https://en.wikipedia.org/wiki/Decibel)で値を表示します。[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクトのテキストボックス内に表示されるテキストへのサフィックスは、[Slider::setTextValueSuffix()](https://docs.juce.com/master/classSlider.html#ac416a101b5d9a504f61e2f50dc593f61 "Sets a suffix to append to the end of the numeric value when it's displayed as a string.")関数を使用して追加できますが、もう1つカスタマイズが必要です。これは、レベルが非常に低くなったときに**-INF dB**を表示できるように、値が変換される方法をカスタマイズすることです。
+
+:::tip
+*INF*は*infinity*を指し、-INF dBはアプリケーションの目的では無音として扱われます。
+:::
+
+### Decibelsクラス
+
+[Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values.")クラスには、[デシベル](https://en.wikipedia.org/wiki/Decibel)とリニアゲインの間の変換に必要な多数の静的関数が含まれています。また、[デシベル](https://en.wikipedia.org/wiki/Decibel)の値を[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトに変換する簡単な手段も提供します。たとえば、[Decibels::toString()](https://docs.juce.com/master/classDecibels.html#a808a763495ccbe5d504fbd501bb85e0d "Converts a decibel reading to a string.")関数を使用して、仮想関数[Slider::getTextFromValue()](https://docs.juce.com/master/classSlider.html#a5a1693166d0815f812202b1a3a6eb202 "Turns the slider's current value into a text string.")をオーバーライドします(`DecibelSlider`クラス内で):
+
+```cpp
+juce::String getTextFromValue (double value) override
+{
+    return juce::Decibels::toString (value);
+}
+```
+
+これにより、`DecibelSlider`クラスは、指定されたスライダー値に対してテキストボックスに適切なテキストを表示できます。
+
+[Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values.")クラスには、[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトを[デシベル](https://en.wikipedia.org/wiki/Decibel)の値に戻す関数がないため、独自に記述する必要があります。ここでは、[Slider::getValueFromText()](https://docs.juce.com/master/classSlider.html#a532774d3294a058784f7d4291b33b720 "Subclasses can override this to convert a text string to a value.")仮想関数をオーバーライドします(`DecibelSlider`クラス内で):
+
+```cpp
+double getValueFromText (const juce::String& text) override
+{
+    auto minusInfinitydB = -100.0;
+
+    auto decibelText = text.upToFirstOccurrenceOf ("dB", false, false).trim(); // [1]
+
+    return decibelText.equalsIgnoreCase ("-INF") ? minusInfinitydB
+                                                 : decibelText.getDoubleValue(); // [2]
+}
+```
+
+これにより、ユーザーはテキストボックスに値を入力し、スライダーの有効な値としてチェックおよび変換できます。これを行うには、次のことを行います:
+
+- \[1\]: テキストから「dB」サフィックスを削除し(存在する場合)、テキストをトリミングして先頭と末尾の空白を削除します([String::trim()](https://docs.juce.com/master/classString.html#a5ed648f71d99bb8aef15e8ba35422a30 "Returns a copy of this string with any whitespace characters removed from the start and end.")関数を使用)。
+- \[2\]: 残りのテキストが「-INF」であるかどうかをチェックし、この場合は-100を返します(これは、[Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values.")クラスが使用する-INF dBの[デシベル](https://en.wikipedia.org/wiki/Decibel)のデフォルト値です。この議論については、このチュートリアルの[Notes](#tutorial_synth_db_level_control_notes)を参照してください)。それ以外の場合は、この残りのテキストを`double`値に変換して返します。
+
+## スライダー値の使用
+
+[Tutorial: Control audio levels](../tutorial_synth_level_control/)では、`getNextAudioBlock()`関数でスライダーの値に直接アクセスしました。[デシベル](https://en.wikipedia.org/wiki/Decibel)からリニアゲインへの変換には、潜在的にCPU集約的な算術演算が含まれるため、特にオーディオスレッドで変換を頻繁に実行することは避けるのが賢明です。このチュートリアルのデモプロジェクトでは、`MainContentComponent`クラスに`float`メンバー`level`を格納し、リスナーを使用してスライダーが変更されたときにこの値を更新します。
+
+コンストラクタで`level`メンバーをゼロに初期化し、[Decibels::gainToDecibels()](https://docs.juce.com/master/classDecibels.html#a2a2c7152fe5560836cd81e6d167da537 "Converts a gain level into a dBFS value.")関数を使用してこれを[デシベル](https://en.wikipedia.org/wiki/Decibel)に変換し、スライダーの初期位置を指定します([Slider::setValue()](https://docs.juce.com/master/classSlider.html#a430a5c4e56b39dd622f5800f787e0822 "Changes the slider's current value.")関数を使用)。次のようになります:
+
+```cpp
+MainContentComponent()
+{
+```
+
+```cpp
+decibelSlider.setValue (juce::Decibels::gainToDecibels (level));
+decibelLabel.setText ("Noise Level in dB", juce::dontSendNotification);
+```
+
+### デシベルからリニアゲインへの変換
+
+[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "You can assign a lambda to this callback object to have it called when the slider value is changed.")ヘルパーオブジェクトのラムダ関数で、スライダーが使用する[デシベル](https://en.wikipedia.org/wiki/Decibel)スケールから音声処理に必要なリニアゲイン値への変換を実行します:
+
+```cpp
+decibelSlider.onValueChange = [this] { level = juce::Decibels::decibelsToGain ((float) decibelSlider.getValue()); };
+```
+
+この関数は、コンストラクタで[Slider::setValue()](https://docs.juce.com/master/classSlider.html#a430a5c4e56b39dd622f5800f787e0822 "Changes the slider's current value.")関数を使用してスライダーの値を最初に設定したときに呼び出されます。これにより、値が変更されたときに[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "You can assign a lambda to this callback object to have it called when the slider value is changed.")ヘルパーオブジェクトに割り当てられたラムダ関数が呼び出され、`level`メンバーが正しく設定されます。
 
 :::note
-
-*INF*とは*インフィニティ*ここで-INF dBは、このアプリケーションの目的上、沈黙として扱われる。
-
+演習: `MainContentComponent`クラスに別の[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")オブジェクトを追加して、リニアゲイン値を表示します。- `MainContentComponent`クラスに別の[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクトを追加して、リニアゲイン値を表示し、ユーザーがどちらのスライダーを使用してもノイズレベルを表示および指定できるようにします。どちらのスライダーが移動されても、両方のスライダーが正しく更新される必要があります。(異なる単位間の変換の簡単な例については、[Tutorial: The Slider class](../../interface-design/tutorial_slider_values/)を参照してください。)
 :::
 
-### デシベルズ級
+### 音声の処理
 
-について[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")クラスの値の変換に必要な静的関数がいくつか含まれています。[decibels](https://en.wikipedia.org/wiki/Decibel)とリニアゲインがあります。の値を変換する簡単な手段も提供する。[decibels](https://en.wikipedia.org/wiki/Decibel)への[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトをオーバーライドする。例えば、仮想関数[Slider::getTextFromValue()](https://docs.juce.com/master/classSlider.html#a5a1693166d0815f812202b1a3a6eb202 "スライダーの現在値をテキスト文字列に変換します。")を使用する。[Decibels::toString()](https://docs.juce.com/master/classDecibels.html#a808a763495ccbe5d504fbd501bb85e0d "デシベルを文字列に変換します。")関数の中で`DecibelSlider`クラス）のようなものだ：
+`MainContentComponent::getNextAudioBlock()`で音声を処理します:
 
 ```cpp
-    juce::String getTextFromValue (double value) override
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+{
+    auto currentLevel = level;
+    auto levelScale = currentLevel * 2.0f;
+
+    for (auto channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
     {
-        return juce::Decibels::toString (value);
+        auto* buffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample);
+
+        for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
+            buffer[sample] = random.nextFloat() * levelScale - currentLevel;
     }
+}
 ```
 
-これによって`DecibelSlider`クラスを使用して、与えられたスライダー値に対して適切なテキストをテキストボックスに表示できます。
+これは、[Tutorial: Control audio levels](../tutorial_synth_level_control/)の`getNextAudioBlock()`関数とほぼ同じであることに注意してください。*ただし*、`level`値の関数ローカルコピーを取得してから、以前と同様に`levelScale`値を計算します。
 
-について[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")を変換する関数はありません。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトを[decibels](https://en.wikipedia.org/wiki/Decibel)そのため、独自のものを書く必要がある。ここでは[Slider::getValueFromText()](https://docs.juce.com/master/classSlider.html#a532774d3294a058784f7d4291b33b720 "サブクラスはこれをオーバーライドして、テキスト文字列を値に変換することができます。")仮想関数（これも`DecibelSlider`クラス)：
+### このアプローチの問題
 
-```cpp
-    double getValueFromText (const juce::String& text) override
-    {
-        auto minusInfinitydB = -100.0;
- 
-        auto decibelText = text.upToFirstOccurrenceOf ("dB", false, false).trim();    // [1]
- 
-        return decibelText.equalsIgnoreCase ("-INF") ? minusInfinitydB
-                                                     : decibelText.getDoubleValue();  // [2]
-    }
-```
+このアプローチの1つの問題は、オーディオスレッドの実行中に`level`変数がその値を急激に変更する可能性があることです(この場合、`getNextAudioBlock`の2回の呼び出しの間)。このような変更は、通常、可聴クラックリングなどのオーディオアーティファクトを導入します。これを回避するために、実際のシンセサイザーでは、滑らかに変化する`level`値が必要です。これを実現する技術は、他のチュートリアルで説明されています([Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/)を参照)。
 
-これは、ユーザーがテキストボックスに値を入力し、それがチェックされ、スライダーの有効な値に変換されることを可能にします。これを行うには
+もう1つの問題は、スレッドセーフに関連しています。`level`のようなメンバー変数を1つのスレッド(GUIスレッド)で書き込み、別のスレッド(オーディオスレッド)から同じ値を読み取ることは、スレッド同期が行われない場合(クリティカルセクションまたはアトミックを使用して)、C++では技術的に未定義動作です。これらの問題はこのチュートリアルの範囲を超えており、将来のチュートリアルで説明される予定です。この特定のケースでは、これについてあまり心配する必要はありません。一般的なアーキテクチャ(x86、x86_64、ARM)では、単一の`float`の読み取りと書き込みはアトミック操作であり、読み取りと書き込みが混在することはなく、一般的に安全だからです。
 
-- \[1\]もし "dB "という接尾辞があれば、それを取り除き、（もし "dB "という接尾辞がなければ[String::trim()](https://docs.juce.com/master/classString.html#a5ed648f71d99bb8aef15e8ba35422a30 "この文字列の先頭と末尾の空白文字を取り除いたコピーを返す。")関数)。
-- \[2\]残りのテキストが"-INF "であるかどうかをチェックし、その場合は-100を返す。[decibels](https://en.wikipedia.org/wiki/Decibel)を -INF dBに置き換えた。[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")クラスが使用する[Notes](https://docs.juce.com/master/#tutorial_synth_db_level_control_notes)これについてはこのチュートリアルを参照)。そうでなければ、この残りのテキストを`double`値を返します。
+さらに考えると、`levelScale`もメンバー変数にすることでコードをさらに最適化したくなるかもしれません(したがって、`getNextAudioBlock()`関数の呼び出しごとに計算する必要がありません)。しかし、そうすると2つのメンバー変数が単一のアトミック操作として更新されなくなります。もちろん、これを回避する方法もありますが、これはこのチュートリアルの範囲を超えています。
 
-## スライダーの値を使う
+## Notes
 
-の中で[Tutorial: Control audio levels](../tutorial_synth_level_control/)でスライダーの値に直接アクセスしている。`getNextAudioBlock()`関数に変換されます。からの変換は[decibels](https://en.wikipedia.org/wiki/Decibel)リニアゲインへの変換には、CPUに負荷のかかる演算が含まれる可能性があるため、特にオーディオスレッドでは、あまり頻繁に変換を実行しない方が賢明でしょう。このチュートリアルのデモプロジェクトでは`float`メンバー`level`での`MainContentComponent`クラスを作成し、リスナーを使用してスライダーが変更されたときにこの値を更新します。
-
-を初期化する。`level`コンストラクタでメンバーをゼロに変換し、これを[decibels](https://en.wikipedia.org/wiki/Decibel)を使用している。[Decibels::gainToDecibels()](https://docs.juce.com/master/classDecibels.html#a2a2c7152fe5560836cd81e6d167da537 "ゲイン・レベルをdBFS値に変換する。")関数を使ってスライダーに初期位置を与えます。[Slider::setValue()](https://docs.juce.com/master/classSlider.html#a430a5c4e56b39dd622f5800f787e0822 "スライダーの現在値を変更する。")関数)のようなものだ：
-
-```cpp
-    MainContentComponent()
-    {
-```
-
-```cpp
-        decibelSlider.setValue (juce::Decibels::gainToDecibels (level));
-        decibelLabel.setText ("Noise Level in dB", juce::dontSendNotification);
-```
-
-### デシベルをリニアゲインに変換
-
-のラムダ関数では[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "このコールバックオブジェクトにラムダを代入して、スライダーの値が変更されたときにコールさせることができます。")ヘルパー・オブジェクトから[decibels](https://en.wikipedia.org/wiki/Decibel)スライダーで使用されるスケールを、オーディオ処理に必要なリニアゲイン値に変更します：
-
-```cpp
-        decibelSlider.onValueChange = [this] { level = juce::Decibels::decibelsToGain ((float) decibelSlider.getValue()); };
-```
-
-この関数は、最初に[Slider::setValue()](https://docs.juce.com/master/classSlider.html#a430a5c4e56b39dd622f5800f787e0822 "スライダーの現在値を変更する。")関数をコンストラクタで呼び出す。これは[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "このコールバックオブジェクトにラムダを代入して、スライダーの値が変更されたときにコールさせることができます。")値が変更されたときにヘルパーオブジェクトが`level`メンバーが正しく設定される。
-
-:::danger[エクササイズ]
-
-- 追加[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトを`MainContentComponent`リニアゲインの値を表示するクラス。
-- 追加[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを`MainContentComponent`クラスはリニアゲイン値を表示し、ユーザーはどちらかのスライダーを使ってノイズレベルを表示、指定できます。どちらかのスライダを動かすと、両方のスライダが正しく更新されるはずです。(参照[Tutorial: The Slider class](../../interface-design/tutorial_slider_values/)異なる単位間の変換の簡単な例を参照)。
-
-:::
-
-### オーディオの処理
-
-我々の`MainContentComponent::getNextAudioBlock()`オーディオを処理する：
-
-```cpp
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
-    {
-        auto currentLevel = level;
-        auto levelScale = currentLevel * 2.0f;
- 
-        for (auto channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
-        {
-            auto* buffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample);
- 
-            for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
-                buffer[sample] = random.nextFloat() * levelScale - currentLevel;
-        }
-    }
-```
-
-とほぼ同じであることに注意。`getNextAudioBlock()`関数[Tutorial: Control audio levels](../tutorial_synth_level_control/) *ただし*の関数ローカルコピーを取るだけである。`level`を計算する。`levelScale`以前と同様に
-
-### このアプローチの問題点
-
-この方法の問題点のひとつは`level`変数は、オーディオスレッドの実行中（この場合、2回の`getNextAudioBlock`).このような変更は、通常、耳に聞こえるパチパチ音などのオーディオ・アーティファクトを引き起こす。これを避けるために、実際のシンセサイザーでは`level`値を滑らかに変化させます。これを達成するテクニックは他のチュートリアルで説明されています([Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/)).
-
-もう1つの問題は、スレッドセーフに関するものだ。のようなメンバー変数への書き込みは`level`あるスレッド（GUIスレッド）で同じ値を別のスレッド（オーディオスレッド）から読み取ることは、スレッド同期が（クリティカルセクションを経由するかアトミックを使用して）行われない場合、C++では技術的に未定義の動作です。これらの問題はこのチュートリアルの範囲外であり、将来のチュートリアルで説明します。一般的なアーキテクチャー（x86、x86\_64、ARM）では、1つのスレッドの読み書きは1つのスレッドで行われるからです。`float`読み取りと書き込みが混在することはなく、一般的に安全である。
-
-さらに考えてみると、コードをさらに最適化したくなるかもしれない。`levelScale`を呼び出すたびに計算する必要はない）。`getNextAudioBlock()`関数)。しかしそうすると、2つのメンバー変数は1つのアトミック操作として更新されなくなってしまいます。もちろん、これを回避する方法もありますが、このチュートリアルの範囲外です。
-
-## 備考
-
-このチュートリアルのデモ・プロジェクトで示されるコードでは、-100 dB以下の値を -INF dB（つまりリニア・ゲイン値がゼロ）として扱うことを想定しています。この-100 dBという値は[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")クラスの計算をオーバーライドできる。これは[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")クラスで、どの値を-INF dBとして扱うかを指定します。例えば、-96 dB（およびそれ以下）を-INF dBとして使用する場合、スライダーの値を`MainContentComponent`コンストラクターでこれを行うことができる：
+このチュートリアルのデモプロジェクトで提示されているコードは、-100 dB以下の値を-INF dB(つまり、リニアゲイン値がゼロ)として扱いたいことを前提としています。この-100 dBの値は、[Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values.")クラスで使用されるデフォルト値ですが、計算でこれをオーバーライドできます。これは、[Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values.")クラスの各関数に、-INF dBとして扱う値を指定する追加の引数を提供することで実現されます。たとえば、`MainContentComponent`コンストラクタでスライダー値を更新するときに-96 dB(以下)を-INF dBとして使用するには、次のようにします:
 
 ```cpp
 decibelSlider.setValue (juce::Decibels::gainToDecibels (level, -96.0f));
 ```
 
-しかしもちろん、アプリケーションのすべての部分で-INF dBに同じ値を使うようにする必要がある。デモ・プロジェクトのコードには1つ問題があります。`-100.0`私たちの`DecibelSlider::getValueFromText()`関数を使用する。もし[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")クラスのデフォルト値が（何らかの理由で）変更されると、コードは壊れてしまう。残念ながら、このデフォルト値は[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")クラスには尋ねられない。[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")クラスのデフォルト値を指定する必要がある。その代わりに、独自のデフォルト値を指定し、これを全体を通して使用する必要がある。
+ただし、もちろん、アプリケーションのすべての部分が-INF dBに同じ値を使用することを確認する必要があります。`DecibelSlider::getValueFromText()`関数で`-100.0`をハードコーディングしているため、デモプロジェクトのコードには1つの潜在的な問題があります。[Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values.")クラスがデフォルト値を(何らかの理由で)変更すると、コードが壊れます。残念ながら、このデフォルト値は[Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values.")クラスのprivateメンバーであるため、[Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values.")クラスにデフォルト値を尋ねることはできません。代わりに、独自のデフォルト値を指定し、これを全体で使用する必要があります。
 
-:::danger[エクササイズ]
-
-デモ・プロジェクトを修正して、-INFのデフォルト値を-96 dBに指定します。の両方を更新する必要があります。`DecibelSlider`クラスと`MainContentComponent`クラスである。
-
+:::note
+演習: デモプロジェクトを変更して、-INFの独自のデフォルト値を-96 dBとして指定します。`DecibelSlider`クラスと`MainContentComponent`クラスの両方を更新する必要があります。
 :::
 
-## 概要
+## まとめ
 
-このチュートリアルでは、次のことを紹介した：
+このチュートリアルでは、以下を紹介しました:
 
-- について[Decibels](https://docs.juce.com/master/classDecibels.html "このクラスには、デシベル値を扱うための便利な静的メソッドがいくつか含まれています。")クラスである。
-- の間を行き来する。[decibels](https://en.wikipedia.org/wiki/Decibel)スケールとリニアゲイン。
-- の値を表示するカスタム・スライダーを作成する。[decibels](https://en.wikipedia.org/wiki/Decibel)階段だ。
+- [Decibels](https://docs.juce.com/master/classDecibels.html "This class contains some helpful static methods for dealing with decibel values.")クラス。
+- [デシベル](https://en.wikipedia.org/wiki/Decibel)スケールとリニアゲインの間の変換。
+- [デシベル](https://en.wikipedia.org/wiki/Decibel)スケールで値を表示するためのカスタムスライダーの作成。
 
-## 参照
+## 関連項目
 
 - [Tutorial: The Slider class](../../interface-design/tutorial_slider_values/)
 - [Tutorial: Build a white noise generator](../tutorial_simple_synth_noise/)

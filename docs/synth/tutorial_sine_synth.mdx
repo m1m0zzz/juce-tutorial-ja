@@ -1,252 +1,237 @@
 ---
-title: サイン波シンセサイザーを作る
+title: サイン波シンセサイザーの構築
 sidebar_position: 4
 tags: [中級]
 ---
 
-# サイン波シンセサイザーを作る
+# チュートリアル: サイン波シンセサイザーの構築
 
 <SourcePageLink path="tutorial_sine_synth" />
 
-このチュートリアルでは、簡単なサイン波合成を紹介します。正弦波発振器の状態を管理し、オーディオ出力にデータを書き込む方法を紹介します。
+このチュートリアルでは、シンプルなサイン波合成について紹介します。サイン波オシレーターの状態を管理し、音声出力にデータを書き込む方法を示します。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "A base class for writing audio apps that stream from the audio i/o devices."), [Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value."), [MathConstants](# "Commonly used mathematical constants.")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。"),[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。"),[MathConstants](https://docs.juce.com/master/structMathConstants.html "よく使われる数学定数。")
-
-## スタート
-
-:::note
-
-このチュートリアルは[Tutorial: Control audio levels](../tutorial_synth_level_control/)それは最初に読んで理解すべきだった。
-
+:::tip
+このチュートリアルは、[Tutorial: Control audio levels](../tutorial_synth_level_control/)から続きます。先にそのチュートリアルを読んで理解しておく必要があります。
 :::
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/SineSynthTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/SineSynthTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このチュートリアルのデモプロジェクトをダウンロードしてください: [PIP](https://docs.juce.com/tutorials/PIPs/SineSynthTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/SineSynthTutorial.zip)。プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開いてください。
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+この手順でヘルプが必要な場合は、[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-## デモ・プロジェクト
+## デモプロジェクト
 
-このデモ・プロジェクトは、Projucerのオーディオ・アプリケーション・テンプレートに基づいています。正弦波の周波数をコントロールするためのスライダーが1つ表示されます。
+このデモプロジェクトは、Projucerのオーディオアプリケーションテンプレートをベースにしています。ユーザーに単一のスライダーを表示して、サイン波の周波数を制御します。
 
-## 正弦波の生成
+## サイン波の生成
 
-このチュートリアルでは、標準ライブラリ関数`std::sin()`.これを使用するには、電流を保存して正弦波生成の状態を維持する必要があります。*位相角*と、出力サンプルごとに位相角がインクリメントされる必要がある量です。このサンプルごとの変化の大きさ（「デルタ」）は、出力のサンプル・レートと、生成したい正弦波の周波数に依存します。
+このチュートリアルでは、標準ライブラリ関数`std::sin()`を使用してサイン波を合成します。これを使用するためには、現在の*位相角*と、各出力サンプルで位相角をインクリメントする必要がある量を格納して、サイン波生成の状態を維持する必要があります。このサンプルごとの変化量(「デルタ」)のサイズは、出力のサンプルレートと生成したいサイン波の周波数に依存します。
 
 :::warning
-
-ほとんどの合成アプリケーションやプラグインでは`std::sin()`最も効率的な手法ではないだろう。一般的に[wavetable](https://en.wikipedia.org/wiki/Table-lookup_synthesis)を参照されたい。[Tutorial: Wavetable synthesis](../tutorial_wavetable_synth/).ウェーブテーブルは正弦波以外の波形も扱うことができる。
-
+ほとんどの合成アプリケーションやプラグインは、おそらく最も効率的な技術ではないため、`std::sin()`関数を使用しない可能性があります。一般的には[ウェーブテーブル](https://en.wikipedia.org/wiki/Table-lookup_synthesis)が使用されます。[Tutorial: Wavetable synthesis](../tutorial_wavetable_synth/)を参照してください。ウェーブテーブルは、サイン波以外の波形も可能にします。
 :::
 
-### 国家の維持
+### 状態の維持
 
-我々の`MainContentComponent`クラスには3つの`double`メンバー\[1\]:
+`MainContentComponent`クラスでは、3つの`double`メンバー[1]を格納します:
 
 ```cpp
-    double currentSampleRate = 0.0, currentAngle = 0.0, angleDelta = 0.0; // [1]
+double currentSampleRate = 0.0, currentAngle = 0.0, angleDelta = 0.0; // [1]
 ```
 
-を更新する単純な関数がある。`angleDelta`メンバーだ：
+`angleDelta`メンバーを更新するシンプルな関数があります:
 
 ```cpp
-    void updateAngleDelta()
-    {
-        auto cyclesPerSample = frequencySlider.getValue() / currentSampleRate;         // [2]
-        angleDelta = cyclesPerSample * 2.0 * juce::MathConstants::pi;          // [3]
-    }
+void updateAngleDelta()
+{
+    auto cyclesPerSample = frequencySlider.getValue() / currentSampleRate; // [2]
+    angleDelta = cyclesPerSample * 2.0 * juce::MathConstants<double>::pi; // [3]
+}
 ```
 
-- \[2\]まず、各出力サンプルに必要なサイクル数を計算します。
-- \[3\]そして、これに正弦波1周期の長さを掛けると、次のようになる。2piラジアン
+- \[2\]: まず、各出力サンプルで完了する必要があるサイクル数を計算します。
+- \[3\]: 次に、これに完全なサイン波サイクルの長さである`2pi`ラジアンを掛けます。
 
-この関数が正しく動作する前に、出力サンプルレートを知る必要がある。これは、サンプルの生成頻度を知る必要があるためで、1サンプルあたりに必要な変化量を知るためです。サンプルレートは[AudioAppComponent::prepareToPlay()](https://docs.juce.com/master/classAudioAppComponent.html#a70634aa3ffaf6e7ff0d233e5933a063d "ソースに演奏の準備を指示する。")コールバック関数：
+この関数が正しく動作する前に、出力サンプルレートを知る必要があります。これは、サンプルがどのくらいの頻度で生成されているかを知る必要があるためです。これは、サンプルごとに必要な変化量を知るためです。サンプルレートは、[AudioAppComponent::prepareToPlay()](https://docs.juce.com/master/classAudioAppComponent.html#a70634aa3ffaf6e7ff0d233e5933a063d "Tells the source to prepare for playing.")コールバック関数によって渡されます:
 
 ```cpp
-    void prepareToPlay (int, double sampleRate) override
-    {
-        currentSampleRate = sampleRate;
+void prepareToPlay (int, double sampleRate) override
+{
+    currentSampleRate = sampleRate;
+    updateAngleDelta();
+}
+```
+
+ここでは、サンプルレート値のコピーを保存し、最初に`updateAngleDelta()`関数を呼び出します。
+
+### スライダー値の使用
+
+アプリの実行中にスライダーが移動されたら、`angleDelta`メンバーを再度更新する必要があります:
+
+```cpp
+frequencySlider.onValueChange = [this] {
+    if (currentSampleRate > 0.0)
         updateAngleDelta();
-    }
+};
 ```
 
-ここでは、サンプルレート値のコピーを保存し`updateAngleDelta()`関数は当初は
+ここでは、サンプルレートが有効であることを確認してから、再度`updateAngleDelta()`関数を呼び出します。
 
-### スライダーの値を使う
+### 音声の出力
 
-アプリの実行中にスライダーが動いたら`angleDelta`またメンバーだ：
-
-```cpp
-        frequencySlider.onValueChange = [this]
-        {
-            if (currentSampleRate > 0.0)
-                updateAngleDelta();
-        };
-```
-
-を呼び出す前に、サンプルレートが有効かどうかをチェックする。`updateAngleDelta()`関数を再び使用する。
-
-### オーディオの出力
-
-期間中`getNextAudioBlock()`コールバックで実際のサイン波を生成し、それを出力に書き出す必要がある：
+`getNextAudioBlock()`コールバック中に、実際のサイン波を生成して出力に書き込む必要があります:
 
 ```cpp
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+{
+    auto level = 0.125f;
+    auto* leftBuffer = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
+    auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample);
+
+    for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
     {
-        auto level = 0.125f;
-        auto* leftBuffer  = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
-        auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample);
- 
-        for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
-        {
-            auto currentSample = (float) std::sin (currentAngle);
-            currentAngle += angleDelta;
-            leftBuffer[sample]  = currentSample * level;
-            rightBuffer[sample] = currentSample * level;
-        }
+        auto currentSample = (float) std::sin (currentAngle);
+        currentAngle += angleDelta;
+        leftBuffer[sample] = currentSample * level;
+        rightBuffer[sample] = currentSample * level;
     }
+}
 ```
 
-出力サンプルごとに、現在の角度に対するサイン関数を計算し、次のサンプルの角度をインクリメントする。レベルを`0.125`フルスケールの正弦波は非常に大きくなる！ 私たちは次のことができる（そしておそらくそうすべきだ）。*ラップ*に達すると、現在の角度値をゼロに戻す。2pi.より大きな値はまだ有効な値を返すので、実際にはこの計算を避けることができる。次の画像のようなものが得られる：
+各出力サンプルについて、現在の角度のサイン関数を計算し、次のサンプルのために角度をインクリメントします。フルスケールのサイン波は非常に大きくなるため、レベルを`0.125`に下げていることに注意してください! 現在の角度値が`2pi`に達したときに、ゼロにラップバックすることができます(そしておそらくそうすべきです)。より大きな値でも有効な値が返されるため、実際にはこの計算を避けることができます。次の画像に示すようなものが得られます:
 
 <CaptionImage
   src="/_images/tutorial_synth_sine_graph1.png"
-  caption="位相角をラジアン単位で示すフルスケール±1.0の正弦波。"
+  caption="A full scale ±1.0 sine wave showing the phase angle in radians."
 />
 
-### スライダーの構成
+### スライダーの設定
 
-スライダーの値が非線形に変化することにお気づきかもしれない（そうでなければ、今すぐ試してみるべきだ）。実はこの変化は対数的なものなのです。これにより、小さい値では分解能が高くなり、大きい値では分解能が低くなります。周波数値をコントロールする場合、この方法が適切なことがよくあります（音楽的には、リニアに等しく変化するよりも、周波数間の比率で等しく変化するように聞こえるからです）。この設定は[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "値の分布方法を変更するためのスキュー係数を設定する。")機能\[4\].私たちのスライダーの範囲は次のように設定されている。50..5000したがって、スライダートラックの中心を500ということは、スライダーの最小値と中央、中央と最大値の間に等しい音楽的間隔があることを意味する：
+スライダーの値が非線形に変化することに気付いたかもしれません(そうでない場合は、今試してみてください)。これらの変化は、実際には対数的です。これにより、小さい値に対してより高い解像度が得られ、大きい値に対してより低い解像度が得られます。周波数値を制御する場合、これはしばしば適切です(音楽的には、線形の等しい変化ではなく、周波数間の比率の等しい変化を聞くため)。これは、[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "Sets up a skew factor to alter the way values are distributed.")関数[4]を使用して構成されます。スライダーの範囲は`50..5000`に設定されているため、スライダートラックの中心を`500`を表すように設定すると、スライダーの最小値と中心、および中心と最大値の間に等しい音楽的な間隔があることを意味します:
 
 ```cpp
-    MainContentComponent()
-    {
-        addAndMakeVisible (frequencySlider);
-        frequencySlider.setRange (50.0, 5000.0);
-        frequencySlider.setSkewFactorFromMidPoint (500.0); // [4]
+MainContentComponent()
+{
+    addAndMakeVisible (frequencySlider);
+    frequencySlider.setRange (50.0, 5000.0);
+    frequencySlider.setSkewFactorFromMidPoint (500.0); // [4]
 ```
 
-について*スキュー係数*を使って直接設定できます。[Slider::setSkewFactor()](https://docs.juce.com/master/classSlider.html#aba8fe3610e7198bd4c1f2804736bfbf2 "値の分布方法を変更するためのスキュー係数を設定する。")関数は、中間点でどのような値が欲しいかを考える方が簡単な場合が多い。
+スライダーの*スキューファクター*は、[Slider::setSkewFactor()](https://docs.juce.com/master/classSlider.html#aba8fe3610e7198bd4c1f2804736bfbf2 "Sets up a skew factor to alter the way values are distributed.")関数を使用して直接設定できますが、中点でどの値が必要かを考える方が簡単なことがよくあります。
 
-:::danger[エクササイズ]
-
-アプリケーションに別のスライダーを追加して、サイン波のレベルをコントロールする。レベルを1.0\- の最大値である。0.25でいいはずだ。
-
+:::note
+演習: アプリケーションに別のスライダーを追加して、サイン波のレベルを制御します。レベルは`1.0`よりも十分に低く保つように注意してください --- 最大値`0.25`で十分です。
 :::
 
-## 周波数の変化を滑らかにする
+## 周波数変化のスムージング
 
-スライダを動かすと、特に高い周波数で、耳に聞こえる、おそらく不要なアーチファクトが発生することにお気づきでしょう。これは、スライダが実際には離散的なステップで変化しており、スライダを素早く動かすとこのステップがかなり大きくなるためです。これに加えて、スライダーの周波数はオーディオブロックごとにしか更新されないため、これらの変化の正確な効果はハードウェアのブロックサイズに依存します。
+特に高周波数で、スライダーが移動されると、おそらく望ましくない可聴アーティファクトが生成されることに気付くかもしれません。これは、スライダーが実際には離散的なステップで変化しており、スライダーが速く移動されるとこれらのステップがかなり大きくなるためです。これに加えて、スライダーの周波数は各オーディオブロックに対してのみ更新されるため、これらの変更の正確な効果はハードウェアのブロックサイズに依存します。
 
-### スムージング用ステート・メンバー
+### スムージングのための状態メンバー
 
-ひとつは、合成に使われている現在の周波数を保存するためのもので、もうひとつは、合成に使われている現在の周波数を保存するためのものだ。*ターゲット*ユーザーがスライダーを動かして要求した頻度。その後、これらの値の間をよりゆっくりとランプして、アーチファクトを除去できる：
+クラスに2つのメンバーを追加しましょう。1つは合成に使用されている現在の周波数を格納するため、もう1つはユーザーがスライダーを移動することで要求した*ターゲット*周波数を格納するためです。次に、これらの値の間でよりゆっくりとランプすることで、アーティファクトを除去できます:
 
 ```cpp
-    double currentFrequency = 500.0, targetFrequency = 500.0; // [5]
+double currentFrequency = 500.0, targetFrequency = 500.0; // [5]
 ```
 
-これらの値を同時に初期化する\[5\].スライダーを同じ値に初期化することもできます。\[6\]:
+これらの値を同時に初期化します[5]。スライダーも同じ値に初期化できます\[6\]:
 
 ```cpp
-    MainContentComponent()
-    {
-        addAndMakeVisible (frequencySlider);
-        frequencySlider.setRange (50.0, 5000.0);
-        frequencySlider.setSkewFactorFromMidPoint (500.0);
-        frequencySlider.setValue (currentFrequency, juce::dontSendNotification);  // [6]
+MainContentComponent()
+{
+    addAndMakeVisible (frequencySlider);
+    frequencySlider.setRange (50.0, 5000.0);
+    frequencySlider.setSkewFactorFromMidPoint (500.0);
+    frequencySlider.setValue (currentFrequency, juce::dontSendNotification); // [6]
 ```
 
 ### 合成コードの更新
 
-このアルゴリズムが機能する鍵は、現在値と目標値が同じか異なるかをチェックすることである。もし同じなら、単純に元のコードを`angleDelta`メンバーは変更する必要はない。もし現在値と目標値が異なるなら、その時点で`angleDelta`各サンプルのメンバーは、現在の値を徐々に目標値に近づけていく。
+このアルゴリズムの動作の鍵は、現在の値とターゲット値が同じか異なるかをチェックすることです。同じ場合、`angleDelta`メンバーを変更する必要がないため、元のコードを単純に使用できます。現在の値とターゲット値が異なる場合、現在の値をターゲットに徐々に近づけるときに、各サンプルの`angleDelta`メンバーを更新する必要があります。
 
 :::warning
-
-この例では、出力バッファのサンプル数をランプの長さとして使用します。つまり、バッファサイズが非常に小さい場合、アーティファクトが聞こえる可能性があります。
-
+この例では、出力バッファ内のサンプル数をランプの持続時間として使用するだけです。これは、非常に小さいバッファサイズでは、まだアーティファクトが聞こえる可能性があることを意味します。
 :::
 
 ```cpp
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+{
+    auto level = 0.125f;
+    auto* leftBuffer = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
+    auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample);
+
+    auto localTargetFrequency = targetFrequency;
+
+    if (!juce::approximatelyEqual (localTargetFrequency, currentFrequency)) // [7]
     {
-        auto level = 0.125f;
-        auto* leftBuffer  = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
-        auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample);
- 
-        auto localTargetFrequency = targetFrequency;
- 
-        if (! juce::approximatelyEqual (localTargetFrequency, currentFrequency))                              // [7]
+        auto frequencyIncrement = (localTargetFrequency - currentFrequency) / bufferToFill.numSamples; // [8]
+
+        for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
         {
-            auto frequencyIncrement = (localTargetFrequency - currentFrequency) / bufferToFill.numSamples;    // [8]
- 
-            for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
-            {
-                auto currentSample = (float) std::sin (currentAngle);
-                currentFrequency += frequencyIncrement;                                                       // [9]
-                updateAngleDelta();                                                                           // [10]
-                currentAngle += angleDelta;
-                leftBuffer[sample]  = currentSample * level;
-                rightBuffer[sample] = currentSample * level;
-            }
- 
-            currentFrequency = localTargetFrequency;
+            auto currentSample = (float) std::sin (currentAngle);
+            currentFrequency += frequencyIncrement; // [9]
+            updateAngleDelta(); // [10]
+            currentAngle += angleDelta;
+            leftBuffer[sample] = currentSample * level;
+            rightBuffer[sample] = currentSample * level;
         }
-        else                                                                                                  // [11]
+
+        currentFrequency = localTargetFrequency;
+    }
+    else // [11]
+    {
+        for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
         {
-            for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
-            {
-                auto currentSample = (float) std::sin (currentAngle);
-                currentAngle += angleDelta;
-                leftBuffer[sample]  = currentSample * level;
-                rightBuffer[sample] = currentSample * level;
-            }
+            auto currentSample = (float) std::sin (currentAngle);
+            currentAngle += angleDelta;
+            leftBuffer[sample] = currentSample * level;
+            rightBuffer[sample] = currentSample * level;
         }
     }
+}
 ```
 
-- \[7\]ターゲットが現在の値と異なるかどうかをチェックする。この関数が実行されている間にスライダーがメッセージスレッド上で値を変更した場合に備えて、ターゲット値のローカルコピーを取っていることに注意してください。
-- \[8\]1サンプルに必要なインクリメントを計算します。
-- \[9\]現在の周波数をインクリメントする。
-- \[10\]を更新する。`deltaAngle`この新しい周波数に基づくメンバー。
-- \[11\]そうでない場合は、オリジナルのコードを使用してください。
+- \[7\]: ターゲットが現在の値と異なるかどうかをチェックします。この関数の実行中にスライダーがメッセージスレッドで値を変更した場合に備えて、ターゲット値のローカルコピーを取得することに注意してください。
+- \[8\]: サンプルごとに必要なインクリメントを計算します。
+- \[9\]: 現在の周波数をインクリメントします。
+- \[10\]: この新しい周波数に基づいて`deltaAngle`メンバーを更新します。
+- \[11\]: それ以外の場合は、元のコードを使用するだけです。
 
-:::note
-
-このコードの書式は、以下の典型的なパターンを使用しています。[DSP](https://en.wikipedia.org/wiki/Digital_signal_processing)コードを使用します。内部では条件文は使わない。`for()`ループを使用する。その代わりに、条件をループの外でテストさせ、パラメータが変化しているかどうかによって、2つの異なる、しかしよく似たループを使う。
-
+:::tip
+このコードの形式は、[DSP](https://en.wikipedia.org/wiki/Digital_signal_processing)コードの典型的なパターンを使用しています。可能であれば、内側の`for()`ループ内の条件文を避けます。代わりに、ループの外側で条件をテストし、パラメータが変化しているかどうかに応じて、2つの異なるが非常に似たループを使用します。
 :::
 
-最後に[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "このコールバックオブジェクトにラムダを代入して、スライダーの値が変更されたときにコールさせることができます。")ヘルパー・オブジェクトはターゲット値を更新するだけである：
+最後に、ターゲット値を更新するだけにするために、[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "You can assign a lambda to this callback object to have it called when the slider value is changed.")ヘルパーオブジェクトを更新する必要があります:
 
 ```cpp
-        frequencySlider.onValueChange = [this] { targetFrequency = frequencySlider.getValue(); };
+frequencySlider.onValueChange = [this] { targetFrequency = frequencySlider.getValue(); };
 ```
 
-これで終わりです！ スライダーの動きによるアーチファクトが取り除かれているはずです。
+以上です! これを試してみると、スライダーの移動からのアーティファクトが除去されているはずです。
 
-:::danger[エクササイズ]
-
-以前の練習で追加したレベル・スライダ・コントロールにスムージングを追加します。
-
+:::note
+演習: 以前の演習で追加したレベルスライダーコントロールにスムージングを追加します。
 :::
 
-## 備考
+## Notes
 
-- 位相角を巻き込まない2piは、すべての状況において理想的であるとは限りません。もし`float`よりも`double`変数を使用すると、現在の角度値が非常に大きくなったときに、計算が不正確になる可能性がある。で位相をラップしないことで2piを使用している。`std::sin()`関数は、単純なウェーブテーブル技法に比べ、それなりにうまく機能する。参照[Tutorial: Wavetable synthesis](../tutorial_wavetable_synth/)を参照されたい。
+- 位相角を`2pi`でラップしないことは、すべての状況で理想的ではない場合があります。`double`ではなく`float`変数を使用している場合、現在の角度値が非常に大きくなると計算に不正確さが生じます。`std::sin()`関数を使用して`2pi`で位相をラップしないことで、シンプルなウェーブテーブル技術と比較して合理的にうまく機能します。この探求については、[Tutorial: Wavetable synthesis](../tutorial_wavetable_synth/)を参照してください。
 
-## 概要
+## まとめ
 
-このチュートリアルでは、サイン波の合成と制御の基本的な方法をいくつか紹介しました。ここでは
+このチュートリアルでは、サイン波を合成および制御するための基本的な方法をいくつか紹介しました。以下を見てきました:
 
-- 正弦波発振器の状態を維持するために必要不可欠な変数。
-- これらの変数をどのように設定すれば、望ましい結果が得られるか。
-- オーディオ・アーティファクトを避けるためにパラメーターの変化を滑らかにする方法。
+- サイン波オシレーターの状態を維持するために必要な基本的な変数。
+- 望ましい結果を生成するためにこれらの変数を設定する方法。
+- オーディオアーティファクトを回避するためにパラメータ変更をスムーズにする方法。
 
-## 参照
+## 関連項目
 
 - [Tutorial: The Slider class](../../interface-design/tutorial_slider_values/)
 - [Tutorial: Build a white noise generator](../tutorial_simple_synth_noise/)

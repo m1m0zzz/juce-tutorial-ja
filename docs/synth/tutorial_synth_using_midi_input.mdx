@@ -1,197 +1,187 @@
 ---
-title: MIDIシンセサイザーを作る
+title: MIDIシンセサイザーの構築
 sidebar_position: 5
 tags: [中級]
 ---
 
-# MIDIシンセサイザーを作る
+# チュートリアル: MIDIシンセサイザーの構築
 
 <SourcePageLink path="tutorial_synth_using_midi_input" />
 
-このチュートリアルでは、MIDI入力に反応するポリフォニックなサイン波シンセサイザーを実装します。これは[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスおよび関連クラス。
+このチュートリアルでは、MIDI入力に応答するポリフォニックサイン波シンセサイザーを実装します。これは、[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")クラスと関連クラスを利用します。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds."), [SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "Represents a voice that a Synthesiser can use to play a SynthesiserSound."), [SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "Describes one of the sounds that a Synthesiser can play."), [AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio."), [MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "Collects incoming realtime MIDI messages and turns them into blocks suitable for processing by a bloc...")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。"),[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "SynthesiserがSynthesiserSoundを再生するために使用できる音色を表します。"),[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。"),[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。"),[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")
-
-## スタート
-
-:::note
-
-JUCEでのMIDI入力の扱い方と、サイン波の生成方法に慣れている必要があります。参照[Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/)そして[Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/).
-
+:::tip
+JUCEでのMIDI入力の処理とサイン波の生成方法に精通している必要があります。[Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/)と[Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/)を参照してください。
 :::
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/SynthUsingMidiInputTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/SynthUsingMidiInputTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このチュートリアルのデモプロジェクトをダウンロードしてください: [PIP](https://docs.juce.com/tutorials/PIPs/SynthUsingMidiInputTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/SynthUsingMidiInputTutorial.zip)。プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開いてください。
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+この手順でヘルプが必要な場合は、[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-## デモ・プロジェクト
+## デモプロジェクト
 
-このデモ・プロジェクトでは、シンプルなサイン波シンセサイザーを演奏するのに使えるオンスクリーン・キーボードを紹介している。
+このデモプロジェクトは、シンプルなサイン波シンセサイザーを演奏するために使用できる画面上のキーボードを表示します。
 
 <CaptionImage
   src="/_images/tutorial_synth_using_midi_input_screenshot1.png"
-  caption="MidiKeyboardComponentを含むアプリケーションウィンドウ。"
+  caption="The application window containing a MidiKeyboardComponent"
 />
 
-コンピュータのキーボードのキーを使って、画面上のキーボードをコントロールできます（A、S、D、Fなどのキーを使って、音符C、D、E、Fなどをコントロールします）。これにより、シンセサイザーをポリフォニックに演奏できます。
+コンピュータキーボードのキー(A、S、D、Fなどのキーを使用して音楽ノートC、D、E、Fなどを制御)を使用して、画面上のキーボードを制御できます。これにより、シンセサイザーをポリフォニックに演奏できます。
 
-## シンセシザークラス
+## Synthesiserクラス
 
-このチュートリアルでは、JUCE[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスを使用して、ポリフォニック・シンセシスを実装できます。これは、独自のアプリケーションで独自のサウンドを使ってシンセサイザーをカスタマイズするために必要なすべての基本要素を示しています。これを動作させるために必要なクラスはいろいろあり、標準の`MainContentComponent`クラスがある：
+このチュートリアルでは、JUCE [Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")クラスを使用してポリフォニックシンセサイザーを実装します。これは、独自のアプリケーションで独自のサウンドでシンセサイザーをカスタマイズするために必要なすべての基本要素を示しています。これを機能させるために必要なさまざまなクラスがあり、標準の`MainContentComponent`クラスに加えて、これらは次のとおりです:
 
-- `SynthAudioSource`を実装している。[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")というクラスがあります。`SynthAudioSource`を含む。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスそのものです。これはシンセサイザーからすべてのオーディオを出力する。
-- `SineWaveVoice`これはカスタム[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "SynthesiserがSynthesiserSoundを再生するために使用できる音色を表します。")というクラスがあります。`SineWaveVoice`.ボイスクラスは、シンセサイザーのボイスの1つを、他のボイスとミックスしてレンダリングします。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトを生成します。1つのボイスクラスのインスタンスが1つのボイスをレンダリングします。
-- `SineWaveSound`カスタム[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")というクラスがあります。`SineWaveSound`.サウンドクラスは、ボイスとして作成できるサウンドを記述したものです。例えば、サンプラーボイスのサンプルデータや、ウェーブテーブルシンセサイザーのウェーブテーブルデータが含まれます。
+- `SynthAudioSource`: これは、[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")クラス自体を含む、`SynthAudioSource`と呼ばれるカスタム[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")クラスを実装します。これは、シンセサイザーからのすべての音声を出力します。
+- `SineWaveVoice`: これは、`SineWaveVoice`と呼ばれるカスタム[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "Represents a voice that a Synthesiser can use to play a SynthesiserSound.")クラスです。ボイスクラスは、[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクト内の他の鳴っているボイスとミックスして、シンセサイザーのボイスの1つをレンダリングします。ボイスクラスの単一のインスタンスは、1つのボイスをレンダリングします。
+- `SineWaveSound`: これには、`SineWaveSound`と呼ばれるカスタム[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "Describes one of the sounds that a Synthesiser can play.")クラスが含まれています。サウンドクラスは、ボイスとして作成できるサウンドの説明です。たとえば、これにはサンプラーボイスのサンプルデータやウェーブテーブルシンセサイザーのウェーブテーブルデータが含まれる場合があります。
 
-### キーボードの設定
+### キーボードのセットアップ
 
-私たちの`MainContentComponent`クラスには以下のデータ・メンバーが含まれる。
+`MainContentComponent`クラスには、次のデータメンバーが含まれています。
 
 ```cpp
-    juce::MidiKeyboardState keyboardState;
-    SynthAudioSource synthAudioSource;
-    juce::MidiKeyboardComponent keyboardComponent;
- 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
+juce::MidiKeyboardState keyboardState;
+SynthAudioSource synthAudioSource;
+juce::MidiKeyboardComponent keyboardComponent;
+
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-について`synthAudioSource`そして`keyboardComponent`メンバーは`MainContentComponent`ビルダー
+`synthAudioSource`と`keyboardComponent`メンバーは、`MainContentComponent`コンストラクタで初期化されます。
 
 ```cpp
-    MainContentComponent()
-        : synthAudioSource  (keyboardState),
-          keyboardComponent (keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
-    {
-        addAndMakeVisible (keyboardComponent);
-        setAudioChannels (0, 2);
- 
-        setSize (600, 160);
-        startTimer (400);
-    }
+MainContentComponent()
+    : synthAudioSource (keyboardState),
+      keyboardComponent (keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
+{
+    addAndMakeVisible (keyboardComponent);
+    setAudioChannels (0, 2);
+
+    setSize (600, 160);
+    startTimer (400);
+}
 ```
 
-参照[Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/)の詳細については[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")クラスである。
+[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "A component that displays a piano keyboard, whose notes can be clicked on.")クラスの詳細については、[Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/)を参照してください。
 
-コンピュータのキーボードからキーボードの演奏を開始するために、アプリケーションの起動直後にキーボード・フォーカスを取得します。そのために、400ミリ秒後に起動する単純なタイマーを使います：
+アプリケーションの開始直後にコンピュータのキーボードからキーボードを演奏できるように、キーボードフォーカスを取得します。これを行うために、400ms後に起動するシンプルなタイマーを使用します:
 
 ```cpp
-    void timerCallback() override
-    {
-        keyboardComponent.grabKeyboardFocus();
-        stopTimer();
-    }
+void timerCallback() override
+{
+    keyboardComponent.grabKeyboardFocus();
+    stopTimer();
+}
 ```
 
-### AudioAppComponent 関数
+### AudioAppComponent関数
 
-アプリケーションは[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "オーディオ入出力デバイスからストリーミングするオーディオ・アプリケーションを書くための基本クラス。")簡単なオーディオ・アプリケーションをセットアップする ([Tutorial: Build a white noise generator](../tutorial_simple_synth_noise/)最も基本的なアプリケーションの場合）。必要な3つ[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数は、カスタム[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")クラスである：
+アプリケーションは、[AudioAppComponent](https://docs.juce.com/master/classAudioAppComponent.html "A base class for writing audio apps that stream from the audio i/o devices.")を使用してシンプルなオーディオアプリケーションをセットアップします(最も基本的なアプリケーションについては、[Tutorial: Build a white noise generator](../tutorial_simple_synth_noise/)を参照してください)。必要な3つの[純粋仮想](http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数は、カスタム[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")クラスの対応する関数を呼び出すだけです:
 
 ```cpp
-    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override
-    {
-        synthAudioSource.prepareToPlay (samplesPerBlockExpected, sampleRate);
-    }
- 
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
-    {
-        synthAudioSource.getNextAudioBlock (bufferToFill);
-    }
- 
-    void releaseResources() override
-    {
-        synthAudioSource.releaseResources();
-    }
+void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override
+{
+    synthAudioSource.prepareToPlay (samplesPerBlockExpected, sampleRate);
+}
+
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+{
+    synthAudioSource.getNextAudioBlock (bufferToFill);
+}
+
+void releaseResources() override
+{
+    synthAudioSource.releaseResources();
+}
 ```
 
-### SynthAudioSource クラス
+### SynthAudioSourceクラス
 
-について`SynthAudioSource`クラスはもう少し仕事をする：
+`SynthAudioSource`クラスは、もう少し作業を行います:
 
 ```cpp
-class SynthAudioSource   : public juce::AudioSource
+class SynthAudioSource : public juce::AudioSource
 {
 public:
     SynthAudioSource (juce::MidiKeyboardState& keyState)
         : keyboardState (keyState)
     {
-        for (auto i = 0; i < 4; ++i)                // [1]
+        for (auto i = 0; i < 4; ++i) // [1]
             synth.addVoice (new SineWaveVoice());
- 
-        synth.addSound (new SineWaveSound());       // [2]
+
+        synth.addSound (new SineWaveSound()); // [2]
     }
- 
+
     void setUsingSineWaveSound()
     {
         synth.clearSounds();
     }
- 
+
     void prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate) override
     {
         synth.setCurrentPlaybackSampleRate (sampleRate); // [3]
     }
- 
+
     void releaseResources() override {}
- 
+
     void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
     {
         bufferToFill.clearActiveBufferRegion();
- 
+
         juce::MidiBuffer incomingMidi;
-        keyboardState.processNextMidiBuffer (incomingMidi, bufferToFill.startSample,
-                                             bufferToFill.numSamples, true);       // [4]
- 
-        synth.renderNextBlock (*bufferToFill.buffer, incomingMidi,
-                               bufferToFill.startSample, bufferToFill.numSamples); // [5]
+        keyboardState.processNextMidiBuffer (incomingMidi, bufferToFill.startSample, bufferToFill.numSamples, true); // [4]
+
+        synth.renderNextBlock (*bufferToFill.buffer, incomingMidi, bufferToFill.startSample, bufferToFill.numSamples); // [5]
     }
- 
+
 private:
     juce::MidiKeyboardState& keyboardState;
     juce::Synthesiser synth;
 };
 ```
 
-- \[1\]シンセサイザーに音色を追加します。このボイスの数によって、シンセサイザーのポリフォニーが決まります。
-- \[2\]シンセサイザーがどの音を演奏できるかを知るために、音を加えるんだ。
-- \[3\]シンセサイザーはオーディオ出力のサンプルレートを知る必要がある。
-- \[4\]において`getNextAudioBlock()`関数からMIDIデータのバッファを取り出します。[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "ピアノの鍵盤を表し、現在どの鍵盤が押されているかを記録する。")オブジェクトがある。
-- \[5\]これらのMIDIバッファはシンセサイザーに渡され、ノートオンとノートオフのタイムスタンプ（および他のMIDIチャンネルの音色メッセージ）を使って音色をレンダリングします。
+- \[1\]: シンセサイザーにいくつかのボイスを追加します。追加されたボイスの数によって、シンセサイザーのポリフォニーが決まります。
+- \[2\]: シンセサイザーが再生できるサウンドを知ることができるように、サウンドを追加します。
+- \[3\]: シンセサイザーは、音声出力のサンプルレートを知る必要があります。
+- \[4\]: `getNextAudioBlock()`関数では、[MidiKeyboardState](https://docs.juce.com/master/classMidiKeyboardState.html "Represents a piano keyboard, keeping track of which keys are currently pressed.")オブジェクトからMIDIデータのバッファを取得します。
+- \[5\]: これらのMIDIのバッファは、ノートオンおよびノートオフメッセージ(および他のMIDIチャンネルボイスメッセージ)のタイムスタンプを使用してボイスをレンダリングするために使用されるシンセサイザーに渡されます。
 
 :::warning
-
-[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "SynthesiserがSynthesiserSoundを再生するために使用できる音色を表します。")オブジェクトを追加する必要があります。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトになる。その[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトがヴォイスのライフタイムを管理する。
-
+[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "Represents a voice that a Synthesiser can use to play a SynthesiserSound.")オブジェクトは、1つの[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクトにのみ追加する必要があります。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクトは、ボイスの寿命を管理します。
 :::
 
-[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")オブジェクトは[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトを使用できます。その[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")クラスは[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラスの寿命は[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")オブジェクトは自動的に処理される。
+[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "Describes one of the sounds that a Synthesiser can play.")オブジェクトは、必要に応じて[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクト間で共有できます。[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "Describes one of the sounds that a Synthesiser can play.")クラスは、[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "A base class which provides methods for reference-counting.")クラスの一種であるため、[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "Describes one of the sounds that a Synthesiser can play.")オブジェクトの寿命は自動的に処理されます。
 
-:::note
-
-へのポインタを保持する必要がある場合は、次のようにする。[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")オブジェクトに格納する必要があります。`YourSoundClass::Ptr`このメモリ管理が機能するように、この変数を使用する。
-
+:::tip
+[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "Describes one of the sounds that a Synthesiser can play.")オブジェクトへのポインタを保持する必要がある場合は、このメモリ管理が機能するように、`YourSoundClass::Ptr`変数に格納する必要があります。
 :::
 
 ### SineWaveSoundクラス
 
-私たちのサウンドクラスはとてもシンプルで、データを含む必要すらありません。ただ、このサウンドが特定のMIDIチャンネルとそのチャンネルの特定の音符または音域で再生されるべきかどうかを報告する必要があるだけです。この単純なケースでは`true`ともに`appliesToNote()`そして`appliesToChannel()`関数を使用します。前述したように、サウンド・クラスには、サウンドを作成するのに必要なデータ（ウェーブテーブルなど）を格納できる。
+サウンドクラスは非常にシンプルで、データを含む必要さえありません。特定のMIDIチャンネルとそのチャンネル上の特定のノートまたはノート範囲でこのサウンドを再生する必要があるかどうかを報告するだけです。シンプルなケースでは、`appliesToNote()`と`appliesToChannel()`関数の両方に対して`true`を返すだけです。前述のように、サウンドクラスは、サウンドを作成するために必要なデータ(ウェーブテーブルなど)を格納する場所である可能性があります。
 
 ```cpp
-struct SineWaveSound   : public juce::SynthesiserSound
+struct SineWaveSound : public juce::SynthesiserSound
 {
     SineWaveSound() {}
- 
-    bool appliesToNote    (int) override        { return true; }
-    bool appliesToChannel (int) override        { return true; }
+
+    bool appliesToNote (int) override { return true; }
+    bool appliesToChannel (int) override { return true; }
 };
 ```
 
-### 正弦波の音声状態
+### サイン波ボイスの状態
 
-について`SineWaveVoice`クラスはもう少し複雑だ。シンセサイザーのボイスの1つの状態を維持する必要がある。私たちのサイン波には、これらのデータ・メンバーが必要だ：
+`SineWaveVoice`クラスはもう少し複雑です。シンセサイザーのボイスの1つの状態を維持する必要があります。サイン波の場合、これらのデータメンバーが必要です:
 
 ```cpp
 private:
@@ -199,296 +189,283 @@ private:
 };
 ```
 
-参照[Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/)最初の3つに関する情報はこちら。その`tailOff`メンバーを使って、それぞれの声を少しソフトにする。*リリース*をその振幅エンベロープに加えます。これにより、各音声は突然止まるのではなく、最後にわずかにフェードアウトする。
+最初の3つについては、[Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/)を参照してください。`tailOff`メンバーは、各ボイスに振幅エンベロープへのわずかにソフトな*リリース*を与えるために使用されます。これにより、各ボイスは急激に停止するのではなく、最後に少しフェードアウトします。
 
 <CaptionImage
   src="/_images/tutorial_synth_using_midi_input_graph1.png"
-  caption="指数放出エンベロープ"
+  caption="Exponential release envelope"
 />
 
-### 再生可能な音の確認
+### 再生できるサウンドのチェック
 
-について[SynthesiserVoice::canPlaySound()](https://docs.juce.com/master/classSynthesiserVoice.html#aa9fb097ca96dc39fae8e6f7b9139df9f "このボイスオブジェクトが与えられたサウンドを再生できる場合、trueを返さなければならない。")関数をオーバーライドして、ボイスがサウンドを再生できるかどうかを返さなければならない。単に`true`を使用する方法を説明する。`dynamic_cast`で、渡されたサウンド・クラスのタイプをチェックする。
+[SynthesiserVoice::canPlaySound()](https://docs.juce.com/master/classSynthesiserVoice.html#aa9fb097ca96dc39fae8e6f7b9139df9f "Must return true if this voice object is capable of playing the given sound.")関数をオーバーライドして、ボイスがサウンドを再生できるかどうかを返す必要があります。この場合は単に`true`を返すこともできますが、この例では、渡されるサウンドクラスのタイプをチェックするために`dynamic_cast`を使用する方法を示しています。
 
 ```cpp
-    bool canPlaySound (juce::SynthesiserSound* sound) override
-    {
-        return dynamic_cast (sound) != nullptr;
-    }
+bool canPlaySound (juce::SynthesiserSound* sound) override
+{
+    return dynamic_cast<SineWaveSound*> (sound) != nullptr;
+}
 ```
 
-### 声を出す
+### ボイスの開始
 
-音声は、シンセサイザーが私たちの[SynthesiserVoice::startNote()](https://docs.juce.com/master/classSynthesiserVoice.html#af3b872622dd9bb540030420189175762 "新しいノートを始めるために電話した。")関数をオーバーライドしなければならない：
+ボイスは、[SynthesiserVoice::startNote()](https://docs.juce.com/master/classSynthesiserVoice.html#af3b872622dd9bb540030420189175762 "Called to start a new note.")関数を呼び出すことによって、所有するシンセサイザーによって開始されます。これをオーバーライドする必要があります:
 
 ```cpp
-    void startNote (int midiNoteNumber, float velocity,
-                    juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
-    {
-        currentAngle = 0.0;
-        level = velocity * 0.15;
-        tailOff = 0.0;
- 
-        auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-        auto cyclesPerSample = cyclesPerSecond / getSampleRate();
- 
-        angleDelta = cyclesPerSample * 2.0 * juce::MathConstants::pi;
-    }
+void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
+{
+    currentAngle = 0.0;
+    level = velocity * 0.15;
+    tailOff = 0.0;
+
+    auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber);
+    auto cyclesPerSample = cyclesPerSecond / getSampleRate();
+
+    angleDelta = cyclesPerSample * 2.0 * juce::MathConstants<double>::pi;
+}
 ```
 
-繰り返しになるが、この大部分は、あなたが以前から慣れ親しんできたものであるはずだ。[Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/).その`tailOff`の値は、各ボイスの開始時にゼロに設定されます。また、MIDIノートオンイベントのベロシティを使って、ボイスのレベルをコントロールします。
+これも、[Tutorial: Build a sine wave synthesiser](../tutorial_sine_synth/)からよく知っているはずです。`tailOff`値は、各ボイスの開始時にゼロに設定されます。また、MIDIノートオンイベントのベロシティを使用して、ボイスのレベルを制御します。
 
-### 声のレンダリング
+### ボイスのレンダリング
 
-について[SynthesiserVoice::renderNextBlock()](https://docs.juce.com/master/classSynthesiserVoice.html#a72ab7856c1e7651b1ce955388645a0a1 "この音声の次のデータ・ブロックをレンダリングする。")関数をオーバーライドしなければならない。
+[SynthesiserVoice::renderNextBlock()](https://docs.juce.com/master/classSynthesiserVoice.html#a72ab7856c1e7651b1ce955388645a0a1 "Renders the next block of data for this voice.")関数をオーバーライドして、音声を生成する必要があります。
 
 ```cpp
-    void renderNextBlock (juce::AudioSampleBuffer& outputBuffer, int startSample, int numSamples) override
+void renderNextBlock (juce::AudioSampleBuffer& outputBuffer, int startSample, int numSamples) override
+{
+    if (angleDelta != 0.0)
     {
-        if (angleDelta != 0.0)
+        if (tailOff > 0.0) // [7]
         {
-            if (tailOff > 0.0) // [7]
+            while (--numSamples >= 0)
             {
-                while (--numSamples >= 0)
+                auto currentSample = (float) (std::sin (currentAngle) * level * tailOff);
+
+                for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
+                    outputBuffer.addSample (i, startSample, currentSample);
+
+                currentAngle += angleDelta;
+                ++startSample;
+
+                tailOff *= 0.99; // [8]
+
+                if (tailOff <= 0.005)
                 {
-                    auto currentSample = (float) (std::sin (currentAngle) * level * tailOff);
- 
-                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample);
- 
-                    currentAngle += angleDelta;
-                    ++startSample;
- 
-                    tailOff *= 0.99; // [8]
- 
-                    if (tailOff <= 0.005)
-                    {
-                        clearCurrentNote(); // [9]
- 
-                        angleDelta = 0.0;
-                        break;
-                    }
+                    clearCurrentNote(); // [9]
+
+                    angleDelta = 0.0;
+                    break;
                 }
             }
-            else
-            {
-                while (--numSamples >= 0) // [6]
-                {
-                    auto currentSample = (float) (std::sin (currentAngle) * level);
- 
-                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample);
- 
-                    currentAngle += angleDelta;
-                    ++startSample;
-                }
-            }
-        }
-    }
-```
-
-- \[6\]このループは*通常*キーを押している間の声の状態。キーボードの[AudioSampleBuffer::addSample()](https://docs.juce.com/master/classAudioBuffer.html#ab46e9ad400252255daa1086b354454b8)をミックスする。`currentSample`の値を、インデックス`startSample`.これは、シンセサイザーがすべてのボイスを繰り返し演奏するためです。その出力をバッファの現在の内容とミックスするのは、各音声の責任である。
-- \[7\]キーを離すと`tailOff`の値はゼロより大きくなる。合成アルゴリズムが似ているのがわかるだろう。
-- \[8\]我々は単純な指数関数的減衰のエンベロープ形状を使っている。
-- \[9\]の場合`tailOff`値が小さければ、声が終わったと判断する。我々は*マスト*を呼び出す。[SynthesiserVoice::clearCurrentNote()](https://docs.juce.com/master/classSynthesiserVoice.html#a55d1e7a062f8dc9a6cd78526b0da049c "サウンドの再生終了後、このボイスの状態をリセットする。")この時点で音声がリセットされ、再利用できるようになる。
-
-:::warning
-
-それは*とても*に注意することが重要である。`startSample`引数を使用する。シンセサイザーが`renderNextBlock()`関数は出力ブロックの途中から開始します。これは、ノートがどのサンプルからでも開始できるためです。これらの開始時間は、受信したMIDIデータのタイムスタンプに基づいています。
-
-:::
-
-### 声を止める
-
-というシンセサイザーが声を止める。[SynthesiserVoice::stopNote()](https://docs.juce.com/master/classSynthesiserVoice.html#ae1faf9289de24cdeb1d42289754601e6 "ノートを止めるために電話した。")関数をオーバーライドしなければならない：
-
-```cpp
-    void stopNote (float /*velocity*/, bool allowTailOff) override
-    {
-        if (allowTailOff)
-        {
-            if (tailOff == 0.0)
-                tailOff = 1.0;
         }
         else
         {
-            clearCurrentNote();
-            angleDelta = 0.0;
+            while (--numSamples >= 0) // [6]
+            {
+                auto currentSample = (float) (std::sin (currentAngle) * level);
+
+                for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
+                    outputBuffer.addSample (i, startSample, currentSample);
+
+                currentAngle += angleDelta;
+                ++startSample;
+            }
         }
     }
+}
 ```
 
-これにはMIDIノートオフメッセージからのベロシティ情報が含まれるかもしれませんが、多くの場合、これは無視できます。ボイスをすぐに止めるように要求されている場合もあります。[SynthesiserVoice::clearCurrentNote()](https://docs.juce.com/master/classSynthesiserVoice.html#a55d1e7a062f8dc9a6cd78526b0da049c "サウンドの再生終了後、このボイスの状態をリセットする。")機能はすぐに終了します。通常の状況では、シンセサイザーは私たちの声を自然に終わらせてくれます。私たちの場合は、シンプルなテールオフ・エンベロープを使います。テールオフのトリガーは`tailOff`メンバー`1.0`.
+- \[6\]: このループは、キーが押されている間のボイスの*通常*の状態で使用されます。[AudioSampleBuffer::addSample()](https://docs.juce.com/master/classAudioBuffer.html#ab46e9ad400252255daa1086b354454b8)関数を使用していることに注意してください。これは、`currentSample`値をインデックス`startSample`の値と混合します。これは、シンセサイザーがすべてのボイスを反復処理するためです。各ボイスは、出力をバッファの現在の内容とミックスする責任があります。
+- \[7\]: キーが離されると、`tailOff`値はゼロより大きくなります。合成アルゴリズムは似ています。
+- \[8\]: シンプルな指数減衰エンベロープ形状を使用します。
+- \[9\]: `tailOff`値が小さい場合、ボイスが終了したと判断します。この時点で、ボイスがリセットされて再利用できるように、[SynthesiserVoice::clearCurrentNote()](https://docs.juce.com/master/classSynthesiserVoice.html#a55d1e7a062f8dc9a6cd78526b0da049c "Resets the state of this voice after a sound has finished playing.")関数を呼び出す*必要*があります。
 
-:::danger[エクササイズ]
+:::warning
+`startSample`引数に注意することは*非常に*重要です。シンセサイザーは、出力ブロックの途中で`renderNextBlock()`関数を呼び出す可能性が非常に高いです。これは、ノートが任意のサンプルで開始される可能性があるためです。これらの開始時間は、受信したMIDIデータのタイムスタンプに基づいています。
+:::
 
-声部が突然始まらないように、ゆっくりしたアタックを加えてみてください。
+### ボイスの停止
 
+ボイスは、所有するシンセサイザーが[SynthesiserVoice::stopNote()](https://docs.juce.com/master/classSynthesiserVoice.html#ae1faf9289de24cdeb1d42289754601e6 "Called to stop a note.")関数を呼び出すことによって停止されます。これをオーバーライドする必要があります:
+
+```cpp
+void stopNote (float /*velocity*/, bool allowTailOff) override
+{
+    if (allowTailOff)
+    {
+        if (tailOff == 0.0)
+            tailOff = 1.0;
+    }
+    else
+    {
+        clearCurrentNote();
+        angleDelta = 0.0;
+    }
+}
+```
+
+これには、MIDIノートオフメッセージからのベロシティ情報が含まれる場合がありますが、多くの場合、これを無視できます。すぐにボイスを停止するように求められる場合があります。その場合、すぐに[SynthesiserVoice::clearCurrentNote()](https://docs.juce.com/master/classSynthesiserVoice.html#a55d1e7a062f8dc9a6cd78526b0da049c "Resets the state of this voice after a sound has finished playing.")関数を呼び出します。通常の状況では、シンセサイザーはボイスが自然に終了することを許可します。この場合、シンプルなテールオフエンベロープがあります。`tailOff`メンバーを`1.0`に設定することで、テールオフをトリガーします。
+
+:::note
+演習: ボイスが急激に開始しないように、ボイスにより遅いアタックを追加してみてください。
 :::
 
 ## 外部MIDI入力の追加
 
-スクリーン上のキーボードだけでなく、外部MIDIソースからシンセサイザーをコントロールできる機能を追加しよう。
+画面上のキーボードに加えて、外部MIDIソースがシンセサイザーを制御できるように機能を追加しましょう。
 
 :::warning
-
-おそらく、モバイル・プラットフォームではなく、macOS、Windows、Linuxなどのデスクトップ・プラットフォームで試す必要があるだろう。
-
+おそらく、モバイルプラットフォームではなく、macOS、Windows、Linuxなどのデスクトッププラットフォームのいずれかで試す必要があります。
 :::
 
-### MIDI入力をSynthAudioSourceに提供する
+### SynthAudioSourceへのMIDI入力の提供
 
-まず[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")オブジェクトを`SynthAudioSource`クラスです。これは、MIDIメッセージを送信できる場所と`SynthAudioSource`クラスが使用できる：
+まず、`SynthAudioSource`クラスのメンバーとして[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "Collects incoming realtime MIDI messages and turns them into blocks suitable for processing by a bloc...")オブジェクトを追加します。これにより、MIDIメッセージを送信でき、`SynthAudioSource`クラスがそれらを使用できる場所が提供されます:
 
 ```cpp
-    juce::MidiMessageCollector midiCollector;
+juce::MidiMessageCollector midiCollector;
 };
 ```
 
-MIDIデータのタイムスタンプを処理するために[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")クラスはオーディオ・サンプル・レートを知る必要があります。これを`SynthAudioSource::prepareToPlay()`機能\[10\]:
+MIDIデータのタイムスタンプを処理するために、[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "Collects incoming realtime MIDI messages and turns them into blocks suitable for processing by a bloc...")クラスは音声サンプルレートを知る必要があります。これを`SynthAudioSource::prepareToPlay()`関数で設定します\[10\]:
 
 ```cpp
-    void prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate) override
+void prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate) override
+{
+    synth.setCurrentPlaybackSampleRate (sampleRate);
+    midiCollector.reset (sampleRate); // [10]
+}
+```
+
+次に、[MidiMessageCollector::removeNextBlockOfMessages()](https://docs.juce.com/master/classMidiMessageCollector.html#ac72b6cf4965e63b90d1a2402b73b1798 "Removes all the pending messages from the queue as a buffer.")関数を使用して、各音声ブロックのMIDIメッセージを取得できます\[11\]:
+
+```cpp
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+{
+    bufferToFill.clearActiveBufferRegion();
+
+    juce::MidiBuffer incomingMidi;
+    midiCollector.removeNextBlockOfMessages (incomingMidi, bufferToFill.numSamples); // [11]
+
+    keyboardState.processNextMidiBuffer (incomingMidi, bufferToFill.startSample, bufferToFill.numSamples, true);
+
+    synth.renderNextBlock (*bufferToFill.buffer, incomingMidi, bufferToFill.startSample, bufferToFill.numSamples);
+}
+```
+
+`SynthAudioSource`クラスの外部からこの[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "Collects incoming realtime MIDI messages and turns them into blocks suitable for processing by a bloc...")オブジェクトにアクセスする必要があるため、次のように`SynthAudioSource`クラスにアクセサを追加します:
+
+```cpp
+juce::MidiMessageCollector* getMidiCollector()
+{
+    return &midiCollector;
+}
+```
+
+`MainContentComponent`クラスでは、この[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "Collects incoming realtime MIDI messages and turns them into blocks suitable for processing by a bloc...")オブジェクトを、アプリケーションの[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "Manages the state of some audio and midi i/o devices.")オブジェクトに[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "Receives incoming messages from a physical MIDI input device.")オブジェクトとして追加します。
+
+### MIDI入力のリスト表示
+
+ユーザーにMIDI入力デバイスのリストを表示するために、[Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/)のコードを使用します。`MainContentComponent`クラスにいくつかのメンバーを追加します:
+
+```cpp
+juce::ComboBox midiInputList;
+juce::Label midiInputListLabel;
+int lastInputIndex = 0;
+```
+
+次に、次のコードを`MainContentComponent`コンストラクタに追加します。
+
+```cpp
+addAndMakeVisible (midiInputListLabel);
+midiInputListLabel.setText ("MIDI Input:", juce::dontSendNotification);
+midiInputListLabel.attachToComponent (&midiInputList, true);
+
+auto midiInputs = juce::MidiInput::getAvailableDevices();
+addAndMakeVisible (midiInputList);
+midiInputList.setTextWhenNoChoicesAvailable ("No MIDI Inputs Enabled");
+
+juce::StringArray midiInputNames;
+for (auto input : midiInputs)
+    midiInputNames.add (input.name);
+
+midiInputList.addItemList (midiInputNames, 1);
+midiInputList.onChange = [this] { setMidiInput (midiInputList.getSelectedItemIndex()); };
+
+for (auto input : midiInputs)
+{
+    if (deviceManager.isMidiInputDeviceEnabled (input.identifier))
     {
-        synth.setCurrentPlaybackSampleRate (sampleRate);
-        midiCollector.reset (sampleRate); // [10]
+        setMidiInput (midiInputs.indexOf (input));
+        break;
     }
+}
+
+if (midiInputList.getSelectedId() == 0)
+    setMidiInput (0);
 ```
 
-次に、オーディオの各ブロックに対応するMIDIメッセージを[MidiMessageCollector::removeNextBlockOfMessages()](https://docs.juce.com/master/classMidiMessageCollector.html#ac72b6cf4965e63b90d1a2402b73b1798 "保留中のメッセージをすべてバッファとしてキューから削除する。")機能\[11\]:
+上記のコードで呼び出される`setMidiInput()`関数を追加します:
 
 ```cpp
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
-    {
-        bufferToFill.clearActiveBufferRegion();
- 
-        juce::MidiBuffer incomingMidi;
-        midiCollector.removeNextBlockOfMessages (incomingMidi, bufferToFill.numSamples); // [11]
- 
-        keyboardState.processNextMidiBuffer (incomingMidi, bufferToFill.startSample,
-                                             bufferToFill.numSamples, true);
- 
-        synth.renderNextBlock (*bufferToFill.buffer, incomingMidi,
-                               bufferToFill.startSample, bufferToFill.numSamples);
-    }
+void setMidiInput (int index)
+{
+    auto list = juce::MidiInput::getAvailableDevices();
+
+    deviceManager.removeMidiInputDeviceCallback (list[lastInputIndex].identifier,
+        synthAudioSource.getMidiCollector()); // [12]
+
+    auto newInput = list[index];
+
+    if (!deviceManager.isMidiInputDeviceEnabled (newInput.identifier))
+        deviceManager.setMidiInputDeviceEnabled (newInput.identifier, true);
+
+    deviceManager.addMidiInputDeviceCallback (newInput.identifier, synthAudioSource.getMidiCollector()); // [13]
+    midiInputList.setSelectedId (index + 1, juce::dontSendNotification);
+
+    lastInputIndex = index;
+}
 ```
 
-これにアクセスする必要がある[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")オブジェクトの外側から`SynthAudioSource`クラスにアクセッサを追加します。`SynthAudioSource`クラスはこんな感じだ：
+`SynthAudioSource`オブジェクトから[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "Collects incoming realtime MIDI messages and turns them into blocks suitable for processing by a bloc...")オブジェクトを、指定されたMIDI入力デバイスの[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "Receives incoming messages from a physical MIDI input device.")オブジェクトとして追加していることに注意してください[13]。また、ユーザーがコンボボックスを使用して選択したデバイスを変更した場合に備えて、以前に選択したMIDI入力デバイスの以前の[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "Receives incoming messages from a physical MIDI input device.")オブジェクトを削除する必要があります[12]。
+
+`resized()`関数で、この[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")オブジェクトを配置し、[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "A component that displays a piano keyboard, whose notes can be clicked on.")オブジェクトの位置を調整する必要があります:
 
 ```cpp
-    juce::MidiMessageCollector* getMidiCollector()
-    {
-        return &midiCollector;
-    }
+void resized() override
+{
+    midiInputList.setBounds (200, 10, getWidth() - 210, 20);
+    keyboardComponent.setBounds (10, 40, getWidth() - 20, getHeight() - 50);
+}
 ```
 
-我々の`MainContentComponent`クラスに次のように追加する。[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")オブジェクトを[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。")オブジェクトをアプリケーションの[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "いくつかのオーディオおよびMIDI入出力デバイスの状態を管理する。")オブジェクトがある。
-
-### MIDI入力のリスト
-
-MIDI入力デバイスのリストをユーザーに提示するために、以下のコードを使います。[Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/).メンバーを追加する`MainContentComponent`クラスである：
-
-```cpp
-    juce::ComboBox midiInputList;
-    juce::Label midiInputListLabel;
-    int lastInputIndex = 0;
-```
-
-次に、以下のコードを`MainContentComponent`ビルダー
-
-```cpp
-        addAndMakeVisible (midiInputListLabel);
-        midiInputListLabel.setText ("MIDI Input:", juce::dontSendNotification);
-        midiInputListLabel.attachToComponent (&midiInputList, true);
- 
-        auto midiInputs = juce::MidiInput::getAvailableDevices();
-        addAndMakeVisible (midiInputList);
-        midiInputList.setTextWhenNoChoicesAvailable ("No MIDI Inputs Enabled");
- 
-        juce::StringArray midiInputNames;
-        for (auto input : midiInputs)
-            midiInputNames.add (input.name);
- 
-        midiInputList.addItemList (midiInputNames, 1);
-        midiInputList.onChange = [this] { setMidiInput (midiInputList.getSelectedItemIndex()); };
- 
-        for (auto input : midiInputs)
-        {
-            if (deviceManager.isMidiInputDeviceEnabled (input.identifier))
-            {
-                setMidiInput (midiInputs.indexOf (input));
-                break;
-            }
-        }
- 
-        if (midiInputList.getSelectedId() == 0)
-            setMidiInput (0);
-```
-
-を追加する。`setMidiInput()`関数が呼び出される：
-
-```cpp
-    void setMidiInput (int index)
-    {
-        auto list = juce::MidiInput::getAvailableDevices();
- 
-        deviceManager.removeMidiInputDeviceCallback (list[lastInputIndex].identifier,
-                                                     synthAudioSource.getMidiCollector()); // [12]
- 
-        auto newInput = list[index];
- 
-        if (! deviceManager.isMidiInputDeviceEnabled (newInput.identifier))
-            deviceManager.setMidiInputDeviceEnabled (newInput.identifier, true);
- 
-        deviceManager.addMidiInputDeviceCallback (newInput.identifier, synthAudioSource.getMidiCollector()); // [13]
-        midiInputList.setSelectedId (index + 1, juce::dontSendNotification);
- 
-        lastInputIndex = index;
-    }
-```
-
-を追加していることに注意してください。[MidiMessageCollector](https://docs.juce.com/master/classMidiMessageCollector.html "入力されるリアルタイムMIDIメッセージを収集し、ブロックによる処理に適したブロックに変換します。")オブジェクトを`SynthAudioSource`オブジェクトを[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。")オブジェクト\[13\]を指定されたMIDI入力デバイスに適用します。また、以前の[MidiInputCallback](https://docs.juce.com/master/classMidiInputCallback.html "物理的なMIDI入力デバイスからの受信メッセージを受信する。")ユーザーがコンボボックスを使って選択したデバイスを変更した場合、以前に選択したMIDI入力デバイスのオブジェクトを返します。\[12\]。
-
-私たちは、これを次のように位置づける必要がある。[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")オブジェクトの位置を調整する。[MidiKeyboardComponent](https://docs.juce.com/master/classMidiKeyboardComponent.html "ピアノの鍵盤を表示するコンポーネントで、音符をクリックすることができる。")オブジェクトを`resized()`関数である：
-
-```cpp
-    void resized() override
-    {
-        midiInputList    .setBounds (200, 10, getWidth() - 210, 20);
-        keyboardComponent.setBounds (10,  40, getWidth() - 20, getHeight() - 50);
-    }
-```
-
-もう一度アプリケーションを実行すると、次のようになるはずです：
+アプリケーションを再度実行すると、次のように表示されるはずです:
 
 <CaptionImage
   src="/_images/tutorial_synth_using_midi_input_screenshot2.png"
-  caption="MIDI入力デバイスリストを表示するアプリケーション・ウィンドウ"
+  caption="The application window showing the MIDI input device list"
 />
 
-もちろん、表示されるデバイスはシステム構成によって異なります。
+もちろん、リストされるデバイスは、特定のシステム構成によって異なります。
+
+:::tip
+このアプリケーションの変更版のソースコードは、デモプロジェクトの`SynthUsingMidiInputTutorial_02.h`ファイルにあります。
+:::
 
 :::note
-
-この修正版アプリケーションのソースコードは`SynthUsingMidiInputTutorial_02.h`ファイルにある。
-
+演習: 各ボイスのテールオフの長さを制御するスライダーを追加してみてください。以前の演習でアタックを追加した場合は、アタックの長さを制御するスライダーも追加できます。
 :::
 
-:::danger[エクササイズ]
+## まとめ
 
-各ボイスのテールオフの長さをコントロールするスライダーを追加してみてください。また、アタックの長さをコントロールするスライダーを追加することもできます。
+このチュートリアルでは、[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")クラスを紹介しました。このチュートリアルを読んだ後、次のことができるようになります:
 
-:::
+- 音声を生成するために[AudioSource](https://docs.juce.com/master/classAudioSource.html "Base class for objects that can produce a continuous stream of audio.")サブクラス内に[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")クラスをセットアップする。
+- 適切な[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "Represents a voice that a Synthesiser can use to play a SynthesiserSound.")および[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "Describes one of the sounds that a Synthesiser can play.")クラスを作成し、[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクトに追加する。
+- 画面上のキーボードと外部MIDIソースからMIDIメッセージを[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクトに送信する。
 
-## 概要
-
-このチュートリアルでは[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラスです。このチュートリアルを読めば、次のことができるようになるでしょう：
-
-- を設定する。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")クラス内の[AudioSource](https://docs.juce.com/master/classAudioSource.html "連続した音声ストリームを生成するオブジェクトの基本クラス。")オーディオを生成するためのサブクラスです。
-- 適切な[SynthesiserVoice](https://docs.juce.com/master/classSynthesiserVoice.html "SynthesiserがSynthesiserSoundを再生するために使用できる音色を表します。")そして[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "シンセサイザーが奏でることのできる音の一つを説明する。")クラスに追加する。[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトがある。
-- オンスクリーン・キーボードと外部MIDIソースからのMIDIメッセージを[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "音を奏でることができる音楽装置の基本クラス。")オブジェクトがある。
-
-## 参照
+## 関連項目
 
 - [Tutorial: Handling MIDI events](../../midi/tutorial_handling_midi_events/)
 - [Tutorial: Build a white noise generator](../tutorial_simple_synth_noise/)
