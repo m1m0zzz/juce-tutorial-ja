@@ -1,186 +1,169 @@
 ---
-title: ウェーブシェーピングとコンボリューションによる歪みの追加
+title: ウェーブシェイピングとコンボリューションによるディストーションの追加
 sidebar_position: 2
 tags: [上級]
 ---
 
-# ウェーブシェイピングとコンボリューションで歪みを加える
+# チュートリアル：ウェーブシェイピングとコンボリューションによるディストーションの追加
 
 <SourcePageLink path="tutorial_dsp_convolution" />
 
-ウェーブシェーピングでハーモニック・ディストーションを作り、シンセサイザー・サウンドに重厚さを加える。インパルス・レスポンスに含まれる音の特徴を取り出すコンボリューションの基礎を学びます。
+ウェーブシェイピングを通じて倍音歪みを作成し、シンセサイザーサウンドにグリットを加えます。インパルスレスポンスに含まれる音響特性を取得するためのコンボリューションの基本を学びます。
 
-レベル：上級
-
-プラットフォーム：Windows, macOS, Linux
-
-プラグイン形式：VST, AU, スタンドアローン
-
-クラス： [dsp::ProcessorChain](https://docs.juce.com/master/classdsp_1_1ProcessorChain.html "この変種テンプレート化されたクラスを使用すると、任意の数のプロセッサー・クラスを1つにまとめることができます。"),
-[dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html "単一のサンプルまたは AudioBlock としてオーディオサンプルにゲインを適用します。"),
-[dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html "ユーザーが指定した関数に基づいて信号を生成する。"),
-[dsp::Convolution](https://docs.juce.com/master/classdsp_1_1Convolution.html "インパルス応答を持つ入力信号のステレオ分割畳み込みを周波数..."),
-[dsp::WaveShaper](https://docs.juce.com/master/structdsp_1_1WaveShaper.html "オーディオサンプルにウェーブシェーピングを適用します。"),
-[dsp::Reverb](https://docs.juce.com/master/classdsp_1_1Reverb.html "ProcessorChain に簡単に統合できる juce::Reverb の Processor ラッパー。"),
-[dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "モノラル・プロセッサー・クラスを複製し、マルチチャンネル・プロセッサー・クラスを適用することで、マルチチャンネル・プロセッサー・クラスに変換します。")
+**レベル:** 上級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**プラグイン形式:** VST, AU, Standalone<br/>
+**クラス:** [dsp::ProcessorChain](https://docs.juce.com/master/classdsp_1_1ProcessorChain.html "This variadically-templated class lets you join together any number of processor classes into a singl..."), [dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html "Applies a gain to audio samples as single samples or AudioBlocks."), [dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html "Generates a signal based on a user-supplied function."), [dsp::Convolution](https://docs.juce.com/master/classdsp_1_1Convolution.html "Performs stereo partitioned convolution of an input signal with an impulse response in the frequency ..."), [dsp::WaveShaper](https://docs.juce.com/master/structdsp_1_1WaveShaper.html "Applies waveshaping to audio samples as single samples or AudioBlocks."), [dsp::Reverb](https://docs.juce.com/master/classdsp_1_1Reverb.html "Processor wrapper around juce::Reverb for easy integration into ProcessorChain."), [dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan...")
 
 :::warning
-
-このプロジェクトには、C++14の機能をサポートするコンパイラが必要です。XcodeとVisual Studioの最近のバージョンには、このサポートが含まれています。
-
+このプロジェクトにはC++14機能をサポートするコンパイラが必要です。最新バージョンのXcodeとVisual Studioにはこのサポートが含まれています。
 :::
 
-## スタート
+## はじめに
 
-このチュートリアルは[Tutorial: Introduction to DSP](../tutorial_dsp_introduction/).もしまだなら、まずそのチュートリアルを読むべきだ。
+このチュートリアルは[チュートリアル：DSP入門](../tutorial_dsp_introduction/)からの続きです。まだ読んでいない場合は、まずそのチュートリアルを読んでください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/DSPConvolutionTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/DSPConvolutionTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/DSPConvolutionTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/DSPConvolutionTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
 :::warning
-
-このプロジェクトのpipバージョンを使用する場合は、必ず`Resources`フォルダを生成されたProjucerプロジェクトに追加します。
-
+このプロジェクトのPIPバージョンを使用する場合は、`Resources`フォルダを生成されたProjucerプロジェクトにコピーしてください。
 :::
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-### デモ・プロジェクト
+## デモプロジェクト
 
-プロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメント・ターゲットを選択することで、スタンドアローン・アプリケーションとして実行できます。Xcodeでは、以下のスクリーンショットのように、メインウィンドウの左上でターゲットを変更できます：
+このプロジェクトはプラグインとして構想されていますが、IDEで適切なデプロイメントターゲットを選択することでスタンドアロンアプリケーションとして実行できます。Xcodeでは、以下のスクリーンショットに示すように、メインウィンドウの左上隅でターゲットを変更できます：
 
 <CaptionImage
   src="/_images/tutorial_dsp_introduction_standalone_screenshot1.png"
-  caption="Xcodeでデプロイメント・ターゲットを変更する"
+  caption="Xcodeでデプロイメントターゲットを変更"
 />
 
-デモ・プロジェクトでは、プラグインの上半分にMIDIキーボードが画面上に表示され、下半分にはオシロスコープを通して信号が視覚的に表示される。現在、鍵盤が押されると、プラグインはリバーブを加えた基本的なオシレーター・サウンドを出力します。
+デモプロジェクトは、プラグインの上半分に画面上のMIDIキーボード、下半分にオシロスコープを通じた信号の視覚的表現を提供します。現在、キーを押すと、プラグインはいくつかのリバーブが追加された基本的なオシレーターサウンドを出力します。
 
-:::note
-
-でリバーブプロセッサーをコメントアウトすることで、チュートリアルの各ステップの変化を明確に聴き取ることができます。`AudioEngine`クラスである。
-
+:::tip
+`AudioEngine`クラスでリバーブプロセッサをコメントアウトすることで、チュートリアルの各ステップでの変化を明確に聴くためにリバーブを削除してください。
 :::
+
 <CaptionImage
   src="/_images/tutorial_dsp_introduction_screenshot1.png"
   caption="デモプロジェクトのプラグインウィンドウ"
 />
 
-:::note
-
-MIDIコントローラーをお持ちの場合は、このチュートリアル中、画面上のキーボードを使う代わりに、MIDIコントローラーを接続することもできます。
-
+:::tip
+MIDIコントローラーをお持ちの場合は、このチュートリアル全体で画面上のキーボードの代わりに接続することもできます。
 :::
 
-### はじめに
+## イントロダクション
 
-このチュートリアルでは、異なる方法で信号処理を可能にする2つの新しいDSPコンセプトを紹介します：ウェーブシェーピングとコンボリューションです。
+このチュートリアルでは、異なる方法で信号処理を可能にする2つの新しいDSPコンセプトを紹介します：ウェーブシェイピングとコンボリューション。
 
-このDSP用語の定義から始めよう。
+まず、このDSP用語を定義しましょう。
 
-#### ウェーブシェイピングとは何か？
+### ウェーブシェイピングとは？
 
-ウェーブシェーピングとは、ある信号が、元の信号に適用される伝達関数によって別の信号にシェーピングされるプロセスのことである。例えば、単純な正弦波は、数学的な関数を適用することによって異なる波形に成形できる。
+ウェーブシェイピングは、元の信号に適用される伝達関数によって特定の信号を別のものに形成するプロセスです。例えば、シンプルなサイン波は、数学関数を適用することで異なる波形に形成できます。
 
-ウェーブシェイパーは、特定の伝達関数を適用する際に、元の信号に高調波コンテンツを追加することで、効果的に歪みを作り出すために使用できます。ご存知のように、例えば矩形波や三角波は基本的に正弦波に奇数倍音を加えたもので、のこぎり波は正弦波に奇数倍音と偶数倍音を加えたものです。
+ウェーブシェイパーは、特定の伝達関数を適用するときに元の信号に倍音成分を追加することで、ディストーションを効果的に作成するために使用できます。ご存知かもしれませんが、矩形波と三角波は本質的に奇数倍音が追加されたサイン波であり、ノコギリ波は奇数と偶数の倍音が組み合わされたサイン波です。
 
-この事実を知っていれば、歪みを作り出す1つの方法は、正弦波の形状を矩形波に近づけることである。では、伝達関数を使ってそれを実現するにはどうすればよいのでしょうか？
+この事実を知っていれば、ディストーションを作成する1つの方法は、サイン波の形状を矩形波に近づけることです。では、伝達関数を使用してそれをどのように達成できるでしょうか？
 
-例えば、単純な正弦波を考えてみよう。sin(x)これをプロットすると次のようになる：
+例えば、以下のようにプロットできるシンプルなサイン波`sin(x)`を考えてみましょう：
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_graph1.png"
-  caption="正弦波"
+  caption="サイン波"
 />
 
-符号伝達関数を正弦波に適用すると、入力された数値の符号を本質的に出力する関数になる。sgn(sin(x))これは矩形波を完璧に表現している：
+サイン波に符号関数伝達関数を適用することで、本質的に入力された数値の符号を出力する関数により、矩形波を完全に表す`sgn(sin(x))`になります：
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_graph2.png"
-  caption="シグナム機能付き方形波"
+  caption="符号関数による矩形波"
 />
 
-しかし、この完璧な波形は、カーブのエッジが硬いため、ハードクリッピングと呼ばれる厳しい歪みを生み出すという問題がある。また、このような波形は、アナログ領域で再現するには「完璧すぎる」ため、ほとんどのアナログ・シンセサイザーで作られる矩形波のようには聞こえません。
+しかし、この完璧な波形は、曲線の硬いエッジにより、ハードクリッピングと呼ばれる過酷なディストーションを作成するため、問題があります。この種の波形はアナログドメインで再現するには「完璧すぎ」、したがってほとんどのアナログシンセサイザーによって作成される矩形波のようには聴こえません。
 
-ソフトクリッピングと呼ばれる、より穏やかな歪みを作るには、双曲線正接の伝達関数を使うことができる。tanh(sin(x))これは正弦波に近い信号を出力するが、カーブはこのように丸くなる：
+ソフトクリッピングと呼ばれるより穏やかな種類のディストーションを作成するために、双曲線タンジェント伝達関数`tanh(sin(x))`を使用でき、これはサイン波にほぼ似ていますが、以下に示すようにより丸い曲線を持つ信号を出力します：
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_graph3.png"
-  caption="tanh関数による方形波"
+  caption="tanh関数による矩形波"
 />
 
-そして、正方形のような形状にするために、伝達関数を適用する前に、信号をクリップするようにブーストできる。tanh(n\*sin(x))つまり、ベル形状の頂点を切り捨て、下のようにソフトエッジの矩形波にしているのだ：
+次に、矩形に似た形状に到達するために、伝達関数を適用する前に信号をクリッピングまでブーストできます`tanh(n*sin(x))`。これは本質的にベル形状の上部を切り取り、以下に示すようにソフトエッジの矩形波にします：
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_graph4.png"
-  caption="tanh関数をクリップした矩形波"
+  caption="クリップされたtanh関数による矩形波"
 />
 
-おわかりのように、どのような種類の伝達関数でも入力信号に適用できるため、ウェーブシェーピングの可能性は無限にある。
+ご覧のとおり、ウェーブシェイピングの可能性は無限であり、どんなタイプの伝達関数でも入力信号に適用できます。
 
-JUCEでは、ウェーブシェーピングは[dsp::WaveShaper](https://docs.juce.com/master/structdsp_1_1WaveShaper.html "オーディオサンプルにウェーブシェーピングを適用します。")クラスはDSPモジュールに含まれている。
+JUCEでは、DSPモジュールに含まれる[dsp::WaveShaper](https://docs.juce.com/master/structdsp_1_1WaveShaper.html "Applies waveshaping to audio samples as single samples or AudioBlocks.")クラスでウェーブシェイピングを実行できます。
 
-#### コンボリューションとは何か？
+### コンボリューションとは？
 
-コンボリューションとは、ある空間の残響特性を、その空間の特性を表すインパルス応答をあらかじめ録音しておき、それを使ってシミュレートすることです。このプロセスにより、インパルス応答のサンプルに対してデータの各サンプルを乗算して合成出力を作成するコンボリューションによって、入力信号にあらゆるタイプの音響プロファイルを適用できます。
+コンボリューションは、問題の空間の特性を記述する事前に録音されたインパルスレスポンスを使用して、特定の空間の残響特性をシミュレートすることで構成されます。このプロセスにより、本質的に各データサンプルをインパルスレスポンスサンプルに対して乗算して組み合わせた出力を作成することで、入力信号にあらゆるタイプの音響プロファイルを適用できます。
 
-インパルス・レスポンスとは、プロファイリングする空間で短いインパルスを録音することで生成されるオーディオファイルのことですが、必ずしも実際の物理的な空間である必要はありません。例えば、このようにキャビネットを通してインパルスを再生し、その効果を録音することで、ギターアンプのプロファイルをキャプチャできます：
+インパルスレスポンスは、プロファイルする空間で短いインパルスを録音することで生成されるオーディオファイルですが、必ずしも実際の物理的空間である必要はありません。例えば、以下に示すように、キャビネットを通じてインパルスを再生し、その効果を録音することで、ギターアンプのプロファイルをキャプチャできます：
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_graph5.png"
-  caption="ギター・アンプのインパルス・レスポンス"
+  caption="ギターアンプのインパルスレスポンス"
 />
 
-同じことをカセットレコーダーを通して行い、生成されたインパルス応答は以下の通りである：
+同じことをカセットレコーダーを通じて行い、生成されたインパルスレスポンスは以下のとおりです：
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_graph6.png"
-  caption="カセット・レコーダーのインパルス応答"
+  caption="カセットレコーダーのインパルスレスポンス"
 />
 
-入力信号がインパルス応答とコンボリューションされると、元のドライ信号は、両方の特性を保持したウェットな残響音に変換されます。例えば、100msの440Hzの正弦波を、上図のギター・アンプのインパルス応答でコンボリューションすると、次のような結果が得られます：
+入力信号がインパルスレスポンスでコンボルブされると、元のドライ信号は両方の特性を保持するウェットな残響対応物に変換されます。例えば、上に示したギターアンプのインパルスレスポンスを通じてコンボルブされた100ms 440Hzのサイン波の出力は、以下の結果を生成します：
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_graph7.png"
-  caption="ギター・アンプのインパルス・レスポンスによるサイン波"
+  caption="ギターアンプのインパルスレスポンスを通じたサイン波"
 />
 
-先に紹介したカセット・レコーダーのインパルス応答と同じ正弦波信号が、最終的にこの波形を生成する：
+前に提示したカセットレコーダーのインパルスレスポンスを通じた同じサイン波信号は、この波形を生成することになります：
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_graph8.png"
-  caption="カセット・レコーダーのインパルス応答による正弦波"
+  caption="カセットレコーダーのインパルスレスポンスを通じたサイン波"
 />
 
-このように、コンボリューションの可能性は無限であり、どのようなインパルス応答でも入力信号に適用できる。
+ご覧のとおり、コンボリューションの可能性は無限であり、どんなタイプのインパルスレスポンスでも入力信号に適用できます。
 
-JUCEでは、コンボリューションは[dsp::Convolution](https://docs.juce.com/master/classdsp_1_1Convolution.html "インパルス応答を持つ入力信号のステレオ分割畳み込みを周波数...")クラスはDSPモジュールに含まれている。
+JUCEでは、DSPモジュールに含まれる[dsp::Convolution](https://docs.juce.com/master/classdsp_1_1Convolution.html "Performs stereo partitioned convolution of an input signal with an impulse response in the frequency ...")クラスでコンボリューションを実行できます。
 
-### ウェーブシェイパーの統合
+## ウェーブシェイパーの統合
 
-の中で`Distortion`クラスのテンプレート引数として、 juce::dsp::ProcessorChainにjuce::dsp::WaveShaperプロセッサを追加します。\[1\].また、プロセッサ・インデックスを持つenumも定義します。\[2\]これは、後でそのインデックスから対応するプロセスを明確に参照できるようにするためである。
+`Distortion`クラスで、juce::dsp::WaveShaperプロセッサをテンプレート引数として持つjuce::dsp::ProcessorChainを追加します[1]。また、後で対応するプロセスをインデックスで明確に参照できるように、プロセッサインデックスを持つenumを定義します[2]。
 
 ```cpp
 private:
-    //==============================================================================
-    enum
-    {
-        waveshaperIndex                // [2]
-    };
- 
-    juce::dsp::ProcessorChain> processorChain; // [1]
+//==============================================================================
+enum {
+    waveshaperIndex // [2]
+};
+
+juce::dsp::ProcessorChain<juce::dsp::WaveShaper<Type>> processorChain; // [1]
 };
 ```
 
-の中で`reset()`関数で、プロセッサ・チェイン内のウェーブシェーパーのリセット関数を呼び出します。\[3\]。
+`reset()`関数で、プロセッサチェーン内のウェーブシェイパーのreset関数を呼び出します[3]。
 
 ```cpp
-    void reset() noexcept
-    {
-        processorChain.reset();     // [3]
-    }
+void reset() noexcept
+{
+    processorChain.reset(); // [3]
+}
 ```
 
-の中で`prepare()`関数を呼び出し、プロセッサ・チェイン内のウェーブシェイパーの準備関数を呼び出します。\[4\]。
+`prepare()`関数で、プロセッサチェーン内のウェーブシェイパーのprepare関数を呼び出します[4]。
 
 ```cpp
 void prepare (const juce::dsp::ProcessSpec& spec)
@@ -189,294 +172,279 @@ void prepare (const juce::dsp::ProcessSpec& spec)
 }
 ```
 
-ここで、ウェーブシェイパーが入力信号の整形に使用する伝達関数を定義したいと思います。このチュートリアルの導入部で説明したように、まずハードクリッピング関数から始めましょう。
+次に、ウェーブシェイパーが入力信号を形成するために使用する伝達関数を定義します。このチュートリアルのイントロダクションセクションで説明したように、まずハードクリッピング関数から始めましょう。
 
-コンストラクタで、プロセスのインデックスを指定してWaveShaperへの参照を取得し`processorChain.get<>()`方法\[5\].の範囲に値を制限するラムダ関数を使ってウェーブシェイパーを初期化してみよう。\-0.1 .. 0.1 \[6\]。
+コンストラクタで、プロセスのインデックスを提供して`processorChain.get<>()`メソッドを使用してWaveShaperへの参照を取得します[5]。値を`-0.1 .. 0.1`の範囲に制限するラムダ関数を使用してウェーブシェイパーを初期化しましょう[6]。
 
 ```cpp
 public:
-    //==============================================================================
-    Distortion()
-    {
-        auto& waveshaper = processorChain.template get();         // [5]
-        waveshaper.functionToUse = [] (Type x)
-                                   {
-                                       return juce::jlimit (Type (-0.1), Type (0.1), x); // [6]
-                                   };
-    }
-xfloat xDefinition juce_UnityPluginInterface.h:200
+//==============================================================================
+Distortion()
+{
+    auto& waveshaper = processorChain.template get<waveshaperIndex>(); // [5]
+    waveshaper.functionToUse = [] (Type x) {
+        return juce::jlimit (Type (-0.1), Type (0.1), x); // [6]
+    };
+}
 ```
 
-の中で`process()`関数を呼び出せば、プロセッサー・チェインのウェーブシェイパーのプロセス関数を呼び出すことができる。\[7\]。
+`process()`関数で、プロセッサチェーン内のウェーブシェイパーのprocess関数を呼び出すことができます[7]。
 
 ```cpp
-    template 
-    void process (const ProcessContext& context) noexcept
-    {
-        processorChain.process (context); // [7]
-    }
+template <typename ProcessContext>
+void process (const ProcessContext& context) noexcept
+{
+    processorChain.process (context); // [7]
+}
 ```
 
-で上記の変更を行った後にこのコードを実行すると、次のようになる。`Distortion`クラスであれば、ウェーブシェイパーがオシレーター信号に与える影響を聴き取ることができるはずだ。
+`Distortion`クラスで上記の変更を実装した後にこのコードを実行すると、オシレーター信号へのウェーブシェイパーの効果が聴けるはずです。
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_screenshot1.png"
-  caption="オシレーター信号の波形整形"
+  caption="オシレーター信号のウェーブシェイピング"
 />
 
-:::danger[エクササイズ]
-
-の間の値を制限することによって、伝達関数に生じる制限の量を変更する。\-0.5 ..0.5.音の違いを感じますか？
-
+:::note
+演習：値を`-0.5 .. 0.5`の間に制限することで、伝達関数で発生するリミッティングの量を変更してみてください。サウンドに違いを感じますか？
 :::
 
-### 伝達関数を変更する
+## 伝達関数の変更
 
-伝達関数を双曲線正接に変えて、ウェーブシェーパーのクリッピングをもう少しソフトにしてみよう。
+ウェーブシェイパーのクリッピングを双曲線タンジェントに変更して、少しソフトにしましょう。
 
-2つ追加`juce::dsp::Gain`をプロセッサ・チェインに追加した。`juce::dsp::WaveShaper`その間\[1\]に対応するインデックスを列挙し、プリゲインとして追加する。\[2\]およびポストゲイン\[3\].これらによって、ウェーブシェイパーに入る信号のレベルを調整し、ウェーブシェイパーから出てくるレベルをできる。とができる。
+プロセッサチェーンに`juce::dsp::WaveShaper`の間に2つの`juce::dsp::Gain`プロセッサを追加し[1]、enumにプリゲイン[2]とポストゲイン[3]として対応するインデックスを追加します。これにより、ウェーブシェイパーに入る信号のレベルを調整し、出てくるレベルを制御できるようになり、伝達関数の動作に影響を与えます。
 
 ```cpp
 private:
-    //==============================================================================
-    enum
-    {
-        preGainIndex,    // [2]
-        waveshaperIndex,
-        postGainIndex    // [3]
-    };
- 
-    juce::dsp::ProcessorChain, juce::dsp::WaveShaper, juce::dsp::Gain> processorChain; // [1]
+//==============================================================================
+enum {
+    preGainIndex, // [2]
+    waveshaperIndex,
+    postGainIndex // [3]
+};
+
+juce::dsp::ProcessorChain<juce::dsp::Gain<Type>, juce::dsp::WaveShaper<Type>, juce::dsp::Gain<Type>> processorChain; // [1]
 };
 ```
 
-コンストラクタで、伝達関数を双曲線正接に変更する。\[4\]このチュートリアルの冒頭で説明したように：
+コンストラクタで、このチュートリアルのイントロダクションで説明したように、伝達関数を双曲線タンジェントに変更します[4]：
 
 ```cpp
 public:
-    //==============================================================================
-    Distortion()
-    {
-        auto& waveshaper = processorChain.template get();
-        waveshaper.functionToUse = [] (Type x)
-                                   {
-                                       return std::tanh (x);           // [4]
-                                   };
- 
-        auto& preGain = processorChain.template get();   // [5]
-        preGain.setGainDecibels (30.0f);                               // [6]
- 
-        auto& postGain = processorChain.template get(); // [7]
-        postGain.setGainDecibels (-20.0f);                             // [8]
-    }
+//==============================================================================
+Distortion()
+{
+    auto& waveshaper = processorChain.template get<waveshaperIndex>();
+    waveshaper.functionToUse = [] (Type x) {
+        return std::tanh (x); // [4]
+    };
+
+    auto& preGain = processorChain.template get<preGainIndex>(); // [5]
+    preGain.setGainDecibels (30.0f); // [6]
+
+    auto& postGain = processorChain.template get<postGainIndex>(); // [7]
+    postGain.setGainDecibels (-20.0f); // [8]
+}
 ```
 
-ここでは、プリゲイン・プロセッサーへのリファレンスも取得している。\[5\]で、ウェーブシェイパーに入る信号を30dBブーストする。\[6\].次に、ポストゲイン・プロセッサーへの参照を得る。\[7\]ウェーブシェイパーからのレベルを20dB下げる。\[8\]。
+ここでは、プリゲインプロセッサへの参照を取得し[5]、ウェーブシェイパーに入る信号を30dBブーストします[6]。次に、ポストゲインプロセッサへの参照を取得し[7]、ウェーブシェイパーから出てくるレベルを20dB下げます[8]。
 
-プログラムを実行すると、また違った歪んだサウンドが得られるはずだ。
+プログラムを実行すると、異なるディストーションサウンドが得られるはずです。
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_screenshot2.png"
-  caption="双曲線正接関数による波形整形"
+  caption="双曲線タンジェント関数によるウェーブシェイピング"
 />
 
-:::danger[エクササイズ]
-
-ウェーブシェイパーで使われている伝達関数をシグナム関数に変えてみてください。音の違いを感じますか？
-
+:::note
+演習：ウェーブシェイパーで使用される伝達関数を符号関数に変更してみてください。サウンドに違いを感じますか？
 :::
 
-### フィルターの調整
+## フィルターの調整
 
-お気づきかもしれませんが、ウェーブシェイパーで低域を歪ませると、歪んだ音がすぐに濁ってしまうことがあります。ウェーブシェイパーで信号を処理する前にハイパスフィルターを導入することで、この問題を軽減できます。
+ウェーブシェイパーで低周波コンテンツをディストーションすると、ディストーションされたサウンドが非常に濁りやすくなることに気づいたかもしれません。ウェーブシェイパーで信号を処理する前にハイパスフィルターを導入することで、この問題を軽減できます。
 
-追加`juce::dsp::ProcessorDuplicator`を持つ。`juce::dsp::IIR::Filter`そして`juce::dsp::IIR::Coefficients`クラスのテンプレート引数\[1\]モノ・フィルターを簡単にマルチ・チャンネル・バージョンに変換するためだ。長いクラス名を簡略化するために、usingキーワードで短いクラス名を使用し、enumに対応するインデックスを追加します。\[2\]。
+モノフィルターをマルチチャンネルバージョンに簡単に変換するために、`juce::dsp::IIR::Filter`と`juce::dsp::IIR::Coefficients`クラスをテンプレート引数として持つ`juce::dsp::ProcessorDuplicator`を追加します[1]。長いクラス名を簡略化するために、「using」キーワードで短い名前を使用し、enumに対応するインデックスを追加します[2]。
 
 ```cpp
 private:
-    //==============================================================================
-    enum
-    {
-        filterIndex,        // [2]
-        preGainIndex,
-        waveshaperIndex,
-        postGainIndex
-    };
- 
-    using Filter = juce::dsp::IIR::Filter;
-    using FilterCoefs = juce::dsp::IIR::Coefficients;
- 
-    juce::dsp::ProcessorChain,
-                              juce::dsp::Gain, juce::dsp::WaveShaper, juce::dsp::Gain> processorChain;
+//==============================================================================
+enum {
+    filterIndex, // [2]
+    preGainIndex,
+    waveshaperIndex,
+    postGainIndex
+};
+
+using Filter = juce::dsp::IIR::Filter<Type>;
+using FilterCoefs = juce::dsp::IIR::Coefficients<Type>;
+
+juce::dsp::ProcessorChain<juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>,
+    juce::dsp::Gain<Type>,
+    juce::dsp::WaveShaper<Type>,
+    juce::dsp::Gain<Type>>
+    processorChain;
 };
 ```
 
-の中で`prepare()`関数で、フィルター・プロセッサーのリファレンスを取得する。\[3\]を呼び出し、ハイパスフィルターのカットオフ周波数を1kHzに指定する。`makeFirstOrderHighPass()`機能\[4\]:
+`prepare()`関数で、フィルタープロセッサへの参照を取得し[3]、`makeFirstOrderHighPass()`関数を呼び出してハイパスフィルターのカットオフ周波数を1kHzに指定します[4]：
 
 ```cpp
-    void prepare (const juce::dsp::ProcessSpec& spec)
-    {
-        auto& filter = processorChain.template get();                      // [3]
-        filter.state = FilterCoefs::makeFirstOrderHighPass (spec.sampleRate, 1000.0f);  // [4]
- 
-        processorChain.prepare (spec);
-    }
+void prepare (const juce::dsp::ProcessSpec& spec)
+{
+    auto& filter = processorChain.template get<filterIndex>(); // [3]
+    filter.state = FilterCoefs::makeFirstOrderHighPass (spec.sampleRate, 1000.0f); // [4]
+
+    processorChain.prepare (spec);
+}
 ```
 
-信号の低域が減衰し、よりクリアなサウンドになるはずです。
+信号の低周波数が減衰し、よりクリアなサウンドになるはずです。
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_screenshot3.png"
-  caption="ウェーブシェイパーの前のフィルタリング"
+  caption="ウェーブシェイパー前のフィルタリング"
 />
 
-:::danger[エクササイズ]
-
-ウェーブシェイピングの前にさまざまなタイプのフィルターを試し、歪んだ信号の高調波成分がどのように変化するかに注目してください。
-
+:::note
+演習：ウェーブシェイピング前に異なるタイプのフィルターを実験し、ディストーションされた信号の倍音成分がどのように変化するか注意してください。
 :::
 
-### キャビネット・シミュレーターの実装
+## キャビネットシミュレーターの実装
 
-コンボリューションを使ってギター・キャビネットをシミュレートすることで、サウンドにさらに個性を与えてみよう。
+コンボリューションを使用してギターキャビネットをシミュレートすることで、サウンドにさらに特徴を加えましょう。
 
-の中で`CabSimulator`クラスに`juce::dsp::Convolution`プロセッサからプロセッサ・チェインへ\[1\]に対応するインデックスを追加する。\[2\]。
-
-```cpp
-private:
-    //==============================================================================
-    enum
-    {
-        convolutionIndex // [2]
-    };
- 
-    juce::dsp::ProcessorChain processorChain;
-};
-```
-
-の中で`reset()`関数を呼び出して、プロセッサー・チェイン内のコンボルバーのリセット関数を呼び出す。\[3\]。
-
-```cpp
-    void reset() noexcept
-    {
-        processorChain.reset(); // [3]
-    }
-```
-
-の中で`prepare()`関数を呼び出したら、プロセッサチェイン内のコンボルバーの準備関数を呼び出す。\[4\]。
+`CabSimulator`クラスで、プロセッサチェーンに`juce::dsp::Convolution`プロセッサを追加し[1]、enumに対応するインデックスを追加します[2]。
 
 ```cpp
 private:
-    //==============================================================================
-    enum
-    {
-        convolutionIndex // [2]
-    };
- 
-    juce::dsp::ProcessorChain processorChain;
+//==============================================================================
+enum {
+    convolutionIndex // [2]
+};
+
+juce::dsp::ProcessorChain<juce::dsp::Convolution> processorChain;
 };
 ```
 
-ここで、コンボルバーが入力信号の残響に使用するインパルス応答を指定します。このチュートリアルの導入セクションで説明したように、コンボリューション・プロセッサーに、ギターアンプのインパルス応答を`Resources`フォルダにある。
-
-コンストラクタで、プロセスのインデックスを指定してコンボリューション・プロセッサへの参照を取得し`processorChain.get<>()`方法\[5\].からオーディオ・ファイルをロードして、ギター・アンプのインパルス応答でコンボルバーを初期化しよう。`Resources`リーフレット\[6\]。
+`reset()`関数で、プロセッサチェーン内のコンボルバーのreset関数を呼び出します[3]。
 
 ```cpp
-    CabSimulator()
-    {
-        auto dir = juce::File::getCurrentWorkingDirectory();
- 
-        int numTries = 0;
- 
-        while (! dir.getChildFile ("Resources").exists() && numTries++ < 15)
-            dir = dir.getParentDirectory();
- 
-        auto& convolution = processorChain.template get();    // [5]
- 
-        convolution.loadImpulseResponse (dir.getChildFile ("Resources").getChildFile ("guitar_amp.wav"),
-                                         juce::dsp::Convolution::Stereo::yes,
-                                         juce::dsp::Convolution::Trim::no,
-                                         1024);                                 // [6]
-    }
+void reset() noexcept
+{
+    processorChain.reset(); // [3]
+}
+```
+
+`prepare()`関数で、プロセッサチェーン内のコンボルバーのprepare関数を呼び出します[4]。
+
+```cpp
+private:
+//==============================================================================
+enum {
+    convolutionIndex // [2]
+};
+
+juce::dsp::ProcessorChain<juce::dsp::Convolution> processorChain;
+};
+```
+
+次に、コンボルバーが入力信号を残響させるために使用するインパルスレスポンスを指定します。このチュートリアルのイントロダクションセクションで説明したように、プロジェクトの`Resources`フォルダに含まれるギターアンプのインパルスレスポンスでコンボリューションプロセッサをロードしましょう。
+
+コンストラクタで、プロセスのインデックスを提供して`processorChain.get<>()`メソッドを使用してConvolutionプロセッサへの参照を取得します[5]。`Resources`フォルダからオーディオファイルをロードしてギターアンプのインパルスレスポンスでコンボルバーを初期化しましょう[6]。
+
+```cpp
+CabSimulator()
+{
+    auto dir = juce::File::getCurrentWorkingDirectory();
+
+    int numTries = 0;
+
+    while (!dir.getChildFile ("Resources").exists() && numTries++ < 15)
+        dir = dir.getParentDirectory();
+
+    auto& convolution = processorChain.template get<convolutionIndex>(); // [5]
+
+    convolution.loadImpulseResponse (dir.getChildFile ("Resources").getChildFile ("guitar_amp.wav"),
+        juce::dsp::Convolution::Stereo::yes,
+        juce::dsp::Convolution::Trim::no,
+        1024); // [6]
+}
 ```
 
 :::warning
-
-に "guitar\_amp.wav "ファイルがあることを確認してください。`Resources`フォルダに保存する。
-
+プロジェクトの`Resources`フォルダに「guitar_amp.wav」ファイルが存在することを確認してください。
 :::
 
-の中で`process()`関数を呼び出せば、プロセッサー・チェインでコンボルバーのプロセス関数を呼び出すことができる。\[7\]。
+`process()`関数で、プロセッサチェーン内のコンボルバーのprocess関数を呼び出すことができます[7]。
 
 ```cpp
-    template 
-    void process (const ProcessContext& context) noexcept
-    {
-        processorChain.process (context); // [7]
-    }
+template <typename ProcessContext>
+void process (const ProcessContext& context) noexcept
+{
+    processorChain.process (context); // [7]
+}
 ```
 
-の中で`Distortion`クラスでは、ゲイントリムを外すか、そのレベルを0dBの減衰に設定してください。\[8\]というのも、信号チェインの歪みの後に起こるコンボリューション・プロセスによって、信号は自然に減衰するからだ：
+`Distortion`クラスで、ゲイントリムを削除するか、減衰レベルを0dBに設定します[8]。信号は、信号チェーンでディストーションの後に発生するコンボリューションプロセスを通じて自然に減衰されるためです：
 
 ```cpp
 public:
-    //==============================================================================
-    Distortion()
-    {
-        auto& waveshaper = processorChain.template get();
-        waveshaper.functionToUse = [] (Type x)
-                                   {
-                                       return std::tanh (x);
-                                   };
- 
-        auto& preGain = processorChain.template get();
-        preGain.setGainDecibels (30.0f);
- 
-        auto& postGain = processorChain.template get();
-        postGain.setGainDecibels (0.0f); // [8]
-    }
+//==============================================================================
+Distortion()
+{
+    auto& waveshaper = processorChain.template get<waveshaperIndex>();
+    waveshaper.functionToUse = [] (Type x) {
+        return std::tanh (x);
+    };
+
+    auto& preGain = processorChain.template get<preGainIndex>();
+    preGain.setGainDecibels (30.0f);
+
+    auto& postGain = processorChain.template get<postGainIndex>();
+    postGain.setGainDecibels (0.0f); // [8]
+}
 ```
 
-プログラムを実行し、どのように聞こえるか見てみよう。
+プログラムを実行して、どのように聴こえるか確認しましょう。
 
 <CaptionImage
   src="/_images/tutorial_dsp_convolution_screenshot4.png"
-  caption="コンボリューションによるギター・アンプ・シミュレーション"
+  caption="コンボリューションによるギターアンプシミュレーション"
 />
 
-:::danger[エクササイズ]
-
-に同梱されているカセットレコーダーのインパルス応答を読み込む。`Resources`フォルダに保存し、コンボリューションされたサウンドがどれほど劇的に変化するかに注目してください。
-
+:::note
+演習：`Resources`フォルダに含まれるカセットレコーダーのインパルスレスポンスをロードし、コンボルブされたサウンドがどれほど劇的に変化するか注意してください。
 :::
+
+:::tip
+このコードの修正版のソースコードは、デモプロジェクトの`DSPConvolutionTutorial_02.h`ファイルにあります。
+:::
+
+## まとめ
+
+このチュートリアルでは、ウェーブシェイピングとコンボリューションを組み込む方法を学びました。特に以下のことを行いました：
+
+- ウェーブシェイピングとコンボリューションの基本を学びました。
+- ハードクリッピングウェーブシェイパーを統合してディストーションを作成しました。
+- ウェーブシェイパーの伝達曲線を双曲線タンジェントに変更しました。
+- コンボリューション技術でキャビネットシミュレーターを実装しました。
 
 :::note
-
-この修正版のソースコードは`DSPConvolutionTutorial_02.h`ファイルにある。
-
+このチュートリアルのパート1に戻って、オシレーターとフィルターについて復習しましょう：[チュートリアル：DSP入門](../tutorial_dsp_introduction/)
 :::
 
-### 概要
+<!-- -->
 
-このチュートリアルでは、ウェーブシェーピングとコンボリューションの取り入れ方を学んだ。特に
-
-- ウェーブシェイピングとコンボリューションの基礎を学ぶ。
-- ハードクリッピング・ウェーブシェイパーを内蔵し、歪みを作り出す。
-- ウェーブシェーパーの伝達曲線を双曲線タンジェントに変更。
-- 畳み込み技術を用いたキャビネット・シミュレータを実装。
-
-:::note
-
-このチュートリアルのパート1に戻って、オシレーターとフィルターについて理解しましょう：[Tutorial: Introduction to DSP](../tutorial_dsp_introduction/)
-
-このチュートリアルのパート3で、ディレイラインを追加する方法をご覧ください：[Tutorial: Create a string model with delay lines](../tutorial_dsp_delay_line/)
-
+:::tip
+このチュートリアルのパート3をチェックして、ディレイラインを追加する方法を学びましょう：[チュートリアル：ディレイラインによる弦モデルの作成](../tutorial_dsp_delay_line/)
 :::
 
-### 参照
+## 関連項目
 
-- [Tutorial: The fast Fourier transform](../tutorial_simple_fft/)
-- [Tutorial: Visualise the frequencies of a signal in real time](../tutorial_spectrum_analyser/)
-- [Tutorial: Optimisation using the SIMDRegister class](../tutorial_simd_register_optimisation/)
-- [Tutorial: Introduction to DSP](../tutorial_dsp_introduction/)
-- [Tutorial: Create a string model with delay lines](../tutorial_dsp_delay_line/)
+- [チュートリアル：高速フーリエ変換](../tutorial_simple_fft/)
+- [チュートリアル：リアルタイムで信号の周波数を可視化](../tutorial_spectrum_analyser/)
+- [チュートリアル：SIMDRegisterクラスを使用した最適化](../tutorial_simd_register_optimisation/)
+- [チュートリアル：DSP入門](../tutorial_dsp_introduction/)
+- [チュートリアル：ディレイラインによる弦モデルの作成](../tutorial_dsp_delay_line/)

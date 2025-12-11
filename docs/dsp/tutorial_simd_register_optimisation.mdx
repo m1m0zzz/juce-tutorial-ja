@@ -4,328 +4,332 @@ sidebar_position: 4
 tags: [上級]
 ---
 
-# SIMDRegisterクラスを使用した最適化
+# チュートリアル：SIMDRegisterクラスを使用した最適化
 
 <SourcePageLink path="tutorial_simd_register_optimisation" />
 
-プロセッサの並列性を利用して、単一命令複数データ計算を実行。並行処理を導入することなく、オーディオ・アプリケーションを最適化できます。
+プロセッサの並列性を活用して、単一命令複数データ計算を実行します。並行処理を導入せずにオーディオアプリケーションを最適化します。
 
-レベル：上級
+**レベル:** 上級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [dsp::SIMDRegister](https://docs.juce.com/master/structdsp_1_1SIMDRegister.html "A wrapper around the platform's native SIMD register type."), [dsp::IIR](https://docs.juce.com/master/namespacejuce_1_1dsp_1_1IIR.html "Classes for IIR filter processing."), [dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan..."), AudioDataConverters, [dsp::AudioBlock](https://docs.juce.com/master/classdsp_1_1AudioBlock.html "Minimal and lightweight data-structure which contains a list of pointers to channels containing some ..."), [HeapBlock](https://docs.juce.com/master/classHeapBlock.html "Very simple container class to hold a pointer to some data on the heap.")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [dsp::SIMDRegister](https://docs.juce.com/master/structdsp_1_1SIMDRegister.html "プラットフォームのネイティブSIMDレジスタ・タイプのラッパー。"),
-[dsp::IIR](https://docs.juce.com/master/namespacedsp_1_1IIR.html "IIRフィルタ処理のためのクラス。"),
-[dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "モノラル・プロセッサー・クラスを複製し、マルチチャンネル・プロセッサー・クラスを適用することで、マルチチャンネル・プロセッサー・クラスに変換します。")
-AudioDataConverters,
-[dsp::AudioBlock](https://docs.juce.com/master/classdsp_1_1AudioBlock.html "最小かつ軽量のデータ構造で、いくつかのチャンネルへのポインタのリストを含む。"),
-[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/SIMDRegisterTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/SIMDRegisterTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-## スタート
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/SIMDRegisterTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/SIMDRegisterTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-## デモ・プロジェクト
-
-このデモ・プロジェクトでは、読み込んだオーディオ・ファイルをIIRフィルターを通して再生し、試聴時に処理・変更できます。この最適化の目的は、同じIIRフィルターにSIMD命令セットを使用することで、CPUパワーをどれだけ軽減できるかを確認することです。
+デモプロジェクトは、ロードされたオーディオファイルをIIRフィルターを通じて再生し、試聴時に処理および変更することができます。この最適化の目的は、同じIIRフィルターでSIMD命令セットを使用してどれだけCPUパワーを軽減できるかを確認することです。
 
 <CaptionImage
   src="/_images/tutorial_simd_register_optimisation_screenshot1.png"
-  caption="デモプロジェクトのウィンドウ"
+  caption="デモプロジェクトウィンドウ"
 />
 
-:::note
-
-ここで紹介するコードは、大まかに以下のものと似ている。**SIMDRegisterDemo**DSPデモより
-
+:::tip
+ここで紹介するコードは、DSP Demoの**SIMDRegisterDemo**とほぼ同様です。
 :::
 
 ## SIMD命令
 
-SIMDとは "Single Instruction Multiple Data"（単一命令複数データ）の略で、最新のCPUが複数のレジスタに数値をロードして同じ計算を一度に実行することで、1つの命令をデータセットに適用できる方法を指す。デジタル信号処理の世界では、このタイプの並列処理がMIMD（Multiple Instruction Multiple Data）のような他のタイプよりも好まれます。オーディオスレッドが他のスレッドとデータの取り合いにならないようにすることが最も重要であり、オーディオ処理ではほとんどの場合、命令の順序は同じに保たれるべきである。
+SIMDは「Single Instruction Multiple Data（単一命令複数データ）」の略で、最新のCPUが数値を複数のレジスタにロードし、同じ計算を一度に実行することで、データセットに単一の命令を適用できる方法を指します。デジタル信号処理の世界では、このタイプの並列性は、MIMD（Multiple Instruction Multiple Data）などの他のタイプよりも好まれます。なぜなら、オーディオレベルでは並行性が問題になるからです。オーディオスレッドが他のスレッドとデータを奪い合わないようにすることが最重要であり、オーディオを処理するときは命令の順序をほとんどの場合同じ順序に保つ必要があります。
 
-SIMDは個々のデータではなく、データストリームのベクトル上で動作するため、オーディオバッファからデータブロックを受け取ることに慣れているオーディオ処理にさらに適している。SIMDはまた、DSPアルゴリズムで非常に一般的な、複数のデータポイントに対して同じスカラー演算を適用する必要がある場合にも威力を発揮する。
+SIMDは個々のデータではなくデータストリームのベクトルに対して動作するため、オーディオバッファからデータブロックを受信することに慣れているオーディオ処理にさらに適しています。SIMDは、複数のデータポイントに同じスカラー演算を適用する必要があるときにも優れており、これはDSPアルゴリズムで非常に一般的なことです。
 
-一般的なコードを最適化するプロセスは、現在ではコンパイラが自動的に行うのが普通だが、DSPアルゴリズムのベクトル化は必ずしも簡単ではない。コンパイラーは、正しく最適化するためにアルゴリズムが何をしようとしているのか、必ずしも人間的に理解できるとは限りません。したがって、この作業は通常手動で行われ、SIMDRegisterクラスはJUCEでこれを行うための便利なツールです。
+一般的なコードを最適化するプロセスは、現在では通常コンパイラによって自動的に行われますが、DSPアルゴリズムのベクトル化は常に簡単ではありません。コンパイラは常に人間的にアルゴリズムが何をしようとしているかを理解して正しく最適化できるわけではありません。したがって、このタスクは通常手動で行われ、SIMDRegisterクラスはJUCEでこれを行うための便利なツールです。
 
-SIMDRegisterクラスが便利なのは、さまざまなタイプのプロセッサに対応できるからです。CPUによって、レジスタのサイズや数が異なることがあり、すべてのCPUベンダーを考慮するのはすぐに難しくなります。これはすべてSIMDRegisterクラスが処理してくれるので、あとはアルゴリズムでベクトル化したい命令セットを指定するだけです。
+SIMDRegisterクラスは、異なるプロセッサタイプを処理するため便利です。CPUによって、レジスタのサイズと数は異なり、すべてのCPUベンダーを考慮することは急速に困難になります。これはすべてSIMDRegisterクラスによって処理され、アルゴリズムでベクトル化したい命令セットを指定するだけで済みます。
 
-SIMDRegisterクラスの使い方は比較的簡単で、基本的にプリミティブ型の置き換えとして機能します。次のような簡単なコード例を見てみましょう：
+SIMDRegisterクラスの使用は比較的簡単で、本質的にプリミティブ型のドロップイン置換として機能します。このような簡単な例コードを見てみましょう：
 
 ```cpp
 float calculateDSPEffect (float x,
-                          float y)
+    float y)
 {
     auto z = x + (y * 2.0f);
- 
-    return z;
-}
-xfloat xDefinition juce_UnityPluginInterface.h:200
-yfloat float yDefinition juce_UnityPluginInterface.h:200
-```
 
-プリミティブ型をSIMDRegisterクラスでラップするだけで、簡単にベクトル化できます：
-
-```cpp
-SIMDRegister calculateDSPEffect (SIMDRegister x,
-                                        SIMDRegister y)
-{
-    auto z = x + (y * 2.0f);
- 
     return z;
 }
 ```
 
-DSPコードでは、条件文は非常に遅く、一般に分岐はできるだけ避けるべきである。したがって、次の例はSIMD最適化の良い候補です：
+これは、プリミティブ型をSIMDRegisterクラスで単純にラップすることで簡単にベクトル化できます：
+
+```cpp
+SIMDRegister<float> calculateDSPEffect (SIMDRegister<float> x,
+    SIMDRegister<float> y)
+{
+    auto z = x + (y * 2.0f);
+
+    return z;
+}
+```
+
+DSPコードでは、条件文は非常に遅く、分岐は一般的にできるだけ避けるべきです。したがって、以下の例はSIMD最適化の良い候補です：
 
 ```cpp
 float calculateDSPEffect (float x,
-                          float y)
+    float y)
 {
     auto z = (x > y ? x + (y * 2.0f) : y);
- 
+
     return z;
 }
 ```
 
-幸いなことに、SIMDRegisterクラスは、以下のように正しい結果を選択できるビットマスクを提供してくれる：
+幸いなことに、SIMDRegisterクラスは、以下のように正しい結果を選択できるビットマスクを提供します：
 
 ```cpp
-SIMDRegister calculateDSPEffect (SIMDRegister x,
-                                        SIMDRegister y)
+SIMDRegister<float> calculateDSPEffect (SIMDRegister<float> x,
+    SIMDRegister<float> y)
 {
-    auto mask = SIMDRegister::greaterThan (x, y);
+    auto mask = SIMDRegister<float>::greaterThan (x, y);
     auto z = ((x + (y * 2.0f)) & mask) + (y & (~mask));
- 
+
     return z;
 }
 ```
 
-このチュートリアルでは、SIMDを使ってIIRフィルターを最適化します。
+このチュートリアルの目的では、SIMDを使用してIIRフィルターを最適化するので、まずIIRフィルターの実装を見てみましょう。
 
 ## IIRフィルター
 
-の中で`SIMDTutorialFilter`クラスでは、まずここに示すように、フィルタのパラメータなどのメンバー変数を定義する：
+`SIMDTutorialFilter`クラスで、まずフィルターのパラメータなどのメンバー変数を以下のように定義します：
 
 ```cpp
-    dsp::ProcessorDuplicator, dsp::IIR::Coefficients> iir;
- 
-    ChoiceParameter typeParam { { "Low-pass", "High-pass", "Band-pass" }, 1, "Type" };
-    SliderParameter cutoffParam { { 20.0, 20000.0 }, 0.5, 440.0f, "Cutoff", "Hz" };
-    SliderParameter qParam { { 0.3, 20.0 }, 0.5, 0.7, "Q" };
- 
-    std::vector parameters { &typeParam, &cutoffParam, &qParam };
-    double sampleRate = 0.0;
+dsp::ProcessorDuplicator<dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>> iir;
+
+ChoiceParameter typeParam { { "Low-pass", "High-pass", "Band-pass" }, 1, "Type" };
+SliderParameter cutoffParam { { 20.0, 20000.0 }, 0.5, 440.0f, "Cutoff", "Hz" };
+SliderParameter qParam { { 0.3, 20.0 }, 0.5, 0.7, "Q" };
+
+std::vector<DSPParameterBase*> parameters { &typeParam, &cutoffParam, &qParam };
+double sampleRate = 0.0;
 };
 ```
 
-ProcessorDuplicator内にIIRフィルター・オブジェクトを定義することで、各チャンネルのprepare()、process()、reset()関数を個別に呼び出す心配がなくなり、モノラル・プロセッサーを自動的にマルチチャンネル・プロセッサーに変換できる。また、通過フィルタのタイプ、カットオフ周波数、シャープネスQなど、フィルタのパラメータも定義します。
+ProcessorDuplicator内でIIRフィルターオブジェクトを定義することで、各チャンネルで個別にprepare()、process()、reset()関数を呼び出すことを心配せずに、モノプロセッサをマルチチャンネルに自動的に変換できます。また、パスフィルターのタイプ、カットオフ周波数、フィルターのシャープネスQなどのフィルターのパラメータを定義します。
 
-updateParameters()関数では、画面上のコントロールが変更されたときにフィルターのパラメーターが更新されるようにしています：
+updateParameters()関数で、画面上のコントロールが変更されたときにフィルターのパラメータが更新されることを確認します：
 
 ```cpp
-    void updateParameters()
+void updateParameters()
+{
+    if (sampleRate != 0.0)
     {
-        if (sampleRate != 0.0)
+        auto cutoff = static_cast<float> (cutoffParam.getCurrentValue());
+        auto qVal = static_cast<float> (qParam.getCurrentValue());
+
+        switch (typeParam.getCurrentSelectedID())
         {
-            auto cutoff = static_cast (cutoffParam.getCurrentValue());
-            auto qVal   = static_cast (qParam.getCurrentValue());
- 
-            switch (typeParam.getCurrentSelectedID())
-            {
-                case 1:     *iir.state = *dsp::IIR::Coefficients::makeLowPass  (sampleRate, cutoff, qVal); break;
-                case 2:     *iir.state = *dsp::IIR::Coefficients::makeHighPass (sampleRate, cutoff, qVal); break;
-                case 3:     *iir.state = *dsp::IIR::Coefficients::makeBandPass (sampleRate, cutoff, qVal); break;
-                default:    break;
-            }
+            case 1:
+                *iir.state = *dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, cutoff, qVal);
+                break;
+            case 2:
+                *iir.state = *dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, cutoff, qVal);
+                break;
+            case 3:
+                *iir.state = *dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, cutoff, qVal);
+                break;
+            default:
+                break;
         }
     }
+}
 ```
 
-DSPモジュールは、makeLowPass()、makeHighPass()、makeBandPass()関数をそれぞれ使用することで、3つのフィルタータイプの便利な係数を提供してくれる。
+パラメータが変更されるたびに、サンプルレート、カットオフ周波数、Qに応じた新しい係数セットでIIRフィルターの新しい状態を作成します。DSPモジュールは、makeLowPass()、makeHighPass()、makeBandPass()関数をそれぞれ使用して、3つのフィルタータイプに便利な係数を提供します。
 
-prepare()関数では、ProcessSpecオブジェクトからサンプル・レートを設定し、ローパス・フィルタのデフォルトの場合のIIRフィルタ係数を設定し、処理コンテキストに関する情報を使用してprepare()関数を使用してフィルタを準備する：
+prepare()関数で、ProcessSpecオブジェクトからサンプルレートを設定し、ローパスフィルターのデフォルトケースでIIRフィルター係数を設定し、処理コンテキストに関する情報を持つprepare()関数を使用してフィルターを準備します：
 
 ```cpp
-    void prepare (const dsp::ProcessSpec& spec)
-    {
-        sampleRate = spec.sampleRate;
- 
-        iir.state = dsp::IIR::Coefficients::makeLowPass (sampleRate, 440.0);
-        iir.prepare (spec);
-    }
+void prepare (const dsp::ProcessSpec& spec)
+{
+    sampleRate = spec.sampleRate;
+
+    iir.state = dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, 440.0);
+    iir.prepare (spec);
+}
 ```
 
-process()関数の中で、1つのブロックが入力と出力の両方に使われるコンテキストで、フィルター上のprocess()関数を呼び出す：
+フィルターでオーディオファイルを処理するのは簡単で、process()関数で、入力と出力の両方に単一のブロックが使用されるコンテキストでフィルターのprocess()関数を呼び出します：
 
 ```cpp
-    void process (const dsp::ProcessContextReplacing& context)
-    {
-        iir.process (context);
-    }
+void process (const dsp::ProcessContextReplacing<float>& context)
+{
+    iir.process (context);
+}
 ```
 
-最後に、reset()関数でフィルターにresetを呼び出して、フィルターをリセットする：
+最後に、reset()関数でフィルターのresetを呼び出してフィルターをリセットします：
 
 ```cpp
-    void reset()
-    {
-        iir.reset();
-    }
+void reset()
+{
+    iir.reset();
+}
 ```
 
-では、このIIRフィルターの最適化を始めよう。
+では、このIIRフィルターを最適化しましょう。
 
-## SIMD最適化IIRフィルター
+## SIMD最適化されたIIRフィルター
 
-IIRフィルターのコードを最適化する前に、SIMDがシステムで利用可能であることを確認する必要があります。そのためには`JUCE_USE_SIMD`マクロを使って、フィルター実装全体をこのようにラップすることで、SIMDマシンで開発しているかどうかをチェックできる：
+IIRフィルターのコードを最適化する前に、システムでSIMDが利用可能であることを確認する必要があります。`JUCE_USE_SIMD`マクロを使用して、以下のようにフィルター実装全体をラップすることで、SIMDマシンで開発しているかどうかを確認します：
 
 ```cpp
 #if JUCE_USE_SIMD
- 
+
 //==============================================================================
-template 
-static T* toBasePointer (dsp::SIMDRegister* r) noexcept
+template <typename T>
+static T* toBasePointer (dsp::SIMDRegister<T>* r) noexcept
 {
-    return reinterpret_cast (r);
+    return reinterpret_cast<T*> (r);
 }
- 
-constexpr auto registerSize = dsp::SIMDRegister::size();
- 
+
+constexpr auto registerSize = dsp::SIMDRegister<float>::size();
+
 struct SIMDTutorialFilter
 {
 ```
 
 ```cpp
 };
- 
+
 #endif
 ```
 
-まず、IIRフィルターのメンバー変数と、AudioBlockと[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")の下にある処理を容易にするためのオブジェクトを使用する。`SIMDTutorialFilter`クラスである：
+まず、`SIMDTutorialFilter`クラスの下部に、IIRフィルターのメンバー変数、および処理を容易にするためのAudioBlockと[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "Very simple container class to hold a pointer to some data on the heap.")オブジェクトを定義しましょう：
 
 ```cpp
-    dsp::IIR::Coefficients::Ptr iirCoefficients;                 // [1]
-    std::unique_ptr>> iir;
- 
-    dsp::AudioBlock> interleaved;              // [2]
-    dsp::AudioBlock zero;
- 
-    juce::HeapBlock interleavedBlockData, zeroData;               // [3]
- 
-    ChoiceParameter typeParam { { "Low-pass", "High-pass", "Band-pass" }, 1, "Type" };
-    SliderParameter cutoffParam { { 20.0, 20000.0 }, 0.5, 440.0f, "Cutoff", "Hz" };
-    SliderParameter qParam { { 0.3, 20.0 }, 0.5, 0.7, "Q" };
- 
-    std::vector parameters { &typeParam, &cutoffParam, &qParam };
-    double sampleRate = 0.0;
+dsp::IIR::Coefficients<float>::Ptr iirCoefficients; // [1]
+std::unique_ptr<dsp::IIR::Filter<dsp::SIMDRegister<float>>> iir;
+
+dsp::AudioBlock<dsp::SIMDRegister<float>> interleaved; // [2]
+dsp::AudioBlock<float> zero;
+
+juce::HeapBlock<char> interleavedBlockData, zeroData; // [3]
+
+ChoiceParameter typeParam { { "Low-pass", "High-pass", "Band-pass" }, 1, "Type" };
+SliderParameter cutoffParam { { 20.0, 20000.0 }, 0.5, 440.0f, "Cutoff", "Hz" };
+SliderParameter qParam { { 0.3, 20.0 }, 0.5, 0.7, "Q" };
+
+std::vector<DSPParameterBase*> parameters { &typeParam, &cutoffParam, &qParam };
+double sampleRate = 0.0;
 ```
 
-IIR係数をポインタとして定義し、SIMDRegisterクラスを使ってフィルタを一意なポインタとして定義し、サンプル・タイプをラップします。\[1\].サンプル・タイプをラップするためにSIMDRegisterクラスを使用して、インターリーブされたデータを格納するAudioBlockを作成し、後で出力ブロックを格納するために使用するゼロ・データ用に別のAudioBlockを作成します。\[2\].割り当て[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")対応するAudioBlockオブジェクトと、SIMDRegisterベクトルの要素数を持つチャンネルポインタを保持するためのオブジェクト\[3\]。
+IIR係数をポインタとして定義し、フィルターをサンプルタイプをラップするSIMDRegisterクラスを使用してユニークポインタとして定義します[1]。サンプルタイプをラップするSIMDRegisterクラスを使用してインターリーブデータを格納するAudioBlockと、後で出力ブロックを格納するために使用されるゼロデータ用の別のAudioBlockを作成します[2]。対応するAudioBlockオブジェクトといくつかのチャンネルポインタをSIMDRegisterベクトルの要素数のサイズで保持するための[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "Very simple container class to hold a pointer to some data on the heap.")オブジェクトを割り当てます[3]。
 
-prepare()関数で、前と同じようにサンプル・レートを設定し、フィルタのデフォルト係数を計算します。\[4\].サンプル・タイプと先に定義した係数をSIMDRegisterラッパーで包んだ新しいIIRフィルタをインスタンス化して、フィルタをリセットします。\[5\]以下の通りである：
+prepare()関数で、以前と同様にサンプルレートを設定し、フィルターのデフォルト係数を計算します[4]。サンプルタイプの周りにSIMDRegisterラッパーと先に定義した係数を持つ新しいIIRフィルターをインスタンス化することでフィルターをリセットします[5]：
 
 ```cpp
-    void prepare (const dsp::ProcessSpec& spec)
-    {
-        sampleRate = spec.sampleRate;   // [4]
- 
-        iirCoefficients = dsp::IIR::Coefficients::makeLowPass (sampleRate, 440.0f);
-        iir.reset (new dsp::IIR::Filter> (iirCoefficients)); // [5]
- 
-        interleaved = dsp::AudioBlock> (interleavedBlockData, 1, spec.maximumBlockSize);
-        zero        = dsp::AudioBlock (zeroData, dsp::SIMDRegister::size(), spec.maximumBlockSize); // [6]
- 
-        zero.clear();
- 
-        auto monoSpec = spec;
-        monoSpec.numChannels = 1;
-        iir->prepare (monoSpec);    // [7]
-    }
+void prepare (const dsp::ProcessSpec& spec)
+{
+    sampleRate = spec.sampleRate; // [4]
+
+    iirCoefficients = dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, 440.0f);
+    iir.reset (new dsp::IIR::Filter<dsp::SIMDRegister<float>> (iirCoefficients)); // [5]
+
+    interleaved = dsp::AudioBlock<dsp::SIMDRegister<float>> (interleavedBlockData, 1, spec.maximumBlockSize);
+    zero = dsp::AudioBlock<float> (zeroData, dsp::SIMDRegister<float>::size(), spec.maximumBlockSize); // [6]
+
+    zero.clear();
+
+    auto monoSpec = spec;
+    monoSpec.numChannels = 1;
+    iir->prepare (monoSpec); // [7]
+}
 ```
 
-インターリーブデータとゼロデータ用のAudioBlockオブジェクトを作成する。[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")先に定義したオブジェクト\[6\].インターリーブされたデータブロックは1つのチャネルしか必要とせず、最大ブロックサイズはコンテキスト情報から取得される。ゼロ・データ・ブロックはSIMDRegisterベクトルのサイズを取り、処理前にクリアされる。フィルタは、現在のコンテキスト情報に基づいてチャネル数をモノラルに減らすことで準備される。\[7\]マルチチャンネルサンプルは後でインターリーブされ、1つのチャンネルとして処理されるからである。
+先に定義した対応する[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "Very simple container class to hold a pointer to some data on the heap.")オブジェクトを割り当てることで、インターリーブデータとゼロデータのAudioBlockオブジェクトを作成します[6]。インターリーブデータブロックは1チャンネルのみを必要とし、最大ブロックサイズはコンテキスト情報から取得されます。ゼロデータブロックはSIMDRegisterベクトルのサイズを取り、処理前にクリアされます。フィルターは、マルチチャンネルサンプルが後でインターリーブされ、1チャンネルとして処理されるため、現在のコンテキスト情報でチャンネル数をモノに減らして準備されます[7]。
 
-最後に、process()関数の中で、最適化された処理のために、以下のようにサンプルをインターリーブする：
+最後に、process()関数で、以下のように最適化された処理のためにサンプルをインターリーブします：
 
 ```cpp
-    void process (const dsp::ProcessContextReplacing& context)
-    {
-        jassert (context.getInputBlock().getNumSamples()  == context.getOutputBlock().getNumSamples());
-        jassert (context.getInputBlock().getNumChannels() == context.getOutputBlock().getNumChannels());
- 
-        const auto& input  = context.getInputBlock(); // [9]
-        const auto numSamples = (int) input.getNumSamples();
- 
-        auto inChannels = prepareChannelPointers (input); // [10]
- 
-        using Format = juce::AudioData::Format;
- 
-        juce::AudioData::interleaveSamples (juce::AudioData::NonInterleavedSource { inChannels.data(),                                 registerSize, },
-                                            juce::AudioData::InterleavedDest      { toBasePointer (interleaved.getChannelPointer (0)), registerSize },
-                                            numSamples); // [11]
- 
-        iir->process (dsp::ProcessContextReplacing> (interleaved)); // [12]
- 
-        auto outChannels = prepareChannelPointers (context.getOutputBlock()); // [13]
- 
-        juce::AudioData::deinterleaveSamples (juce::AudioData::InterleavedSource  { toBasePointer (interleaved.getChannelPointer (0)), registerSize },
-                                              juce::AudioData::NonInterleavedDest { outChannels.data(),                                registerSize },
-                                              numSamples); // [14]
-    }
+void process (const dsp::ProcessContextReplacing<float>& context)
+{
+    jassert (context.getInputBlock().getNumSamples() == context.getOutputBlock().getNumSamples());
+    jassert (context.getInputBlock().getNumChannels() == context.getOutputBlock().getNumChannels());
+
+    const auto& input = context.getInputBlock(); // [9]
+    const auto numSamples = (int) input.getNumSamples();
+
+    auto inChannels = prepareChannelPointers (input); // [10]
+
+    using Format = juce::AudioData::Format<juce::AudioData::Float32, juce::AudioData::NativeEndian>;
+
+    juce::AudioData::interleaveSamples (juce::AudioData::NonInterleavedSource<Format> {
+                                            inChannels.data(),
+                                            registerSize,
+                                        },
+        juce::AudioData::InterleavedDest<Format> { toBasePointer (interleaved.getChannelPointer (0)), registerSize },
+        numSamples); // [11]
+
+    iir->process (dsp::ProcessContextReplacing<dsp::SIMDRegister<float>> (interleaved)); // [12]
+
+    auto outChannels = prepareChannelPointers (context.getOutputBlock()); // [13]
+
+    juce::AudioData::deinterleaveSamples (juce::AudioData::InterleavedSource<Format> { toBasePointer (interleaved.getChannelPointer (0)), registerSize },
+        juce::AudioData::NonInterleavedDest<Format> { outChannels.data(), registerSize },
+        numSamples); // [14]
+}
 ```
 
-- \[8\]まず、入力ブロックと出力ブロックのサンプル数とチャンネル数が同じであることを確認してください。
-- \[9\]次に、入力ブロックと処理するサンプル数を取得する。
-- \[10\]SIMDRegisterの各チャンネルについて、そのチャンネルが入力チャンネルであるかどうかをチェックし、チャンネルポインタを対応する[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。").そうでない場合は、出力チャネルであることを意味し、ゼロ・データ・チャネル・ポインタをコピーする。
-- \[11\]チャンネル・ポインターをコピーして、異なるチャンネルのすべてのサンプルをインターリーブする。[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")をインターリーブしたAudioBlockに挿入し、サンプル数とチャンネル数をSIMDRegisterのサイズとして指定します。
-- \[12\]サンプル・タイプのSIMDRegisterラッパーを使用したシングル・ブロック・コンテキストで、インターリーブされたデータを使用して、フィルターでオーディオを処理します。
-- \[13\]次に、すべての入力チャンネルについて、出力ブロックのチャンネルポインタを、対応する[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。").
-- \[14\]最後に、インターリーブされたAudioBlockからチャンネルポインタにコピーすることで、異なるチャンネルのすべてのサンプルをデインターリーブします。[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "ヒープ上のデータへのポインターを保持するための、とてもシンプルなコンテナ・クラス。")で、サンプル数とチャンネル数をSIMDRegisterのサイズとして指定します。
+- [8]：まず、入力ブロックと出力ブロックでサンプル数とチャンネル数が同じであることを確認します。
+- [9]：次に、入力ブロックと処理するサンプル数を取得します。
+- [10]：SIMDRegisterの各チャンネルについて、チャンネルが入力チャンネルかどうかを確認し、チャンネルポインタを対応する[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "Very simple container class to hold a pointer to some data on the heap.")にコピーします。そうでない場合、それは出力チャンネルであり、ゼロデータチャンネルポインタをコピーします。
+- [11]：次に、チャンネルポインタ[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "Very simple container class to hold a pointer to some data on the heap.")からインターリーブAudioBlockにコピーし、サンプル数とSIMDRegisterサイズとしてのチャンネル数を指定することで、異なるチャンネルのすべてのサンプルをインターリーブします。
+- [12]：サンプルタイプにSIMDRegisterラッパーを持つ単一のブロックコンテキストでインターリーブデータを使用してフィルターでオーディオを処理します。
+- [13]：次に、各入力チャンネルについて、出力ブロックチャンネルポインタを対応する[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "Very simple container class to hold a pointer to some data on the heap.")にコピーします。
+- [14]：最後に、インターリーブAudioBlockからチャンネルポインタ[HeapBlock](https://docs.juce.com/master/classHeapBlock.html "Very simple container class to hold a pointer to some data on the heap.")にコピーし、サンプル数とSIMDRegisterサイズとしてのチャンネル数を指定することで、異なるチャンネルのすべてのサンプルをデインターリーブします。
 
-フィルタのreset()関数はどちらの場合も同じままであり、最適化は完了した。
+フィルターのreset()関数は両方のケースで同じままであり、最適化は完了です。
 
-updateParameters()関数を次のように更新して、新しい係数ポインタを考慮すればよい：
+新しい係数ポインタを考慮してupdateParameters()関数を更新するだけです：
 
 ```cpp
-    void updateParameters()
+void updateParameters()
+{
+    if (sampleRate != 0.0)
     {
-        if (sampleRate != 0.0)
+        auto cutoff = static_cast<float> (cutoffParam.getCurrentValue());
+        auto qVal = static_cast<float> (qParam.getCurrentValue());
+
+        switch (typeParam.getCurrentSelectedID())
         {
-            auto cutoff = static_cast (cutoffParam.getCurrentValue());
-            auto qVal   = static_cast (qParam.getCurrentValue());
- 
-            switch (typeParam.getCurrentSelectedID())
-            {
-                case 1:   *iirCoefficients = *dsp::IIR::Coefficients::makeLowPass  (sampleRate, cutoff, qVal); break;
-                case 2:   *iirCoefficients = *dsp::IIR::Coefficients::makeHighPass (sampleRate, cutoff, qVal); break;
-                case 3:   *iirCoefficients = *dsp::IIR::Coefficients::makeBandPass (sampleRate, cutoff, qVal); break;
-                default:  break;
-            }
+            case 1:
+                *iirCoefficients = *dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, cutoff, qVal);
+                break;
+            case 2:
+                *iirCoefficients = *dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, cutoff, qVal);
+                break;
+            case 3:
+                *iirCoefficients = *dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, cutoff, qVal);
+                break;
+            default:
+                break;
         }
     }
+}
 ```
 
-:::note
-
-この修正版のソースコードは`SIMDRegisterTutorial_02.h`ファイルにある。
-
+:::tip
+このコードの修正版のソースコードは、デモプロジェクトの`SIMDRegisterTutorial_02.h`ファイルにあります。
 :::
 
-## 概要
+## まとめ
 
-このチュートリアルでは、SIMDRegisterクラスを使ってDSPコードを最適化する方法を学びました。特に
+このチュートリアルでは、SIMDRegisterクラスを使用してDSPコードを最適化する方法を学びました。特に以下のことを行いました：
 
-- SIMD命令の利点を学ぶ
-- サウンドファイルをIIRフィルターで処理
-- SIMDRegisterクラスを使ってIIRフィルタを最適化
+- SIMD命令の利点を学びました。
+- IIRフィルターを通じてサウンドファイルを処理しました。
+- SIMDRegisterクラスを使用してIIRフィルターを最適化しました。
 
-## 参照
+## 関連項目
 
-- [Tutorial: Draw audio waveforms](../../audio/tutorial_audio_thumbnail/)
-- [Tutorial: Build an audio player](../../audio/tutorial_playing_sound_files/)
-- [Tutorial: Introduction to DSP](../tutorial_dsp_introduction/)
-- [Tutorial: Looping audio using the AudioSampleBuffer class](../../audio/tutorial_looping_audio_sample_buffer/)
-- [Tutorial: Looping audio using the AudioSampleBuffer class (advanced)](../../audio/tutorial_looping_audio_sample_buffer_advanced/)
+- [チュートリアル：オーディオ波形の描画](../../audio/tutorial_audio_thumbnail/)
+- [チュートリアル：オーディオプレーヤーの構築](../../audio/tutorial_playing_sound_files/)
+- [チュートリアル：DSP入門](../tutorial_dsp_introduction/)
+- [チュートリアル：AudioSampleBufferクラスを使用したオーディオのループ](../../audio/tutorial_looping_audio_sample_buffer/)
+- [チュートリアル：AudioSampleBufferクラスを使用したオーディオのループ（上級）](../../audio/tutorial_looping_audio_sample_buffer_advanced/)

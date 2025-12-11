@@ -4,227 +4,214 @@ sidebar_position: 5
 tags: [中級]
 ---
 
-# 高速フーリエ変換
+# チュートリアル：高速フーリエ変換
 
 <SourcePageLink path="tutorial_simple_fft" />
 
-DSPモジュールのFFTクラスを使用して、入力されたオーディオデータをスペクトログラムとして表示する方法を学びます。高速フーリエ変換を使用する利点を理解します。
+DSPモジュールのFFTクラスを使用して、入力オーディオデータをスペクトログラムとして表示する方法を学びます。高速フーリエ変換を使用する利点を理解します。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [dsp::FFT](https://docs.juce.com/master/classdsp_1_1FFT.html "Performs a fast fourier transform."), [Image](https://docs.juce.com/master/classImage.html "Holds a fixed-size bitmap."), [Colour](https://docs.juce.com/master/classColour.html "Represents a colour, also including a transparency value."), [FloatVectorOperations](https://docs.juce.com/master/classFloatVectorOperations.html "A collection of simple vector operations on arrays of floating point numbers, accelerated with SIMD i...")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [dsp::FFT](https://docs.juce.com/master/classdsp_1_1FFT.html "高速フーリエ変換を行う。"),
-[Image](https://docs.juce.com/master/classImage.html "固定サイズのビットマップを保持する。"),
-[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。"),
-[FloatVectorOperations](https://docs.juce.com/master/classFloatVectorOperations.html "浮動小数点数の配列に対する単純なベクトル演算を集めたもので、SIMD iで高速化されている。")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/SimpleFFTTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/SimpleFFTTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-## スタート
-
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/SimpleFFTTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/SimpleFFTTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
-
-:::note
-
-お使いのOSが、マイクへのアクセス許可を要求する必要がある場合（現在、iOS、Android、macOS Mojave）、Projucerの関連するエクスポーターの下に対応するオプションを設定し、プロジェクトを再保存する必要があります。
-
+:::tip
+お使いのオペレーティングシステムがマイクへのアクセス許可を要求する場合（現在iOS、Android、macOS Mojave）、Projucerで関連するエクスポーターの下の対応するオプションを設定し、プロジェクトを再保存する必要があります。
 :::
 
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-## デモ・プロジェクト
+## デモプロジェクト
 
-完成すると、このデモプロジェクトは、入力されたオーディオデータを、時間（x軸）、周波数（y軸）、振幅（色）の3次元スペクトログラムとして表示します。画面に表示される値は1秒間に60回更新され、どの時間枠でもウィンドウは次のようになります：
+完成すると、デモプロジェクトは入力オーディオデータを時間（x軸）、周波数（y軸）、振幅（色）のドメインで3次元スペクトログラムとして表示します。画面に表示される値は毎秒60回更新され、任意の時間フレームでのウィンドウは次のようになります：
 
 <CaptionImage
   src="/_images/tutorial_simple_fft_screenshot1.png"
-  caption="デモプロジェクトのウィンドウ"
+  caption="デモプロジェクトウィンドウ"
 />
 
-:::note
-
-ここで紹介するコードは、大まかに以下のものと似ている。**シンプルなFFTの例**JUCE Examplesより。
-
+:::tip
+ここで紹介するコードは、JUCEサンプルの**SimpleFFTExample**とほぼ同様です。
 :::
 
 ## 高速フーリエ変換
 
-時間領域または空間領域の信号は、フーリエ変換と呼ばれる変換式を用いて周波数領域に変換できます。この変換関数の一般的な効率的実装は高速フーリエ変換（FFT）で、JUCE DSPモジュールに含まれており、このチュートリアルで使用します。
+時間または空間ドメインの信号は、フーリエ変換と呼ばれる変換式を使用して周波数ドメインに変換できます。この変換関数の一般的な効率的な実装は、高速フーリエ変換またはFFTであり、これはJUCE DSPモジュールに含まれており、このチュートリアルで使用します。
 
-FFTは、オーディオ信号を周波数に分解し、それぞれの周波数の大きさと位相情報を表現できます。逆関数を使用すると、信号を元のドメインに戻すことができるため、フィルタリングなど個々の周波数成分を処理するのに非常に便利です。
+FFTを使用すると、オーディオ信号をその周波数に分解し、これらの各周波数の大きさと位相情報を表現できます。逆関数を使用すると、信号を元のドメインに戻すことができるため、フィルタリングなどの個々の周波数成分を処理するのに非常に便利です。
 
-このチュートリアルでは、実際の出力処理を行わずにオーディオデータを表示することだけを扱いますので、逆FFTではなく順FFTに焦点を当てます。
+このチュートリアルでは、出力のための実際の処理なしでオーディオデータの表示のみを扱うため、逆FFTではなく順方向FFTに焦点を当てます。
 
 ## オーディオデータの処理
 
-現在、私たちのアプリケーションは、入力されるオーディオ信号を表示も処理もしないので、FFTを実装することから始めましょう。
+現在、アプリケーションは入力オーディオ信号を表示も処理もしていないので、FFTの実装から始めましょう。
 
-### FFT初期化
+### FFTの初期化
 
-の中で`SpectrogramComponent`クラスでは、FFTの実装に役立つ定数を定義することから始めます：
+`SpectrogramComponent`クラスで、FFT実装に役立ついくつかの定数を定義することから始めます：
 
 ```cpp
-    static constexpr auto fftOrder = 10;                // [1]
-    static constexpr auto fftSize  = 1 << fftOrder;     // [2]
- 
+static constexpr auto fftOrder = 10; // [1]
+static constexpr auto fftSize = 1 << fftOrder; // [2]
+
 private:
 ```
 
-- \[1\]FFTの次数はFFTウィンドウの大きさを表し、その次数の2のべき乗がFFTを行うポイント数となる。この場合、次数を10とすると、2 ^ 10 = 1024点のFFTが得られる。
-- \[2\]対応するFFTサイズを計算するために、1024を2進数10000000000として生成する左ビットシフト演算子を使用します。
+- [1]：FFTオーダーはFFTウィンドウのサイズを指定し、操作するポイント数はオーダーの2乗に対応します。この場合、オーダー10を使用すると、2 ^ 10 = 1024ポイントのFFTが生成されます。
+- [2]：対応するFFTサイズを計算するには、バイナリ数10000000000として1024を生成する左ビットシフト演算子を使用します。
 
-次に、FFT実装に必要なプライベート・メンバー変数を以下のように宣言する：
+次に、以下に示すようにFFT実装に必要なプライベートメンバー変数を宣言します：
 
 ```cpp
-    juce::dsp::FFT forwardFFT;                          // [3]
-    juce::Image spectrogramImage;
- 
-    std::array fifo;                    // [4]
-    std::array fftData;             // [5]
-    int fifoIndex = 0;                                  // [6]
-    bool nextFFTBlockReady = false;                     // [7]
- 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpectrogramComponent)
+juce::dsp::FFT forwardFFT; // [3]
+juce::Image spectrogramImage;
+
+std::array<float, fftSize> fifo; // [4]
+std::array<float, fftSize * 2> fftData; // [5]
+int fifoIndex = 0; // [6]
+bool nextFFTBlockReady = false; // [7]
+
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpectrogramComponent)
 };
 ```
 
-- \[3\]:を宣言する。[dsp::FFT](https://docs.juce.com/master/classdsp_1_1FFT.html "高速フーリエ変換を行う。")オブジェクトに対して順方向FFTを実行する。
-- \[4\]サイズ1024のfifo float配列には、入力されるオーディオデータがサンプル数で格納されます。
-- \[5\]サイズ2048のfloat配列には、FFT計算の結果が格納される。
-- \[6\]この一時的なインデックスは、fifo内のサンプル数をカウントします。
-- \[7\]この一時的なブール値は、次のFFTブロックがレンダリング可能かどうかを示す。
+- [3]：順方向FFTを実行するための[dsp::FFT](https://docs.juce.com/master/classdsp_1_1FFT.html "Performs a fast fourier transform.")オブジェクトを宣言します。
+- [4]：サイズ1024のfifo float配列には、サンプル単位の入力オーディオデータが含まれます。
+- [5]：サイズ2048のfftData float配列には、FFT計算の結果が含まれます。
+- [6]：この一時インデックスは、fifo内のサンプル数をカウントします。
+- [7]：この一時ブール値は、次のFFTブロックがレンダリング準備ができているかどうかを示します。
 
-では、コンストラクタのメンバー初期化リストでこれらの変数を初期化してみよう：
+では、コンストラクタのメンバー初期化リストでこれらの変数を初期化しましょう：
 
 ```cpp
-    SpectrogramComponent()
-        : forwardFFT (fftOrder),
-          spectrogramImage (juce::Image::RGB, 512, 512, true)
-    {
+SpectrogramComponent()
+    : forwardFFT (fftOrder),
+      spectrogramImage (juce::Image::RGB, 512, 512, true)
+{
 ```
 
-FFTオブジェクトは、この時点で正しい次数で明示的に初期化されなければならない。
+FFTオブジェクトは、この時点で正しいオーダーで明示的に初期化する必要があります。
 
-オーバーライド`getNextAudioBlock()`関数では、現在のオーディオバッファブロックに含まれるすべてのサンプルを、後で処理するために、単純にfifoにプッシュします：
+オーバーライドされた`getNextAudioBlock()`関数では、現在のオーディオバッファブロックに含まれるすべてのサンプルをfifoにプッシュして、後で処理します：
 
 ```cpp
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+{
+    if (bufferToFill.buffer->getNumChannels() > 0)
     {
-        if (bufferToFill.buffer->getNumChannels() > 0)
-        {
-            auto* channelData = bufferToFill.buffer->getReadPointer (0, bufferToFill.startSample);
- 
-            for (auto i = 0; i < bufferToFill.numSamples; ++i)
-                pushNextSampleIntoFifo (channelData[i]);
-        }
+        auto* channelData = bufferToFill.buffer->getReadPointer (0, bufferToFill.startSample);
+
+        for (auto i = 0; i < bufferToFill.numSamples; ++i)
+            pushNextSampleIntoFifo (channelData[i]);
     }
+}
 ```
 
-サンプルをfifoにプッシュするには`pushNextSampleIntoFifo()`機能については後述する：
+サンプルをfifoにプッシュするには、以下に説明するように`pushNextSampleIntoFifo()`関数を実装します：
 
 ```cpp
-    void pushNextSampleIntoFifo (float sample) noexcept
+void pushNextSampleIntoFifo (float sample) noexcept
+{
+    // if the fifo contains enough data, set a flag to say
+    // that the next line should now be rendered..
+    if (fifoIndex == fftSize) // [8]
     {
-        // if the fifo contains enough data, set a flag to say
-        // that the next line should now be rendered..
-        if (fifoIndex == fftSize)       // [8]
+        if (!nextFFTBlockReady) // [9]
         {
-            if (! nextFFTBlockReady)    // [9]
-            {
-                std::fill (fftData.begin(), fftData.end(), 0.0f);
-                std::copy (fifo.begin(), fifo.end(), fftData.begin());
-                nextFFTBlockReady = true;
-            }
- 
-            fifoIndex = 0;
+            std::fill (fftData.begin(), fftData.end(), 0.0f);
+            std::copy (fifo.begin(), fifo.end(), fftData.begin());
+            nextFFTBlockReady = true;
         }
- 
-        fifo[(size_t) fifoIndex++] = sample; // [9]
+
+        fifoIndex = 0;
     }
+
+    fifo[(size_t) fifoIndex++] = sample; // [9]
+}
 ```
 
-- \[8\]fifoに十分なデータ（この場合は1024サンプル）が格納されていれば、データをftData配列にコピーして、FFTで処理する準備が整いました。また、次の行をレンダリングするフラグを設定し、常にインデックスを0にリセットして、fifoへのデータ入力を再開します。
-- \[9\]この関数が呼び出されるたびに、サンプルがfifoに格納され、インデックスがインクリメントされます。
+- [8]：fifoに十分なデータが含まれている場合（この場合1024サンプル）、FFTによって処理されるためにデータをfftData配列にコピーする準備ができています。また、次の行がレンダリングされるべきであることを示すフラグを設定し、fifoを再び満たし始めるために常にインデックスを0にリセットします。
+- [9]：この関数が呼び出されるたびに、サンプルがfifoに格納され、インデックスがインクリメントされます。
 
-これでFIFOデータがFFT入力配列の前半を占め、処理と表示の準備が整った。
+fifoデータはFFT入力配列の前半を占め、処理および表示の準備ができています。
 
 ### スペクトログラムの表示
 
-の中で`drawNextLineOfSpectrogram()`関数に、以下に説明するピクセル描画の実装を挿入する：
+`drawNextLineOfSpectrogram()`関数で、以下に説明するようにピクセル描画の実装を挿入します：
 
 ```cpp
-    void drawNextLineOfSpectrogram()
+void drawNextLineOfSpectrogram()
+{
+    auto rightHandEdge = spectrogramImage.getWidth() - 1;
+    auto imageHeight = spectrogramImage.getHeight();
+
+    // first, shuffle our image leftwards by 1 pixel..
+    spectrogramImage.moveImageSection (0, 0, 1, 0, rightHandEdge, imageHeight); // [1]
+
+    // then render our FFT data..
+    forwardFFT.performFrequencyOnlyForwardTransform (fftData.data()); // [2]
+
+    // find the range of values produced, so we can scale our rendering to
+    // show up the detail clearly
+    auto maxLevel = juce::FloatVectorOperations::findMinAndMax (fftData.data(), fftSize / 2); // [3]
+
+    juce::Image::BitmapData bitmap { spectrogramImage, rightHandEdge, 0, 1, imageHeight, juce::Image::BitmapData::writeOnly }; // [4]
+
+    for (auto y = 1; y < imageHeight; ++y) // [5]
     {
-        auto rightHandEdge = spectrogramImage.getWidth() - 1;
-        auto imageHeight   = spectrogramImage.getHeight();
- 
-        // first, shuffle our image leftwards by 1 pixel..
-        spectrogramImage.moveImageSection (0, 0, 1, 0, rightHandEdge, imageHeight);         // [1]
- 
-        // then render our FFT data..
-        forwardFFT.performFrequencyOnlyForwardTransform (fftData.data());                   // [2]
- 
-        // find the range of values produced, so we can scale our rendering to
-        // show up the detail clearly
-        auto maxLevel = juce::FloatVectorOperations::findMinAndMax (fftData.data(), fftSize / 2); // [3]
- 
-        juce::Image::BitmapData bitmap { spectrogramImage, rightHandEdge, 0, 1, imageHeight, juce::Image::BitmapData::writeOnly }; // [4]
- 
-        for (auto y = 1; y < imageHeight; ++y)                                              // [5]
-        {
-            auto skewedProportionY = 1.0f - std::exp (std::log ((float) y / (float) imageHeight) * 0.2f);
-            auto fftDataIndex = (size_t) juce::jlimit (0, fftSize / 2, (int) (skewedProportionY * fftSize / 2));
-            auto level = juce::jmap (fftData[fftDataIndex], 0.0f, juce::jmax (maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
- 
-            bitmap.setPixelColour (0, y, juce::Colour::fromHSV (level, 1.0f, level, 1.0f)); // [6]
-        }
+        auto skewedProportionY = 1.0f - std::exp (std::log ((float) y / (float) imageHeight) * 0.2f);
+        auto fftDataIndex = (size_t) juce::jlimit (0, fftSize / 2, (int) (skewedProportionY * fftSize / 2));
+        auto level = juce::jmap (fftData[fftDataIndex], 0.0f, juce::jmax (maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
+
+        bitmap.setPixelColour (0, y, juce::Colour::fromHSV (level, 1.0f, level, 1.0f)); // [6]
     }
+}
 ```
 
-- \[1\]を使い、画像を左方向に1ピクセルずつシャッフルする。`moveImageSection()`関数を使用する。[Image](https://docs.juce.com/master/classImage.html "固定サイズのビットマップを保持する。")オブジェクトを指定します。画像セクションは、全幅から1ピクセルを引いた値と全高で指定します。
-- \[2\]を使用してFFTデータをレンダリングします。`performFrequencyOnlyForwardTransform()`関数は、ftData配列を引数としてFFTオブジェクトに渡します。
-- \[3\]レンダリングをスケーリングしてディテールを明確に表示できるように、生成される値の範囲を求めます。そのためには、FloatVectorOperations::findMinAndMax()関数を使います。
-- \[4\]スペクトログラム画像の右端の列のピクセルを参照するBitmapDataインスタンスを作成する。画像内の複数のピクセルに対して読み書きする場合、BitmapDataインスタンスを使用してピクセル値を内部的にバッファリングし、一度に読みできますます。この方法は、通常[Image](https://docs.juce.com/master/classImage.html "固定サイズのビットマップを保持する。")個々のピクセルにアクセスする。
-- \[5\]次に、スペクトログラムの高さの各ピクセルについて、forループでサンプルセットに比例したレベルを計算する。これを行うには、まずY軸を歪めて対数スケールを使用し、周波数をより適切に表現する必要があります。次に、このスケーリング係数を与えて正しい配列インデックスを取得し、振幅値を使ってそれを0.0 .. 1.0.
-- \[6\]最後に、FFTデータを表示するために、適切なピクセルに適切な色を設定します。
+- [1]：まず、[Image](https://docs.juce.com/master/classImage.html "Holds a fixed-size bitmap.")オブジェクトの`moveImageSection()`関数を使用して、画像を1ピクセル左にシャッフルします。画像セクションを全幅マイナス1ピクセルと全高として指定します。
+- [2]：次に、fftData配列を引数としてFFTオブジェクトの`performFrequencyOnlyForwardTransform()`関数を使用してFFTデータをレンダリングします。
+- [3]：生成された値の範囲を見つけて、詳細が明確に表示されるようにレンダリングをスケーリングできるようにします。FloatVectorOperations::findMinAndMax()関数を使用してこれを行うことができます。
+- [4]：スペクトログラム画像の右端のピクセル列を参照するBitmapDataインスタンスを作成します。画像内の複数のピクセルを読み書きする場合、BitmapDataインスタンスを使用してピクセル値を内部的にバッファリングし、一度に読み書きできます。このアプローチは通常、[Image](https://docs.juce.com/master/classImage.html "Holds a fixed-size bitmap.")のメンバー関数を使用して個々のピクセルにアクセスするよりも高速です。
+- [5]：スペクトログラムの高さの各ピクセルに対するforループで、サンプルセットに比例したレベルを計算します。これを行うには、まずy軸を歪ませて対数スケールを使用し、周波数をより適切に表現する必要があります。次に、このスケーリング係数を使用して正しい配列インデックスを取得し、振幅値を使用して`0.0 .. 1.0`の範囲にマッピングできます。
+- [6]：最後に、FFTデータを表示するために適切なピクセルを正しい色で設定します。
 
-最後のステップとして、タイマーコールバック関数を使用してスペクトログラムを更新する。`drawNextLineOfSpectrogram()`次のFFTブロックの準備ができたときにのみ、フラグをリセットし、GUIを更新します。`repaint()`関数である：
+最後のステップとして、タイマーコールバック関数を使用してスペクトログラムを更新します。次のFFTブロックが準備できている場合にのみ`drawNextLineOfSpectrogram()`を呼び出し、フラグをリセットし、`repaint()`関数を使用してGUIを更新します：
 
 ```cpp
-    void timerCallback() override
+void timerCallback() override
+{
+    if (nextFFTBlockReady)
     {
-        if (nextFFTBlockReady)
-        {
-            drawNextLineOfSpectrogram();
-            nextFFTBlockReady = false;
-            repaint();
-        }
+        drawNextLineOfSpectrogram();
+        nextFFTBlockReady = false;
+        repaint();
     }
+}
 ```
-
-:::danger[エクササイズ]
-
-FFTの分解能を上げ、スペクトログラムの更新レートを変えてみる。
-
-:::
 
 :::note
-
-この修正版のソースコードは`SimpleFFTTutorial_02.h`ファイルにある。
-
+演習：FFTの解像度を上げて、スペクトログラムが更新されるレートを変更してみてください。
 :::
 
-## 概要
+:::tip
+このコードの修正版のソースコードは、デモプロジェクトの`SimpleFFTTutorial_02.h`ファイルにあります。
+:::
 
-このチュートリアルでは、FFT関数を使ってオーディオデータをスペクトログラムで表示する方法を学びました。特に
+## まとめ
 
-- 高速フーリエ変換関数の基礎を学ぶ
-- FIFOを使ってオーディオをサンプルごとに処理
-- データを[Image](https://docs.juce.com/master/classImage.html "固定サイズのビットマップを保持する。")オブジェクトのピクセル単位
+このチュートリアルでは、FFT関数を使用してオーディオデータをスペクトログラムに表示する方法を学びました。特に以下のことを行いました：
 
-## 参照
+- 高速フーリエ変換関数の基本を学びました。
+- fifoを使用してサンプルごとにオーディオを処理しました。
+- [Image](https://docs.juce.com/master/classImage.html "Holds a fixed-size bitmap.")オブジェクトにピクセルごとにデータを表示しました。
 
-- [Tutorial: Draw audio waveforms](../../audio/tutorial_audio_thumbnail/)
-- [Tutorial: Build an audio player](../../audio/tutorial_playing_sound_files/)
-- [Tutorial: Processing audio input](../../audio/tutorial_processing_audio_input/)
-- [Tutorial: Introduction to DSP](../tutorial_dsp_introduction/)
-- [Tutorial: Visualise the frequencies of a signal in real time](../tutorial_spectrum_analyser/)
+## 関連項目
+
+- [チュートリアル：オーディオ波形の描画](../../audio/tutorial_audio_thumbnail/)
+- [チュートリアル：オーディオプレーヤーの構築](../../audio/tutorial_playing_sound_files/)
+- [チュートリアル：オーディオ入力の処理](../../audio/tutorial_processing_audio_input/)
+- [チュートリアル：DSP入門](../tutorial_dsp_introduction/)
+- [チュートリアル：リアルタイムで信号の周波数を可視化](../tutorial_spectrum_analyser/)
