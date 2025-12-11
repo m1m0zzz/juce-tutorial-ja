@@ -4,674 +4,630 @@ sidebar_position: 5
 tags: ["中級"]
 ---
 
-# プラグインの例
+# チュートリアル：プラグインの例
 
 <SourcePageLink path="tutorial_plugin_examples" />
 
-このチュートリアルでは、オーディオ/MIDIのプラグインの例をいくつか詳しく説明し、プラグイン開発のオープンな可能性を探ります。
+このチュートリアルでは、いくつかのオーディオ/MIDIプラグインの例を詳細に説明し、プラグイン開発の可能性を探ります。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS<br/>
+**プラグインフォーマット:** VST, VST3, AU, AAX, Standalone<br/>
+**クラス:** [MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events."), [SortedSet](https://docs.juce.com/master/classSortedSet.html "Holds a set of unique primitive objects, such as ints or doubles."), [AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto..."), [Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds."), [MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events."), [MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message."), [AudioProcessorValueTreeState](https://docs.juce.com/master/classAudioProcessorValueTreeState.html "This class contains a ValueTree that is used to manage an AudioProcessor's entire state."), [GenericAudioProcessorEditor](https://docs.juce.com/master/classGenericAudioProcessorEditor.html "A type of UI component that displays the parameters of an AudioProcessor as a simple list of sliders,...")
 
-プラットフォーム：Windows, macOS, Linux, iOS
+## はじめに
 
-プラグイン形式：VST, VST3, AU, AAX, Standalone
+このチュートリアルには、いくつかのデモプロジェクトが付属しています。これらのプロジェクトへのダウンロードリンクは、チュートリアルの関連セクションで提供されています。
 
-<ClassList
-  refs={[
-    "MidiBuffer",
-    "SortedSet",
-    "AudioParameterFloat",
-    "Synthesiser",
-    "MidiBuffer",
-    "MidiMessage",
-    "AudioProcessorValueTreeState",
-    "GenericAudioProcessorEditor",
-  ]}
-/>
-
-## はじめる
-
-このチュートリアルにはいくつかのデモプロジェクトがあります。
-これらのプロジェクトのダウンロード・リンクは、チュートリアルの関連セクションに記載されています。
-
-各セクションのこのステップでヘルプが必要な場合は、
-[Projucerパート1：Projucerを始める](../../getting-started/tutorial_new_projucer_project/) を参照してください
+これらの各セクションでこの手順についてサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
 ## デモプロジェクト
 
-このチュートリアルで提供されるデモプロジェクトは、オーディオ/MIDIプラグインのいくつかの異なる例を示しています。
-要約すると、これらのプラグインは
+このチュートリアルで提供されるデモプロジェクトは、オーディオ/MIDIプラグインのいくつかの異なる例を示しています。要約すると、これらのプラグインは以下の通りです：
 
-- シンプルなアルペジエーターで面白い音楽パターンを作る。[アルペジエータープラグイン](#アルペジエータープラグイン) へジャンプ。
-- ノイズゲートで不要なノイズをフィルタリング。[ノイズゲートプラグイン](#ノイズゲートプラグイン) へジャンプ
-- チャンネル数をマルチアウト・シンセサイザーに拡張する。[マルチアウトシンセプラグイン](#マルチアウトシンセプラグイン) へジャンプします。
-- チャンネル数をサラウンド対応プラグインに拡張する。[サラウンドプラグイン](#サラウンドプラグイン) へジャンプします。
+- シンプルなアルペジエーターで興味深い音楽パターンを作成する。[アルペジエータープラグイン](#tutorial_plugin_examples_arpeggiator)にジャンプ。
+- ノイズゲートを使用して不要なノイズをフィルタリングする。[ノイズゲートプラグイン](#tutorial_plugin_examples_noise_gate)にジャンプ。
+- チャンネル数をマルチアウトシンセサイザーに拡張する。[マルチアウトシンセプラグイン](#tutorial_plugin_examples_multi_out_synth)にジャンプ。
+- チャンネル数をサラウンド対応プラグインに拡張する。[サラウンドプラグイン](#tutorial_plugin_examples_surround)にジャンプ。
 
-私たちは、すべてのプロジェクトに共通する [GenericAudioProcessorEditor](https://docs.juce.com/master/classGenericAudioProcessorEditor.html) クラスを使用して、プラグイン例全体のGUIコンポーネントをレイアウトしています。
+すべてのプロジェクトで共通の[GenericAudioProcessorEditor](https://docs.juce.com/master/classGenericAudioProcessorEditor.html "A type of UI component that displays the parameters of an AudioProcessor as a simple list of sliders,...")クラスを使用して、プラグインの例全体でGUIコンポーネントをレイアウトします。
 
-:::note
-
-ここで紹介するコードは、JUCE Examplesの **PlugInSamples** と大まかに似ています。
-
+:::tip
+ここで紹介するコードは、JUCEサンプルの**PlugInSamples**とほぼ同様です。
 :::
 
-## アルペジエーター・プラグイン
+## アルペジエータープラグイン
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/ArpeggiatorTutorial.zip)｜[ZIP](https://docs.juce.com/tutorials/ZIPs/ArpeggiatorTutorial.zip)
-プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開きます。
+このセクションのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/ArpeggiatorTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/ArpeggiatorTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-:::note
-
-Projucerのプロジェクト設定の "Plugin Characteristics" フィールドで "MIDI Effect Plugin" オプションを有効にしてください。
-
+:::tip
+Projucerのプロジェクト設定の「Plugin Characteristics」フィールドで「MIDI Effect Plugin」オプションを必ず有効にしてください。
 :::
 
-アルペジエーターは、オーディオプロセッシングのないMIDIプラグインで、ソフトウェア・インストゥルメントやDAWのMIDIトラックに挿入して、入力されるMIDI信号を変更できます。
-
+アルペジエーターは、オーディオ処理のないMIDIプラグインで、DAWのソフトウェアインストゥルメントまたはMIDIトラックに挿入して、入力MIDIシグナルを変更できます。
 
 <CaptionImage
   src="/_images/tutorial_plugin_examples_arpeggiator_screenshot1.png"
-  caption="アルペジエータープラグインウィンドウ"
+  caption="Arpeggiator plugin window"
 />
 
-
 ### アルペジエーターの実装
-`Arpeggiator` クラスでは、アルペジエーターの動作を実装するために、以下のようにいくつかのプライベート・メンバー変数を定義した：
+
+`Arpeggiator`クラスでは、アルペジエーターの動作を実装するためにいくつかのプライベートメンバー変数を定義しています：
 
 ```cpp
 private:
-    //==============================================================================
-    juce::AudioParameterFloat* speed;
-    int currentNote, lastNoteValue;
-    int time;
-    float rate;
-    juce::SortedSet<int> notes;
- 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Arpeggiator)
+//==============================================================================
+juce::AudioParameterFloat* speed;
+int currentNote, lastNoteValue;
+int time;
+float rate;
+juce::SortedSet<int> notes;
+
+//==============================================================================
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Arpeggiator)
 };
 ```
 
-その中に、あるソートルールに従ってユニークなint変数のセットを保持する [SortedSet](https://docs.juce.com/master/classSortedSet.html)
-オブジェクトがある。これによって、MIDIノートを効率的に並べ替えて、希望する音楽パターンを作り出すことができる。
+これらの中には、特定のソート規則に従って一意のint変数のセットを保持する[SortedSet](https://docs.juce.com/master/classSortedSet.html "Holds a set of unique primitive objects, such as ints or doubles.")オブジェクトがあります。これにより、目的の音楽パターンを生成するためにMIDIノートを効率的に並べ替えることができます。
 
-クラスのコンストラクタでは、MIDIプラグインを作成するため、オーディオバスなしでプラグインを初期化します。また、ここに示すように、アルペジエーターのスピードのパラメーターを1つ追加します：
+クラスコンストラクタでは、MIDIプラグインを作成しているため、オーディオバスなしでプラグインを初期化します。また、アルペジエーターの速度用の単一パラメータを追加します：
 
 ```cpp
-    Arpeggiator()
-        : AudioProcessor (BusesProperties()) // add no audio buses at all
+Arpeggiator()
+    : AudioProcessor (BusesProperties()) // add no audio buses at all
+{
+    addParameter (speed = new juce::AudioParameterFloat ("speed", "Arpeggiator Speed", 0.0, 1.0, 0.5));
+}
+```
+
+`prepareToPlay()`関数では、後続の処理に備えていくつかの変数を初期化します：
+
+```cpp
+void prepareToPlay (double sampleRate, int) override
+{
+    notes.clear(); // [1]
+    currentNote = 0; // [2]
+    lastNoteValue = -1; // [3]
+    time = 0; // [4]
+    rate = static_cast<float> (sampleRate); // [5]
+}
+```
+
+- [1]：まず、MIDIノート番号の[SortedSet](https://docs.juce.com/master/classSortedSet.html "Holds a set of unique primitive objects, such as ints or doubles.")を空にします。
+- [2]：currentNote変数は、ノートの[SortedSet](https://docs.juce.com/master/classSortedSet.html "Holds a set of unique primitive objects, such as ints or doubles.")の現在のインデックスを一時的に保持します。
+- [3]：lastNoteValue変数は、ノートを停止できるように前のインデックスを一時的に保持します。
+- [4]：time変数は、バッファサイズとサンプルレートに対するノートの持続時間を追跡します。
+- [5]：rateは現在のサンプルレートをfloat変数に格納します。
+
+次に、`processBlock()`関数で実際の処理を実行します：
+
+```cpp
+void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) override
+{
+    // the audio buffer in a midi effect will have zero channels!
+    jassert (buffer.getNumChannels() == 0); // [6]
+
+    // however we use the buffer to get timing information
+    auto numSamples = buffer.getNumSamples(); // [7]
+
+    // get note duration
+    auto noteDuration = static_cast<int> (std::ceil (rate * 0.25f * (0.1f + (1.0f - (*speed))))); // [8]
+
+    for (const auto metadata : midi) // [9]
     {
-        addParameter (speed = new juce::AudioParameterFloat ("speed", "Arpeggiator Speed", 0.0, 1.0, 0.5));
+        const auto msg = metadata.getMessage();
+
+        if (msg.isNoteOn())
+            notes.add (msg.getNoteNumber());
+        else if (msg.isNoteOff())
+            notes.removeValue (msg.getNoteNumber());
     }
+
+    midi.clear(); // [10]
 ```
 
-`prepareToPlay()` 関数では、以下のようにいくつかの変数を初期化して、その後の処理に備える：
+- [6]：MIDIプラグインを扱っていることを確認するために、オーディオバッファにオーディオチャンネルがないことをアサートします。
+- [7]：それでもオーディオバッファからブロック内のサンプル数を取得します。
+- [8]：ユーザーインターフェースの速度パラメータとサンプルレートに従って、サンプル数でノートの持続時間を計算します。
+- [9]：[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")内の各イベントについて、イベントが「Note On」の場合はノートを[SortedSet](https://docs.juce.com/master/classSortedSet.html "Holds a set of unique primitive objects, such as ints or doubles.")に追加し、イベントが「Note Off」の場合はノートを削除します。
+- [10]：次に、次のステップで単一のノートをバッファに1つずつ追加するために[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")を空にします。
 
 ```cpp
-    void prepareToPlay (double sampleRate, int) override
+if ((time + numSamples) >= noteDuration) // [11]
+{
+    auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1)); // [12]
+
+    if (lastNoteValue > 0) // [13]
     {
-        notes.clear();                          // [1]
-        currentNote = 0;                        // [2]
-        lastNoteValue = -1;                     // [3]
-        time = 0;                               // [4]
-        rate = static_cast<float> (sampleRate); // [5]
+        midi.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
+        lastNoteValue = -1;
     }
-```
 
-1. まず、MIDIノート番号の [SortedSet](https://docs.juce.com/master/classSortedSet.html) を空にします。
-2. currentNote変数は、音符の [SortedSet](https://docs.juce.com/master/classSortedSet.html) の現在のインデックスを一時的に保持する。
-3. lastNoteValue変数は、ノートを止めることができるように、前のインデックスを一時的に保持する。
-4. time変数は、バッファサイズとサンプルレートに対するノートの持続時間を保持する。
-5. rateは、現在のサンプルレートをfloat変数に格納します。
-
-次に、`processBlock()` 関数の中で以下のように実際の処理を行う：
-
-```cpp
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) override
+    if (notes.size() > 0) // [14]
     {
-        // the audio buffer in a midi effect will have zero channels!
-        jassert (buffer.getNumChannels() == 0);                                                         // [6]
- 
-        // however we use the buffer to get timing information
-        auto numSamples = buffer.getNumSamples();                                                       // [7]
- 
-        // get note duration
-        auto noteDuration = static_cast<int> (std::ceil (rate * 0.25f * (0.1f + (1.0f - (*speed)))));   // [8]
- 
-        for (const auto metadata : midi)                                                                // [9]
-        {
-            const auto msg = metadata.getMessage();
- 
-            if      (msg.isNoteOn())  notes.add (msg.getNoteNumber());
-            else if (msg.isNoteOff()) notes.removeValue (msg.getNoteNumber());
-        }
- 
-        midi.clear();
-```
-
-6. MIDIプラグインを扱っていることを確認するために、オーディオバッファにオーディオチャンネルがないことを表明する。
-7. オーディオバッファからブロック内のサンプル数を取得する。
-8. ユーザーインタフェースのスピードパラメーターとサンプルレートに従って、サンプル数で音符の長さを計算します。
-9. [MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html) 内のすべてのイベントに対して、イベントが "Note On" の場合はノートを
-   [SortedSet](https://docs.juce.com/master/classSortedSet.html) に追加し、イベントが "Note Off" の場合はノートを削除します。
-10. 次に、[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html) を空にして、次のステップでノートを1つずつバッファに戻します。
-
-```cpp
-        if ((time + numSamples) >= noteDuration)                                                        // [11]
-        {
-            auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1));     // [12]
- 
-            if (lastNoteValue > 0)                                                                      // [13]
-            {
-                midi.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
-                lastNoteValue = -1;
-            }
- 
-            if (notes.size() > 0)                                                                       // [14]
-            {
-                currentNote = (currentNote + 1) % notes.size();
-                lastNoteValue = notes[currentNote];
-                midi.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
-            }
- 
-        }
- 
-        time = (time + numSamples) % noteDuration;                                                      // [15]
+        currentNote = (currentNote + 1) % notes.size();
+        lastNoteValue = notes[currentNote];
+        midi.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
     }
+}
+
+time = (time + numSamples) % noteDuration; // [15]
+}
 ```
 
-11. 現在のブロックのサンプル数を加算した現在の時間が、ノートの継続時間より大きいかどうかをチェックする。もしそうであれば、現在のブロックの終わりには音符の遷移に達するので、[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html) を変更します。
-    そうでなければ、MIDIステートをそのまま維持する。
-12. 現在のオーディオブロック内でノートトランジションが発生するサンプルオフセットを計算する。
-13. 前のノートがまだ再生されている場合、変数lastNoteValueは0より大きいので、正しいサンプルオフセットでノートの再生を停止するために "Note Off "イベントを送信する必要があります。次に、lastNoteValue変数をリセットします。
-14. SortedSetにシャッフルして再生するノートがある場合、前のノート番号を保存し、次のノート番号を取得した後、セットの最初のノートを再生するために "Note On "イベントを送信します。
-15. 最後に、ノート遷移に到達したかどうかにかかわらず、ノート持続時間に対する現在の時間を追跡します。
-
+- [11]：現在の時間に現在のブロック内のサンプル数を加えたものがノートの持続時間より大きいかどうかを確認します。そうであれば、現在のブロックの終わりまでにノートの遷移に達することを意味するため、[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")を変更する処理を行います。そうでなければ、MIDI状態をそのまま維持します。
+- [12]：現在のオーディオブロック内でノートの遷移が発生するサンプルオフセットを計算します。
+- [13]：前のノートがまだ再生中の場合、lastNoteValue変数は0より大きく、正しいサンプルオフセットでノートの再生を停止するために「Note Off」イベントを送信する必要があります。その後、lastNoteValue変数をリセットします。
+- [14]：[SortedSet](https://docs.juce.com/master/classSortedSet.html "Holds a set of unique primitive objects, such as ints or doubles.")にシャッフルして再生するノートがある場合、前のノート番号を保存し、次のノート番号を取得した後、セット内の最初のノートを再生するために「Note On」イベントを送信します。
+- [15]：最後に、ノートの遷移に達するかどうかに関係なく、ノートの持続時間に対する現在の時間を追跡します。
 
 ## ノイズゲートプラグイン
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/NoiseGateTutorial.zip)｜[ZIP](https://docs.juce.com/tutorials/ZIPs/NoiseGateTutorial.zip)。
-プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開きます。
+このセクションのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/NoiseGateTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/NoiseGateTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-ノイズゲートはオーディオプラグインで、DAWのトラックにインサートとして置かれたときに、あるサイドチェインスレッショルド以下の入力音をフィルタリングします。
+ノイズゲートは、DAWトラックにインサートとして配置されたときに、特定のサイドチェーンしきい値以下の入力サウンドをフィルタリングするオーディオプラグインです。
 
 <CaptionImage
   src="/_images/tutorial_plugin_examples_noise_gate_screenshot1.png"
-  caption="ノイズゲート・プラグイン・ウィンドウ"
+  caption="Noise gate plugin window"
 />
 
 ### ノイズゲートの実装
 
-`NoiseGate` クラスでは、ノイズ・ゲートの動作を実装するために、以下のようにいくつかのプライベート・メンバー変数を定義しました：
+`NoiseGate`クラスでは、ノイズゲートの動作を実装するためにいくつかのプライベートメンバー変数を定義しています：
 
 ```cpp
 private:
-    //==============================================================================
-    juce::AudioParameterFloat* threshold;
-    juce::AudioParameterFloat* alpha;
-    int sampleCountDown;
- 
-    float lowPassCoeff;
- 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoiseGate)
+//==============================================================================
+juce::AudioParameterFloat* threshold;
+juce::AudioParameterFloat* alpha;
+int sampleCountDown;
+
+float lowPassCoeff;
+
+//==============================================================================
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoiseGate)
 };
 ```
 
-クラスのコンストラクタで、プラグインを入力、出力、サイドチェイン用の3つのステレオ・バスで初期化します[1]。
-また、ここに示すように、スレッショルドとアルファの2つのパラメータを追加します[2]：
+クラスコンストラクタでは、入力、出力、サイドチェーン用の3つのステレオバスでプラグインを初期化します[1]。また、thresholdとalphaの2つのパラメータを追加します[2]：
 
 ```cpp
-    NoiseGate()
-        : AudioProcessor (BusesProperties().withInput  ("Input",     juce::AudioChannelSet::stereo())           // [1]
-                                           .withOutput ("Output",    juce::AudioChannelSet::stereo())
-                                           .withInput  ("Sidechain", juce::AudioChannelSet::stereo()))
-    {
-        addParameter (threshold = new juce::AudioParameterFloat ("threshold", "Threshold", 0.0f, 1.0f, 0.5f));  // [2]
-        addParameter (alpha     = new juce::AudioParameterFloat ("alpha",     "Alpha",     0.0f, 1.0f, 0.8f));
-    }
+NoiseGate()
+    : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo()) // [1]
+                          .withOutput ("Output", juce::AudioChannelSet::stereo())
+                          .withInput ("Sidechain", juce::AudioChannelSet::stereo()))
+{
+    addParameter (threshold = new juce::AudioParameterFloat ("threshold", "Threshold", 0.0f, 1.0f, 0.5f)); // [2]
+    addParameter (alpha = new juce::AudioParameterFloat ("alpha", "Alpha", 0.0f, 1.0f, 0.8f));
+}
 ```
 
-スレッショルドパラメーターは、ノイズゲートが入力信号に作用するパワーレベルを決定する。alphaパラメーターは、サイドチェイン信号のフィルタリングを制御します。
+thresholdパラメータは、ノイズゲートが入力信号に作用するパワーレベルを決定します。alphaパラメータは、サイドチェーン信号のフィルタリングを制御します。
 
-`isBusesLayoutSupported()` 関数では、入力チャンネル数が出力チャンネル数と同じで、入力バスが有効になっていることを確認します：
+`isBusesLayoutSupported()`関数では、入力チャンネル数が出力チャンネル数と同じであり、入力バスが有効であることを確認します：
 
 ```cpp
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override
-    {
-        // the sidechain can take any layout, the main bus needs to be the same on the input and output
-        return layouts.getMainInputChannelSet() == layouts.getMainOutputChannelSet()
-                 && ! layouts.getMainInputChannelSet().isDisabled();
-    }
+bool isBusesLayoutSupported (const BusesLayout& layouts) const override
+{
+    // the sidechain can take any layout, the main bus needs to be the same on the input and output
+    return layouts.getMainInputChannelSet() == layouts.getMainOutputChannelSet()
+           && !layouts.getMainInputChannelSet().isDisabled();
+}
 ```
 
-`prepareToPlay()` 関数では、以下のようにいくつかの変数を初期化して、その後の処理に備える：
+`prepareToPlay()`関数では、後続の処理に備えていくつかの変数を初期化します：
 
 ```cpp
-    void prepareToPlay (double, int) override
-    {
-        lowPassCoeff = 0.0f;    // [3]
-        sampleCountDown = 0;    // [4]
-    }
+void prepareToPlay (double, int) override
+{
+    lowPassCoeff = 0.0f; // [3]
+    sampleCountDown = 0; // [4]
+}
 ```
 
-3. サイドチェイン信号とαパラメータからローパス係数を計算し、ゲーティング動作を決定する。
-4. サンプル・カウントダウンは、ゲーティングが発生する前に、サンプル・レートに対して残っているサンプル数を追跡できます。
+- [3]：ローパス係数は、サイドチェーン信号とalphaパラメータから計算され、ゲーティング動作を決定します。
+- [4]：サンプルカウントダウンにより、ゲーティングが発生する前のサンプルレートに関するサンプル数を追跡できます。
 
-次に、`processBlock()` 関数で以下のように実際の処理を行います：
+次に、`processBlock()`関数で実際の処理を実行します：
 
 ```cpp
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&) override
+void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&) override
+{
+    auto mainInputOutput = getBusBuffer (buffer, true, 0); // [5]
+    auto sideChainInput = getBusBuffer (buffer, true, 1);
+
+    auto alphaCopy = alpha->get(); // [6]
+    auto thresholdCopy = threshold->get();
+
+    for (auto j = 0; j < buffer.getNumSamples(); ++j) // [7]
     {
-        auto mainInputOutput = getBusBuffer (buffer, true, 0);                                  // [5]
-        auto sideChainInput  = getBusBuffer (buffer, true, 1);
- 
-        auto alphaCopy = alpha->get();                                                          // [6]
-        auto thresholdCopy = threshold->get();
- 
-        for (auto j = 0; j < buffer.getNumSamples(); ++j)                                       // [7]
-        {
-            auto mixedSamples = 0.0f;
- 
-            for (auto i = 0; i < sideChainInput.getNumChannels(); ++i)                          // [8]
-                mixedSamples += sideChainInput.getReadPointer (i) [j];
- 
-            mixedSamples /= static_cast<float> (sideChainInput.getNumChannels());
-            lowPassCoeff = (alphaCopy * lowPassCoeff) + ((1.0f - alphaCopy) * mixedSamples);    // [9]
- 
-            if (lowPassCoeff >= thresholdCopy)                                                  // [10]
-                sampleCountDown = (int) getSampleRate();
- 
-            // very in-effective way of doing this
-            for (auto i = 0; i < mainInputOutput.getNumChannels(); ++i)                         // [11]
-                *mainInputOutput.getWritePointer (i, j) = sampleCountDown > 0 ? *mainInputOutput.getReadPointer (i, j)
-                                                                              : 0.0f;
- 
-            if (sampleCountDown > 0)                                                            // [12]
-                --sampleCountDown;
-        }
+        auto mixedSamples = 0.0f;
+
+        for (auto i = 0; i < sideChainInput.getNumChannels(); ++i) // [8]
+            mixedSamples += sideChainInput.getReadPointer (i)[j];
+
+        mixedSamples /= static_cast<float> (sideChainInput.getNumChannels());
+        lowPassCoeff = (alphaCopy * lowPassCoeff) + ((1.0f - alphaCopy) * mixedSamples); // [9]
+
+        if (lowPassCoeff >= thresholdCopy) // [10]
+            sampleCountDown = (int) getSampleRate();
+
+        // very in-effective way of doing this
+        for (auto i = 0; i < mainInputOutput.getNumChannels(); ++i) // [11]
+            *mainInputOutput.getWritePointer (i, j) = sampleCountDown > 0 ? *mainInputOutput.getReadPointer (i, j)
+                                                                          : 0.0f;
+
+        if (sampleCountDown > 0) // [12]
+            --sampleCountDown;
     }
+}
 ```
 
-5. まず、サイドチェインバッファをメインのI/Oバッファから分離し、後続のステップで別々に処理する。
-6. 次に、しきい値とアルファパラメータのコピーを取得する。
-7. 外側のループはオーディオバッファブロック内の個々のサンプルを処理し、内側のループはチャンネルをインターリーブ処理します。これにより、1つのサンプル処理で各チャンネルの状態を同じに保つことができます。
-8. サイドチェインの各チャンネルについて、信号を加算し、サイドチェインのチャンネル数で割って、信号をモノラルに合計します。
-9. 次に、*y[i] = ((1 - alpha) * sidechain) + (alpha * y[i - 1])* という式を使って、alphaパラメータとサイドチェイン・モノ信号からローパス係数を計算します。
-10. この係数がスレッショルド以上の場合、サンプルカウントダウンをサンプルレートにリセットする。
-11. 各入力チャンネルについて、カウントダウンがゼロでない場合、入力バッファのサンプルを出力バッファにコピーします。そうでない場合、ゼロサンプルを書き込むことで出力信号をミュートします。
-12. 各サンプルが処理されるたびに、サンプルカウントダウンの値をデクリメントします。
+- [5]：まず、後続のステップで別々に処理するために、サイドチェーンバッファをメインIOバッファから分離します。
+- [6]：次に、thresholdとalphaパラメータのコピーを取得します。
+- [7]：外側のループはオーディオバッファブロック内の個々のサンプルを処理し、内側のループはインターリーブ方式でチャンネルを処理します。これにより、単一のサンプル処理で各チャンネルに同じ状態を維持できます。
+- [8]：サイドチェーンの各チャンネルについて、信号を加算し、サイドチェーンチャンネル数で割って信号をモノにサムします。
+- [9]：次に、式`y[i] = ((1 - alpha) * sidechain) + (alpha * y[i - 1])`を使用して、alphaパラメータとサイドチェーンモノ信号からローパス係数を計算します。
+- [10]：この係数がしきい値以上の場合、サンプルカウントダウンをサンプルレートにリセットします。
+- [11]：各入力チャンネルについて、カウントダウンがゼロでない場合は入力バッファサンプルを出力バッファにコピーします。そうでなければ、ゼロサンプルを書き込んで出力信号をミュートします。
+- [12]：処理される各サンプルについてサンプルカウントダウン値をデクリメントします。
 
-:::note
-
-ここに示した実装は、通常ノイズゲートをプログラムする方法ではない。世の中にはもっと効率的で優れたアルゴリズムがあります。
-
+:::tip
+ここに示す実装は、通常ノイズゲートをプログラムする方法ではありません。もっと効率的で優れたアルゴリズムが存在します。
 :::
 
-## マルチアウト・シンセ・プラグイン
+## マルチアウトシンセプラグイン
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/MultiOutSynthTutorial.zip)｜[ZIP](https://docs.juce.com/tutorials/ZIPs/MultiOutSynthTutorial.zip)。プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開きます。
+このセクションのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/MultiOutSynthTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/MultiOutSynthTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-:::note
-
-Projucerのプロジェクト設定の "Plugin Characteristics" フィールドで、"Plugin MIDI Input" オプションを有効にしてください。
-
+:::tip
+Projucerのプロジェクト設定の「Plugin Characteristics」フィールドで「Plugin MIDI Input」オプションを必ず有効にしてください。
 :::
 
-マルチアウト・シンセは、オーディオファイルのサンプルを基に最大5つのシンセサイザー音色を生成し、最大16のマルチ出力に信号を出力するソフトウェア・インストゥルメント・プラグインです。
+マルチアウトシンセは、オーディオファイルサンプルに基づいて最大5つのシンセサイザーボイスを生成し、最大16の複数出力に信号を出力するソフトウェアインストゥルメントプラグインです。
 
 <CaptionImage
   src="/_images/tutorial_plugin_examples_multi_out_synth_screenshot1.png"
   caption="Multi-out synth plugin window"
 />
 
+### マルチアウトシンセの実装
 
-### マルチアウト・シンセのインプリメンテーション
-
-`MultiOutSynth` クラスでは、マルチアウト・シンセの動作を実装するために、以下のようにいくつかのプライベート・メンバー変数を定義した：
+`MultiOutSynth`クラスでは、マルチアウトシンセの動作を実装するためにいくつかのプライベートメンバー変数を定義しています：
 
 ```cpp
-    //==============================================================================
-    juce::AudioFormatManager formatManager;
-    juce::OwnedArray<juce::Synthesiser> synth;
-    juce::SynthesiserSound::Ptr sound;
- 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultiOutSynth)
+//==============================================================================
+juce::AudioFormatManager formatManager;
+juce::OwnedArray<juce::Synthesiser> synth;
+juce::SynthesiserSound::Ptr sound;
+
+//==============================================================================
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultiOutSynth)
 };
 ```
 
-[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html)
-は、サンプル・サウンドを読み込むためのオーディオ・ファイル・フォーマットを登録します。
-また、[Synthesiser](https://docs.juce.com/master/classSynthesiser.html)
-オブジェクトの配列があり、チャンネルごとに1つのシンセサイザーと、チュートリアルで使うサンプルサウンドへのスマートポインターを保持しています。
+これらの中には、サンプルサウンドを読み取るためにオーディオファイルフォーマットを登録するための[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")があります。また、チャンネルごとに1つのシンセを保持する[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクトの配列と、チュートリアルで使用するサンプルサウンドへのスマートポインタがあります。
 
-また、MIDIチャンネルの最大数やシンセのボイスの最大数など、便利な定数も宣言しています：
+MIDIチャンネルの最大数とシンセボイスの最大数として、いくつかの便利な定数を列挙型として宣言します：
 
 ```cpp
-    enum
-    {
-        maxMidiChannel = 16,
-        maxNumberOfVoices = 5
-    };
+enum {
+    maxMidiChannel = 16,
+    maxNumberOfVoices = 5
+};
 ```
 
-クラスのコンストラクタでは、プラグインを16のステレオ出力バスで初期化しますが、ソフトウェア・インストゥルメント・プラグインを作成するため、入力バスはありません[1]。
-また、".ogg "サンプル・ファイル[2]を読み込むために、[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html) オブジェクトに基本的なオーディオ・ファイル・フォーマットを登録します：
+クラスコンストラクタでは、ソフトウェアインストゥルメントプラグインを作成しているため、16のステレオ出力バスがあり入力バスがないプラグインを初期化します[1]。また、\".ogg\"サンプルファイルを読み取るために[AudioFormatManager](https://docs.juce.com/master/classAudioFormatManager.html "A class for keeping a list of available audio formats, and for deciding which one to use to open a gi...")オブジェクトに基本的なオーディオファイルフォーマットを登録します[2]：
 
 ```cpp
-    MultiOutSynth()
-        : AudioProcessor (BusesProperties()
-                          .withOutput ("Output #1",  juce::AudioChannelSet::stereo(), true)
-                          .withOutput ("Output #2",  juce::AudioChannelSet::stereo(), false)
-                          .withOutput ("Output #3",  juce::AudioChannelSet::stereo(), false)
-                          .withOutput ("Output #4",  juce::AudioChannelSet::stereo(), false)
-                          .withOutput ("Output #5",  juce::AudioChannelSet::stereo(), false)
-                          .withOutput ("Output #6",  juce::AudioChannelSet::stereo(), false)
-                          .withOutput ("Output #7",  juce::AudioChannelSet::stereo(), false)
-                          .withOutput ("Output #8",  juce::AudioChannelSet::stereo(), false)
-                          .withOutput ("Output #9",  juce::AudioChannelSet::stereo(), false)
+MultiOutSynth()
+    : AudioProcessor (BusesProperties()
+                          .withOutput ("Output #1", juce::AudioChannelSet::stereo(), true)
+                          .withOutput ("Output #2", juce::AudioChannelSet::stereo(), false)
+                          .withOutput ("Output #3", juce::AudioChannelSet::stereo(), false)
+                          .withOutput ("Output #4", juce::AudioChannelSet::stereo(), false)
+                          .withOutput ("Output #5", juce::AudioChannelSet::stereo(), false)
+                          .withOutput ("Output #6", juce::AudioChannelSet::stereo(), false)
+                          .withOutput ("Output #7", juce::AudioChannelSet::stereo(), false)
+                          .withOutput ("Output #8", juce::AudioChannelSet::stereo(), false)
+                          .withOutput ("Output #9", juce::AudioChannelSet::stereo(), false)
                           .withOutput ("Output #10", juce::AudioChannelSet::stereo(), false)
                           .withOutput ("Output #11", juce::AudioChannelSet::stereo(), false)
                           .withOutput ("Output #12", juce::AudioChannelSet::stereo(), false)
                           .withOutput ("Output #13", juce::AudioChannelSet::stereo(), false)
                           .withOutput ("Output #14", juce::AudioChannelSet::stereo(), false)
                           .withOutput ("Output #15", juce::AudioChannelSet::stereo(), false)
-                          .withOutput ("Output #16", juce::AudioChannelSet::stereo(), false))   // [1]
+                          .withOutput ("Output #16", juce::AudioChannelSet::stereo(), false)) // [1]
+{
+    // initialize other stuff (not related to buses)
+    formatManager.registerBasicFormats(); // [2]
+
+    for (auto midiChannel = 0; midiChannel < maxMidiChannel; ++midiChannel) // [3]
     {
-        // initialize other stuff (not related to buses)
-        formatManager.registerBasicFormats();                                                   // [2]
- 
-        for (auto midiChannel = 0; midiChannel < maxMidiChannel; ++midiChannel)                 // [3]
-        {
-            synth.add (new juce::Synthesiser());
- 
-            for (auto i = 0; i < maxNumberOfVoices; ++i)
-                synth[midiChannel]->addVoice (new juce::SamplerVoice());                        // [4]
-        }
- 
-        loadNewSample (juce::MemoryBlock (singing_ogg, singing_oggSize));                       // [5]
+        synth.add (new juce::Synthesiser());
+
+        for (auto i = 0; i < maxNumberOfVoices; ++i)
+            synth[midiChannel]->addVoice (new juce::SamplerVoice()); // [4]
     }
+
+    loadNewSample (juce::MemoryBlock (singing_ogg, singing_oggSize)); // [5]
+}
 ```
 
-MIDI/出力チャンネルごとに、新しい [Synthesiser](https://docs.juce.com/master/classSynthesiser.html)
-オブジェクトをインスタンス化して配列に追加し[3]、1つのシンセにつき5つの [SamplerVoice](https://docs.juce.com/master/classSamplerVoice.html)
-オブジェクトを作成します[4]。また、以下に定義する `loadNewSample()` プライベート関数を使用して、サンプルファイルをバイナリデータとしてロードします[5]：
+各MIDI/出力チャンネルについて、新しい[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクトをインスタンス化し、配列に追加し[3]、シンセごとに5つの[SamplerVoice](https://docs.juce.com/master/classSamplerVoice.html "A subclass of SynthesiserVoice that can play a SamplerSound.")オブジェクトを作成します[4]。また、以下で定義する`loadNewSample()`プライベート関数を使用してサンプルファイルをバイナリデータとしてロードします[5]：
 
 ```cpp
-    void loadNewSample (const juce::MemoryBlock& sampleData)
-    {
-        auto soundBuffer = std::make_unique<juce::MemoryInputStream> (sampleData, false);   // [6]
-        std::unique_ptr<juce::AudioFormatReader> formatReader (formatManager.findFormatForFileExtension ("ogg")->createReaderFor (soundBuffer.release(), true));
- 
-        juce::BigInteger midiNotes;
-        midiNotes.setRange (0, 126, true);
-        juce::SynthesiserSound::Ptr newSound = new juce::SamplerSound ("Voice", *formatReader, midiNotes, 0x40, 0.0, 0.0, 10.0); // [7]
- 
-        for (auto channel = 0; channel < maxMidiChannel; ++channel)             // [8]
-            synth[channel]->removeSound (0);
- 
-        sound = newSound;                                                       // [9]
- 
-        for (auto channel = 0; channel < maxMidiChannel; ++channel)             // [10]
-            synth[channel]->addSound (sound);
-    }
+void loadNewSample (const juce::MemoryBlock& sampleData)
+{
+    auto soundBuffer = std::make_unique<juce::MemoryInputStream> (sampleData, false); // [6]
+    std::unique_ptr<juce::AudioFormatReader> formatReader (formatManager.findFormatForFileExtension ("ogg")->createReaderFor (soundBuffer.release(), true));
+
+    juce::BigInteger midiNotes;
+    midiNotes.setRange (0, 126, true);
+    juce::SynthesiserSound::Ptr newSound = new juce::SamplerSound ("Voice", *formatReader, midiNotes, 0x40, 0.0, 0.0, 10.0); // [7]
+
+    for (auto channel = 0; channel < maxMidiChannel; ++channel) // [8]
+        synth[channel]->removeSound (0);
+
+    sound = newSound; // [9]
+
+    for (auto channel = 0; channel < maxMidiChannel; ++channel) // [10]
+        synth[channel]->addSound (sound);
+}
 ```
 
-6. まず、サンプルのバイナリ・データから [MemoryInputStream](https://docs.juce.com/master/classMemoryInputStream.html) を作成し、そのストリームを "ogg" フォーマットとしてファイルを読み込むように変換する。
-7. 先に作成したストリーム・リーダーを使って [SamplerSound](https://docs.juce.com/master/classSamplerSound.html) オブジェクトを宣言し、[BigInteger](https://docs.juce.com/master/classBigInteger.html) を使ってMIDIノートの範囲を制約する。
-8. シンセ配列内のすべての [Synthesiser](https://docs.juce.com/master/classSynthesiser.html) オブジェクトについて、新しいものをロードする前に、現在ロードされている [SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html) をクリアする。
-9. 次に、新しく作成した [SamplerSound](https://docs.juce.com/master/classSamplerSound.html) をスマートポインターに代入し、サウンドへの参照を保持します。
-10. 最後に、全ての [Synthesizer](https://docs.juce.com/master/classSynthesiser.html) オブジェクトに対して、新しいサウンドを [SamplerSound](https://docs.juce.com/master/classSamplerSound.html) オブジェクトとしてロードします。
+- [6]：まずサンプルバイナリデータから[MemoryInputStream](https://docs.juce.com/master/classMemoryInputStream.html "Allows a block of data to be accessed as a stream.")を作成し、ストリームを「ogg」フォーマットとして読み取るように変換します。
+- [7]：先に作成したストリームリーダーで[SamplerSound](https://docs.juce.com/master/classSamplerSound.html "A subclass of SynthesiserSound that represents a sampled audio clip.")オブジェクトを宣言し、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")を使用してMIDIノートの範囲を制約します。
+- [8]：シンセ配列内の各[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクトについて、新しいサウンドをロードする前に現在ロードされている[SynthesiserSound](https://docs.juce.com/master/classSynthesiserSound.html "Describes one of the sounds that a Synthesiser can play.")をクリアします。
+- [9]：次に、新しく作成された[SamplerSound](https://docs.juce.com/master/classSamplerSound.html "A subclass of SynthesiserSound that represents a sampled audio clip.")をスマートポインタに割り当て、サウンドへの参照を保持します。
+- [10]：最後に、各Synthesizerオブジェクトに対して新しいサウンドを[SamplerSound](https://docs.juce.com/master/classSamplerSound.html "A subclass of SynthesiserSound that represents a sampled audio clip.")オブジェクトとしてロードします。
 
-必要以上にバスが追加されたり削除されたりしないように、[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html) クラスから以下の2つの関数をオーバーライドします：
+要件を超えてバスが追加または削除されないようにするために、[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")クラスから2つの関数をオーバーライドします：
 
 ```cpp
-    bool canAddBus    (bool isInput) const override   { return (! isInput && getBusCount (false) < maxMidiChannel); }
-    bool canRemoveBus (bool isInput) const override   { return (! isInput && getBusCount (false) > 1); }
+bool canAddBus (bool isInput) const override { return (!isInput && getBusCount (false) < maxMidiChannel); }
+bool canRemoveBus (bool isInput) const override { return (!isInput && getBusCount (false) > 1); }
 ```
 
-これにより、インプットバスの追加や削除、アウトプットバスの16チャンネルを超える追加や完全な削除を防ぐことができます。
+これにより、入力バスの追加または削除、および出力バスの16チャンネルを超える追加または完全な削除が防止されます。
 
-`prepareToPlay()` 関数では、`setCurrentPlaybackSampleRate()` 関数を呼び出すことで、シンセ配列内のすべての [Synthesizer](https://docs.juce.com/master/classSynthesiser.html) オブジェクトのサンプルレートを設定し、後続の処理の準備をする：
+`prepareToPlay()`関数では、`setCurrentPlaybackSampleRate()`関数を呼び出して、シンセ配列内の各[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクトのサンプルレートを設定することで後続の処理に備えます：
 
 ```cpp
-    void prepareToPlay (double newSampleRate, int samplesPerBlock) override
-    {
-        juce::ignoreUnused (samplesPerBlock);
- 
-        for (auto midiChannel = 0; midiChannel < maxMidiChannel; ++midiChannel)
-            synth[midiChannel]->setCurrentPlaybackSampleRate (newSampleRate);
-    }
+void prepareToPlay (double newSampleRate, int samplesPerBlock) override
+{
+    juce::ignoreUnused (samplesPerBlock);
+
+    for (auto midiChannel = 0; midiChannel < maxMidiChannel; ++midiChannel)
+        synth[midiChannel]->setCurrentPlaybackSampleRate (newSampleRate);
+}
 ```
 
-次に、`processBlock()` 関数の中で以下のように実際の処理を行う：
+次に、`processBlock()`関数で実際の処理を実行します：
 
 ```cpp
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiBuffer) override
+void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiBuffer) override
+{
+    auto busCount = getBusCount (false); // [11]
+
+    for (auto busNr = 0; busNr < busCount; ++busNr) // [12]
     {
-        auto busCount = getBusCount (false);                // [11]
- 
-        for (auto busNr = 0; busNr < busCount; ++busNr)     // [12]
-        {
-            auto midiChannelBuffer = filterMidiMessagesForChannel (midiBuffer, busNr + 1);
-            auto audioBusBuffer = getBusBuffer (buffer, false, busNr);
- 
-            synth [busNr]->renderNextBlock (audioBusBuffer, midiChannelBuffer, 0, audioBusBuffer.getNumSamples()); // [13]
-        }
+        auto midiChannelBuffer = filterMidiMessagesForChannel (midiBuffer, busNr + 1);
+        auto audioBusBuffer = getBusBuffer (buffer, false, busNr);
+
+        synth[busNr]->renderNextBlock (audioBusBuffer, midiChannelBuffer, 0, audioBusBuffer.getNumSamples()); // [13]
     }
+}
 ```
 
-11. まず、出力バスの数を求める。
-12. すべての出力バス（したがって、すべての [Synthesiser](https://docs.juce.com/master/classSynthesiser.html) インスタンス）に対して、不要なオーディオバスバッファをフィルタリングし、その後に定義されたプライベートヘルパー関数を呼び出すことによって、シンセシスのmidiチャンネルに対応しないmidiメッセージをフィルタリングする。
-13. その後、対応する [Synthesiser](https://docs.juce.com/master/classSynthesiser.html) オブジェクト上で直接 `renderNextBlock()` 関数を呼び出すことで、正しいオーディオバスバッファとMIDIチャンネルバッファを供給してサウンドを生成できます。
+- [11]：まず、出力バスの数を取得します。
+- [12]：各出力バス（したがって各[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")インスタンス）について、不要なオーディオバスバッファをフィルタリングし、後で定義するプライベートヘルパー関数を呼び出してシンセサイザーのMIDIチャンネルに対応しないMIDIメッセージをフィルタリングします。
+- [13]：その後、正しいオーディオバスバッファとMIDIチャンネルバッファを提供して、対応する[Synthesiser](https://docs.juce.com/master/classSynthesiser.html "Base class for a musical device that can play sounds.")オブジェクトで直接`renderNextBlock()`関数を呼び出してサウンドを生成できます。
 
-MIDIチャンネルをフィルタリングするヘルパー関数は、後述するように実装されている：
+MIDIチャンネルをフィルタリングするためのヘルパー関数は以下のように実装されています：
 
 ```cpp
-    static juce::MidiBuffer filterMidiMessagesForChannel (const juce::MidiBuffer& input, int channel)
+static juce::MidiBuffer filterMidiMessagesForChannel (const juce::MidiBuffer& input, int channel)
+{
+    juce::MidiBuffer output;
+
+    for (auto metadata : input) // [14]
     {
-        juce::MidiBuffer output;
- 
-        for (auto metadata : input)     // [14]
-        {
-            auto message = metadata.getMessage();
- 
-            if (message.getChannel() == channel)
-                output.addEvent (message, metadata.samplePosition);
-        }
- 
-        return output;                  // [15]
+        auto message = metadata.getMessage();
+
+        if (message.getChannel() == channel)
+            output.addEvent (message, metadata.samplePosition);
     }
+
+    return output; // [15]
+}
 ```
 
-14. すべてのMidiチャンネルバッファについて、Midiメッセージのチャンネルが、探している出力バスのMidiチャンネルと一致するかどうかをチェックし、一致すれば、
-    [MidiMessage](https://docs.juce.com/master/classMidiMessage.html) を新しく作成した [MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html) に追加する。
-15. すべてのMIDIチャンネルのすべてのMIDIメッセージを繰り返しチェックした後、選択したチャンネルのMIDIメッセージだけを含むバッファを返します。
+- [14]：各MIDIチャンネルバッファについて、MIDIメッセージチャンネルが探している出力バスのMIDIチャンネルと一致するかどうかを確認し、一致する場合は新しく作成された[MidiBuffer](https://docs.juce.com/master/classMidiBuffer.html "Holds a sequence of time-stamped midi events.")に[MidiMessage](https://docs.juce.com/master/classMidiMessage.html "Encapsulates a MIDI message.")を追加します。
+- [15]：すべてのMIDIチャンネルのすべてのMIDIメッセージを反復処理したら、選択したチャンネルのMIDIメッセージのみを含むバッファを返します。
 
-## サラウンド・プラグイン
+## サラウンドプラグイン
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/SurroundTutorial.zip)｜[ZIP](https://docs.juce.com/tutorials/ZIPs/SurroundTutorial.zip)。
-プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開きます。
+このセクションのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/SurroundTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/SurroundTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-サラウンド・ユーティリティは、サラウンド設定を含む各チャンネルの入力信号をモニターし、選択したチャンネルにpingサイン波を送ることができるプラグインです。
+サラウンドユーティリティは、サラウンド設定を含む個々のチャンネルの入力信号を監視し、選択したチャンネルにピングサイン波を送信できるプラグインです。
 
 <CaptionImage
   src="/_images/tutorial_plugin_examples_surround_screenshot1.png"
-  caption="サラウンドプラグインウィンドウ"
+  caption="Surround plugin window"
 />
-
 
 ### サラウンドの実装
 
-`SurroundProcessor` クラスでは、サラウンド動作を実装するために、以下のようにいくつかのプライベート・メンバー変数を定義しました：
+`SurroundProcessor`クラスでは、サラウンドの動作を実装するためにいくつかのプライベートメンバー変数を定義しています：
 
 ```cpp
-    juce::Array<int> channelActive;
-    juce::Array<float> alphaCoeffs;
-    int channelClicked;
-    int sampleOffset;
- 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SurroundProcessor)
+juce::Array<int> channelActive;
+juce::Array<float> alphaCoeffs;
+int channelClicked;
+int sampleOffset;
+
+//==============================================================================
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SurroundProcessor)
 };
 ```
 
-これらのうち、プラグインのアクティブ・チャンネルのサンプル数を記録する配列と、各チャンネルのアルファ係数を記録する配列がある。
+これらの中には、プラグインのアクティブチャンネルのサンプル数を追跡するための配列と、各チャンネルのアルファ係数を追跡するための配列があります。
 
-クラスのコンストラクタでは、デフォルトで入力用と出力用にそれぞれ2つのステレオペアのバスでプラグインを初期化しますが、設定は現在使用されているバスレイアウトの設定に応じて変更されます。
+クラスコンストラクタでは、デフォルトで入力と出力用の2つのステレオペアのバスでプラグインを初期化しますが、設定は現在使用されているバスレイアウト設定に応じて変更されます。
 
 ```cpp
-    SurroundProcessor()
-        : AudioProcessor(BusesProperties().withInput  ("Input",  juce::AudioChannelSet::stereo())
-                                          .withOutput ("Output", juce::AudioChannelSet::stereo()))
-    {}
+SurroundProcessor()
+    : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo()).withOutput ("Output", juce::AudioChannelSet::stereo()))
+{
+}
 ```
 
-`isBusesLayoutSupported()` 関数では、以下のように、入出力チャンネルが離散チャンネルであること[1]、入力チャンネル数が出力チャンネル数と同じであること[2]、入力バスが有効であること[3]を確認する：
+`isBusesLayoutSupported()`関数では、入出力チャンネルがディスクリートチャンネルであること[1]、入力チャンネル数が出力チャンネル数と同じであること[2]、入力バスが有効であること[3]を確認します：
 
 ```cpp
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override
-    {
-        return ((! layouts.getMainInputChannelSet() .isDiscreteLayout())                // [1]
-             && (! layouts.getMainOutputChannelSet().isDiscreteLayout())
-             && (layouts.getMainInputChannelSet() == layouts.getMainOutputChannelSet()) // [2]
-             && (! layouts.getMainInputChannelSet().isDisabled()));                     // [3]
-    }
+bool isBusesLayoutSupported (const BusesLayout& layouts) const override
+{
+    return ((!layouts.getMainInputChannelSet().isDiscreteLayout()) // [1]
+            && (!layouts.getMainOutputChannelSet().isDiscreteLayout())
+            && (layouts.getMainInputChannelSet() == layouts.getMainOutputChannelSet()) // [2]
+            && (!layouts.getMainInputChannelSet().isDisabled())); // [3]
+}
 ```
 
-`prepareToPlay()` 関数では、以下のようにいくつかの変数を初期化して、その後の処理に備える：
+`prepareToPlay()`関数では、後続の処理に備えていくつかの変数を初期化します：
 
 ```cpp
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        channelClicked = 0;                                             // [4]
-        sampleOffset = static_cast<int> (std::ceil (sampleRate));       // [5]
- 
-        auto numChannels = getChannelCountOfBus (true, 0);              // [6]
-        channelActive.resize (numChannels);
-        alphaCoeffs.resize (numChannels);
-        reset();                                                        // [7]
- 
-        triggerAsyncUpdate();                                           // [8]
- 
-        juce::ignoreUnused (samplesPerBlock);
-    }
+void prepareToPlay (double sampleRate, int samplesPerBlock) override
+{
+    channelClicked = 0; // [4]
+    sampleOffset = static_cast<int> (std::ceil (sampleRate)); // [5]
+
+    auto numChannels = getChannelCountOfBus (true, 0); // [6]
+    channelActive.resize (numChannels);
+    alphaCoeffs.resize (numChannels);
+    reset(); // [7]
+
+    triggerAsyncUpdate(); // [8]
+
+    juce::ignoreUnused (samplesPerBlock);
+}
 ```
 
-4. まず、ユーザーによってクリックされたチャンネルのインデックスを指定する一時変数をリセットします。
-5. 次に、ブロックを処理する前にサンプル・レートを保存し、後でこの一時変数をインクリメントして、サンプル・オフセットで位相を追跡します。
-6. アクティブなチャンネルと係数アレイのサイズを、現在アクティブなチャンネル数に変更します。
-7. reset()関数が数カ所で呼び出され、後で定義するようにアクティブ・チャネル配列がクリアされます。
-8. 最後に、GUIスレッドへの非同期更新をトリガし、後でコールバックを処理します。
+- [4]：まず、ユーザーがクリックしたチャンネルインデックスを指定する一時変数をリセットします。
+- [5]：次に、ブロックを処理する前にサンプルレートを保存し、後でこの一時変数をインクリメントしてサンプルオフセットで位相を追跡します。
+- [6]：ブロックの現在アクティブなチャンネル数に合わせて、アクティブチャンネルと係数の配列をリサイズする必要があります。
+- [7]：`reset()`関数は、後で定義するようにアクティブチャンネル配列をクリアするために複数の場所で呼び出されます。
+- [8]：最後に、GUIスレッドへの非同期更新をトリガーし、後でコールバックを処理します。
 
-`reset()` 関数は、ブロック処理が終了した後の `releaseResources()` 関数でも呼び出されます：
-
-`reset()` 関数は、以下のように各チャンネルの値を0にすることで実装される：
+`reset()`関数は、ブロック処理が終了した後の`releaseResources()`関数でも呼び出されます：
 
 ```cpp
-    void reset() override
-    {
-        for (auto& channel : channelActive)
-            channel = 0;
-    }
+void releaseResources() override { reset(); }
 ```
 
-GUIの非同期更新に関しては、[AudioProcessorEditor](https://docs.juce.com/master/classAudioProcessorEditor.html) の `updateGUI()` 関数を呼び出してコールバックを処理します：
+`reset()`関数は、各チャンネル値を0に設定することで実装されます：
 
 ```cpp
-    void handleAsyncUpdate() override
-    {
-        if (auto* editor = getActiveEditor())
-            if (auto* surroundEditor = dynamic_cast<SurroundEditor*> (editor))
-                surroundEditor->updateGUI();
-    }
+void reset() override
+{
+    for (auto& channel : channelActive)
+        channel = 0;
+}
 ```
 
-[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html) は `SurroundEditor` クラスで定義されたChannelClickListenerクラスを継承しているので、その仮想関数をオーバーライドする必要があります。
-`channelButtonClicked()` コールバック関数は、ユーザがチャンネルボタンをクリックしたときにトリガーされます。押されたチャンネルのインデックスを提供し、サンプルオフセット変数をリセットします：
+GUIの非同期更新については、[AudioProcessorEditor](https://docs.juce.com/master/classAudioProcessorEditor.html "Base class for the component that acts as the GUI for an AudioProcessor.")で`updateGUI()`関数を呼び出してコールバックを処理します：
 
 ```cpp
-    void channelButtonClicked (int channelIndex) override
-    {
-        channelClicked = channelIndex;
-        sampleOffset = 0;
-    }
+void handleAsyncUpdate() override
+{
+    if (auto* editor = getActiveEditor())
+        if (auto* surroundEditor = dynamic_cast<SurroundEditor*> (editor))
+            surroundEditor->updateGUI();
+}
 ```
 
-`isChannelActive()` ヘルパー関数は、アクティブなチャンネル配列にまだ処理すべきサンプルがあるかどうかをチェックすることで、指定したチャンネルがアクティブかどうかを返します：
+[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")は`SurroundEditor`クラスで定義されたChannelClickListenerクラスを継承しているため、その仮想関数をオーバーライドする必要があります。`channelButtonClicked()`コールバック関数は、ユーザーがチャンネルボタンをクリックしたときにトリガーされます。押されたチャンネルインデックスを提供し、サンプルオフセット変数をリセットします：
 
 ```cpp
-    bool isChannelActive (int channelIndex) override
-    {
-        return channelActive[channelIndex] > 0;
-    }
+void channelButtonClicked (int channelIndex) override
+{
+    channelClicked = channelIndex;
+    sampleOffset = 0;
+}
 ```
 
-次に、`processBlock()` 関数の中で以下のように実際の処理を行う：
+`isChannelActive()`ヘルパー関数は、アクティブチャンネル配列にまだ処理するサンプルがあるかどうかを確認することで、指定されたチャンネルがアクティブかどうかを返します：
 
 ```cpp
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&) override
+bool isChannelActive (int channelIndex) override
+{
+    return channelActive[channelIndex] > 0;
+}
+```
+
+次に、`processBlock()`関数で実際の処理を実行します：
+
+```cpp
+void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&) override
+{
+    for (auto ch = 0; ch < buffer.getNumChannels(); ++ch) // [9]
     {
-        for (auto ch = 0; ch < buffer.getNumChannels(); ++ch)                   // [9]
+        auto& channelTime = channelActive.getReference (ch);
+        auto& alpha = alphaCoeffs.getReference (ch);
+
+        for (auto j = 0; j < buffer.getNumSamples(); ++j) // [10]
         {
-            auto& channelTime = channelActive.getReference (ch);
-            auto& alpha = alphaCoeffs.getReference (ch);
- 
-            for (auto j = 0; j < buffer.getNumSamples(); ++j)                   // [10]
-            {
-                auto sample = buffer.getReadPointer (ch)[j];
-                alpha = (0.8f * alpha) + (0.2f * sample);
- 
-                if (std::abs (alpha) >= 0.1f)                                   // [11]
-                    channelTime = static_cast<int> (getSampleRate() / 2.0);
-            }
- 
-            channelTime = juce::jmax (0, channelTime - buffer.getNumSamples()); // [12]
-        }
-```
+            auto sample = buffer.getReadPointer (ch)[j];
+            alpha = (0.8f * alpha) + (0.2f * sample);
 
-9. オーディオバッファ内の各チャンネルについて、アクティブなチャンネルのカウントダウンサンプルとアルファ係数の値の参照を取得する。
-10. 次に、バッファブロックの各サンプルについて、チャンネルの入力サンプル値を取得し、 *alpha[i] = ((1 - x) * sample) + (x * alpha[i - 1])* という式を使ってアルファ係数を計算します。
-11. アルファ係数がある閾値（この場合は0.1）以上の場合、そのチャンネルのカウントダウン サンプルをサンプルレートの半分に設定します。
-12. また、カウントダウンのサンプル数から現在のブロックのサンプル数を差し引く。
-
-```cpp
-        auto fillSamples = juce::jmin (static_cast<int> (std::ceil (getSampleRate())) - sampleOffset,
-                                       buffer.getNumSamples());                 // [13]
- 
-        if (juce::isPositiveAndBelow (channelClicked, buffer.getNumChannels())) // [14]
-        {
-            auto* channelBuffer = buffer.getWritePointer (channelClicked);
-            auto freq = (float) (440.0 / getSampleRate());
- 
-            for (auto i = 0; i < fillSamples; ++i)                              // [15]
-                channelBuffer[i] += std::sin (2.0f * juce::MathConstants<float>::pi * freq * static_cast<float> (sampleOffset++));
+            if (std::abs (alpha) >= 0.1f) // [11]
+                channelTime = static_cast<int> (getSampleRate() / 2.0);
         }
+
+        channelTime = juce::jmax (0, channelTime - buffer.getNumSamples()); // [12]
     }
 ```
 
-13. 次に、サンプルオフセットとブロック内のサンプル数から2つのうち最小の数を取ることによって、充填する出力サンプル数を計算します。
+- [9]：オーディオバッファ内の各チャンネルについて、アクティブチャンネルのカウントダウンサンプルとアルファ係数値への参照を取得します。
+- [10]：次に、バッファブロック内の各サンプルについて、チャンネルの入力サンプル値を取得し、式`alpha[i] = ((1 - x) * sample) + (x * alpha[i - 1])`を使用してアルファ係数を計算します。この場合`x = 0.8`です。
+- [11]：アルファ係数がこの場合0.1という特定のしきい値以上の場合、その特定のチャンネルのカウントダウンサンプルをサンプルレートの半分に設定します。
+- [12]：また、カウントダウンのサンプル数から現在のブロック内のサンプル数を減算します。
 
-14. 次に、クリックしたチャンネル・インデックスが有効かどうかをチェックし、正しいチャンネル・バッファの書き込みポインタを取得します。
-15. 最後に、A4周波数をサンプル・レートで割って正弦波の周波数を計算します。
-次に、サンプルを埋めるごとに、適切な周波数と位相オフセットを持つ正弦波を生成します。
-サンプル・オフセット変数は、次のサンプルの割り当て後にインクリメントします。
+```cpp
+auto fillSamples = juce::jmin (static_cast<int> (std::ceil (getSampleRate())) - sampleOffset,
+    buffer.getNumSamples()); // [13]
 
+if (juce::isPositiveAndBelow (channelClicked, buffer.getNumChannels())) // [14]
+{
+    auto* channelBuffer = buffer.getWritePointer (channelClicked);
+    auto freq = (float) (440.0 / getSampleRate());
 
-## 概要
+    for (auto i = 0; i < fillSamples; ++i) // [15]
+        channelBuffer[i] += std::sin (2.0f * juce::MathConstants<float>::pi * freq * static_cast<float> (sampleOffset++));
+}
+}
+```
 
-このチュートリアルでは、オーディオ/MIDIプラグインの例をいくつか見てきました。特に
+- [13]：次に、サンプルオフセットとブロック内のサンプル数の2つから小さい方の数を取って、埋める出力サンプル数を計算します。
+- [14]：次に、クリックされたチャンネルインデックスが有効かどうかを確認し、正しいチャンネルバッファの書き込みポインタを取得できます。
+- [15]：最後に、A4周波数をサンプルレートで割ってサイン波の周波数を計算します。次に、埋める各サンプルについて、適切な周波数と位相オフセットを使用してサイン波を生成し、次のサンプルのために割り当て後にインクリメントするサンプルオフセット変数を使用します。
 
-- 面白い音楽パターンを作るためのシンプルなアルペジエーターを作る
-- 不要なノイズをフィルタリングするノイズゲートの作成
-- 複数の出力を持つシンセサイザーを作成しました
-- チャンネル数を拡張するためのサラウンド対応プラグインを構築
+## まとめ
+
+このチュートリアルでは、いくつかのオーディオ/MIDIプラグインの例を検討しました。特に以下のことを行いました：
+
+- 興味深い音楽パターンを作成するシンプルなアルペジエーターを構築しました。
+- 不要なノイズをフィルタリングするノイズゲートを構築しました。
+- 複数の出力を持つシンセサイザーを構築しました。
+- チャンネル数を拡張するサラウンド対応プラグインを構築しました。
 
 ## 関連項目
 
-- [基本的なAudio/MIDIプラグインを作る パート1：セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/)
-- [基本的なAudio/MIDIプラグインを作る パート2：プラグインのコーディング](../../getting-started/tutorial_code_basic_plugin/)
+- [チュートリアル：基本的なAudio/MIDIプラグインの作成 Part 1: セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/)
+- [チュートリアル：基本的なAudio/MIDIプラグインの作成 Part 2: プラグインのコーディング](../../getting-started/tutorial_code_basic_plugin/)
 - [チュートリアル：MIDIデータの作成](../../midi/tutorial_midi_message/)
 - [チュートリアル：MIDIイベントの処理](../../midi/tutorial_handling_midi_events/)
-- [チュートリアル：カスケードプラグインエフェクト](../tutorial_audio_processor_graph/)
+- [チュートリアル：プラグインエフェクトのカスケード接続](../tutorial_audio_processor_graph/)

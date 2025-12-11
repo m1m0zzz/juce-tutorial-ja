@@ -1,787 +1,781 @@
 ---
-title: カスケード・プラグイン・エフェクト
+title: プラグインエフェクトのカスケード接続
 sidebar_position: 4
 tags: ["中級"]
 ---
 
-# カスケードプラグインエフェクト
+# チュートリアル：プラグインエフェクトのカスケード接続
 
 <SourcePageLink path="tutorial_audio_processor_graph" />
 
-Create your own channel strip by learning how to daisy chain audio processors or plugins using an [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors."). Learn how to use the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") in both a plugin and standalone application context.
+[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")を使用してオーディオプロセッサやプラグインをデイジーチェーン接続する方法を学び、独自のチャンネルストリップを作成します。プラグインとスタンドアロンアプリケーションの両方のコンテキストで[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")を使用する方法を学びます。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins."), [AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor."), [AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors."), [AudioProcessorGraph::AudioGraphIOProcessor](https://docs.juce.com/master/classAudioProcessorGraph_1_1AudioGraphIOProcessor.html "A special type of AudioProcessor that can live inside an AudioProcessorGraph in order to use the audi..."), [AudioProcessorGraph::Node](https://docs.juce.com/master/classAudioProcessorGraph_1_1Node.html "Represents one of the nodes, or processors, in an AudioProcessorGraph."), [AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "Manages the state of some audio and midi i/o devices.")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-<ClassList
-  refs={[
-    "AudioProcessor",
-    "AudioProcessorPlayer",
-    "AudioProcessorGraph",
-    "AudioProcessorGraph::AudioGraphIOProcessor",
-    "AudioProcessorGraph::Node",
-    "AudioDeviceManager",
-  ]}
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/AudioProcessorGraphTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/AudioProcessorGraphTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
+
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
+
+## デモプロジェクト
+
+デモプロジェクトは、異なるオーディオプロセッサを直列に適用できるチャンネルストリップをシミュレートします。個別にバイパスできる3つのスロットがあり、オシレーター、ゲインコントロール、フィルターの3つの異なるプロセッサから選択できます。プラグインは入力オーディオに処理を適用し、変更された信号を出力に伝播します。
+
+<CaptionImage
+  src="/_images/tutorial_audio_processor_graph_screenshot1.png"
+  caption="The channel strip plugin window"
 />
 
+## AudioProcessorGraphのセットアップ
 
-## はじめる
+[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")は、複数の[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")オブジェクトをグラフ内のノードとして接続し、組み合わされた処理の結果を再生できる特別なタイプの[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")です。グラフノードを一緒にワイヤリングするには、オーディオ信号を処理したい順序でノードのチャンネル間の接続を追加する必要があります。
 
-Download the demo project for this tutorial here: [ピップ](https://docs.juce.com/tutorials/PIPs/AudioProcessorGraphTutorial.zip) | [ジップ](https://docs.juce.com/tutorials/ZIPs/AudioProcessorGraphTutorial.zip). Unzip the project and open the first header file in the Projucer.
+[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")クラスは、グラフ内のオーディオおよびMIDI信号の入出力処理用の特別なノードタイプも提供します。チャンネルストリップのグラフ例は、正しく接続されると次のようになります：
 
-If you need help with this step, see [チュートリアルProjucerパート1：Projucerを始める](../../getting-started/tutorial_new_projucer_project/).
+<CaptionImage
+  src="/_images/tutorial_audio_processor_graph.svg"
+/>
 
-# The demo project
+入力信号を受信し、処理せずに対応する出力に送り返すためのメインの[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")をセットアップすることから始めましょう。
 
-このデモ・プロジェクトは、異なるオーディオ・プロセッサーを直列に適用できるチャンネル・ストリップをシミュレートしています。個別にバイパスできる3つのスロットと、オシレーター、ゲインコントロール、フィルターを含む3つの異なるプロセッサーから選択できる。このプラグインは、入力されたオーディオに処理を適用し、変更された信号を出力に伝搬します。
+このチュートリアルで頻繁に使用されるネストされたクラスの文字数を減らすために、まず`TutorialProcessor`クラスでAudioGraphIOProcessorクラスとNodeクラスの`using`を宣言します：
 
-
-<CaptionImage src="/_images/tutorial_audio_processor_graph_screenshot1.png" caption="The channel strip plugin window" />
-
-
-# Setting up the AudioProcessorGraph
-
-The [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") is a special type of [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") that allows us to connect several [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") objects together as nodes in a graph and play back the result of the combined processing. In order to wire-up graph nodes together, we have to add connections between channels of nodes in the order we wish to process the audio signal.
-
-The [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") class also offers special node types for input and output handling of audio and midi signals within the graph. An example graph of the channel strip would look something like this when connected properly:
-
-<p><b>このブラウザではSVGを表示できません: 代わりにFirefox、Chrome、Safari、またはOperaをお試しください。</b></p>
-
-Let's start by setting up the main [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") to receive incoming signals and send them back to the corresponding output unprocessed.
-
-In order to reduce the character count for nested classes used frequently in this tutorial, we first declare a `使用して` for the AudioGraphIOProcessor class and the Node class in the `チュートリアルプロセッサー` class as follows:
-
-```
-using AudioGraphIOProcessor = juce::AudioProcessorGraph::AudioGraphIOProcessor；
-    using Node = juce::AudioProcessorGraph::Node；
+```cpp
+using AudioGraphIOProcessor = juce::AudioProcessorGraph::AudioGraphIOProcessor;
+using Node = juce::AudioProcessorGraph::Node;
 ```
 
-次に、以下のようにクラス名を短縮してプライベート・メンバー変数を宣言する：
+次に、クラス名の短縮版を使用して、以下のプライベートメンバー変数を宣言します：
 
-```
-Node::Ptr audioInputNode；
-    Node::Ptr audioOutputNode；
-    Node::Ptr midiInputNode；
-    Node::Ptr midiOutputNode；
+```cpp
+std::unique_ptr<juce::AudioProcessorGraph> mainProcessor;
 ```
 
-Here we create pointers to the main [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") as well as the input and output processor nodes which will be instantiated later on within the graph.
-
-Next, in the `チュートリアルプロセッサー` constructor we set the default bus properties for the plugin and instantiate the main [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") as shown here:
-
-```
-チュートリアルプロセッサ
-        : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo(), true)
-                                           .withOutput ("Output", juce::AudioChannelSet::stereo(), true))、
-          mainProcessor (new juce::AudioProcessorGraph())、
+```cpp
+Node::Ptr audioInputNode;
+Node::Ptr audioOutputNode;
+Node::Ptr midiInputNode;
+Node::Ptr midiOutputNode;
 ```
 
-プラグインを扱うので、isBusesLayoutSupported()コールバックを実装して、プラグインホストやDAWに、どのチャンネルセットをサポートしているかを通知する必要があります。この例では、このようにモノからモノ、ステレオからステレオの構成のみをサポートすることにします：
+ここでは、メインの[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")へのポインタと、後でグラフ内でインスタンス化される入出力プロセッサノードを作成します。
 
+次に、`TutorialProcessor`コンストラクタで、プラグインのデフォルトバスプロパティを設定し、メインの[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")をインスタンス化します：
+
+```cpp
+TutorialProcessor()
+    : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo(), true).withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+      mainProcessor (new juce::AudioProcessorGraph()),
 ```
+
+プラグインを扱っているため、プラグインホストまたはDAWにどのチャンネルセットをサポートしているかを通知するためにisBusesLayoutSupported()コールバックを実装する必要があります。この例では、モノ・ツー・モノとステレオ・ツー・ステレオの設定のみをサポートすることにします：
+
+```cpp
 bool isBusesLayoutSupported (const BusesLayout& layouts) const override
-    {
-        if (layouts.getMainInputChannelSet() == juce::AudioChannelSet::disabled())
-         || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::disabled())
-            false を返します；
- 
-        if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono())
-         && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
-            false を返します；
- 
-        return layouts.getMainInputChannelSet() == layouts.getMainOutputChannelSet()；
-    }
+{
+    if (layouts.getMainInputChannelSet() == juce::AudioChannelSet::disabled()
+        || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::disabled())
+        return false;
+
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        return false;
+
+    return layouts.getMainInputChannelSet() == layouts.getMainOutputChannelSet();
+}
 ```
 
-:::note
-
-If you want to learn more about bus layouts of plugins, please refer to [チュートリアルプラグインに適切なバスレイアウトを設定する](../tutorial_audio_bus_layouts/).
-
+:::tip
+バスレイアウトについてさらに学びたい場合は、[チュートリアル：プラグインの正しいバスレイアウトの設定](../tutorial_audio_bus_layouts/)を参照してください。
 :::
 
-For the `チュートリアルプロセッサー` to be able to process audio through the graph provided, we have to override the three main functions of the [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") class that perform signal processing namely the prepareToPlay(), releaseResources() and processBlock() functions and call the same respective functions on the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.").
+`TutorialProcessor`が提供されたグラフを通じてオーディオを処理できるようにするには、信号処理を実行する[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")クラスの3つの主要な関数、つまりprepareToPlay()、releaseResources()、processBlock()関数をオーバーライドし、[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")の同じそれぞれの関数を呼び出す必要があります。
 
-Let's start with the prepareToPlay() function. First we inform the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") on the number of I/O channels, the sample rate and the number of samples per block by calling the setPlayConfigDetails() function like follows:
+prepareToPlay()関数から始めましょう。まず、setPlayConfigDetails()関数を呼び出して、I/Oチャンネル数、サンプルレート、ブロックあたりのサンプル数を[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")に通知します：
 
-```
+```cpp
 void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        mainProcessor->setPlayConfigDetails（getMainBusNumInputChannels()、
-                                             getMainBusNumOutputChannels()、
-                                             sampleRate, samplesPerBlock)；
- 
-        mainProcessor->prepareToPlay (sampleRate, samplesPerBlock)；
- 
-        initialiseGraph()；
-    }
+{
+    mainProcessor->setPlayConfigDetails (getMainBusNumInputChannels(),
+        getMainBusNumOutputChannels(),
+        sampleRate,
+        samplesPerBlock);
+
+    mainProcessor->prepareToPlay (sampleRate, samplesPerBlock);
+
+    initialiseGraph();
+}
 ```
 
-We then call the prepareToPlay() function on the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") with the same information and call the `initialiseGraph()` helper function which we define later on to create and connect the nodes in the graph.
+次に、同じ情報で[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")のprepareToPlay()関数を呼び出し、後で定義する`initialiseGraph()`ヘルパー関数を呼び出してグラフ内のノードを作成および接続します。
 
-The releaseResources() function is self-explanatory and simply calls the same function on the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") instance:
+releaseResources()関数は自明で、単に[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")インスタンスの同じ関数を呼び出します：
 
-```
+```cpp
 void releaseResources() override
-    {
-        mainProcessor->releaseResources()；
-    }
+{
+    mainProcessor->releaseResources();
+}
 ```
 
-Finally in the processBlock() function, we clear the samples contained in any additional channels that may contain garbage data just in case and call the `updateGraph()` helper function later defined that will rebuild the graph if the channel strip configuration was changed. The processBlock() function is eventually called on the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") at the end of the function:
+最後にprocessBlock()関数では、念のためガベージデータを含む可能性のある追加チャンネルに含まれるサンプルをクリアし、チャンネルストリップの設定が変更された場合にグラフを再構築する後で定義する`updateGraph()`ヘルパー関数を呼び出します。関数の最後で[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")のprocessBlock()関数が最終的に呼び出されます：
 
-```
+```cpp
 void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages) override
-    {
-        for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
-            buffer.clear (i, 0, buffer.getNumSamples())；
- 
-        updateGraph()；
- 
-        mainProcessor->processBlock (buffer, midiMessages)；
-    }
+{
+    for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
+        buffer.clear (i, 0, buffer.getNumSamples());
+
+    updateGraph();
+
+    mainProcessor->processBlock (buffer, midiMessages);
+}
 ```
 
-The `initialiseGraph()` function called earlier in the prepareToPlay() callback starts by clearing the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") of any nodes and connections that were previously present. This also takes care of deleting the corresponding [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") instances associated to the deleted nodes in the graph. We then proceed to instantiate the AudioGraphIOProcessor objects for the graph I/O and add the [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") objects as nodes in the graph.
+prepareToPlay()コールバックで先に呼び出された`initialiseGraph()`関数は、まず以前に存在していたノードと接続を[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")からクリアすることから始めます。これにより、グラフ内の削除されたノードに関連付けられた対応する[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")インスタンスの削除も処理されます。次に、グラフI/O用のAudioGraphIOProcessorオブジェクトをインスタンス化し、[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")オブジェクトをグラフ内のノードとして追加します。
 
-```
-    void initialiseGraph()
-    {
-        mainProcessor->clear();
- 
-        audioInputNode  = mainProcessor->addNode (std::make_unique (AudioGraphIOProcessor::audioInputNode));
-        audioOutputNode = mainProcessor->addNode (std::make_unique (AudioGraphIOProcessor::audioOutputNode));
-        midiInputNode   = mainProcessor->addNode (std::make_unique (AudioGraphIOProcessor::midiInputNode));
-        midiOutputNode  = mainProcessor->addNode (std::make_unique(AudioGraphIOProcessor::midiOutputNode))；
- 
-        connectAudioNodes()；
-        connectMidiNodes()；
-    }
+```cpp
+void initialiseGraph()
+{
+    mainProcessor->clear();
+
+    audioInputNode = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioInputNode));
+    audioOutputNode = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioOutputNode));
+    midiInputNode = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::midiInputNode));
+    midiOutputNode = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::midiOutputNode));
+
+    connectAudioNodes();
+    connectMidiNodes();
+}
 ```
 
-オーディオ／ミディデータを伝搬するために、グラフ内の新しく作成されたノード間に接続を追加する必要がありますが、これは以下のヘルパー関数で実行されます：
+オーディオ/MIDIデータを伝播するために、グラフ内の新しく作成されたノード間に接続を追加する必要があり、これは以下のヘルパー関数で実行されます：
 
-```
+```cpp
 void connectAudioNodes()
-    {
-        for (int channel = 0; channel < 2; ++channel)
-            mainProcessor->addConnection ({ audioInputNode->nodeID, channel }、
-                                            { audioOutputNode->nodeID, channel }); }.});
-    }
+{
+    for (int channel = 0; channel < 2; ++channel)
+        mainProcessor->addConnection ({ { audioInputNode->nodeID, channel },
+            { audioOutputNode->nodeID, channel } });
+}
 ```
 
-Here we call the addConnection() function on the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") instance by passing the source and destination nodes we wish to connect in the form of a Connection object. These require a nodeID and a channel index for building the appropriate connections and the whole process is repeated for all the required channels.
+ここでは、Connectionオブジェクトの形式で接続したいソースノードと宛先ノードを渡すことで、[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")インスタンスのaddConnection()関数を呼び出します。これらは適切な接続を構築するためにnodeIDとチャンネルインデックスが必要で、このプロセス全体が必要なすべてのチャンネルに対して繰り返されます。
 
-```
+```cpp
 void connectMidiNodes()
-    {
-        mainProcessor->addConnection ({ midiInputNode->nodeID, juce::AudioProcessorGraph::midiChannelIndex }、
-                                        juce::AudioProcessorGraph::midiChannelIndex }, { midiOutputNode->nodeID, juce::AudioProcessorGraph::midiChannelIndex }.});
-    }
+{
+    mainProcessor->addConnection ({ { midiInputNode->nodeID, juce::AudioProcessorGraph::midiChannelIndex },
+        { midiOutputNode->nodeID, juce::AudioProcessorGraph::midiChannelIndex } });
+}
 ```
 
-The same is performed on the midi I/O nodes with the exception of the channel index argument. Since the midi signals are not sent through regular audio channels, we have to supply a special channel index specified as an enum in the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") class.
+MIDI I/Oノードでも同じことが行われますが、チャンネルインデックス引数は例外です。MIDI信号は通常のオーディオチャンネルを介して送信されないため、[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")クラスの列挙型として指定された特別なチャンネルインデックスを提供する必要があります。
 
-チュートリアルのこの段階では、信号がグラフを通過する音を、変化させることなく聞くことができるはずだ。
+チュートリアルのこの段階で、信号が変更されることなくグラフを通過するのが聞こえるはずです。
 
 :::warning
-
-内蔵入出力でプラグインをテストする場合、悲鳴のようなフィードバックに注意してください。ヘッドホンを使えばこの問題を回避できます。
-
+内蔵の入力と出力でプラグインをテストするときは、叫び声のようなフィードバックに注意してください。ヘッドフォンを使用することでこの問題を回避できます。
 :::
 
-# Implementing different processors
+## 異なるプロセッサの実装
 
-このチュートリアルのパートでは、入力されるオーディオ信号を変化させるために、チャンネルストリッププラグイン内で使用できるさまざまなプロセッサを作成します。他のプロセッサーを作ったり、以下のプロセッサーを好みに合わせてカスタマイズしてください。
+チュートリアルのこの部分では、チャンネルストリッププラグイン内で使用して入力オーディオ信号を変更できるさまざまなプロセッサを作成します。追加のプロセッサを作成したり、以下のプロセッサをお好みでカスタマイズしたりしてください。
 
-In order to avoid repeated code for the different processors we want to create, let's start by declaring an [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") base class that will be inherited by the individual processors and override the necessary functions only once for simplicity's sake.
+作成したいさまざまなプロセッサのコードの繰り返しを避けるために、まず個々のプロセッサに継承される[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")基底クラスを宣言し、簡略化のために必要な関数を一度だけオーバーライドしましょう。
 
-```
+```cpp
 class ProcessorBase : public juce::AudioProcessor
 {
-を公開します：
+public:
     //==============================================================================
-    プロセッサベース()
-        : AudioProcessor(BusesProperties().withInput("Input", juce::AudioChannelSet::stereo())
-                                           .withOutput("Output", juce::AudioChannelSet::stereo()))
-    {}
- 
+    ProcessorBase()
+        : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo()).withOutput ("Output", juce::AudioChannelSet::stereo()))
+    {
+    }
+
     //==============================================================================
-    void prepareToPlay (double, int) override {} オーバーライド {}.
-    void releaseResources() オーバーライド {}.
-    void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override {}.
- 
+    void prepareToPlay (double, int) override {}
+    void releaseResources() override {}
+    void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override {}
+
     //==============================================================================
-    juce::AudioProcessorEditor* createEditor() override { return nullptr; }.
-    bool hasEditor() const override { return false; }.
- 
+    juce::AudioProcessorEditor* createEditor() override { return nullptr; }
+    bool hasEditor() const override { return false; }
+
     //==============================================================================
-    juce::String getName() override { return {}; } // juce::String getName() override { return {}; }
-    bool acceptsMidi() const override { return false; }.
-    bool producesMidi() const override { return false; }.
-    double getTailLengthSeconds() const override { return 0; }.
- 
+    const juce::String getName() const override { return {}; }
+    bool acceptsMidi() const override { return false; }
+    bool producesMidi() const override { return false; }
+    double getTailLengthSeconds() const override { return 0; }
+
     //==============================================================================
-    int getNumPrograms() override { return 0; }.
-    int getCurrentProgram() override { return 0; }.
-    void setCurrentProgram(int) override {}.
-    const juce::String getProgramName (int) override { return {}; }.
-    void changeProgramName (int, const juce::String&) override {}.
- 
+    int getNumPrograms() override { return 0; }
+    int getCurrentProgram() override { return 0; }
+    void setCurrentProgram (int) override {}
+    const juce::String getProgramName (int) override { return {}; }
+    void changeProgramName (int, const juce::String&) override {}
+
     //==============================================================================
     void getStateInformation (juce::MemoryBlock&) override {}
-    void setStateInformation (const void*, int) override {}.
- 
-プライベート：
+    void setStateInformation (const void*, int) override {}
+
+private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorBase)
 };
 ```
 
-:::note
-
-The following three processors will make use of the DSP module to facilitate implementation and if you want to learn more about DSP you can refer to [チュートリアルDSP入門](../../dsp/tutorial_dsp_introduction/) for a more in-depth explanation.
-
+:::tip
+以下の3つのプロセッサは実装を容易にするためにDSPモジュールを使用します。DSPについてさらに学びたい場合は、[チュートリアル：DSP入門](../../dsp/tutorial_dsp_introduction/)を参照してください。
 :::
 
-## Implementing an oscillator
+### オシレーターの実装
 
-最初のプロセッサーは、440Hzの一定の正弦波トーンを生成するシンプルなオシレーターである。
+最初のプロセッサは、440Hzの一定のサイン波トーンを生成するシンプルなオシレーターです。
 
-We derive the `オシレーター・プロセッサー` class from the previously-defined `プロセッサベース`, override the getName() function to provide a meaningful name and declare a [dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator "Generates a signal based on a user-supplied function.") object from the DSP module:
+`OscillatorProcessor`クラスを先に定義した`ProcessorBase`から派生させ、getName()関数をオーバーライドして意味のある名前を提供し、DSPモジュールから[dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html "Generates a signal based on a user-supplied function.")オブジェクトを宣言します：
 
-```
-class OscillatorProcessor  : public ProcessorBase
+```cpp
+class OscillatorProcessor : public ProcessorBase
 {
 public:
     //...
     const juce::String getName() const override { return "Oscillator"; }
- 
+
 private:
-    juce::dsp::Oscillator発振器
+    juce::dsp::Oscillator<float> oscillator;
 };
 ```
 
-In the constructor, we set the frequency and the waveform of the oscillator by calling respectively the setFrequency() and initialise() functions on the [dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator "Generates a signal based on a user-supplied function.") object as follows:
+コンストラクタでは、[dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html "Generates a signal based on a user-supplied function.")オブジェクトのsetFrequency()およびinitialise()関数をそれぞれ呼び出して、オシレーターの周波数と波形を設定します：
 
-```
+```cpp
 OscillatorProcessor()
-    {
-        oscillator.setFrequency (440.0f)；
-        oscillator.initialise ([] (float x) { return std::sin (x); })；
-    }
+{
+    oscillator.setFrequency (440.0f);
+    oscillator.initialise ([] (float x) { return std::sin (x); });
+}
 ```
 
-In the prepareToPlay() function, we create a [dsp::ProcessSpec](https://docs.juce.com/master/structdsp_1_1ProcessSpec "This structure is passed into a DSP algorithm's prepare() method, and contains information about vari...") object to describe the sample rate and number of samples per block to the [dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator "Generates a signal based on a user-supplied function.") object and pass the specifications by calling the prepare() function on it like so:
+prepareToPlay()関数では、サンプルレートとブロックあたりのサンプル数を[dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html "Generates a signal based on a user-supplied function.")オブジェクトに記述するための[dsp::ProcessSpec](https://docs.juce.com/master/structdsp_1_1ProcessSpec.html "This structure is passed into a DSP algorithm's prepare() method, and contains information about vari...")オブジェクトを作成し、prepare()関数を呼び出して仕様を渡します：
 
-```
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        juce::dsp::ProcessSpec spec { sampleRate, static_cast(samplesPerBlock）, 2 }；
-        oscillator.prepare (spec)；
-    }
-```
-
-Next, in the processBlock() function we create a [dsp::AudioBlock](https://docs.juce.com/master/classdsp_1_1AudioBlock "Minimal and lightweight data-structure which contains a list of pointers to channels containing some ...") object from the AudioSampleBuffer passed as an argument and declare the processing context from it as a [dsp::ProcessContextReplacing](https://docs.juce.com/master/structdsp_1_1ProcessContextReplacing "Contains context information that is passed into an algorithm's process method.") object that is subsequently passed to the process() function of the [dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator "Generates a signal based on a user-supplied function.") object as shown here:
-
-```
-    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
-    {
-        juce::dsp::AudioBlock block (buffer);
-        juce::dsp::ProcessContextReplacingコンテキスト（ブロック）；
-        oscillator.process (context)；
-    }
+```cpp
+void prepareToPlay (double sampleRate, int samplesPerBlock) override
+{
+    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
+    oscillator.prepare (spec);
+}
 ```
 
-Finally, we can reset the state of the [dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator "Generates a signal based on a user-supplied function.") object by overriding the reset() function of the [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") and calling the same function onto it:
+次に、processBlock()関数では、引数として渡されたAudioSampleBufferから[dsp::AudioBlock](https://docs.juce.com/master/classdsp_1_1AudioBlock.html "Minimal and lightweight data-structure which contains a list of pointers to channels containing some ...")オブジェクトを作成し、そこから処理コンテキストを[dsp::ProcessContextReplacing](https://docs.juce.com/master/structdsp_1_1ProcessContextReplacing.html "Contains context information that is passed into an algorithm's process method.")オブジェクトとして宣言し、[dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html "Generates a signal based on a user-supplied function.")オブジェクトのprocess()関数に渡します：
 
+```cpp
+void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+{
+    juce::dsp::AudioBlock<float> block (buffer);
+    juce::dsp::ProcessContextReplacing<float> context (block);
+    oscillator.process (context);
+}
 ```
-void reset() オーバーライド
-    {
-        oscillator.reset()；
-    }
+
+最後に、[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")のreset()関数をオーバーライドし、同じ関数を呼び出すことで[dsp::Oscillator](https://docs.juce.com/master/classdsp_1_1Oscillator.html "Generates a signal based on a user-supplied function.")オブジェクトの状態をリセットできます：
+
+```cpp
+void reset() override
+{
+    oscillator.reset();
+}
 ```
 
-これで、チャンネル・ストリップ・プラグインで使えるオシレーターができました。
+これでチャンネルストリッププラグインで使用できるオシレーターができました。
 
-発振器のinitialise()関数を変更して、異なる波形を生成し、ターゲット周波数を変更する。
+:::note
+演習：オシレーターのinitialise()関数を変更して異なる波形を生成し、ターゲット周波数を変更してください。
+:::
 
-## Implementing a gain control
+### ゲインコントロールの実装
 
-つ目のプロセッサーは、入力信号を-6dB減衰させるシンプルなゲイン・コントロールである。
+2番目のプロセッサは、入力信号を-6dB減衰させるシンプルなゲインコントロールです。
 
-We derive the `ゲインプロセッサー` class from the previously-defined `プロセッサベース`, override the getName() function to provide a meaningful name and declare a [dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain "Applies a gain to audio samples as single samples or AudioBlocks.") object from the DSP module:
+`GainProcessor`クラスを先に定義した`ProcessorBase`から派生させ、getName()関数をオーバーライドして意味のある名前を提供し、DSPモジュールから[dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html "Applies a gain to audio samples as single samples or AudioBlocks.")オブジェクトを宣言します：
 
-```
-class GainProcessor  : public ProcessorBase
+```cpp
+class GainProcessor : public ProcessorBase
 {
 public:
     //...
     const juce::String getName() const override { return "Gain"; }
- 
+
 private:
-    juce::dsp::Gainゲイン；
+    juce::dsp::Gain<float> gain;
 };
 ```
 
-In the constructor, we set the gain in decibels of the gain control by calling the setGainDecibels() function on the [dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain "Applies a gain to audio samples as single samples or AudioBlocks.") object as follows:
+コンストラクタでは、[dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html "Applies a gain to audio samples as single samples or AudioBlocks.")オブジェクトのsetGainDecibels()関数を呼び出して、ゲインコントロールのゲインをデシベルで設定します：
 
-```
-ゲインプロセッサー()
-    {
-        gain.setGainDecibels (-6.0f)；
-    }
-```
-
-In the prepareToPlay() function, we create a [dsp::ProcessSpec](https://docs.juce.com/master/structdsp_1_1ProcessSpec "This structure is passed into a DSP algorithm's prepare() method, and contains information about vari...") object to describe the sample rate, number of samples per block and number of channels to the [dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain "Applies a gain to audio samples as single samples or AudioBlocks.") object and pass the specifications by calling the prepare() function on it like so:
-
-```
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        juce::dsp::ProcessSpec spec { sampleRate, static_cast(samplesPerBlock）, 2 }；
-        gain.prepare (spec)；
-    }
+```cpp
+GainProcessor()
+{
+    gain.setGainDecibels (-6.0f);
+}
 ```
 
-Next, in the processBlock() function we create a [dsp::AudioBlock](https://docs.juce.com/master/classdsp_1_1AudioBlock "Minimal and lightweight data-structure which contains a list of pointers to channels containing some ...") object from the AudioSampleBuffer passed as an argument and declare the processing context from it as a [dsp::ProcessContextReplacing](https://docs.juce.com/master/structdsp_1_1ProcessContextReplacing "Contains context information that is passed into an algorithm's process method.") object that is subsequently passed to the process() function of the [dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain "Applies a gain to audio samples as single samples or AudioBlocks.") object as shown here:
+prepareToPlay()関数では、サンプルレート、ブロックあたりのサンプル数、およびチャンネル数を[dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html "Applies a gain to audio samples as single samples or AudioBlocks.")オブジェクトに記述するための[dsp::ProcessSpec](https://docs.juce.com/master/structdsp_1_1ProcessSpec.html "This structure is passed into a DSP algorithm's prepare() method, and contains information about vari...")オブジェクトを作成し、prepare()関数を呼び出して仕様を渡します：
 
-```
-    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
-    {
-        juce::dsp::AudioBlock block (buffer);
-        juce::dsp::ProcessContextReplacingコンテキスト（ブロック）；
-        gain.process (context)；
-    }
-```
-
-Finally, we can reset the state of the [dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain "Applies a gain to audio samples as single samples or AudioBlocks.") object by overriding the reset() function of the [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") and calling the same function onto it:
-
-```
-void reset() オーバーライド
-    {
-        ゲイン.リセット()；
-    }
+```cpp
+void prepareToPlay (double sampleRate, int samplesPerBlock) override
+{
+    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
+    gain.prepare (spec);
+}
 ```
 
-これで、チャンネル・ストリップ・プラグインで使えるゲイン・コントロールができました。
+次に、processBlock()関数では、引数として渡されたAudioSampleBufferから[dsp::AudioBlock](https://docs.juce.com/master/classdsp_1_1AudioBlock.html "Minimal and lightweight data-structure which contains a list of pointers to channels containing some ...")オブジェクトを作成し、そこから処理コンテキストを[dsp::ProcessContextReplacing](https://docs.juce.com/master/structdsp_1_1ProcessContextReplacing.html "Contains context information that is passed into an algorithm's process method.")オブジェクトとして宣言し、[dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html "Applies a gain to audio samples as single samples or AudioBlocks.")オブジェクトのprocess()関数に渡します：
 
-ゲインコントロールのsetGainDecibels()関数を変更して、さらにゲインを下げたり、信号をブーストしたりする。(ブーストするときは、レベルに注意してください！）。
-
-## Implementing a filter
-
-3つ目のプロセッサーは、1kHz以下の周波数を下げるシンプルなハイパスフィルターだ。
-
-We derive the `フィルタープロセッサー` class from the previously-defined `プロセッサベース`, override the getName() function to provide a meaningful name and declare a [dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan...") object from the DSP module. This allows us to use a mono processor of the [dsp::IIR::Filter](https://docs.juce.com/master/classdsp_1_1IIR_1_1Filter "A processing class that can perform IIR filtering on an audio signal, using the Transposed Direct For...") class and convert it into a multi-channel version by providing its shared state as a [dsp::IIR::Coefficients](https://docs.juce.com/master/structdsp_1_1IIR_1_1Coefficients "A set of coefficients for use in an Filter object.") class:
-
+```cpp
+void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+{
+    juce::dsp::AudioBlock<float> block (buffer);
+    juce::dsp::ProcessContextReplacing<float> context (block);
+    gain.process (context);
+}
 ```
-class FilterProcessor  : public ProcessorBase
+
+最後に、[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")のreset()関数をオーバーライドし、同じ関数を呼び出すことで[dsp::Gain](https://docs.juce.com/master/classdsp_1_1Gain.html "Applies a gain to audio samples as single samples or AudioBlocks.")オブジェクトの状態をリセットできます：
+
+```cpp
+void reset() override
+{
+    gain.reset();
+}
+```
+
+これでチャンネルストリッププラグインで使用できるゲインコントロールができました。
+
+:::note
+演習：ゲインコントロールのsetGainDecibels()関数を変更して、ゲインをさらに下げるか、信号をブーストしてください。（ブースト時はレベルに注意！）
+:::
+
+### フィルターの実装
+
+3番目のプロセッサは、1kHz未満の周波数を減衰させるシンプルなハイパスフィルターです。
+
+`FilterProcessor`クラスを先に定義した`ProcessorBase`から派生させ、getName()関数をオーバーライドして意味のある名前を提供し、DSPモジュールから[dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan...")オブジェクトを宣言します。これにより、[dsp::IIR::Filter](https://docs.juce.com/master/classdsp_1_1IIR_1_1Filter.html "A processing class that can perform IIR filtering on an audio signal, using the Transposed Direct For...")クラスのモノプロセッサを使用し、[dsp::IIR::Coefficients](https://docs.juce.com/master/structdsp_1_1IIR_1_1Coefficients.html "A set of coefficients for use in an Filter object.")クラスとして共有状態を提供することでマルチチャンネルバージョンに変換できます：
+
+```cpp
+class FilterProcessor : public ProcessorBase
 {
 public:
     FilterProcessor() {}
     //...
     const juce::String getName() const override { return "Filter"; }
- 
+
 private:
-    juce::dsp::ProcessorDuplicator, juce::dsp::IIR::Coefficients> フィルター；
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
 };
 ```
 
-In the prepareToPlay() function, we first generate the coefficients used for the filter by using the makeHighPass() function and assign it as the shared processing state to the duplicator. We then create a [dsp::ProcessSpec](https://docs.juce.com/master/structdsp_1_1ProcessSpec "This structure is passed into a DSP algorithm's prepare() method, and contains information about vari...") object to describe the sample rate, number of samples per block and number of channels to the [dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan...") object and pass the specifications by calling the prepare() function on it like so:
+prepareToPlay()関数では、まずmakeHighPass()関数を使用してフィルターに使用する係数を生成し、デュプリケーターに共有処理状態として割り当てます。次に、サンプルレート、ブロックあたりのサンプル数、およびチャンネル数を[dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan...")オブジェクトに記述するための[dsp::ProcessSpec](https://docs.juce.com/master/structdsp_1_1ProcessSpec.html "This structure is passed into a DSP algorithm's prepare() method, and contains information about vari...")オブジェクトを作成し、prepare()関数を呼び出して仕様を渡します：
 
-```
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        *filter.state = *juce::dsp::IIR::Coefficients::makeHighPass (sampleRate, 1000.0f);
- 
-        juce::dsp::ProcessSpec spec { sampleRate, static_cast(samplesPerBlock）, 2 }；
-        filter.prepare (spec)；
-    }
-```
-
-Next, in the processBlock() function we create a [dsp::AudioBlock](https://docs.juce.com/master/classdsp_1_1AudioBlock "Minimal and lightweight data-structure which contains a list of pointers to channels containing some ...") object from the AudioSampleBuffer passed as an argument and declare the processing context from it as a [dsp::ProcessContextReplacing](https://docs.juce.com/master/structdsp_1_1ProcessContextReplacing "Contains context information that is passed into an algorithm's process method.") object that is subsequently passed to the process() function of the [dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan...") object as shown here:
-
-```
-    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
-    {
-        juce::dsp::AudioBlock block (buffer);
-        juce::dsp::ProcessContextReplacingコンテキスト（ブロック）；
-        filter.process (context)；
-    }
-```
-
-Finally, we can reset the state of the [dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan...") object by overriding the reset() function of the [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") and calling the same function onto it:
-
-```
-void reset() オーバーライド
-    {
-        filter.reset()；
-    }
-```
-
-これでチャンネル・ストリップ・プラグインで使えるフィルターができた。
-
-フィルタの係数を変更して、カットオフ周波数と共振が異なるローパスまたはバンドパスフィルタを作成します。
-
-# Connecting graph nodes together
-
-Now that we have implemented multiple processors that can be used within the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors."), let's start connecting them together depending on the user selection.
-
-In the `チュートリアルプロセッサー` class, we add three [オーディオパラメータ選択](https://docs.juce.com/master/classAudioParameterChoice "Provides a class of AudioProcessorParameter that can be used to select an indexed,...") and four [AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool "Provides a class of AudioProcessorParameter that can be used as a boolean value.") pointers as private member variables to store the parameters chosen in the channel strip and their corresponding bypass states. We also declare node pointers to the three processor slots when later instantiated within the graph and provide the selectable choices as a [文字列配列](https://docs.juce.com/master/classStringArray "A special array for holding a list of strings.") for convenience.
-
-```
-    juce::StringArray processorChoices { "Empty", "Oscillator", "Gain", "Filter" };
- 
-    std::unique_ptrmainProcessor；
- 
-    juce::AudioParameterBool* muteInput；
- 
-    juce::AudioParameterChoice* processorSlot1；
-    juce::AudioParameterChoice* processorSlot2；
-    juce::AudioParameterChoice* processorSlot3；
- 
-    juce::AudioParameterBool* bypassSlot1；
-    juce::AudioParameterBool* bypassSlot2；
-    juce::AudioParameterBool* bypassSlot3；
- 
-    Node::Ptr audioInputNode；
-    Node::Ptr audioOutputNode；
-    Node::Ptr midiInputNode；
-    Node::Ptr midiOutputNode；
- 
-    Node::Ptr slot1Node；
-    Node::Ptr slot2Node；
-    Node::Ptr slot3Node；
- 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialProcessor)
-};
-```
-
-Then in the constructor we can instantiate the audio parameters and call the addParameter() function to tell the [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") about which parameters should be available in the plugin.
-
-```
-チュートリアルプロセッサ
-        : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo(), true)
-                                           .withOutput ("Output", juce::AudioChannelSet::stereo(), true))、
-          mainProcessor (new juce::AudioProcessorGraph())、
-          muteInput (new juce::AudioParameterBool ("mute", "Mute Input", true))、
-          processorSlot1 (new juce::AudioParameterChoice ("slot1", "Slot 1", processorChoices, 0))、
-          processorSlot2 (new juce::AudioParameterChoice ("slot2", "Slot 2", processorChoices, 0))、
-          processorSlot3 (new juce::AudioParameterChoice ("slot3", "Slot 3", processorChoices, 0))、
-          bypassSlot1 (new juce::AudioParameterBool ("bypass1", "Bypass 1", false))、
-          bypassSlot2 (new juce::AudioParameterBool ("bypass2", "Bypass 2", false))、
-          bypassSlot3 (new juce::AudioParameterBool ("bypass3", "Bypass 3", false)))
-    {
-        addParameter (muteInput)；
- 
-        addParameter (processorSlot1)；
-        addParameter (processorSlot2)；
-        addParameter (processorSlot3)；
- 
-        addParameter (bypassSlot1)；
-        addParameter (bypassSlot2)；
-        addParameter (bypassSlot3)；
-    }
-```
-
-This tutorial makes use of the [GenericAudioProcessorEditor (ジェネリックオーディオプロセッサーエディター)](https://docs.juce.com/master/classGenericAudioProcessorEditor "A type of UI component that displays the parameters of an AudioProcessor as a simple list of sliders,...") class, which automatically creates a [コンボボックス](https://docs.juce.com/master/classComboBox "A component that lets the user choose from a drop-down list of choices.") for each of the parameters in the plug-in's processor that is an [オーディオパラメータ選択](https://docs.juce.com/master/classAudioParameterChoice "Provides a class of AudioProcessorParameter that can be used to select an indexed,...") type and a [トグルボタン](https://docs.juce.com/master/classToggleButton "A button that can be toggled on/off.") for each [AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool "Provides a class of AudioProcessorParameter that can be used as a boolean value.") type.
-
-:::note
-
-To learn more about audio parameters and how to customise them, please refer to [チュートリアルプラグインパラメータの追加](../tutorial_audio_parameter/). For a more seamless and elegant method for saving and loading parameters, you can take a look at [チュートリアルプラグイン状態の保存と読み込み](../tutorial_audio_processor_value_tree_state/).
-
-:::
-
-In the first part of the tutorial when setting up the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors."), we noticed that we call the `updateGraph()` helper function in the processBlock() callback of the `チュートリアルプロセッサー` class. The purpose of this function is to update the graph by reinstantiating the proper [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") objects and nodes as well as reconnecting the graph depending on the current choices selected by the user so let's implement that helper function like this:
-
-```
-    void updateGraph()
-    {
-        bool hasChanged = false;
- 
-        juce::Array choices { processorSlot1,
-                                                           processorSlot2,
-                                                           processorSlot3 };
- 
-        juce::Array bypasses { bypassSlot1,
-                                                          bypassSlot2,
-                                                          bypassSlot3 };
- 
-        juce::ReferenceCountedArrayスロットを追加します；
-        slots.add (slot1Node)；
-        slots.add (slot2Node)；
-        slots.add (slot3Node)；
-```
-
-この関数は、グラフの状態を表すローカル変数と、オーディオブロック処理の最後の繰り返しから変更されたかどうかを宣言することから始まります。また、プロセッサの選択肢、バイパスの状態、およびグラフ内の対応するノードの反復処理を容易にするための配列を作成します。
-
-In the next part, we iterate over the three available processor slots and check the options that were selected for each of the [オーディオパラメータ選択](https://docs.juce.com/master/classAudioParameterChoice "Provides a class of AudioProcessorParameter that can be used to select an indexed,...") objects as follows:
-
-```
-        for (int i = 0; i < 3; ++i)
-        {
-            auto& choice = choices.getReference (i);
-            auto  slot   = slots  .getUnchecked (i);
- 
-            if (choice->getIndex() == 0)            // [1]
-            {
-                if (slot != nullptr)
-                {
-                    mainProcessor->removeNode (slot.get());
-                    slots.set (i, nullptr);
-                    hasChanged = true;
-                }
-            }
-            else if (choice->getIndex() == 1)       // [2]
-            {
-                if (slot != nullptr)
-                {
-                    if (slot->getProcessor()->getName() == "Oscillator")
-                        continue;
- 
-                    mainProcessor->removeNode (slot.get());
-                }
- 
-                slots.set (i, mainProcessor->addNode (std::make_unique()));
-                hasChanged = true;
-            }
-            else if (choice->getIndex() == 2)       // [3]
-            {
-                if (slot != nullptr)
-                {
-                    if (slot->getProcessor()->getName() == "Gain")
-                        continue;
- 
-                    mainProcessor->removeNode (slot.get());
-                }
- 
-                slots.set (i, mainProcessor->addNode (std::make_unique()));
-                hasChanged = true;
-            }
-            else if (choice->getIndex() == 3)       // [4]
-            {
-                if (slot != nullptr)
-                {
-                    if (slot->getProcessor()->getName() == "Filter")
-                        continue;
- 
-                    mainProcessor->removeNode (slot.get());
-                }
- 
-                slots.set (i, mainProcessor->addNode (std::make_unique()));
-                hasChanged = true；
-            }
-        }
-```
-
-- \[1\]: If the choice remains in the "Empty" state, we first check whether the node was previously instantiated to a different processor and if so, we remove the node from the graph, clear the reference to the node and set the `hasChanged` flag to true. Otherwise, the state has not changed and the graph does not need rebuilding.
-- \[2\]: If the user chooses the "Oscillator" state, we first check whether the currently instantiated node is already an oscillator processor and if so, the state has not changed and we continue onto the next slot. Otherwise, if the slot was already occupied we remove the node from the graph, set the reference to a new node by instantiating the oscillator and set the `hasChanged` flag to true.
-- \[3\]: We proceed to do the same for the "Gain" state and instantiate a gain processor if necessary.
-- \[4\]: Again, we repeat the same process for the "Filter" state and instantiate a filter processor if needed.
-
-次のセクションは、グラフの状態が変化した場合にのみ実行され、以下のようにノードの接続を開始する：
-
-```
-        if (hasChanged)
-        {
-            for (auto connection : mainProcessor->getConnections())     // [5]
-                mainProcessor->removeConnection (connection);
- 
-            juce::ReferenceCountedArrayアクティブスロット；
- 
-            for (auto slot : slots)
-            {
-                if (slot != nullptr)
-                {
-                    activeSlots.add (slot); // [6].
- 
-                    slot->getProcessor()->setPlayConfigDetails (getMainBusNumInputChannels()、
-                                                                getMainBusNumOutputChannels()、
-                                                                getSampleRate(), getBlockSize())；
-                }
-            }
- 
-            if (activeSlots.isEmpty()) // [7].
-            {
-                connectAudioNodes()；
-            }
-            else
-            {
-                for (int i = 0; i < activeSlots.size() - 1; ++i) // [8].
-                {
-                    for (int channel = 0; channel < 2; ++channel)
-                        mainProcessor->addConnection ({ { activeSlots.getUnchecked (i)->nodeID, channel }、
-                                                        { activeSlots.getUnchecked (i + 1)->nodeID, channel }.});
-                }
- 
-                for (int channel = 0; channel < 2; ++channel) // [9].
-                {
-                    mainProcessor->addConnection ({ { audioInputNode->nodeID, channel }、
-                                                    { activeSlots.getFirst()->nodeID, channel }.});
-                    mainProcessor->addConnection ({ { activeSlots.getLast()->nodeID, channel }、
-                                                    { audioOutputNode->nodeID, channel }.});
-                }
-            }
- 
-            connectMidiNodes()；
- 
-            for (auto node : mainProcessor->getNodes()) // [10].
-                node->getProcessor()->enableAllBuses()；
-        }
-```
-
-- \[5\]: First we remove all the connections in the graph to start from a blank state.
-- \[6\]: Then, we iterate over the slots and check whether they have an [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") node within the graph. If so we add the node to our temporary array of active nodes and make sure to call the setPlayConfigDetails() function on the corresponding processor instance with channel, sample rate and block size information to prepare the node for future processing.
-- \[7\]: Next, if there are no active slots found this means that all the choices are in an "Empty" state and the audio I/O processor nodes can be simply connected together.
-- \[8\]: Otherwise, it means that there is at least one node that should lie between the audio I/O processor nodes. Therefore we can start connecting the active slots together in an ascending order of slot number. Notice here that the number of pairs of connections we need is only the number of active slots minus one.
-- \[9\]: We can then finish connecting the graph by linking the audio input processor node to the first active slot in the chain and the last active slot to the audio output processor node.
-- \[10\]: Finally, we connect the midi I/O nodes together and make sure that all the buses in the audio processors are enabled.
-
-```
-for (int i = 0; i < 3; ++i)
-        {
-            auto slot = slots .getUnchecked (i)；
-            auto& bypass = bypasses.getReference (i)；
- 
-            if (slot != nullptr)
-                slot->setBypassed (bypass->get())；
-        }
- 
-        audioInputNode->setBypassed (muteInput->get())；
- 
-        slot1Node = slots.getUnchecked (0)；
-        slot2Node = slots.getUnchecked (1)；
-        slot3Node = slots.getUnchecked (2)；
-    }
-```
-
-In the last section of the `updateGraph()` helper function, we deal with the bypass state of the processors by checking whether the slot is active and bypass the [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") if the check box is toggled. We also check whether to mute the input to avoid feedback loops when testing. Then, we assign back the newly-created nodes to their corresponding slots for the next iteration.
-
-プラグインは、グラフ内にロードされたプロセッサーを通して入力されたオーディオを処理し、実行されるはずです。
-
-Create an additional processor node of your choice and add it to the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors."). (For example a processor handling midi messages.)
-
-# Convert the plugin into an application
-
-If you are interested in using the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") within a standalone app, this optional section will delve into this in detail.
-
-First of all, we have to convert our main `チュートリアルプロセッサー` class into a subclass of [コンポーネント](https://docs.juce.com/master/classComponent "The base class for all JUCE user-interface objects.") instead of [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins."). To match the naming convention of other JUCE GUI applications we also rename the class name to `メインコンポーネント` as follows:
-
-```
-class MainComponent : public juce::Component、
-                       private juce::Timer
+```cpp
+void prepareToPlay (double sampleRate, int samplesPerBlock) override
 {
-public：
+    *filter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, 1000.0f);
+
+    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
+    filter.prepare (spec);
+}
 ```
+
+次に、processBlock()関数では、引数として渡されたAudioSampleBufferから[dsp::AudioBlock](https://docs.juce.com/master/classdsp_1_1AudioBlock.html "Minimal and lightweight data-structure which contains a list of pointers to channels containing some ...")オブジェクトを作成し、そこから処理コンテキストを[dsp::ProcessContextReplacing](https://docs.juce.com/master/structdsp_1_1ProcessContextReplacing.html "Contains context information that is passed into an algorithm's process method.")オブジェクトとして宣言し、[dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan...")オブジェクトのprocess()関数に渡します：
+
+```cpp
+void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+{
+    juce::dsp::AudioBlock<float> block (buffer);
+    juce::dsp::ProcessContextReplacing<float> context (block);
+    filter.process (context);
+}
+```
+
+最後に、[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")のreset()関数をオーバーライドし、同じ関数を呼び出すことで[dsp::ProcessorDuplicator](https://docs.juce.com/master/structdsp_1_1ProcessorDuplicator.html "Converts a mono processor class into a multi-channel version by duplicating it and applying multichan...")オブジェクトの状態をリセットできます：
+
+```cpp
+void reset() override
+{
+    filter.reset();
+}
+```
+
+これでチャンネルストリッププラグインで使用できるフィルターができました。
 
 :::note
-
-If using a pip file to follow this tutorial, make sure to change the "mainClass" and "type" fields to reflect the change and amend the "dependencies" field appropriately. If using the ZIP version of the project, make sure that the `メイン.cpp` file follows the "GUI Application" template format.
-
+演習：フィルターの係数を変更して、異なるカットオフ周波数とレゾナンスを持つローパスまたはバンドパスフィルターを生成してください。
 :::
 
-When creating a plugin, all the IO device management and playback functionalities are controlled by the host and therefore we don't need to worry about setting these up. However, in a standalone application we have to manage this ourselves. This is why we declare an [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") and an [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") as private member variables in the `メインコンポーネント` class to allow communication between our [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") and the audio IO devices available on the system.
+## グラフノードの接続
 
+[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")内で使用できる複数のプロセッサを実装したので、ユーザーの選択に応じてそれらを接続し始めましょう。
+
+`TutorialProcessor`クラスで、チャンネルストリップで選択されたパラメータとその対応するバイパス状態を保存するために、3つの[AudioParameterChoice](https://docs.juce.com/master/classAudioParameterChoice.html "Provides a class of AudioProcessorParameter that can be used to select an indexed,...")と4つの[AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool.html "Provides a class of AudioProcessorParameter that can be used as a boolean value.")ポインタをプライベートメンバー変数として追加します。また、後でグラフ内でインスタンス化されるときの3つのプロセッサスロットへのノードポインタを宣言し、便宜上選択可能な選択肢を[StringArray](https://docs.juce.com/master/classStringArray.html "A special array for holding a list of strings.")として提供します。
+
+```cpp
+juce::StringArray processorChoices { "Empty", "Oscillator", "Gain", "Filter" };
+
+std::unique_ptr<juce::AudioProcessorGraph> mainProcessor;
+
+juce::AudioParameterBool* muteInput;
+
+juce::AudioParameterChoice* processorSlot1;
+juce::AudioParameterChoice* processorSlot2;
+juce::AudioParameterChoice* processorSlot3;
+
+juce::AudioParameterBool* bypassSlot1;
+juce::AudioParameterBool* bypassSlot2;
+juce::AudioParameterBool* bypassSlot3;
+
+Node::Ptr audioInputNode;
+Node::Ptr audioOutputNode;
+Node::Ptr midiInputNode;
+Node::Ptr midiOutputNode;
+
+Node::Ptr slot1Node;
+Node::Ptr slot2Node;
+Node::Ptr slot3Node;
+
+//==============================================================================
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialProcessor)
+};
 ```
-juce::AudioDeviceManager deviceManager；
-    juce::AudioProcessorPlayer player；
+
+次にコンストラクタで、オーディオパラメータをインスタンス化し、addParameter()関数を呼び出して[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")にプラグインで利用可能にするパラメータを伝えます。
+
+```cpp
+TutorialProcessor()
+    : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo(), true).withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+      mainProcessor (new juce::AudioProcessorGraph()),
+      muteInput (new juce::AudioParameterBool ("mute", "Mute Input", true)),
+      processorSlot1 (new juce::AudioParameterChoice ("slot1", "Slot 1", processorChoices, 0)),
+      processorSlot2 (new juce::AudioParameterChoice ("slot2", "Slot 2", processorChoices, 0)),
+      processorSlot3 (new juce::AudioParameterChoice ("slot3", "Slot 3", processorChoices, 0)),
+      bypassSlot1 (new juce::AudioParameterBool ("bypass1", "Bypass 1", false)),
+      bypassSlot2 (new juce::AudioParameterBool ("bypass2", "Bypass 2", false)),
+      bypassSlot3 (new juce::AudioParameterBool ("bypass3", "Bypass 3", false))
+{
+    addParameter (muteInput);
+
+    addParameter (processorSlot1);
+    addParameter (processorSlot2);
+    addParameter (processorSlot3);
+
+    addParameter (bypassSlot1);
+    addParameter (bypassSlot2);
+    addParameter (bypassSlot3);
+}
 ```
 
-The [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") is a convenient class that manages audio and midi devices on all platforms and the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") allows for easy playback through an [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.").
+このチュートリアルでは、[GenericAudioProcessorEditor](https://docs.juce.com/master/classGenericAudioProcessorEditor.html "A type of UI component that displays the parameters of an AudioProcessor as a simple list of sliders,...")クラスを使用します。これは、[AudioParameterChoice](https://docs.juce.com/master/classAudioParameterChoice.html "Provides a class of AudioProcessorParameter that can be used to select an indexed,...")型のプラグインプロセッサの各パラメータに対して自動的に[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")を作成し、[AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool.html "Provides a class of AudioProcessorParameter that can be used as a boolean value.")型ごとに[ToggleButton](https://docs.juce.com/master/classToggleButton.html "A button that can be toggled on/off.")を作成します。
 
-In the constructor, instead of initialising plugin parameters we create regular GUI components and initialise the [オーディオデバイスマネージャー](https://docs.juce.com/master/classAudioDeviceManager "Manages the state of some audio and midi i/o devices.") and the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") like so:
+:::tip
+オーディオパラメータとそのカスタマイズ方法についてさらに学ぶには、[チュートリアル：プラグインパラメータの追加](../tutorial_audio_parameter/)を参照してください。パラメータの保存と読み込みのよりシームレスでエレガントな方法については、[チュートリアル：プラグイン状態の保存と読み込み](../tutorial_audio_processor_value_tree_state/)を見てください。
+:::
 
+チュートリアルの最初の部分で[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")をセットアップするときに、`TutorialProcessor`クラスのprocessBlock()コールバックで`updateGraph()`ヘルパー関数を呼び出すことに気づきました。この関数の目的は、ユーザーが選択した現在の選択に応じて、適切な[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")オブジェクトとノードを再インスタンス化し、グラフを再接続することでグラフを更新することです。そのヘルパー関数を次のように実装しましょう：
+
+```cpp
+void updateGraph()
+{
+    bool hasChanged = false;
+
+    juce::Array<juce::AudioParameterChoice*> choices { processorSlot1,
+        processorSlot2,
+        processorSlot3 };
+
+    juce::Array<juce::AudioParameterBool*> bypasses { bypassSlot1,
+        bypassSlot2,
+        bypassSlot3 };
+
+    juce::ReferenceCountedArray<Node> slots;
+    slots.add (slot1Node);
+    slots.add (slot2Node);
+    slots.add (slot3Node);
 ```
-メインコンポーネント
-        : mainProcessor (new juce::AudioProcessorGraph())
+
+関数はグラフの状態を表すローカル変数を宣言し、前回のオーディオブロック処理のイテレーション以降に変更されたかどうかを示します。また、プロセッサの選択、バイパス状態、およびグラフ内の対応するノードに対するイテレーションを容易にするための配列を作成します。
+
+次の部分では、3つの利用可能なプロセッサスロットを反復処理し、各[AudioParameterChoice](https://docs.juce.com/master/classAudioParameterChoice.html "Provides a class of AudioProcessorParameter that can be used to select an indexed,...")オブジェクトに対して選択されたオプションをチェックします：
+
+```cpp
+for (int i = 0; i < 3; ++i)
+{
+    auto& choice = choices.getReference (i);
+    auto slot = slots.getUnchecked (i);
+
+    if (choice->getIndex() == 0) // [1]
     {
-```
-
-```
-auto inputDevice = juce::MidiInput::getDefaultDevice()；
-        auto outputDevice = juce::MidiOutput::getDefaultDevice()；
- 
-        mainProcessor->enableAllBuses()；
- 
-        deviceManager.initialiseWithDefaultDevices (2, 2); // [1].
-        deviceManager.addAudioCallback (&player); // [2].
-        deviceManager.setMidiInputDeviceEnabled (inputDevice.identifier, true)；
-        deviceManager.addMidiInputDeviceCallback (inputDevice.identifier, &player); // [3].
-        deviceManager.setDefaultMidiOutputDevice (outputDevice.identifier)；
- 
-        initialiseGraph()；
- 
-        player.setProcessor (mainProcessor.get()); // [4] プレイヤー・プロセッサを設定します。
- 
-        setSize (600, 400)；
-        startTimer (100)；
+        if (slot != nullptr)
+        {
+            mainProcessor->removeNode (slot.get());
+            slots.set (i, nullptr);
+            hasChanged = true;
+        }
     }
-```
-
-Here we first initialise the device manager with the default audio device and two inputs and outputs each \[1\]. We then add the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") as an audio callback to the device manager \[2\]and as a midi callback by using the default midi device \[3\]. After graph initialisation, we can set the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") as the processor to play by calling the setProcessor() function on the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") \[4\].
-
-```
-~メインコンポーネント() オーバーライド
+    else if (choice->getIndex() == 1) // [2]
     {
-        auto device = juce::MidiInput::getDefaultDevice()；
- 
-        deviceManager.removeAudioCallback (&player)；
-        deviceManager.setMidiInputDeviceEnabled (device.identifier, false)；
-        deviceManager.removeMidiInputDeviceCallback (device.identifier, &player)；
+        if (slot != nullptr)
+        {
+            if (slot->getProcessor()->getName() == "Oscillator")
+                continue;
+
+            mainProcessor->removeNode (slot.get());
+        }
+
+        slots.set (i, mainProcessor->addNode (std::make_unique<OscillatorProcessor>()));
+        hasChanged = true;
     }
+    else if (choice->getIndex() == 2) // [3]
+    {
+        if (slot != nullptr)
+        {
+            if (slot->getProcessor()->getName() == "Gain")
+                continue;
+
+            mainProcessor->removeNode (slot.get());
+        }
+
+        slots.set (i, mainProcessor->addNode (std::make_unique<GainProcessor>()));
+        hasChanged = true;
+    }
+    else if (choice->getIndex() == 3) // [4]
+    {
+        if (slot != nullptr)
+        {
+            if (slot->getProcessor()->getName() == "Filter")
+                continue;
+
+            mainProcessor->removeNode (slot.get());
+        }
+
+        slots.set (i, mainProcessor->addNode (std::make_unique<FilterProcessor>()));
+        hasChanged = true;
+    }
+}
 ```
 
-Then in the destructor, we make sure to remove the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") as an audio and midi callback on application shutdown.
+- [1]：選択が「Empty」状態のままの場合、まずノードが以前に別のプロセッサにインスタンス化されていたかどうかを確認し、そうであればグラフからノードを削除し、ノードへの参照をクリアし、`hasChanged`フラグをtrueに設定します。そうでなければ、状態は変更されておらず、グラフの再構築は必要ありません。
+- [2]：ユーザーが「Oscillator」状態を選択した場合、まず現在インスタンス化されているノードがすでにオシレータープロセッサであるかどうかを確認し、そうであれば状態は変更されておらず、次のスロットに進みます。そうでなければ、スロットがすでに占有されている場合はグラフからノードを削除し、オシレーターをインスタンス化して新しいノードへの参照を設定し、`hasChanged`フラグをtrueに設定します。
+- [3]：「Gain」状態についても同じことを行い、必要に応じてゲインプロセッサをインスタンス化します。
+- [4]：同様に、「Filter」状態についても同じプロセスを繰り返し、必要に応じてフィルタープロセッサをインスタンス化します。
 
-Notice that unlike the plugin implementation, the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") deals with processing the audio automatically and therefore it will take care of calling the prepareToPlay() and processBlock() functions on the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") for us.
+次のセクションは、グラフの状態が変更された場合にのみ実行され、ノードの接続を開始します：
 
-However we still need to find a way to update the graph when the user changes parameters and we do so by deriving the `メインコンポーネント` from the [タイマー](https://docs.juce.com/master/classTimer "Makes repeated callbacks to a virtual method at a specified time interval.") class and overriding the timerCallback() function like so:
+```cpp
+if (hasChanged)
+{
+    for (auto connection : mainProcessor->getConnections()) // [5]
+        mainProcessor->removeConnection (connection);
+
+    juce::ReferenceCountedArray<Node> activeSlots;
+
+    for (auto slot : slots)
+    {
+        if (slot != nullptr)
+        {
+            activeSlots.add (slot); // [6]
+
+            slot->getProcessor()->setPlayConfigDetails (getMainBusNumInputChannels(),
+                getMainBusNumOutputChannels(),
+                getSampleRate(),
+                getBlockSize());
+        }
+    }
+
+    if (activeSlots.isEmpty()) // [7]
+    {
+        connectAudioNodes();
+    }
+    else
+    {
+        for (int i = 0; i < activeSlots.size() - 1; ++i) // [8]
+        {
+            for (int channel = 0; channel < 2; ++channel)
+                mainProcessor->addConnection ({ { activeSlots.getUnchecked (i)->nodeID, channel },
+                    { activeSlots.getUnchecked (i + 1)->nodeID, channel } });
+        }
+
+        for (int channel = 0; channel < 2; ++channel) // [9]
+        {
+            mainProcessor->addConnection ({ { audioInputNode->nodeID, channel },
+                { activeSlots.getFirst()->nodeID, channel } });
+            mainProcessor->addConnection ({ { activeSlots.getLast()->nodeID, channel },
+                { audioOutputNode->nodeID, channel } });
+        }
+    }
+
+    connectMidiNodes();
+
+    for (auto node : mainProcessor->getNodes()) // [10]
+        node->getProcessor()->enableAllBuses();
+}
+```
+
+- [5]：まず、ブランク状態から開始するためにグラフ内のすべての接続を削除します。
+- [6]：次に、スロットを反復処理し、グラフ内に[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")ノードがあるかどうかを確認します。ある場合は、アクティブノードの一時配列にノードを追加し、将来の処理のためにノードを準備するために、チャンネル、サンプルレート、ブロックサイズ情報を使用して対応するプロセッサインスタンスのsetPlayConfigDetails()関数を呼び出します。
+- [7]：次に、アクティブスロットが見つからない場合、これはすべての選択が「Empty」状態であり、オーディオI/Oプロセッサノードを単純に一緒に接続できることを意味します。
+- [8]：そうでなければ、オーディオI/Oプロセッサノードの間にあるべきノードが少なくとも1つあることを意味します。したがって、スロット番号の昇順でアクティブスロットを一緒に接続し始めることができます。ここで、必要な接続のペア数はアクティブスロット数マイナス1だけであることに注意してください。
+- [9]：その後、オーディオ入力プロセッサノードをチェーン内の最初のアクティブスロットに、最後のアクティブスロットをオーディオ出力プロセッサノードにリンクしてグラフの接続を完了します。
+- [10]：最後に、MIDI I/Oノードを接続し、オーディオプロセッサのすべてのバスが有効になっていることを確認します。
+
+```cpp
+for (int i = 0; i < 3; ++i)
+{
+    auto slot = slots.getUnchecked (i);
+    auto& bypass = bypasses.getReference (i);
+
+    if (slot != nullptr)
+        slot->setBypassed (bypass->get());
+}
+
+audioInputNode->setBypassed (muteInput->get());
+
+slot1Node = slots.getUnchecked (0);
+slot2Node = slots.getUnchecked (1);
+slot3Node = slots.getUnchecked (2);
+}
+```
+
+`updateGraph()`ヘルパー関数の最後のセクションでは、スロットがアクティブかどうかを確認し、チェックボックスがトグルされている場合は[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")をバイパスして、プロセッサのバイパス状態を処理します。また、テスト時のフィードバックループを避けるために入力をミュートするかどうかもチェックします。その後、次のイテレーションのために新しく作成されたノードを対応するスロットに割り当てます。
+
+プラグインはグラフ内のロードされたプロセッサを通じて入力オーディオを処理して実行されるはずです。
 
 :::note
-
-タイマーのコールバックを使用することは、最も効率的な解決策ではなく、一般的には、適切なコンポーネントのリスナーとして登録することがベストプラクティスである。
-
+演習：お好みの追加プロセッサノードを作成し、[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")に追加してください。（例えば、MIDIメッセージを処理するプロセッサなど。）
 :::
 
-Finally, we modify the `updateGraph()` function to set the playback configuration details from the [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") instead of the main [オーディオプロセッサ](https://docs.juce.com/master/classAudioProcessor "Base class for audio processing classes or plugins.") since the latter was replaced by the [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.") in our standalone app scenario:
+## プラグインをアプリケーションに変換
 
+スタンドアロンアプリ内で[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")を使用することに興味がある場合、このオプションのセクションでこれについて詳しく説明します。
+
+まず、メインの`TutorialProcessor`クラスを[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")の代わりに[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")のサブクラスに変換する必要があります。他のJUCE GUIアプリケーションの命名規則に合わせるために、クラス名を`MainComponent`に変更します：
+
+```cpp
+class MainComponent : public juce::Component,
+                      private juce::Timer
+{
+public:
 ```
+
+:::tip
+PIPファイルを使用してこのチュートリアルに従っている場合は、「mainClass」と「type」フィールドを変更を反映するように変更し、「dependencies」フィールドを適切に修正してください。プロジェクトのZIPバージョンを使用している場合は、`Main.cpp`ファイルが「GUI Application」テンプレート形式に従っていることを確認してください。
+:::
+
+プラグインを作成するとき、すべてのIOデバイス管理と再生機能はホストによって制御されるため、これらのセットアップについて心配する必要はありません。しかし、スタンドアロンアプリケーションでは、これを自分で管理する必要があります。そのため、[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")とシステムで利用可能なオーディオIOデバイス間の通信を可能にするために、`MainComponent`クラスに[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "Manages the state of some audio and midi i/o devices.")と[AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor.")をプライベートメンバー変数として宣言します。
+
+```cpp
+juce::AudioDeviceManager deviceManager;
+juce::AudioProcessorPlayer player;
+```
+
+[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "Manages the state of some audio and midi i/o devices.")はすべてのプラットフォームでオーディオおよびMIDIデバイスを管理する便利なクラスで、[AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor.")は[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")を通じた簡単な再生を可能にします。
+
+コンストラクタでは、プラグインパラメータを初期化する代わりに、通常のGUIコンポーネントを作成し、[AudioDeviceManager](https://docs.juce.com/master/classAudioDeviceManager.html "Manages the state of some audio and midi i/o devices.")と[AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor.")を初期化します：
+
+```cpp
+MainComponent()
+    : mainProcessor (new juce::AudioProcessorGraph())
+{
+```
+
+```cpp
+auto inputDevice = juce::MidiInput::getDefaultDevice();
+auto outputDevice = juce::MidiOutput::getDefaultDevice();
+
+mainProcessor->enableAllBuses();
+
+deviceManager.initialiseWithDefaultDevices (2, 2); // [1]
+deviceManager.addAudioCallback (&player); // [2]
+deviceManager.setMidiInputDeviceEnabled (inputDevice.identifier, true);
+deviceManager.addMidiInputDeviceCallback (inputDevice.identifier, &player); // [3]
+deviceManager.setDefaultMidiOutputDevice (outputDevice.identifier);
+
+initialiseGraph();
+
+player.setProcessor (mainProcessor.get()); // [4]
+
+setSize (600, 400);
+startTimer (100);
+}
+```
+
+ここでは、まずデフォルトのオーディオデバイスと各2つの入力と出力でデバイスマネージャーを初期化します[1]。次に[AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor.")をデバイスマネージャーにオーディオコールバックとして追加し[2]、デフォルトのMIDIデバイスを使用してMIDIコールバックとして追加します[3]。グラフの初期化後、[AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor.")のsetProcessor()関数を呼び出して[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")を再生するプロセッサとして設定できます[4]。
+
+```cpp
+~MainComponent() override
+{
+    auto device = juce::MidiInput::getDefaultDevice();
+
+    deviceManager.removeAudioCallback (&player);
+    deviceManager.setMidiInputDeviceEnabled (device.identifier, false);
+    deviceManager.removeMidiInputDeviceCallback (device.identifier, &player);
+}
+```
+
+デストラクタでは、アプリケーションのシャットダウン時に[AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor.")をオーディオおよびMIDIコールバックとして削除することを確認します。
+
+プラグインの実装とは異なり、[AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor.")が自動的にオーディオの処理を行うため、[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")のprepareToPlay()およびprocessBlock()関数を呼び出す必要がありません。
+
+しかし、ユーザーがパラメータを変更したときにグラフを更新する方法を見つける必要があり、`MainComponent`を[Timer](https://docs.juce.com/master/classTimer.html "Makes repeated callbacks to a virtual method at a specified time interval.")クラスから派生させ、timerCallback()関数をオーバーライドすることでこれを行います：
+
+```cpp
+void timerCallback() override { updateGraph(); }
+```
+
+:::tip
+タイマーコールバックを使用することは最も効率的な解決策ではなく、一般的に適切なコンポーネントにリスナーとして登録することがベストプラクティスです。
+:::
+
+最後に、`updateGraph()`関数を変更して、スタンドアロンアプリのシナリオでは後者が[AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor.")に置き換えられたため、メインの[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")の代わりに[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")から再生設定の詳細を設定します：
+
+```cpp
 for (auto slot : slots)
-            {
-                if (slot != nullptr)
-                {
-                    activeSlots.add (slot)；
- 
-                    slot->getProcessor()->setPlayConfigDetails (mainProcessor->getMainBusNumInputChannels()、
-                                                                mainProcessor->getMainBusNumOutputChannels()、
-                                                                mainProcessor->getSampleRate()、
-                                                                mainProcessor->getBlockSize())；
-                }
-            }
+{
+    if (slot != nullptr)
+    {
+        activeSlots.add (slot);
+
+        slot->getProcessor()->setPlayConfigDetails (mainProcessor->getMainBusNumInputChannels(),
+            mainProcessor->getMainBusNumOutputChannels(),
+            mainProcessor->getSampleRate(),
+            mainProcessor->getBlockSize());
+    }
+}
 ```
 
 これらの変更後、プラグインはアプリケーションとして実行されるはずです。
 
 :::warning
-
-繰り返しになるが、内蔵入出力でアプリをテストする場合、悲鳴のようなフィードバックに注意すること。ヘッドフォンを使えばこの問題を回避できる。
-
-::::::note
-
-The source code for this modified version of the plug-in can be found in the `AudioProcessorGraphTutorial_02.h` file of the demo project.
-
+繰り返しになりますが、内蔵の入力と出力でアプリをテストするときは、叫び声のようなフィードバックに注意してください。ヘッドフォンを使用することでこの問題を回避できます。
 :::
 
-# 概要
 
-In this tutorial, we have learnt how to manipulate an [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.") to cascade the effects of plugins. In particular, we have:
+:::tip
+このプラグインの修正版のソースコードは、デモプロジェクトの`AudioProcessorGraphTutorial_02.h`ファイルにあります。
+:::
 
-- 一連のオーディオプロセッサーでチャンネルストリップを構築。
-- Learnt how to connect nodes in an [オーディオ・プロセッサ・グラフ](https://docs.juce.com/master/classAudioProcessorGraph "A type of AudioProcessor which plays back a graph of other AudioProcessors.").
-- Created a standalone app from the graph using an [オーディオ・プロセッサー・プレーヤー](https://docs.juce.com/master/classAudioProcessorPlayer "An AudioIODeviceCallback object which streams audio through an AudioProcessor.").
+## まとめ
 
-# 関連項目
+このチュートリアルでは、[AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")を操作してプラグインのエフェクトをカスケードする方法を学びました。特に以下のことを行いました：
 
-- [チュートリアルプラグインパラメータの追加](../tutorial_audio_parameter/)
-- [チュートリアルプラグイン状態の保存と読み込み](../tutorial_audio_processor_value_tree_state/)
-- [チュートリアルプラグインに適切なバスレイアウトを設定する](../tutorial_audio_bus_layouts/)
+- 一連のオーディオプロセッサを持つチャンネルストリップを構築しました。
+- [AudioProcessorGraph](https://docs.juce.com/master/classAudioProcessorGraph.html "A type of AudioProcessor which plays back a graph of other AudioProcessors.")でノードを接続する方法を学びました。
+- [AudioProcessorPlayer](https://docs.juce.com/master/classAudioProcessorPlayer.html "An AudioIODeviceCallback object which streams audio through an AudioProcessor.")を使用してグラフからスタンドアロンアプリを作成しました。
+
+## 関連項目
+
+- [チュートリアル：プラグインパラメータの追加](../tutorial_audio_parameter/)
+- [チュートリアル：プラグイン状態の保存と読み込み](../tutorial_audio_processor_value_tree_state/)
+- [チュートリアル：プラグインの正しいバスレイアウトの設定](../tutorial_audio_bus_layouts/)

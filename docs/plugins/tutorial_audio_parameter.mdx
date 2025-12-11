@@ -4,417 +4,344 @@ sidebar_position: 1
 tags: ["初級"]
 ---
 
-# プラグインパラメータの追加
+# チュートリアル：プラグインパラメータの追加
 
 <SourcePageLink path="tutorial_audio_parameter" />
 
-オーディオプラグインにパラメータを追加して、デジタルオーディオワークステーションからのコントロールとオートメーションを可能にします。
-オーディオパラメータをオーディオ処理に使用し、そのユーザーインタフェースを作成する方法を学びます。
+オーディオプラグインにパラメータを追加して、デジタルオーディオワークステーションからの制御や自動化を可能にしましょう。オーディオパラメータを使ったオーディオ処理の方法と、それらのユーザーインターフェースの作成方法を学びます。
 
-レベル：初級
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto..."), [AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool.html "Provides a class of AudioProcessorParameter that can be used as a boolean value."), [GenericAudioProcessorEditor](https://docs.juce.com/master/classGenericAudioProcessorEditor.html "A type of UI component that displays the parameters of an AudioProcessor as a simple list of sliders,...")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-<ClassList
-  refs={[
-    "AudioParameterFloat",
-    "AudioParameterBool",
-    "GenericAudioProcessorEditor",
-  ]}
-/>
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/AudioParameterTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/AudioParameterTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-## はじめる
-
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/AudioParameterTutorial.zip)
-| [ZIP](https://docs.juce.com/tutorials/ZIPs/AudioParameterTutorial.zip)
-プロジェクトを解凍し、Projucerで最初のヘッダーファイルを開きます。
-
-このステップでヘルプが必要な場合は、
-[Projucerパート1：Projucerを使い始める](../../getting-started/tutorial_new_projucer_project/)
-を参照してください
-
-また、JUCEを使ってオーディオプラグインを構築し、これをあなたの好きなオーディオホスト（デジタルオーディオワークステーション - DAWとも呼ばれます）。
-にロードする方法も知っておく必要があります。
-[基本的なAudio/MIDIプラグインを作る パート1：セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/) を参照してください：
+また、JUCEを使用してオーディオプラグインをビルドし、お好みのオーディオホスト（デジタルオーディオワークステーション --- DAWとも呼ばれます）にロードする方法を理解しておく必要があります。入門については[チュートリアル：基本的なAudio/MIDIプラグインの作成 Part 1: セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/)を参照してください。
 
 ## デモプロジェクト
 
-このデモ・プロジェクトは、`JUCE/examples/Plugins` ディレクトリにある *GainPlugin* プロジェクトに基づいています。
-このプラグインは、1つのパラメータを使って入力信号のゲインを変更するだけです。
+デモプロジェクトは`JUCE/examples/Plugins`ディレクトリにある_GainPlugin_プロジェクトをベースにしています。このプラグインは、単一のパラメータを使用して入力信号のゲインを変更するだけのシンプルなものです。
 
 <CaptionImage
   src="/_images/tutorial_audio_parameter_screenshot1.png"
-  caption="Logic Pro X上でのゲインプラグインのUI"
+  caption="The gain plug-in UI in Logic Pro X"
 />
 
-## ゲインプロセッサー
+## ゲインプロセッサ
 
-`TutorialProcessor` クラスのコードのほとんどは、**Audio Plug-In** プロジェクト・テンプレートを使用したときにProjucerによって生成されるものと同じです。
-簡単にするために、プロセッサーのコードを.cppファイルと.hファイルに分けるのではなく、1つの.hファイルにまとめました。
+`TutorialProcessor`クラスのコードのほとんどは、**Audio Plug-In**プロジェクトテンプレートを使用したときにProjucerによって生成されるものと同じです。簡略化のため、プロセッサコードを`.cpp`と`.h`ファイルに分割するのではなく、単一の`.h`ファイルにまとめています。
 
 ### パラメータの設定
 
-プロセッサーには、各パラメーターのオーディオ・パラメーター・メンバーを格納する必要があります。
-私たちの場合は1つだけです：
+プロセッサには、各パラメータ用のオーディオパラメータメンバーを保存する必要があります。ここでは1つだけです：
 
 ```cpp
 private:
-    //==============================================================================
-    juce::AudioParameterFloat* gain;
- 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialProcessor)
+//==============================================================================
+juce::AudioParameterFloat* gain;
+
+//==============================================================================
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialProcessor)
 };
 ```
 
-プロセッサは、プラグインが必要とするパラメータをコンストラクタに割り当てて追加します。
-この単純な例では、設定するパラメータは1つだけです：
+プロセッサは、コンストラクタでプラグインに必要なパラメータを確保し追加する必要があります。このシンプルな例では、セットアップするパラメータは1つだけです：
 
 ```cpp
-    TutorialProcessor()
-    {
-        addParameter (gain = new juce::AudioParameterFloat ("gain", // parameterID
-                                                            "Gain", // parameter name
-                                                            0.0f,   // minimum value
-                                                            1.0f,   // maximum value
-                                                            0.5f)); // default value
-    }
+TutorialProcessor()
+{
+    addParameter (gain = new juce::AudioParameterFloat ("gain", // parameterID
+                      "Gain", // parameter name
+                      0.0f, // minimum value
+                      1.0f, // maximum value
+                      0.5f)); // default value
+}
 ```
 
-:::note
-
-パラメータ・オブジェクトの所有権はベース・クラス（[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html)）が持っているので、派生プロセッサ・クラスでは生のポインタを使用してパラメータを格納します。
-これは、派生クラスの後で基底クラスが解体されることが確実にわかっているので安全です。
-これに加えて、プロセッサのエディタ・コンポーネントがプロセッサ・オブジェクトよりも先に削除されることも想定できます。
-
+:::tip
+基底クラス（[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")）がパラメータオブジェクトの所有権を取得するため、派生プロセッサクラスではパラメータを格納するために生のポインタを使用します。これは、基底クラスが派生クラスの後に破棄されることが確実であるため安全です。さらに、プロセッサのエディタコンポーネントはプロセッサオブジェクトよりも先に削除されると想定できます。
 :::
 
-パラメータIDは、このパラメータの一意な識別子でなければならない。
-これは変数名のようなもので、英数字とアンダースコアが使用できますが、スペースは使用できません。
-パラメータ名は画面に表示される名前です。
+_パラメータID_は、このパラメータの一意の識別子である必要があります。これは変数名のようなものと考えてください。英数字とアンダースコアを含めることができますが、スペースは使用できません。_パラメータ名_は、画面に表示される名前です。
 
-これに加えて、[AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html)
-クラスでは、パラメータが表現できる値の範囲を指定できます。
-[AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html) クラスには、代わりに
-[NormalisableRange\<float\>](https://docs.juce.com/master/classNormalisableRange.html)
-オブジェクトを使用できる別のコンストラクタもあります。
-JUCEは全てのパラメータ値を[0, 1]の範囲で保存します。
-上に示したコードを次のように書き換えることができます：
+これに加えて、[AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto...")クラスでは、パラメータが表現できる値の範囲を指定できます。[AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto...")クラスには、代わりに[NormalisableRange\<float\>](https://docs.juce.com/master/classNormalisableRange.html)オブジェクトを使用できる別のコンストラクタもあります。JUCEは、_一部の_ターゲットプラグインAPIの制限により、すべてのパラメータ値を\[0, 1\]の範囲で保存します。上記のコードは次のように書き換えることができます：
 
 ```cpp
-addParameter (gain = new juce::AudioParameterFloat ("gain",                                      // parameter ID
-                                                    "Gain",                                      // parameter name
-                                                    juce::NormalisableRange<float> (0.0f, 1.0f), // parameter range
-                                                    0.5f));                                      // default value
+addParameter (gain = new juce::AudioParameterFloat ("gain", // parameter ID
+                  "Gain", // parameter name
+                  juce::NormalisableRange<float> (0.0f, 1.0f), // parameter range
+                  0.5f)); // default value
 ```
 
-しかし、[NormalisableRange\<float\>](https://docs.juce.com/master/classNormalisableRange.html) オブジェクトを使えば、スキューファクターを指定することもできます。
-これは、プラグインで周波数や時間のプロパティを表すパラメータを使用する必要がある場合に特に便利です。
+この例では少し意味がないように見えるかもしれません（パラメータ範囲がすでに\[0, 1\]の範囲にあるため！）が、[NormalisableRange\<float\>](https://docs.juce.com/master/classNormalisableRange.html)オブジェクトを使用すると、_スキューファクター_も指定できます。これは、プラグインが周波数や時間のプロパティを表すパラメータを使用する必要がある場合に特に便利です。これらは非線形マッピングを使用して表現されることが多いためです。
 
-:::note
-
-[AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html) クラスには、値をテキストに変換したり、その逆に変換したりするために指定できるラムダ関数もオプションで用意されています。
-これは、パラメータの値を文字列として表示したい場合や、ユーザーが値を入力できるようにしたい場合に特に便利です。
-
+:::tip
+[AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto...")クラスには、値をテキストに変換したりその逆を行ったりするために指定できるオプションのラムダ関数もあります。これは、パラメータの値を文字列として表示したり、ユーザーが値を入力できるようにしたい場合に特に便利です。
 :::
 
 ### ゲイン処理の実行
 
-パラメータが作成され、追加されると、プラグインはこれらのパラメータオブジェクトと対話できます。
-この例では、`TutorialProcessor::processBlock()` 関数でゲインの値を取得します：
+パラメータを作成して追加したら、プラグインはこれらのパラメータオブジェクトと対話できます。ここでは、`TutorialProcessor::processBlock()`関数で_ゲイン_値を取得するだけです：
 
 ```cpp
-    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
-    {
-        buffer.applyGain (*gain);
-    }
+void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+{
+    buffer.applyGain (*gain);
+}
 ```
 
-[AudioSampleBuffer::applyGain()](https://docs.juce.com/master/classAudioBuffer.html#a9ffc61d339e455d4bddc7cf055a63ee3)
-関数は、バッファ内の全チャンネルの全サンプルにゲイン値を適用します。
+[AudioSampleBuffer::applyGain()](https://docs.juce.com/master/classAudioBuffer.html#a9ffc61d339e455d4bddc7cf055a63ee3)関数は、バッファ内のすべてのチャンネルのすべてのサンプルにゲイン値を適用します。
 
+これは、オーディオパラメータクラスを使用する際のイディオムを示しています：パラメータへのポインタを逆参照してパラメータ値を取得します。この場合、[`AudioParameterFloat`](https://docs.juce.com/master/classAudioParameterFloat.html "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto...")を使用しているため、floatが取得されます。
 
-これは、オーディオパラメータクラスを使用する際に使用するイディオムを示しています。
-この場合、[AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html) を使っているので、floatが得られます。
+他の`AudioParameter`_`XXX`_クラスも同様に動作します：
 
-他の `AudioParameterXXX` クラスも同様の動作をします：
-
-- [AudioParameterInt](https://docs.juce.com/master/classAudioParameterInt.html) クラスは整数を扱います。
-- [AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool.html) クラスはブール値を扱います。
-- [AudioParameterChoice](https://docs.juce.com/master/classAudioParameterChoice.html) クラスは、テキストベースのオプションを表す文字列の配列を扱います。
-
+- [AudioParameterInt](https://docs.juce.com/master/classAudioParameterInt.html "Provides a class of AudioProcessorParameter that can be used as an integer value with a given range.")クラスは整数を扱います。
+- [AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool.html "Provides a class of AudioProcessorParameter that can be used as a boolean value.")クラスはブール値を扱います。
+- [AudioParameterChoice](https://docs.juce.com/master/classAudioParameterChoice.html "Provides a class of AudioProcessorParameter that can be used to select an indexed,...")クラスは、テキストベースのオプションを表す文字列の配列を扱います。
 
 ### パラメータの保存と取得
 
-オーディオを処理するルーチンを提供するだけでなく、プラグインの状態全体をメモリブロックに保存したり取得したりするメソッドも提供する必要があります。
-これには、すべてのパラメータの現在値を含める必要がありますが、必要であれば、他のステート情報を含めることもできます（たとえば、プラグインがファイルを扱う場合、ファイルパスを保存することもできます）。
+オーディオ処理のルーチンを提供することに加えて、プラグインの_全体の_状態をメモリブロックに保存および取得するメソッドも提供する必要があります。これにはすべてのパラメータの現在の値が含まれる必要がありますが、必要に応じて他の状態情報も含めることができます（例えば、プラグインがファイルを扱う場合、ファイルパスを保存することがあります）。
 
-シンプルなゲイン・プラグインでは、保存するのはゲイン値だけです。
-これを保存するのは、浮動小数点値をバイナリ形式で書き込むのと同じくらい簡単です：
+シンプルなゲインプラグインでは、保存するものは1つだけです：ゲイン値そのものです。これを保存するには、浮動小数点値をバイナリ形式で書き込むだけです：
 
 ```cpp
-    void getStateInformation (juce::MemoryBlock& destData) override
-    {
-        juce::MemoryOutputStream (destData, true).writeFloat (*gain);
-    }
+void getStateInformation (juce::MemoryBlock& destData) override
+{
+    juce::MemoryOutputStream (destData, true).writeFloat (*gain);
+}
 ```
 
-[AudioProcessor::getStateInformation()](https://docs.juce.com/master/classAudioProcessor.html#a5d79591b367a7c0516e4ef4d1d6c32b2)
-コールバックは、プラグインの状態を保存する必要があるときに呼び出されます。
-例えば、ユーザーがDAWのプロジェクトを保存したり、プリセットを保存したりするときに呼び出されます（DAWによっては）。
-この関数に渡される [MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html) オブジェクトには、
-好きなものを入れることができます。
+[AudioProcessor::getStateInformation()](https://docs.juce.com/master/classAudioProcessor.html#a5d79591b367a7c0516e4ef4d1d6c32b2 "The host will call this method when it wants to save the processor's internal state.")コールバックは、プラグインの状態を保存する必要があるときに呼び出されます。例えば、ユーザーがDAWプロジェクトを保存したり、プリセットを保存したりするとき（一部のDAWでは）に発生します。この関数に渡される[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "A class to hold a resizable block of raw data.")オブジェクトには、好きなものを入れることができます。
 
-[AudioProcessor::setStateInformation()](https://docs.juce.com/master/classAudioProcessor.html#a6154837fea67c594a9b35c487894df27)
-関数は、その逆を行う必要があります：メモリロケーションからデータを読み取り、プラグインの状態を復元する必要があります：
+[AudioProcessor::setStateInformation()](https://docs.juce.com/master/classAudioProcessor.html#a6154837fea67c594a9b35c487894df27 "This must restore the processor's state from a block of data previously created using getStateInforma...")関数は逆のことを行う必要があります：メモリ位置からデータを読み取り、プラグインの状態を復元します：
 
 ```cpp
-    void setStateInformation (const void* data, int sizeInBytes) override
-    {
-        *gain = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readFloat();
-    }
+void setStateInformation (const void* data, int sizeInBytes) override
+{
+    *gain = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readFloat();
+}
 ```
 
-:::danger[エクササイズ]
-
-ゲインパラメータをバイナリ形式ではなく、文字列として保存してみてください。
-
+:::note
+演習：ゲインパラメータをバイナリ形式ではなく文字列として保存してみてください。
 :::
 
-## ゲイン・プロセッサーの改善
+## ゲインプロセッサの改善
 
-このゲイン・プロセッサーにはいくつか改善点がある：
+このゲインプロセッサには、いくつかの改善を加えることができます：
 
-- ゲインを変えると信号に不連続性が生じ、ゲインを素早く変調すると小さなクリック音として聞こえる。
-- プラグインの状態を保存するには、XMLを使うと便利です。
+- ゲインを変更すると信号に不連続が生じ、ゲインを素早く変調するとクリックノイズとして聞こえることがあります。
+- XMLを使用するとプラグインの状態の保存がより便利になります。
 
-### ゲインの変化を滑らかにする
+### ゲイン変更のスムージング
 
-AudioSampleBufferクラスを使えば、バッファのブロックサイズ全体にわたってゲインのランプ変化を簡単に実行できる。
-そのためには、前のオーディオ・コールバックのゲイン・パラメータの値を保存する必要があります。
-まず、`TutorialProcessor` クラスにメンバー変数を追加します[1]：
+AudioSampleBufferクラスを使用すると、バッファのブロックサイズ全体にわたってゲイン変更を簡単にランプできます。これを行うには、_前回の_オーディオコールバックからのゲインパラメータの値を保存する必要があります。まず、`TutorialProcessor`クラスにメンバ変数を追加します[1]：
 
 ```cpp
 private:
-    //==============================================================================
-    juce::AudioParameterFloat* gain;
-    float previousGain; // [1]
- 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialProcessor)
+//==============================================================================
+juce::AudioParameterFloat* gain;
+float previousGain; // [1]
+
+//==============================================================================
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialProcessor)
 };
 ```
 
-そして、この値が `TutorialProcessor::preparePlay()` 関数内で初期化されていることを確認する：
+次に、この値が`TutorialProcessor::preparePlay()`関数で初期化されることを確認します：
 
 ```cpp
-    void prepareToPlay (double, int) override
-    {
-        previousGain = *gain;
-    }
+void prepareToPlay (double, int) override
+{
+    previousGain = *gain;
+}
 ```
 
-最後に、`TutorialProcessor::processBlock()` 関数を変更して、ゲインランプを実行する：
+最後に、`TutorialProcessor::processBlock()`関数を変更してゲインランプを実行します：
 
 ```cpp
-    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+{
+    auto currentGain = gain->get();
+
+    if (juce::approximatelyEqual (currentGain, previousGain))
     {
-        auto currentGain = gain->get();
- 
-        if (juce::approximatelyEqual (currentGain, previousGain))
-        {
-            buffer.applyGain (currentGain);
-        }
-        else
-        {
-            buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, currentGain);
-            previousGain = currentGain;
-        }
+        buffer.applyGain (currentGain);
     }
+    else
+    {
+        buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, currentGain);
+        previousGain = currentGain;
+    }
+}
 ```
 
-ここでは、値が変化していなければ、単純に一定のゲインを適用していることがわかる。
-値が変化した場合は、ゲイン・ランプを適用し、次回のために `previousGain` 値を更新する。
+ここでは、値が変更されていない場合は単純に一定のゲインを適用し、値が変更されている場合はゲインランプを適用してから、次回のために`previousGain`値を更新していることがわかります。
 
-:::note
-
-この修正版プラグインのソースコードは、デモプロジェクトの `AudioParameterTutorial_02.h` ファイルにあります。
-
+:::tip
+このプラグインの修正版のソースコードは、デモプロジェクトの`AudioParameterTutorial_02.h`ファイルにあります。
 :::
 
-:::danger[エクササイズ]
-
-平滑化アルゴリズムを変更し、処理ブロックサイズに依存しないようにする。
-
-:::
-
-
-### XMLを使ってプロセッサーの状態を保存する
-
-プラグインの状態をバイナリ形式で保存することで、プラグインの状態を保存するためのメモリやストレージの使用量が少なくて済みます。
-しかし、XMLや [JSON](https://docs.juce.com/master/classJSON.html) のような形式を使用した方が便利な場合もあります。
-これにより、デバッグが容易になり、保存された状態情報を将来のバージョンのプラグインと互換性を持たせることも簡単になります。
-特に、XMLでは以下のことが簡単にできます：
-
-- 情報ブロックにないパラメータをデフォルト値に設定する。
-- 情報ブロックにバージョン情報を含めることで、異なるバージョンのプラグインの前方互換性と後方互換性を扱うことができます。
-
-ゲイン・プラグインの状態をXMLに保存するには、次のようにする：
-
-```cpp
-    void getStateInformation (juce::MemoryBlock& destData) override
-    {
-        std::unique_ptr<juce::XmlElement> xml (new juce::XmlElement ("ParamTutorial"));
-        xml->setAttribute ("gain", (double) *gain);
-        copyXmlToBinary (*xml, destData);
-    }
-```
-
-[AudioProcessor::copyXmlToBinary()](https://docs.juce.com/master/classAudioProcessor.html#a6d0c1c945bebbc967d187c0f08b42c4b)
-関数は、XMLをバイナリー・ブロブに変換する便利なヘルパー関数です。
-状態を取得するには、その逆を行います：
-
-```cpp
-    void setStateInformation (const void* data, int sizeInBytes) override
-    {
-        std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
- 
-        if (xmlState.get() != nullptr)
-            if (xmlState->hasTagName ("ParamTutorial"))
-                *gain = (float) xmlState->getDoubleAttribute ("gain", 1.0);
-    }
-```
-
-[AudioProcessor::getXmlFromBinary()](https://docs.juce.com/master/classAudioProcessor.html#a80c616e54758a0a411d27d6d76df956c)
-関数は、[AudioProcessor::copyXmlToBinary()](https://docs.juce.com/master/classAudioProcessor.html#a6d0c1c945bebbc967d187c0f08b42c4b)
-関数で作成されたバイナリデータをXMLに変換します。
-
-
-重要なのは、ここでエラーチェックが行われていることです。
-情報ブロックがXML**でない場合**、この関数は何もしません。
-また、"ParamTutorial" という *タグ名* があるかどうかをチェックし、見つかった場合のみ処理を進めます。
-ゲイン・パラメーターが見つからなければ、ゲインの値もデフォルトの1.0になる。
-バージョン情報を追加するのは、この目的のために別の属性を追加するのと同じくらい簡単です。
-その後、エラー・チェックを増やすことで、異なるバージョンの状態情報を扱えるようになる。
+<!-- -->
 
 :::note
+演習：スムージングアルゴリズムを処理ブロックサイズに依存しないように変更してください。
+:::
 
-この修正版プラグインのソースコードは、デモプロジェクトの `AudioParameterTutorial_03.h` ファイルにあります。
+### XMLを使用したプロセッサ状態の保存
 
+プラグインの状態をバイナリ形式で保存すると、メモリとストレージスペースの使用量が少なくなります。しかし、XMLや[JSON](https://docs.juce.com/master/classJSON.html "Contains static methods for converting JSON-formatted text to and from var objects.")などの形式を使用する方が便利なことが多いです。これによりデバッグが容易になり、保存された状態情報をプラグインの将来のバージョンと互換性を持たせることも簡単になります。特に、XMLを使用すると以下のことが容易になります：
+
+- 情報ブロックに見つからないパラメータをデフォルト値に設定する
+- プラグインの異なるバージョン間の前方互換性と後方互換性を処理するために、情報ブロックにバージョン情報を含める
+
+ゲインプラグインの状態をXMLで保存するには、次のようにします：
+
+```cpp
+void getStateInformation (juce::MemoryBlock& destData) override
+{
+    std::unique_ptr<juce::XmlElement> xml (new juce::XmlElement ("ParamTutorial"));
+    xml->setAttribute ("gain", (double) *gain);
+    copyXmlToBinary (*xml, destData);
+}
+```
+
+[AudioProcessor::copyXmlToBinary()](https://docs.juce.com/master/classAudioProcessor.html#a6d0c1c945bebbc967d187c0f08b42c4b "Helper function that just converts an xml element into a binary blob.")関数は、XMLをバイナリblobに変換する便利なヘルパー関数です。状態を取得するには、逆のことを行います：
+
+```cpp
+void setStateInformation (const void* data, int sizeInBytes) override
+{
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName ("ParamTutorial"))
+            *gain = (float) xmlState->getDoubleAttribute ("gain", 1.0);
+}
+```
+
+[AudioProcessor::getXmlFromBinary()](https://docs.juce.com/master/classAudioProcessor.html#a80c616e54758a0a411d27d6d76df956c "Retrieves an XML element that was stored as binary with the copyXmlToBinary() method.")関数は、[AudioProcessor::copyXmlToBinary()](https://docs.juce.com/master/classAudioProcessor.html#a6d0c1c945bebbc967d187c0f08b42c4b "Helper function that just converts an xml element into a binary blob.")関数で作成されたバイナリデータをXMLに変換します。
+
+重要なのは、ここでエラーチェックが行われていることです。情報ブロックがXML**ではない**場合、関数は何もしません。また、_タグ名_「ParamTutorial」をチェックし、この名前が見つかった場合のみ処理を続行します。gainパラメータが見つからない場合、ゲイン値はデフォルトで1.0になります。バージョン情報を追加するには、この目的のための別の属性を追加するだけです。そうすれば、さらなるエラーチェックにより、状態情報の異なるバージョンを処理できます。
+
+:::tip
+このプラグインの修正版のソースコードは、デモプロジェクトの`AudioParameterTutorial_03.h`ファイルにあります。
 :::
 
 ## 位相反転パラメータの追加
 
-ゲイン・プラグインに *phase invert* パラメーターを追加してみましょう！
+ゲインプラグインに_位相反転_パラメータを追加しましょう！
 
-### ブーリアン・パラメータの追加
+### ブールパラメータの追加
 
-まず、`TutorialProcessor` クラスにAudioParameterBool\* メンバーを追加します[2]：
+まず、`TutorialProcessor`クラスにAudioParameterBool*メンバを追加します[2]：
 
 ```cpp
 private:
-    //==============================================================================
-    juce::AudioParameterFloat* gain;
-    juce::AudioParameterBool* invertPhase; // [2]
- 
-    float previousGain;
- 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialProcessor)
+//==============================================================================
+juce::AudioParameterFloat* gain;
+juce::AudioParameterBool* invertPhase; // [2]
+
+float previousGain;
+
+//==============================================================================
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TutorialProcessor)
 };
 ```
 
-次に、`TutorialProcessor` コンストラクタにパラメータを割り当てて追加する必要がある[3]：
+次に、`TutorialProcessor`コンストラクタでパラメータを確保して追加する必要があります[3]：
 
 ```cpp
-    TutorialProcessor()
-    {
-        addParameter (gain        = new juce::AudioParameterFloat ("gain", "Gain", 0.0f, 1.0f, 0.5f));
-        addParameter (invertPhase = new juce::AudioParameterBool  ("invertPhase", "Invert Phase", false)); // [3]
-    }
+TutorialProcessor()
+{
+    addParameter (gain = new juce::AudioParameterFloat ("gain", "Gain", 0.0f, 1.0f, 0.5f));
+    addParameter (invertPhase = new juce::AudioParameterBool ("invertPhase", "Invert Phase", false)); // [3]
+}
 ```
 
-もちろん、booleanパラメータには指定可能な範囲はなく、デフォルト値しかありません。
-`TutorialProcessor::getStateInformation()` 関数を更新する必要がある[4]：
+もちろん、ブールパラメータには指定可能な範囲はなく、デフォルト値のみです。`TutorialProcessor::getStateInformation()`関数を更新する必要があります[4]：
 
 ```cpp
-    void getStateInformation (juce::MemoryBlock& destData) override
-    {
-        std::unique_ptr<juce::XmlElement> xml (new juce::XmlElement ("ParamTutorial"));
-        xml->setAttribute ("gain", (double) *gain);
-        xml->setAttribute ("invertPhase", *invertPhase); // [4]
-        copyXmlToBinary (*xml, destData);
-    }
+void getStateInformation (juce::MemoryBlock& destData) override
+{
+    std::unique_ptr<juce::XmlElement> xml (new juce::XmlElement ("ParamTutorial"));
+    xml->setAttribute ("gain", (double) *gain);
+    xml->setAttribute ("invertPhase", *invertPhase); // [4]
+    copyXmlToBinary (*xml, destData);
+}
 ```
 
-そして、`TutorialProcessor::setStateInformation()` 関数[5]：
+そして`TutorialProcessor::setStateInformation()`関数も更新します[5]：
 
 ```cpp
-    void setStateInformation (const void* data, int sizeInBytes) override
+void setStateInformation (const void* data, int sizeInBytes) override
+{
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+
+    if (xmlState.get() != nullptr)
     {
-        std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
- 
-        if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName ("ParamTutorial"))
         {
-            if (xmlState->hasTagName ("ParamTutorial"))
-            {
-                *gain = (float) xmlState->getDoubleAttribute ("gain", 1.0);
-                *invertPhase = xmlState->getBoolAttribute ("invertPhase", false); // [5]
-            }
+            *gain = (float) xmlState->getDoubleAttribute ("gain", 1.0);
+            *invertPhase = xmlState->getBoolAttribute ("invertPhase", false); // [5]
         }
     }
+}
 ```
 
-オーディオ処理コードを追加する必要がある：
+オーディオ処理コードを追加する必要があります：
 
 ```cpp
-    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+{
+    auto phase = *invertPhase ? -1.0f : 1.0f; // [6]
+    auto currentGain = *gain * phase; // [7]
+
+    if (juce::approximatelyEqual (currentGain, previousGain))
     {
-        auto phase = *invertPhase ? -1.0f : 1.0f;  // [6]
-        auto currentGain = *gain * phase;          // [7]
- 
-        if (juce::approximatelyEqual (currentGain, previousGain))
-        {
-            buffer.applyGain (currentGain);
-        }
-        else
-        {
-            buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, currentGain);
-            previousGain = currentGain;
-        }
+        buffer.applyGain (currentGain);
     }
+    else
+    {
+        buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, currentGain);
+        previousGain = currentGain;
+    }
+}
 ```
 
-ここで注目してほしい：
+ここで注意すべき点：
 
-- \[6\]: `invertPhase` パラメータの状態に応じて、+1または-1を選択する。
-- \[7\]: これに `gain` パラメータの値を掛ける。
-- この関数の残りのコードは、平滑化手法を含めて同じです。
+- [6]：`invertPhase`パラメータの状態に応じて+1または-1を選択します。
+- [7]：これに`gain`パラメータの値を掛けます。
+- この関数の残りのコードは、スムージングテクニックを含めて同じです。
 
-最後に、`previousGain` を `TutorialProcessor::prepareToPlay()` 関数で初期化する必要がある：
+最後に、`previousGain`値を`TutorialProcessor::prepareToPlay()`関数で初期化する必要があります：
 
 ```cpp
-    void prepareToPlay (double, int) override
-    {
-        auto phase = *invertPhase ? -1.0f : 1.0f;
-        previousGain = *gain * phase;
-    }
+void prepareToPlay (double, int) override
+{
+    auto phase = *invertPhase ? -1.0f : 1.0f;
+    previousGain = *gain * phase;
+}
 ```
 
-## 概要
+## まとめ
 
-このチュートリアルでは、[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html)
-クラスでのオーディオパラメータの使用について学びました。特に
+このチュートリアルでは、[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")クラス内でオーディオパラメータを使用することについて学びました。特に以下について探求しました：
 
-- プロセッサの可変パラメータを表す [AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html) オブジェクトを作成する。
-- [AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html) オブジェクトの値を使用して、オーディオ処理を制御する。
-- プロセッサのステート情報にパラメータデータを格納し、取り出す。
-- [AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool.html) オブジェクトを使って、オンまたはオフの状態にあるパラメータを表す。
+- プロセッサの可変パラメータを表す[AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto...")オブジェクトの作成。
+- [AudioParameterFloat](https://docs.juce.com/master/classAudioParameterFloat.html "A subclass of AudioProcessorParameter that provides an easy way to create a parameter which maps onto...")オブジェクトの値を使用したオーディオ処理の制御。
+- プロセッサの状態情報へのパラメータデータの保存と取得。
+- オンまたはオフの状態にあるパラメータを表す[AudioParameterBool](https://docs.juce.com/master/classAudioParameterBool.html "Provides a class of AudioProcessorParameter that can be used as a boolean value.")オブジェクトの使用。
 
 ## 関連項目
 
-- [基本的なAudio/MIDIプラグインを作る パート1：セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/)
-- [チュートリアル：プラグインに適切なバスレイアウトを設定する](../tutorial_audio_bus_layouts/)
+- [チュートリアル：基本的なAudio/MIDIプラグインの作成 Part 1: セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/)
+- [チュートリアル：プラグインの正しいバスレイアウトの設定](../tutorial_audio_bus_layouts/)
 - [チュートリアル：プラグイン状態の保存と読み込み](../tutorial_audio_processor_value_tree_state/)
-- [チュートリアル：カスケードプラグインエフェクト](../tutorial_audio_processor_graph/)
+- [チュートリアル：プラグインエフェクトのカスケード接続](../tutorial_audio_processor_graph/)

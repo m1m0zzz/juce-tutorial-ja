@@ -1,140 +1,114 @@
 ---
-title: プラグインに適切なバスレイアウトを設定する
+title: プラグインの正しいバスレイアウトの設定
 sidebar_position: 3
 tags: ["初級"]
 ---
 
-# プラグインに適切なバスレイアウトを設定する
+# チュートリアル：プラグインの正しいバスレイアウトの設定
 
 <SourcePageLink path="tutorial_audio_bus_layouts" />
 
-プラグインのバスレイアウトを設定し、制限する方法をご紹介します。AppleのLogic Proに搭載されているauvalツールを使って、AUプラグインのバスレイアウトを確認しましょう。
+様々な設定に対応したプラグインのバスレイアウトの設定と制限方法を学びます。AppleのLogic Proに含まれるauvalツールを使用して、AUプラグインのバス配置を確認します。
 
-レベル：初級
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**プラグインフォーマット:** VST, VST3, AU, Standalone<br/>
+**クラス:** [AudioProcessor::BusesLayout](https://docs.juce.com/master/structAudioProcessor_1_1BusesLayout.html "Represents the bus layout state of a plug-in."), [AudioProcessor::BusesProperties](https://docs.juce.com/master/structAudioProcessor_1_1BusesProperties.html "Structure used for AudioProcessor Callbacks."), [AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types."), [AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-プラグイン形式：VST, VST3, AU, Standalone
+このチュートリアルに従うには、プラグインプロジェクトを開いているか、または代わりにProjucer内で新しい**Audio Plugin**プロジェクトを作成してください。
 
-<ClassList
-  refs={[
-    "AudioProcessor::BusesLayout",
-    "AudioProcessor::BusesProperties",
-    "AudioChannelSet",
-    "AudioProcessor" 
-  ]}
-/>
-
-## はじめる
-
-このチュートリアルに従うには、プラグインプロジェクトが開いていることを確認するか、またはProjucer内で新しいオーディオプラグインプロジェクトを作成してください。
-
-このステップで助けが必要な場合は、チュートリアルを参照してください：基本的なオーディオ/MIDIプラグインを作成する、パート1：セットアップ。
+この手順でサポートが必要な場合は、[チュートリアル：基本的なAudio/MIDIプラグインの作成 Part 1: セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/)を参照してください。
 
 :::warning
-
-AudioUnitプラグインをビルドし、auvalツールを使ってテストするには、macOS上でビルドし、Logic Pro Xがインストールされている必要があります。
-
+AudioUnitプラグインをビルドしてauvalツールでテストするには、macOS上でビルドし、Logic Pro Xがインストールされている必要があります。
 :::
 
-## イントロダクション
+## はじめに
 
-JUCEのAudioProcessorクラスは、下図のように、いくつかの入力チャンネルを受け取り、入力されたデータを処理し、その結果をいくつかの出力チャンネルに供給します：
-
+JUCEの[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")クラスは、いくつかの入力チャンネルを受け取り、入力データを処理し、その結果をいくつかの出力チャンネルに供給します。これは以下の図に示されています：
 
 <CaptionImage
   src="/_images/tutorial_audio_bus_layouts_screenshot1.png"
-  caption="I/Oチャンネル付きプラグイン"
+  caption="Plugin with I/O channels"
 />
 
-
-多くのオーディオプロセッサでは、これで十分です。しかし、ホストとプロセッサーの間のコミュニケーションを容易にするために、これらの個々のチャンネルをグループとして表現したいことがよくあります。例えば、下図のように、最初の4つの入力チャンネルをメインチャンネルとして使い、最後の2つの入力チャンネルをサイドチェインとして使うことができます：
-
+多くの種類のオーディオプロセッサでは、これで十分です。しかし、ホストとプロセッサ間のコミュニケーションを容易にするために、これらの個々のチャンネルをグループとして表現したい場合がよくあります。例えば、最初の4つの入力チャンネルをメインチャンネルとして使用し、最後の2つの入力チャンネルをサイドチェーンとして使用できます。以下に示すように：
 
 <CaptionImage
   src="/_images/tutorial_audio_bus_layouts_screenshot2.png"
-  caption="I/Oバス付きプラグイン"
+  caption="Plugin with I/O buses"
 />
 
+上の図の黄色い矢印は_バス_と呼ばれます。したがって、バスは通常、プラグイン内で同じ信号パスを共有するチャンネルのグループです。例えば、メインオーディオ信号パスやサイドチェーン信号パスなどです。JUCEでは、各バスにはプラグイン内での特定の目的を識別できるように名前が付いています。
 
-上図の黄色い矢印はバスと呼ばれます。つまりバスとは、プラグイン内で同じ信号経路を共有するチャンネルのグループのことで、例えばメイン・オーディオ信号経路やサイドチェイン信号経路を指します。JUCEでは各バスに名前がついており、プラグイン内での特定の用途を識別できるようになっています。
-
-:::note
-
-ほとんどのDAWでは、最初の入力バスまたは最初の出力バスをメインバスと呼びます。JUCEでは、単に最初の入力バスまたは出力バスであるメインバスを指すコメントやメソッド名を時々見かけます。
-
+:::tip
+ほぼすべてのDAWで、最初の入力バスまたは最初の出力バスは*メイン*バスと呼ばれます。JUCEでは、単に最初の入力または出力バスを指すメインバスに言及するコメントやメソッド名が見つかることがあります。
 :::
 
-しかし、オーディオプロセッサーの入出力チャンネルをグループ化し、そのグループに名前を付けるだけでは十分ではありません。また、各バス内の各チャンネルの空間的な位置づけに関する情報も伝える必要があります。例えば、ステレオバス(Left, Right)、クアドラフォニックバス(Left, Right, Left Surround, Right Surround)、モノラルバス(Centre)などに設定できます。JUCEでは、各バスにAudioChannelSetが割り当てられ、このAudioChannelSetには、これらのチャンネル・セットの空間的な位置が記述されます（例えば、以下のようになります）：AudioChannelSet::mono(), AudioChannelSet::stereo(), AudioChannelSet::quadraphonic() など）。
+しかし、オーディオプロセッサの入出力チャンネルをグループ化し、それらのグループに名前を付けるだけでは十分ではありません。各バス内の各チャンネルの空間的位置に関する情報も伝える必要があります。例えば、バスをステレオバス（Left、Right）、クアドラフォニックバス（Left、Right、Left Surround、Right Surround）、またはモノバス（Centre）などとして設定できます。JUCEでは、各バスには、これらのチャンネルセットの空間的位置を記述する[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")が割り当てられます（例：[AudioChannelSet::mono()](https://docs.juce.com/master/classAudioChannelSet.html#a17a0a8ab8f24eebf463baf8d99a39617 "Creates a one-channel mono set (centre).")、[AudioChannelSet::stereo()](https://docs.juce.com/master/classAudioChannelSet.html#a2f5463f3941cf8ca3ecf1eadf1537c19 "Creates a set containing a stereo set (left, right).")、[AudioChannelSet::quadraphonic()](https://docs.juce.com/master/classAudioChannelSet.html#ab216c3d458cbd3965e321a29d12d591d "Creates a set for quadraphonic surround setup (left, right, leftSurround, rightSurround)")）。
 
-各バスのAudioChannelSetは、プラグインの寿命を通じて固定されていないことに注意することが重要です。例えば、DAWユーザーがサイドチェイン・ソースをモノラルからステレオに切り替えた時など、DAWはいつでも特定のバスに対して異なるAudioChannelSetを要求できます。これを実装するために、JUCEは各バスがどのAudioChannelSetオブジェクトをサポートするかをプラグインに問い合わせるコールバックをサポートしています。
+各バスの[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")はプラグインのライフタイム全体を通じて固定されていないことに注意することが重要です。DAWは、いつでも特定のバスに対して異なる[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")を要求する可能性があります。例えば、DAWユーザーがサイドチェーンソースをモノからステレオに切り替えたときなどです。これを実装するために、JUCEは各バスがサポートする[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")オブジェクトについてプラグインに問い合わせるコールバックをサポートしています。
 
-:::note
-
-AudioChannelSet::disabled()と呼ばれる、チャンネルを含まない特別なAudioChannelSetがあります。このAudioChannelSetは、例えばDAWでサイドチェインが接続されていないときなど、特定のバスが現在使われていないことを示すために使われます。
-
+:::tip
+[AudioChannelSet::disabled()](https://docs.juce.com/master/classAudioChannelSet.html#a18675dc100238ac22868c41717ef2ffe "Creates a zero-channel set which can be used to indicate that a bus is disabled.")と呼ばれる特別な[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")があり、これにはチャンネルが含まれていません。この[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")は、DAWでサイドチェーンが接続されていない場合など、特定のバスが現在使用されていないことを示すために使用されます。
 :::
 
-要約すると、プラグインの各チャンネルに関する情報をいつでも通信するには、DAWとプラグインが必要です：
+まとめると、任意の時点でプラグインの各チャンネルに関する情報を通信するために、DAWとプラグインは以下のことを行う必要があります：
 
-- チャンネルをバスにグループ化する情報を交換する。
-- 各バスの名前と現在のAudioChannelSetに関する情報を交換する。
-- どのAudioChannelSetオブジェクトが各バスでサポートされているかをネゴシエートする。
+- チャンネルのバスへのグループ化に関する情報を交換する。
+- 各バスの名前と現在の[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")に関する情報を交換する。
+- 各バスでサポートされている[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")オブジェクトをネゴシエートする。
 
-プラグイン開発者として、この情報をホストに伝える方法を探ることから始めましょう。
+プラグイン開発者としてこの情報をホストに伝える方法を探ることから始めましょう。
 
+## BusesPropertiesの割り当て
 
-## バスプロパティの割り当て
-
-プラグインを書くとき、まず最初の2点（チャンネルをバスにグループ分けして名前を付け、各バスのAudioChannelSetを選択する）に注目します。この情報は、AudioProcessorのコンストラクタにAudioProcessor::BusesPropertiesのインスタンスを次のように渡すことで、DAWに伝えられます：
+プラグインを書くときの最初の2点（チャンネルのバスへのグループ化と命名、および各バスへの[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")の選択）にまず焦点を当てます。この情報は、以下のように[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")のコンストラクタに[AudioProcessor::BusesProperties](https://docs.juce.com/master/structAudioProcessor_1_1BusesProperties.html "Structure used for AudioProcessor Callbacks.")インスタンスを渡すことでDAWに伝えられます：
 
 ```cpp
 ExampleAudioProcessor()
-    : AudioProcessor (BusesProperties().withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true))
+    : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo(), true).withOutput ("Output", juce::AudioChannelSet::stereo(), true))
 {
-//...
+    //...
 ```
 
-上記のコードは、このプラグインが2つのバスを持っていることをDAWに通知します：1つは "Input "という名前の入力バスで、もう1つは "Output "という名前の出力バスです。withInput()関数とwithOutput()関数の2番目のパラメータは、それぞれのバスの初期AudioChannelSetを記述します。DAWはいつでもこれを変更できることを覚えておくことが重要です。3番目のパラメータは、バスが初期状態で有効か無効かを示します。この2つのバスはメインバスなので、無効にするのはあまり意味がありません。
+上記のコードは、このプラグインに2つのバスがあることをDAWに通知します：「Input」という名前の入力バスと「Output」という名前の出力バスです。`withInput()`と`withOutput()`関数の2番目のパラメータは、それぞれのバスの初期[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")を記述します。DAWはいつでもこれを変更できることを覚えておくことが重要です。3番目のパラメータは、バスが最初に有効か無効かを示します。これらの2つのバスはメインバスであるため、無効にすることにはあまり意味がありません。
 
-前述の例は、通常エフェクト・プラグインで使用されます。しかし、シンセ・プラグインには通常出力バスしかないので、コンストラクタは次のようになる：
+前の例は通常、エフェクトプラグインで使用されます。しかし、シンセプラグインは通常、出力バスのみを持つため、コンストラクタは次のようになります：
 
 ```cpp
 ExampleAudioProcessor()
     : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true))
 {
-//...
+    //...
 ```
 
-JUCEでサポートされているもう1つのプラグイン・タイプは、MIDIエフェクト・プラグインです。これらはMIDIを処理するだけなので、オーディオ・バスは一切持っていません：
+JUCEでサポートされているもう1つのプラグインタイプは、MIDIエフェクトプラグインです。これらはMIDIのみを処理するため、オーディオバスは一切ありません：
 
 ```cpp
 ExampleAudioProcessor()
     : AudioProcessor (BusesProperties())
 {
-//...
+    //...
 ```
 
-:::note
-
-上記のコンストラクタ・コードは、デフォルトのAudioProcessorコンストラクタを呼び出すことと混同しないでください。後方互換性のために、デフォルトのコンストラクタは、"Input "という名前の初期状態で無効な入力バスを1つと、"Output "という名前の初期状態で無効な出力バスを1つ、それぞれAudioChannelSet::stereo()として持つプラグインを作成します。
-
+:::tip
+上記のコンストラクタコードは、デフォルトの[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")コンストラクタの呼び出しと混同しないでください。後方互換性のため、デフォルトコンストラクタは、「Input」という名前の最初は無効な入力バスと「Output」という名前の最初は無効な出力バスを持つプラグインを作成します --- それぞれ[AudioChannelSet::stereo()](https://docs.juce.com/master/classAudioChannelSet.html#a2f5463f3941cf8ca3ecf1eadf1537c19 "Creates a set containing a stereo set (left, right).")として。
 :::
 
-## バスレイアウトの設定
+## BusesLayoutの設定
 
-DAWはコンストラクタで提供された初期AudioChannelSetをいつでも変更したいかもしれないので、今必要な唯一のステップは、特定のバスがサポートするAudioChannelSetオブジェクトを設定することです。プラグインは受動的で、常にホストの「なすがまま」になります。プラグインは受動的で、常にホストの "なすがまま "です。プラグインができるのは、要求されたAudioChannelSetの設定を拒否するか受け入れるかだけです。
+DAWはコンストラクタで提供された初期[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")をいつでも変更したいと思う可能性があるため、特定のバスがサポートする[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")オブジェクトを設定することだけが必要な手順です。プラグインが自身のレイアウトを能動的に変更する方法はないことに注意することが重要です：プラグインは受動的であり、常にホストの「言いなり」になります。要求された[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")の設定を拒否または受け入れることしかできません。
 
-これを行うには、プラグインはAudioProcessor::isBusesLayoutSupported()コールバックをオーバーライドする必要があります。このコールバックは、プラグインの各バスのAudioChannelSetオブジェクトの配列である1つのBusesLayoutパラメータを受け取ります。
+これを行うには、プラグインは[AudioProcessor::isBusesLayoutSupported()](https://docs.juce.com/master/classAudioProcessor.html#a6e206c1d2987a250a2d6c2af4c3af01a "Callback to query if the AudioProcessor supports a specific layout.")コールバックをオーバーライドする必要があります。このコールバックは、プラグインの各バスの[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")オブジェクトの配列である単一のBusesLayoutパラメータを受け取ります。
 
-:::note
-
-サポートされる入出力バスの配列の要素数は、AudioProcessorコンストラクタで指定したバスの数と常に一致します。
-
+:::tip
+サポートされる入力および出力バスの配列の要素数は、[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")コンストラクタで指定したバス数と常に一致します。
 :::
 
-AudioProcessor::isBusesLayoutSupported()コールバックでは、与えられたBusesLayoutがサポートされているかどうかを返す必要があります。例えば、デフォルトのコールバックは、ここに示すように、DAWが要求する任意のBusesLayoutを受け入れます：
+[AudioProcessor::isBusesLayoutSupported()](https://docs.juce.com/master/classAudioProcessor.html#a6e206c1d2987a250a2d6c2af4c3af01a "Callback to query if the AudioProcessor supports a specific layout.")コールバックでは、指定されたBusesLayoutがサポートされているかどうかを返す必要があります。例えば、デフォルトのコールバックは、DAWが要求するあらゆるBusesLayoutを受け入れるものです：
 
 ```cpp
 bool isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -143,7 +117,7 @@ bool isBusesLayoutSupported (const BusesLayout& layouts) const
 }
 ```
 
-ほとんどのエフェクト・プラグインは、メインの入出力バスを1つしか持っていません。一般的には、AudioChannelSetを入力側と出力側で同じにする必要がある：
+ほとんどのエフェクトプラグインは、単一のメイン入力および出力バスのみを持ちます。通常、入力側と出力側で[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")が同じである必要があります：
 
 ```cpp
 bool isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -152,174 +126,161 @@ bool isBusesLayoutSupported (const BusesLayout& layouts) const
 }
 ```
 
-AudioChannelSet::disabled()という特別なAudioChannelSetがあり、特定のバスがディスエーブルされていることを示すことを覚えておいてください。ほとんどのエフェクト・プラグインはメイン・バスがディスエーブルになることを望まないので、次のようにコールバックにそのチェックを含めることができる：
+[AudioChannelSet::disabled()](https://docs.juce.com/master/classAudioChannelSet.html#a18675dc100238ac22868c41717ef2ffe "Creates a zero-channel set which can be used to indicate that a bus is disabled.")と呼ばれる特別な[AudioChannelSet](https://docs.juce.com/master/classAudioChannelSet.html "Represents a set of audio channel types.")があり、特定のバスが無効であることを示すことを覚えておいてください。ほとんどのエフェクトプラグインは、メインバスを無効にしたくないので、コールバックに以下のチェックを含めることができます：
 
 ```cpp
 bool isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-    if (layouts.getMainInputChannelSet()  == juce::AudioChannelSet::disabled()
-     || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::disabled())
+    if (layouts.getMainInputChannelSet() == juce::AudioChannelSet::disabled()
+        || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::disabled())
         return false;
- 
+
     return layouts.getMainInputChannelSet() == layouts.getMainOutputChannelSet();
 }
 ```
 
-プラグインがモノからモノ、またはステレオからステレオのコンフィギュレーションにしか対応できないとしましょう。上のコードの最後の行は、入力と出力のレイアウトが同じでなければならないことをすでにチェックしています。したがって、入力バスか出力バスのどちらか一方に対して、次のようなチェックを行うだけでよいのです：
+プラグインがモノ・ツー・モノまたはステレオ・ツー・ステレオの設定のみを処理できるとしましょう。上記のコードの最後の行は、入力と出力のレイアウトが同じでなければならないことを既にチェックしているので、入力または出力バスのいずれかに対して先行するチェックを行うだけで済みます：
 
 ```cpp
 bool isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-    if (layouts.getMainInputChannelSet()  == juce::AudioChannelSet::disabled()
-     || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::disabled())
+    if (layouts.getMainInputChannelSet() == juce::AudioChannelSet::disabled()
+        || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::disabled())
         return false;
- 
+
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
- 
+
     return layouts.getMainInputChannelSet() == layouts.getMainOutputChannelSet();
 }
 ```
 
 ## BusesLayoutのテスト
 
-isBusesLayoutSupported()関数で定義されたレイアウトのエッジケースを見落とすことは非常に簡単であるため、プラグインでサポートするバスレイアウト構成は、さまざまなツールを使ってテストできます。
+isBusesLayoutSupported()関数で定義されたレイアウトのエッジケースを見落としやすいため、プラグインでサポートするバスレイアウト設定はさまざまなツールを使用してテストできます。
 
-このチュートリアルでは、AudioUnitsのテストと検証を行うAppleのLogic Proに含まれるauvalツールと、VSTとAUプラグインをサポートするJUCEに含まれるAudio Plugin Hostの2つのソリューションを紹介します。
+このチュートリアルでは、AudioUnitsをテストおよび検証するためのAppleのLogic Proに含まれる**auval**ツールと、VSTおよびAUプラグインをサポートするJUCEに含まれるAudio Plugin Hostの2つのソリューションを紹介します。
 
-### auvalツールを使ったテスト
+### auvalツールでのテスト
 
-:::note
-
-このセクションでは、AudioUnitsのmacOSでのみ使用可能なツールについて説明します。
-
+:::tip
+このセクションでは、macOSでAudioUnitsでのみ利用可能なツールについて説明します。
 :::
 
-auvalツールは、AudioUnitsをLogic Pro XやFinal Cut Pro XなどのAppleのプラグインホストでロードする前にバリデーションします。
+**auval**ツールは、AppleのLogic Pro XやFinal Cut Pro Xなどのプラグインホストにロードされる前にAudioUnitsを検証します。プラグインに対してさまざまな有用なテストを実行しますが、このチュートリアルではバスレイアウトテストに焦点を当てます。
 
-auvalツールは、Logic Pro XでLogic Pro X > Preferences > Plug-in Manager...と進み、ここに示すようにReset & Rescan Selectionをクリックして検証を起動することでアクセスできます：
-
+**auval**ツールは、Logic Pro X内で**Logic Pro X \> Preferences \> Plug-in Manager...**に移動し、ここに示すように**Reset & Rescan Selection**をクリックして検証を呼び出すことでアクセスできます：
 
 <CaptionImage
   src="/_images/tutorial_audio_bus_layouts_screenshot3.png"
-  caption="Logic Pro Xのプラグインマネージャー"
+  caption="The Plug-in Manager in Logic Pro X"
 />
 
+ただし、コマンドラインからも次のように呼び出すことができます：
 
-しかし、次のようにコマンドラインから呼び出すこともできる：
-
+```cpp
+auval - v aufx Test Manu
 ```
-auval -v aufx Test Manu
-```
 
-第1引数はAUメインタイプを表し、エフェクトプラグインを実装する場合のデフォルトは'aufx'です。第2引数と第3引数は、プロジェクトのProjucer設定で指定されたプラグインコードとメーカーコードです：
-
+最初の引数はAUメインタイプを示し、エフェクトプラグインを実装する場合はデフォルトで'aufx'になります。2番目と3番目の引数は、プロジェクトのProjucer設定で指定されたプラグインコードとメーカーコードです：
 
 <CaptionImage
   src="/_images/tutorial_audio_bus_layouts_screenshot4.png"
   caption="The Projucer plugin settings"
 />
 
-
-例として、AUバリデーションの出力は以下のようになる：
+例として、AU検証の出力は次のようになります：
 
 ```
-    AU Validation Tool
-    Version: 1.6.1a1
-    Copyright 2003-2013, Apple Inc. All Rights Reserved.
-    Specify -h (-help) for command options
- 
+AU Validation Tool
+Version: 1.6.1a1
+Copyright 2003-2013, Apple Inc. All Rights Reserved.
+Specify -h (-help) for command options
+
 --------------------------------------------------
 VALIDATING AUDIO UNIT: 'aufx' - 'Test' - 'Manu'
 --------------------------------------------------
 Manufacturer String: Manu
 AudioUnit Name: TestPlugin
 Component Version: 1.0.0 (0x10000)
- 
-  * PASS
+
+* PASS
 --------------------------------------------------
 FORMAT TESTS:
- 
+
 Reported Channel Capabilities (explicit):
-      [1, 1]  [2, 2]
- 
+[1, 1] [2, 2]
+
 Input/Output Channel Handling:
-1-1   1-2   1-4   1-5   1-6   1-7   1-8   2-2   2-4   2-5   2-6   2-7   2-8   4-4   4-5   5-5   6-6   7-7   8-8
-X                                         X
- 
+1-1 1-2 1-4 1-5 1-6 1-7 1-8 2-2 2-4 2-5 2-6 2-7 2-8 4-4 4-5 5-5 6-6 7-7 8-8
+X X
+
 # # AudioChannelLayouts (5), Input Scope:
 //...
- 
+
 Is Audio Channel Layout Available:
-Mono    Stereo  Binau.  AU_4    Ambi.   AU_5    AU_5_0  AU_6    AU_6_0  AU_7_0  AU_7_0F AU_8    AU_5_1  AU_6_1  AU_7_1  AU_7_1F
-X       X       X
- 
+Mono Stereo Binau. AU_4 Ambi. AU_5 AU_5_0 AU_6 AU_6_0 AU_7_0 AU_7_0F AU_8 AU_5_1 AU_6_1 AU_7_1 AU_7_1F
+X X X
+
 //...
- 
+
 # # AudioChannelLayouts (5), Output Scope:
 //...
- 
+
 Is Audio Channel Layout Available:
-Mono    Stereo  Binau.  AU_4    Ambi.   AU_5    AU_5_0  AU_6    AU_6_0  AU_7_0  AU_7_0F AU_8    AU_5_1  AU_6_1  AU_7_1  AU_7_1F
-X       X       X
- 
+Mono Stereo Binau. AU_4 Ambi. AU_5 AU_5_0 AU_6 AU_6_0 AU_7_0 AU_7_0F AU_8 AU_5_1 AU_6_1 AU_7_1 AU_7_1F
+X X X
+
 //...
- 
-  * PASS
+
+* PASS
 --------------------------------------------------
 AU VALIDATION SUCCEEDED.
 --------------------------------------------------
 ```
 
-上の出力でわかるように、このテスト・プラグインはモノからモノ、ステレオからステレオのコンフィギュレーションしか受け付けないことが確認できる。
+上記の出力からわかるように、テストプラグインがモノ・ツー・モノとステレオ・ツー・ステレオの設定のみを受け入れることを確認できます。これはまさに私たちが望んでいることです。
 
 :::warning
-
-10.12.0から10.13.1までのmacOSバージョンを使用している場合、auvalにバグが含まれており、プラグインのバスレイアウトが正しく報告されない可能性があります。
-
+macOSバージョン10.12.0から10.13.1の間を使用している場合、auvalにはプラグインの間違ったバスレイアウトを報告する可能性のあるバグが含まれています。
 :::
 
-### プラグインホストでのテスト
+### Plugin Hostでのテスト
 
-もう1つの便利なツールは、JUCEに含まれるAudio Plugin Hostで、ライブラリのJUCE/examplesフォルダにあります。このツールは、実行時にバスレイアウトを変更することで、VSTやAUプラグインをテストできます。
+もう1つの便利なツールは、ライブラリの`JUCE/examples`フォルダにあるJUCEに含まれるAudio Plugin Hostです。このツールを使用すると、実行時にバスレイアウトを変更してVSTおよびAUプラグインをテストできます。
 
-:::note
-
-Audio Plugin Hostの構築と使用についてヘルプが必要な場合は、チュートリアルを参照してください：基本的なAudio/MIDIプラグインの作成、パート1：セットアップをご参照ください。
-
+:::tip
+Audio Plugin Hostのビルドと使用に関するヘルプが必要な場合は、[チュートリアル：基本的なAudio/MIDIプラグインの作成 Part 1: セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/)を参照してください。
 :::
 
-Audio Plugin Hostを開き、テストしたいプラグインのインスタンスをロードします。プラグインを右クリックし、Configure Audio I/Oを選択すると、以下のウィンドウが表示されます：
+Audio Plugin Hostを開き、テストしたいプラグインのインスタンスをロードします。プラグインを右クリックして**Configure Audio I/O**を選択すると、次のウィンドウが表示されます：
 
 <CaptionImage
   src="/_images/tutorial_audio_bus_layouts_screenshot5.png"
   caption="Audio I/O settings of a plugin"
 />
 
+ここでは、プラグインが許可している場合、入力または出力バスを追加または削除したり、選択したバスのチャンネルセットを変更したり、バスを便利に有効/無効にしたりできます。
 
-ここでは、プラグインが許可している場合、インプットまたはアウトプットのバスを追加または削除し、選択したバスのチャンネルセットを変更し、バスを自由に有効/無効にできます。
+プラグインを初めてロードしたときに、入力と出力のピンが[AudioProcessor](https://docs.juce.com/master/classAudioProcessor.html "Base class for audio processing classes or plugins.")コンストラクタで設定されたデフォルトのBusesLayout設定を表示していることに注目してください。
 
-プラグインを初めてリードした時、AudioProcessorコンストラクタで設定されたデフォルトのBusesLayoutコンフィギュレーションが入力と出力のピンに表示されていることに注意してください。
-
-:::danger[エクササイズ]
-
-さまざまなバスレイアウトを試し、auvalツールとAudio Plugin Hostでプラグインの動作をチェックしてください。
-
+:::note
+演習：さまざまなバスレイアウトを試し、**auval**ツールとAudio Plugin Hostでプラグインの動作を確認してください。
 :::
 
-## 概要
+## まとめ
 
-このチュートリアルを読めば、次のことができるようになるはずだ：
+このチュートリアルを読んだ後、以下のことができるようになります：
 
-- 異なるチャンネルセットで入力、出力、サイドチェインバスを定義。
-- プラグインタイプに適したバスレイアウトを設定します。
-- auvalツールを使ってAudioUnitsのバス配置構成を確認します。
-- JUCEオーディオ・プラグイン・ホストで、異なるバス・プロパティを割り当てます。
+- 異なるチャンネルセットを持つ入力、出力、サイドチェーンバスを定義する。
+- プラグインタイプに合わせた好みのバスレイアウトを設定する。
+- auvalツールを使用してAudioUnitsのバス配置設定を確認する。
+- JUCEオーディオプラグインホストで異なるバスプロパティを割り当てる。
 
 ## 関連項目
 
-- [基本的なAudio/MIDIプラグインを作る パート1：セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/)
-- [基本的なAudio/MIDIプラグインを作る パート2：プラグインのコーディング](../../getting-started/tutorial_code_basic_plugin/)
+- [チュートリアル：基本的なAudio/MIDIプラグインの作成 Part 1: セットアップ](../../getting-started/tutorial_create_projucer_basic_plugin/)
+- [チュートリアル：基本的なAudio/MIDIプラグインの作成 Part 2: プラグインのコーディング](../../getting-started/tutorial_code_basic_plugin/)
 - [チュートリアル：プラグインの例](../tutorial_plugin_examples/)
-- [チュートリアル：カスケードプラグインエフェクト](../tutorial_audio_processor_graph/)
+- [チュートリアル：プラグインエフェクトのカスケード接続](../tutorial_audio_processor_graph/)
