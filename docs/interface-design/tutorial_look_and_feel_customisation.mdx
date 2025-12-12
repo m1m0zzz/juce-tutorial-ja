@@ -4,53 +4,51 @@ sidebar_position: 2
 tags: [初級]
 ---
 
-# アプリのルック＆フィールをカスタマイズする
+# チュートリアル：アプリのルック＆フィールをカスタマイズ
 
 <SourcePageLink path="tutorial_look_and_feel_customisation" />
 
-アプリケーションの基本的なウィジェットの描画をカスタマイズします。カスタム*スキン*独自のボタン、スライダー、その他のコンポーネントを描画することで、アプリケーションを作成できます。
+アプリケーションの基本的なウィジェットの描画をカスタマイズします。独自のボタン、スライダー、その他のコンポーネントを描画して、アプリケーションのカスタム*スキン*を作成します。
 
-レベル初心者
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl..."), [Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value."), [Button](https://docs.juce.com/master/classButton.html "A base class for buttons."), [Path](https://docs.juce.com/master/classPath.html "A path is a sequence of lines and curves that may either form a closed shape or be open-ended."), [AffineTransform](https://docs.juce.com/master/classAffineTransform.html "Represents a 2D affine-transformation matrix.")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。"),[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。"),[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。"),[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。"),[AffineTransform](https://docs.juce.com/master/classAffineTransform.html "2次元アフィン変換行列を表す．")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/LookAndFeelCustomisationTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/LookAndFeelCustomisationTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルを Projucer で開いてください。
 
-## スタート
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucer を始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/LookAndFeelCustomisationTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/LookAndFeelCustomisationTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-## デモ・プロジェクト
-
-デモ・プロジェクトは、標準的なJUCEのルック＆フィールを用いて、2つのボタンと2つの回転スライダを持つGUIを作成します：
+デモプロジェクトは、標準の JUCE ルック＆フィールを使用して、2 つのボタンと 2 つの回転スライダーを持つ GUI を作成します：
 
 <CaptionImage
   src="/_images/tutorial_look_and_feel_customisation_screenshot1.png"
-  caption="標準的なルック＆フィールのボタンとスライダー"
+  caption="標準ルック＆フィールのボタンとスライダー"
 />
 
-について[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスは、JUCEでカスタマイズされたGUIを作成するための基本です。クラスを使って[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスでは、特定のコンポーネントのデフォルト・カラーを変更するなどの簡単なカスタマイズを行うことができます。しかし、多くの種類のコンポーネントの描画をカスタマイズすることもできます。例えば、ボタンやスライダーを独自の外観で作成できます。
+[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")クラスは、JUCE でカスタマイズされた GUI を作成するための基本です。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")クラスを使用して、特定のコンポーネントのデフォルトの色を変更するなど、シンプルなカスタマイズを実行できます。しかし、多くの種類のコンポーネントの描画をカスタマイズすることもできます。例えば、これにより、カスタムの外観を持つボタンとスライダーを作成できます。
 
 ## 色のカスタマイズ
 
-という場合[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")オブジェクトがコンポーネントに適用されると、そのコンポーネントに適用されます。*そして*その子コンポーネント ([Tutorial: Parent and child components](../tutorial_component_parents_children/)ただし、子コンポーネントに特別に別のルック＆フィールが割り当てられている場合を除く）。
+[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")オブジェクトがコンポーネントに適用されると、そのコンポーネント*および*その子コンポーネントに適用されます（[チュートリアル：親コンポーネントと子コンポーネント](../tutorial_component_parents_children/)を参照）。ただし、子コンポーネントに特別に別のルック＆フィールが割り当てられている場合は除きます。
 
-ルック・アンド・フィール・システムでできることの1つは、標準的なJUCEコンポーネントの要素に特定の色を上書きすることです([Tutorial: Colours in JUCE](../tutorial_colours/).)例えば、以下の行を`MainContentComponent`コンストラクタの*両方*文字盤が赤くなる：
+ルック＆フィールシステムで実行できることの 1 つは、標準 JUCE コンポーネントの要素の特定の色をオーバーライドすることです（[チュートリアル：JUCE での色](../tutorial_colours/)を参照）。例えば、`MainContentComponent`コンストラクタに以下の行を追加すると、*両方*のダイアルが赤くなります：
 
 ```cpp
 getLookAndFeel().setColour (juce::Slider::thumbColourId, juce::Colours::red);
 ```
 
-以下のスクリーンショットのようになるはずだ：
+これは以下のスクリーンショットのようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_look_and_feel_customisation_screenshot2.png"
-  caption="ルック＆フィールカラーの上書き"
+  caption="ルック＆フィールの色をオーバーライド"
 />
 
-2つのダイヤルを異なるものに設定するには、新しいダイヤルを作ればいい。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")インスタンスを追加し、それをダイヤルの片方だけに適用する。まず[LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "2017年に登場した最新のJUCEルック＆フィールスタイル。")オブジェクトをメンバー\[1\](これはデフォルトのJUCEルックアンドフィールを実装するクラスです）。
+2 つのダイアルを異なるように設定するには、新しい[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")インスタンスを作成し、それをダイアルの 1 つだけに適用できます。まず、メンバーとして[LookAndFeel_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "The latest JUCE look-and-feel style, as introduced in 2017.")オブジェクトを追加します[1]（これはデフォルトの JUCE ルック＆フィールを実装するクラスです）。
 
 ```cpp
 private:
@@ -61,40 +59,44 @@ private:
     juce::TextButton button2;
 ```
 
-次に、先ほど追加したコンストラクタのコード行を次のように変更する：
+:::note
+LookAndFeel は常に、それを使用するウィジェットやコンポーネントの*前に*宣言する必要があります！そうしないと、それらのクラスがまだ使用中にデストラクトされてしまいます。
+:::
+
+次に、先ほど追加したコンストラクタ内のコード行を以下のように変更します：
 
 ```cpp
 otherLookAndFeel.setColour (juce::Slider::thumbColourId, juce::Colours::red);
 ```
 
-このルック＆フィールを使ってみよう*のみ*を最初のダイヤルに追加する。このコード行を`MainContentComponent`ビルダー
+このルック＆フィールを最初のダイアル*だけ*に使用しましょう。`MainContentComponent`コンストラクタに以下のコード行を追加します：
 
 ```cpp
-        dial1.setLookAndFeel (&otherLookAndFeel);
+dial1.setLookAndFeel (&otherLookAndFeel);
 ```
 
-これで、以下のスクリーンショットのようなUIが作成されるはずだ：
+これにより、以下のスクリーンショットのような UI が作成されるはずです：
 
 <CaptionImage
   src="/_images/tutorial_look_and_feel_customisation_screenshot3.png"
-  caption="コンポーネントごとに異なるルック＆フィール・オブジェクトを使用する"
+  caption="異なるコンポーネントに異なるルック＆フィールオブジェクトを使用"
 />
 
-もちろん、この単純な例では、この方法は[Slider::thumbColourId](https://docs.juce.com/master/classSlider.html#a1012002c53381ccc7c1fe7e604a75f44aee563b22e0033b0ed4f38e5296889835 "親指を描く色。")色をスライダーオブジェクトに直接適用できます。しかし、アプリでは複数のスライダーを異なる目的で使用することがあり、ある目的のスライダーには1つのカラーセットを使用し、他の目的のスライダーには異なるカラーセットを使用したい場合があります。このアプローチでは、各スライダーにそのタイプに適したルック＆フィールが割り当てられている限り、これらの色をグローバルに変更できます。
+もちろん、このシンプルな例では、このアプローチはスライダーオブジェクトで直接[Slider::thumbColourId](https://docs.juce.com/master/classSlider.html#a1012002c53381ccc7c1fe7e604a75f44aee563b22e0033b0ed4f38e5296889835 "The colour to draw the thumb with.")の色を設定するのと比較してメリットはありません。しかし、アプリでは異なる目的のために複数のスライダーを使用する場合があり、1 つの目的のスライダーには 1 セットの色を使用し、他の目的のスライダーには異なる色のセットを使用したい場合があります。このアプローチにより、各スライダーにそのタイプに適したルック＆フィールが割り当てられている限り、これらの色をグローバルに変更できます。
 
-このアプローチの利点は、実際の描画コードをカスタマイズし始めるとはっきりする。特に、カスタム・ルック＆フィール・クラスを作成する必要がある。
+このアプローチの利点は、実際の描画コードのカスタマイズを開始するとより明確になります。特に、カスタムルック＆フィールクラスを作成する必要があります。
 
-## カスタム・ルック＆フィール
+## カスタムルック＆フィール
 
-特定のコンポーネントの描画をカスタマイズするためには、以下のクラスを継承した新しいクラスを作成する必要がある。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスを継承しています。もし[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスを実装する必要がある。*すべて*純粋仮想関数のこれらの関数がすでに定義されているクラスを継承する方がはるかに現実的だ。必要なものだけをオーバーライドすればいい。デフォルトのルック＆フィールと比較して、この1つの色の変更だけが定義されたシンプルなカスタム・ルック＆フィールを作成してみましょう。
+特定のコンポーネントの描画をカスタマイズするには、[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")クラスを継承する新しいクラスを作成する必要があります。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")クラス自体から直接継承する場合、*すべて*の純粋仮想関数を実装する必要があります。すべてのこれらの関数が既に定義されているクラスの 1 つを継承する方がはるかに実用的です。そうすれば、必要なものだけをオーバーライドすれば済みます。デフォルトのルック＆フィールと比較してこの 1 つの色変更だけが定義されたシンプルなカスタムルック＆フィールを作成しましょう。
 
-まず、先ほど追加したコンストラクタからこの行を削除する：
+まず、先ほど追加した以下の行をコンストラクタから削除します：
 
 ```cpp
 otherLookAndFeel.setColour (juce::Slider::thumbColourId, juce::Colours::red);
 ```
 
-さて、新しいクラスを追加します。[LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "2017年に登場した最新のJUCEルック＆フィールスタイル。")クラスの前に`MainContentComponent`クラスである：
+次に、[LookAndFeel_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "The latest JUCE look-and-feel style, as introduced in 2017.")クラスを継承する新しいクラスを`MainContentComponent`クラスの前に追加します：
 
 ```cpp
 class OtherLookAndFeel : public juce::LookAndFeel_V4
@@ -106,189 +108,178 @@ public:
     }
 ```
 
-このコードを実行する前に、クラス名を変更します。`otherLookAndFeel`OtherLookAndFeelのメンバー\[2\]:
+このコードを実行する前に、`otherLookAndFeel`メンバーのクラス名を OtherLookAndFeel に変更します[2]：
 
 ```cpp
 private:
-    OtherLookAndFeel otherLookAndFeel; // [2]
-    juce::Slider dial1;
-    juce::Slider dial2;
-    juce::TextButton button1;
-    juce::TextButton button2;
+OtherLookAndFeel otherLookAndFeel; // [2]
+juce::Slider dial1;
+juce::Slider dial2;
+juce::TextButton button1;
+juce::TextButton button2;
 ```
 
-アプリケーションをビルドして実行すると、前のスクリーンショットと同じ結果が表示されるはずです。
+アプリケーションをビルドして実行すると、結果は前のスクリーンショットと同じように見えるはずです。
 
-### 図面のカスタマイズ
+### 描画のカスタマイズ
 
-には多くの機能がある。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスは、さまざまなタイプのコンポーネントに対応している。特定のコンポーネント・タイプに指定された関数は、すべて`LookAndFeelMethods`関連するコンポーネント・クラス内の
+[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")クラスには、多くの異なるタイプのコンポーネントのための多くの関数があります。特定のコンポーネントタイプ用に指定された関数は、関連するコンポーネントクラス内の`LookAndFeelMethods`というネストされたクラス内に宣言されているため、簡単に見つけることができます。
 
 ### スライダーのカスタマイズ
 
-例えば[Slider::LookAndFeelMethods](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html "この抽象基底クラスはLookAndFeelクラスによって実装され、スライダー描画機能を提供する。")JUCE APIドキュメントの中にあります。このリストの中に[Slider::LookAndFeelMethods::drawRotarySlider()](https://docs.juce.com/master/structSlider_1_1LookAndFeelMethods.html#ae63a9d8adce084cd5dbe02b960c73a9a).
+例えば、JUCE API ドキュメントの[Slider::LookAndFeelMethods](https://docs.juce.com/master/structjuce_1_1Slider_1_1LookAndFeelMethods.html "This abstract base class is implemented by LookAndFeel classes to provide slider drawing functionalit...")を見てください。このリストには、[Slider::LookAndFeelMethods::drawRotarySlider()](https://docs.juce.com/master/structjuce_1_1Slider_1_1LookAndFeelMethods.html#abaf8dd2579221eb218f1366e1a33727b)という関数があることに気づくでしょう。
 
-これを`OtherLookAndFeel`クラスに追加する。宣言文をクラスに追加する：
+これを`OtherLookAndFeel`クラスでオーバーライドしましょう。クラスに宣言を追加します：
 
 ```cpp
-    void drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
-                           const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider&) override
+void drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos, const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider&) override
 ```
 
-ここでは、以下のデータが渡されていることがわかる：
+ここでは、以下のデータが渡されます：
 
-- `g`(その)[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト")という文脈がある
-- `x`回転スライダーを描く矩形の左上のx座標
-- `y`回転スライダーを描く矩形の左上のy座標
-- `width`回転スライダーを描く矩形の幅
-- `height`回転スライダーを描く矩形の高さ
-- `sliderPos`:その*位置*これはスライダーの実際の値の範囲とは無関係です）
-- `rotaryStartAngle`文字盤の回転開始角度（ラジアン単位）
-- `rotaryEndAngle`文字盤の回転終了角度（ラジアン単位）
-- `slider`:その[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール")オブジェクトそのものである
+- `g`：[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")コンテキスト。
+- `x`：回転スライダーを描画する矩形の左上の x 座標。
+- `y`：回転スライダーを描画する矩形の左上の y 座標。
+- `width`：回転スライダーを描画する矩形の幅。
+- `height`：回転スライダーを描画する矩形の高さ。
+- `sliderPos`：0..1 の範囲の比率としてのスライダーの*位置*（これはスライダーの実際の値の範囲とは独立しています）。
+- `rotaryStartAngle`：ダイアル回転の開始角度（ラジアン）。
+- `rotaryEndAngle`：ダイアル回転の終了角度（ラジアン）。
+- `slider`：[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクト自体。
 
-:::note
-
-x、y、width、heightの引数は、すべての*テキストボックス*スライダーが使用しているかもしれないそのため、スライダーの位置とサイズにアクセスし、それらの値を使用できます。
-
+:::tip
+x、y、width、height 引数は、スライダーが使用している*テキストボックス*のサイズと位置を考慮しています。そのため、スライダーの位置とサイズにアクセスしてそれらの値を使用できます。
 :::
 
-それでは、文字盤の指針を表す線と塗りつぶされた円だけのシンプルな文字盤を描くように、関数本体を書いてみましょう。まず、渡された値に基づいて計算するために、いくつかの一時変数が必要です：
+では、ダイアルのポインターを表す線を持つ塗りつぶされた円であるシンプルなダイアルを描画する関数本体を書きましょう。まず、渡された値に基づいて計算を助けるためにいくつかの一時変数が必要です：
 
 ```cpp
-        auto radius = (float) juce::jmin (width / 2, height / 2) - 4.0f;
-        auto centreX = (float) x + (float) width  * 0.5f;
-        auto centreY = (float) y + (float) height * 0.5f;
-        auto rx = centreX - radius;
-        auto ry = centreY - radius;
-        auto rw = radius * 2.0f;
-        auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+auto radius = (float) juce::jmin (width / 2, height / 2) - 4.0f;
+auto centreX = (float) x + (float) width * 0.5f;
+auto centreY = (float) y + (float) height * 0.5f;
+auto rx = centreX - radius;
+auto ry = centreY - radius;
+auto rw = radius * 2.0f;
+auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 ```
 
-:::note
-
-最終的に`angle`変数には文字盤が指すべき角度が格納される。
-
+:::tip
+最後の`angle`変数にはダイアルが指すべき角度が含まれていることがわかります。
 :::
 
-次に、文字盤の色を塗りつぶし、輪郭を描くコードを追加しよう：
+次に、ダイアルの色を塗りつぶし、アウトラインを描画するコードを追加しましょう：
 
 ```cpp
-        // fill
-        g.setColour (juce::Colours::orange);
-        g.fillEllipse (rx, ry, rw, rw);
- 
-        // outline
-        g.setColour (juce::Colours::red);
-        g.drawEllipse (rx, ry, rw, rw, 1.0f);
+// fill
+g.setColour (juce::Colours::orange);
+g.fillEllipse (rx, ry, rw, rw);
+
+// outline
+g.setColour (juce::Colours::red);
+g.drawEllipse (rx, ry, rw, rw, 1.0f);
 ```
 
-ポインターそのものを描画するために、最初に[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")オブジェクトを平行移動させ、必要な角度だけ回転させる：
+ポインター自体を描画するために、まず[Path](https://docs.juce.com/master/classPath.html "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.")オブジェクトを使用し、必要な角度だけ平行移動と回転で位置に移動します：
 
 ```cpp
-        juce::Path p;
-        auto pointerLength = radius * 0.33f;
-        auto pointerThickness = 2.0f;
-        p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
-        p.applyTransform (juce::AffineTransform::rotation (angle).translated (centreX, centreY));
+juce::Path p;
+auto pointerLength = radius * 0.33f;
+auto pointerThickness = 2.0f;
+p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
+p.applyTransform (juce::AffineTransform::rotation (angle).translated (centreX, centreY));
 ```
 
-そして、このパスを埋めてポインターを描画する：
+次に、このパスを塗りつぶしてポインターを描画します：
 
 ```cpp
-        // pointer
-        g.setColour (juce::Colours::yellow);
-        g.fillPath (p);
+// pointer
+g.setColour (juce::Colours::yellow);
+g.fillPath (p);
 ```
 
-:::note
-
-このセクションの完成したコードは`LookAndFeelCustomisationTutorial_02.h`ファイルを参照してください。
-
+:::tip
+このセクションの完成したコードは、このチュートリアルのデモプロジェクトの`LookAndFeelCustomisationTutorial_02.h`ファイルにあります。
 :::
 
-:::danger[エクササイズ]
-
-ポインタの描画を変更します。長さを変えてみたり、少し太いけれど丸みを帯びた長方形にしてみたり、矢印を描いてみたり。
-
-:::
-
-の1つをシンプルにカスタマイズしたものです。[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")ルック・アンド・フィールのメソッド。しかし、この原則は他のメソッドにも当てはまる。おそらく、他のカスタマイズを作成するための最良のアプローチは、既存の実装を[LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "2017年に登場した最新のJUCEルック＆フィールスタイル。")または[LookAndFeel\_V3](https://docs.juce.com/master/classLookAndFeel__V3.html "2013年に登場した最新のJUCEルック＆フィールスタイル。")クラスを作成し、これを自分のコードの基礎として使用する。
+<!-- -->
 
 :::note
+演習：ポインターの描画を変更してみてください。異なる長さ、少し太いが丸みを帯びた矩形、または矢印を描画してみることができます。
+:::
 
-について[LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "2017年に登場した最新のJUCEルック＆フィールスタイル。")クラスは[LookAndFeel\_V3](https://docs.juce.com/master/classLookAndFeel__V3.html "2013年に登場した最新のJUCEルック＆フィールスタイル。")クラスで再定義されないメソッドもある。[LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "2017年に登場した最新のJUCEルック＆フィールスタイル。")クラスである。
+これは[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")のルック＆フィールメソッドの 1 つのシンプルなカスタマイズだけを示しています。しかし、原則は他のメソッドにも適用されます。他のカスタマイズを作成する最良のアプローチは、おそらく[LookAndFeel_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "The latest JUCE look-and-feel style, as introduced in 2017.")または[LookAndFeel_V3](https://docs.juce.com/master/classLookAndFeel__V3.html "The latest JUCE look-and-feel style, as introduced in 2013.")クラスの既存の実装を見て、それを独自のコードの基礎として使用することです。
 
+:::tip
+[LookAndFeel_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "The latest JUCE look-and-feel style, as introduced in 2017.")クラスは[LookAndFeel_V3](https://docs.juce.com/master/classLookAndFeel__V3.html "The latest JUCE look-and-feel style, as introduced in 2013.")クラスから継承しており、一部のメソッドは[LookAndFeel_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "The latest JUCE look-and-feel style, as introduced in 2017.")クラスで再定義されていません。
 :::
 
 ### ボタンのカスタマイズ
 
-ボタンのカスタマイズを見てみましょう。まず`OtherLookAndFeel`クラスのルック＆フィールである。`MainContentComponent`この行をコンストラクタで使用する：
+ボタンのカスタマイズを見てみましょう。まず、コンストラクタでこの行を使用して、`MainContentComponent`全体のルック＆フィールとして`OtherLookAndFeel`クラスを設定しましょう：
 
 ```cpp
-        setLookAndFeel (&otherLookAndFeel);
+setLookAndFeel (&otherLookAndFeel);
 ```
 
-また[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")オブジェクトは、シャットダウン時に`MainContentComponent`この行をデストラクタに指定することで、もうその行はない：
+また、`MainContentComponent`によってシャットダウン時に[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")オブジェクトが使用されなくなるように、デストラクタでこの行を提供して確認しましょう：
 
 ```cpp
-    ~MainContentComponent() override
-    {
-        setLookAndFeel (nullptr);
-    }
+~MainContentComponent() override
+{
+    setLookAndFeel (nullptr);
+}
 ```
 
-これはもちろん、両方の文字盤が前のセクションでカスタマイズした外観になることを意味します。次に[Button::LookAndFeelMethods::drawButtonBackground()](https://docs.juce.com/master/structButton_1_1LookAndFeelMethods.html#a06f95e4c63f74cfe3af3f21698c9107a)関数宣言：
+これにより、もちろん両方のダイアルが前のセクションでカスタマイズした外観になります。では、[Button::LookAndFeelMethods::drawButtonBackground()](https://docs.juce.com/master/structjuce_1_1Button_1_1LookAndFeelMethods.html#acbaa014420f3f5061482325f016f2d36)関数の宣言を追加しましょう：
 
 ```cpp
-    void drawButtonBackground (juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour,
-                               bool, bool isButtonDown) override
+void drawButtonBackground (juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour, bool, bool isButtonDown) override
 ```
 
-ここでは、以下のデータが渡される：
+ここでは、以下のデータが渡されます：
 
-- `g`(その)[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")という文脈がある。
-- `button`(その)[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")オブジェクトそのものである。
-- `backgroundColour`使用されるべき背景色（これは[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")ボタンのトグル状態に応じた色)。
-- `isMouseOverButton`マウスポインタがボタンの範囲内にあるかどうか。
-- `isButtonDown`マウスボタンが押されているかどうか。
+- `g`：[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")コンテキスト。
+- `button`：[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")オブジェクト自体。
+- `backgroundColour`：使用すべき基本の背景色（ボタンのトグル状態に基づいて[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")の色から選択されます）。
+- `isMouseOverButton`：マウスポインターがボタンの境界内にあるかどうか。
+- `isButtonDown`：マウスボタンが押されているかどうか。
 
-では、ボタンの矩形を背景色で塗りつぶすだけの、とてもシンプルなボタン背景を作るために、関数本体を追加してみましょう：
+では、背景色でボタンの矩形を単に塗りつぶす非常にシンプルなボタン背景を作成する関数本体を追加しましょう：
 
 ```cpp
 auto buttonArea = button.getLocalBounds();
 g.setColour (backgroundColour);
 g.fillRect (buttonArea);
-buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInterface.h:200
 ```
 
-これをビルドして実行すると、以下のスクリーンショットのようになるはずだ：
+これをビルドして実行すると、以下のスクリーンショットのようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_look_and_feel_customisation_screenshot4.png"
   caption="シンプルなボタン"
 />
 
-これを操作すると、ボタンがマウス・ポインターの操作に視覚的に反応しないことに気づくだろう。簡単なシャドウ効果を実装してみましょう。ボタンを変更する`drawButtonBackground()`関数をこれに追加する：
+これを操作すると、ボタンがマウスポインターのインタラクションに視覚的に反応しないことに気づくでしょう。シンプルなシャドウ効果を実装しましょう。`drawButtonBackground()`関数を以下のように変更します：
 
 ```cpp
-        auto buttonArea = button.getLocalBounds();
-        auto edge = 4;
- 
-        buttonArea.removeFromLeft (edge);
-        buttonArea.removeFromTop (edge);
- 
-        // shadow
-        g.setColour (juce::Colours::darkgrey.withAlpha (0.5f));
-        g.fillRect (buttonArea);
- 
-        auto offset = isButtonDown ? -edge / 2 : -edge;
-        buttonArea.translate (offset, offset);
- 
-        g.setColour (backgroundColour);
-        g.fillRect (buttonArea);
+auto buttonArea = button.getLocalBounds();
+auto edge = 4;
+
+buttonArea.removeFromLeft (edge);
+buttonArea.removeFromTop (edge);
+
+// shadow
+g.setColour (juce::Colours::darkgrey.withAlpha (0.5f));
+g.fillRect (buttonArea);
+
+auto offset = isButtonDown ? -edge / 2 : -edge;
+buttonArea.translate (offset, offset);
+
+g.setColour (backgroundColour);
+g.fillRect (buttonArea);
 ```
 
-これで、ボタンをクリックするとボタンが動いて見えるようになった。残念なことに、テキストは静止したままである。[Button::LookAndFeelMethods::drawButtonText()](https://docs.juce.com/master/structButton_1_1LookAndFeelMethods.html#a3c7f5449c273361a926f5b82b8547383 "TextButton のテキストを描画します。")関数を使うことで、より信憑性を高めることができる。この関数を書くために、まずは[LookAndFeel\_V2](https://docs.juce.com/master/classLookAndFeel__V2.html "このLookAndFeelサブクラスは、2008-12年頃のjuceスタイルを実装しています。")クラスを作成し、それをOtherLookAndFeelクラスに追加する：
+ボタンをクリックすると動いているように見えるようになります。残念ながら、テキストは静的なままなので、より信頼性を持たせるために[Button::LookAndFeelMethods::drawButtonText()](https://docs.juce.com/master/structjuce_1_1Button_1_1LookAndFeelMethods.html#a5a1dd9fa031e7d4fa9209e42022412e7 "Draws the text for a TextButton.")関数をオーバーライドする必要があります。この関数を書くために、[LookAndFeel_V2](https://docs.juce.com/master/classLookAndFeel__V2.html "This LookAndFeel subclass implements the juce style from around 2008-12.")クラスからコードのコピーを開始し、OtherLookAndFeel クラスに追加します：
 
 ```cpp
 void drawButtonText (juce::Graphics& g, juce::TextButton& button, bool isMouseOverButton, bool isButtonDown) override
@@ -297,73 +288,77 @@ void drawButtonText (juce::Graphics& g, juce::TextButton& button, bool isMouseOv
     g.setFont (font);
     g.setColour (button.findColour (button.getToggleState() ? juce::TextButton::textColourOnId
                                                             : juce::TextButton::textColourOffId)
-                       .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
- 
+                     .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
+
     auto yIndent = juce::jmin (4, button.proportionOfHeight (0.3f));
     auto cornerSize = juce::jmin (button.getHeight(), button.getWidth()) / 2;
- 
+
     auto fontHeight = juce::roundToInt (font.getHeight() * 0.6f);
-    auto leftIndent  = juce::jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnLeft()  ? 4 : 2));
+    auto leftIndent = juce::jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnLeft() ? 4 : 2));
     auto rightIndent = juce::jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnRight() ? 4 : 2));
     auto textWidth = button.getWidth() - leftIndent - rightIndent;
- 
+
     if (textWidth > 0)
         g.drawFittedText (button.getButtonText(),
-                          leftIndent, yIndent, textWidth, button.getHeight() - yIndent * 2,
-                          juce::Justification::centred, 2);
+            leftIndent,
+            yIndent,
+            textWidth,
+            button.getHeight() - yIndent * 2,
+            juce::Justification::centred,
+            2);
 }
-TextButtonA button that uses the standard lozenge-shaped background with a line of text on it.Definition juce_TextButton.h:51
-juceDefinition juce_AudioWorkgroup_mac.h:36
 ```
 
-テキストが描画されるオフセットを変更するだけでよい。`drawButtonBackground()`関数を変更する必要があります。最後の数行だけを変更する必要がある：
+`drawButtonBackground()`関数での見かけの動きに合わせてテキストが描画されるオフセットを変更するだけで済みます。最後の数行だけを変更する必要があります：
 
 ```cpp
-        auto textWidth = button.getWidth() - leftIndent - rightIndent;
- 
-        auto edge = 4;
-        auto offset = isButtonDown ? edge / 2 : 0;
- 
-        if (textWidth > 0)
-            g.drawFittedText (button.getButtonText(),
-                              leftIndent + offset, yIndent + offset, textWidth, button.getHeight() - yIndent * 2 - edge,
-                              juce::Justification::centred, 2);
-    }
+auto textWidth = button.getWidth() - leftIndent - rightIndent;
+
+auto edge = 4;
+auto offset = isButtonDown ? edge / 2 : 0;
+
+if (textWidth > 0)
+    g.drawFittedText (button.getButtonText(),
+        leftIndent + offset,
+        yIndent + offset,
+        textWidth,
+        button.getHeight() - yIndent * 2 - edge,
+        juce::Justification::centred,
+        2);
+}
 ```
 
-これをビルドして実行すると、以下のスクリーンショットのようになるはずだ。
+これをビルドして実行すると、以下のスクリーンショットのようになるはずです。
 
 <CaptionImage
   src="/_images/tutorial_look_and_feel_customisation_screenshot5.png"
-  caption='影のあるボタン（ボタン1は "クリックされた"と表示される）'
+  caption="シャドウ付きボタン（Button 1がクリックされた状態で表示）"
 />
 
+:::tip
+このセクションの完成したコードは、このチュートリアルのデモプロジェクトの`LookAndFeelCustomisationTutorial_03.h`ファイルにあります。
+:::
+
+<!-- -->
+
 :::note
-
-このセクションの完成したコードは`LookAndFeelCustomisationTutorial_03.h`ファイルを参照してください。
-
+演習：ボタンがマウスポインターがボタン上にあることに反応するように描画にいくつかの変更を追加してください。例えば、背景色を少し調整したり、シャドウの色を変更したり、矩形のサイズや位置を微妙に変更したりできます。
 :::
 
-:::danger[エクササイズ]
+## まとめ
 
-マウスポインタがボタンの上に来たときに反応するように、ボタンの描画に変更を加えます。例えば、背景色を少し調整したり、影の色を変えたり、矩形のサイズや位置を微妙に変えたりできます。
+このチュートリアルでは、[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")クラスを使用して JUCE コンポーネントのルック＆フィールをカスタマイズする概念を紹介しました。特に以下のことができるようになったはずです：
 
-:::
+- デフォルトのルック＆フィールの色をカスタマイズする。
+- 新しいルック＆フィールクラスを作成する。
+- スライダーとボタンの描画コードをカスタマイズする。
+- 他のコンポーネントのルック＆フィールメソッドを見つけて、任意の JUCE コンポーネントをカスタマイズできる。
 
-## 概要
+## 関連項目
 
-このチュートリアルでは、JUCEコンポーネントのルック＆フィールをカスタマイズする概念を紹介しました。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスで使用されます。特に以下のことができるようになるはずだ：
-
-- デフォルトのルック＆フィールで色をカスタマイズ。
-- 新しいルック＆フィールのクラスを作る。
-- スライダーとボタンの描画コードをカスタマイズ
-- JUCEコンポーネントをカスタマイズできるように、他のコンポーネントのルック＆フィールのメソッドを検索します。
-
-## 参照
-
-- [Tutorial: Colours in JUCE](../tutorial_colours/)
-- [Tutorial: The Slider class](../tutorial_slider_values/)
-- [Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)
-- [Tutorial: Parent and child components](../tutorial_component_parents_children/)
-- [Tutorial: Animating geometry](../../graphics/tutorial_animation/)
-- [Tutorial: Build an OpenGL application](../../graphics/tutorial_open_gl_application/)
+- [チュートリアル：JUCE での色](../tutorial_colours/)
+- [チュートリアル：Slider クラス](../tutorial_slider_values/)
+- [チュートリアル：リスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)
+- [チュートリアル：親コンポーネントと子コンポーネント](../tutorial_component_parents_children/)
+- [チュートリアル：ジオメトリのアニメーション](../../graphics/tutorial_animation/)
+- [チュートリアル：OpenGL アプリケーションの構築](../../graphics/tutorial_open_gl_application/)

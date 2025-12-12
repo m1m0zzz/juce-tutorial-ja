@@ -4,49 +4,45 @@ sidebar_position: 7
 tags: [初級]
 ---
 
-# リスナーとブロードキャスター
+# チュートリアル：リスナーとブロードキャスター
 
 <SourcePageLink path="tutorial_listeners_and_broadcasters" />
 
-このチュートリアルでは、JUCEの重要なコンセプトであるリスナーとブロードキャスターのシステムを紹介します。ボタンのクリックに応答する簡単なアクションの実装を通して、この概念を見ていきます。
+このチュートリアルでは、JUCE の重要な概念であるリスナーとブロードキャスターシステムを紹介します。ボタンクリックに応答するシンプルなアクションの実装を通じて、これを見ていきます。
 
-レベル初心者
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [Button](https://docs.juce.com/master/classButton.html "A base class for buttons."), [TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it."), [Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "Used to receive callbacks when a button is clicked."), [Time](https://docs.juce.com/master/classTime.html "Holds an absolute date and time.")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。"),[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。"),[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。"),[Time](https://docs.juce.com/master/classTime.html "絶対日時を保持する。")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/ListenersAndBroadcastersTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/ListenersAndBroadcastersTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルを Projucer で開いてください。
 
-## スタート
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucer を始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/ListenersAndBroadcastersTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/ListenersAndBroadcastersTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-## デモ・プロジェクト
-
-このチュートリアルのデモ・プロジェクトでは、1つのボタンと1つのラベルを持つシンプルなユーザー・インタフェースを紹介します。インタフェースは次のスクリーンショットに似ているはずです：
+このチュートリアルのデモプロジェクトは、1 つのボタンと 1 つのラベルを持つシンプルなユーザーインターフェースを表示します。インターフェースは以下のスクリーンショットのようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_listeners_and_broadcasters_screenshot1.png"
-  caption="基本的なボタンとラベルのインターフェイス。"
+  caption="基本的なボタンとラベルのインターフェース"
 />
 
-インタフェースは提供された状態では何もしない。ボタンをクリックすると、ラベルに現在の日付と時刻が表示されるようにコードを追加する。
+提供された状態ではインターフェースは何もしません。ボタンをクリックするとラベルに現在の日時を表示するコードを追加します。
 
-## インタフェースの設定
+## インターフェースの設定
 
-について`MainContentComponent`クラスは2つの子コンポーネントで構成されています。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトと[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトA[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトは、特定のテキストを含むボタンを表示できます。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトはテキストを表示できる。
+`MainContentComponent`クラスは 2 つの子コンポーネントで構成されています：[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")オブジェクトと[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")オブジェクトです。[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")オブジェクトは特定のテキストを含むボタンを表示でき、[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")オブジェクトはテキストを表示できます。
 
-:::note
-
-について[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスは1種類のボタンを実装している。ボタンの種類はたくさんある。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスはJUCEで利用可能です。のAPIリファレンスドキュメントを参照してください。[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。"),[ShapeButton](https://docs.juce.com/master/classShapeButton.html "塗りつぶされた形状を含むボタン。"),[ImageButton](https://docs.juce.com/master/classImageButton.html "タイトルが示すように、これは画像を含むボタンである。"),[DrawableButton](https://docs.juce.com/master/classDrawableButton.html "Drawableを表示するボタン。")そして[ArrowButton](https://docs.juce.com/master/classArrowButton.html "矢印のボタン。")のクラスがある。
-
+:::tip
+[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")クラスはボタンの 1 つのタイプを実装しています。JUCE には多くのタイプの[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")クラスがあります。詳細については、[ToggleButton](https://docs.juce.com/master/classToggleButton.html "A button that can be toggled on/off.")、[ShapeButton](https://docs.juce.com/master/classShapeButton.html "A button that contains a filled shape.")、[ImageButton](https://docs.juce.com/master/classImageButton.html "As the title suggests, this is a button containing an image.")、[DrawableButton](https://docs.juce.com/master/classDrawableButton.html "A button that displays a Drawable.")、[ArrowButton](https://docs.juce.com/master/classArrowButton.html "A button with an arrow in it.")クラスの API リファレンスドキュメントを参照してください。
 :::
 
-を宣言した。`MainContentComponent`クラスは以下の通りである：
+`MainContentComponent`クラスの宣言は以下のとおりです：
 
 ```cpp
-class MainContentComponent   : public juce::Component
+class MainContentComponent : public juce::Component
 {
 public:
     //==============================================================================
@@ -54,155 +50,145 @@ public:
     {
         // ...
     }
- 
+
     ~MainContentComponent()
     {
         // ...
     }
- 
+
     void resized() override
     {
         // ...
     }
- 
+
 private:
     juce::TextButton checkTheTimeButton;
     juce::Label timeLabel;
- 
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
-JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(className)This is a shorthand way of writing both a JUCE_DECLARE_NON_COPYABLE and JUCE_LEAK_DETECTOR macro for ...Definition juce_PlatformDefs.h:262
 ```
 
-ボタンとラベルは`MainContentComponent`オブジェクトに表示される。`MainContentComponent`ビルダー
+ボタンとラベルは`MainContentComponent`オブジェクトに追加され、`MainContentComponent`コンストラクタで可視化されます：
 
 ```cpp
-    MainContentComponent()
-    {
-        addAndMakeVisible (checkTheTimeButton);
-        checkTheTimeButton.setButtonText ("Check the time...");
- 
-        addAndMakeVisible (timeLabel);
-        timeLabel.setColour (juce::Label::backgroundColourId, juce::Colours::black);
-        timeLabel.setColour (juce::Label::textColourId, juce::Colours::white);
-        timeLabel.setJustificationType (juce::Justification::centred);
- 
-        setSize (600, 110);
-    }
+MainContentComponent()
+{
+    addAndMakeVisible (checkTheTimeButton);
+    checkTheTimeButton.setButtonText ("Check the time...");
+
+    addAndMakeVisible (timeLabel);
+    timeLabel.setColour (juce::Label::backgroundColourId, juce::Colours::black);
+    timeLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    timeLabel.setJustificationType (juce::Justification::centred);
+
+    setSize (600, 110);
+}
 ```
 
-ここでは、ボタンのテキストを設定し、ラベルの特定の外観を設定します。これにより、ラベルは黒い背景に白いテキストを表示します。デフォルトでは、ラベルはテキストを表示しません。
+ここでは、ボタンのテキストを設定し、ラベルの特定の外観を設定しています。これにより、ラベルは黒い背景に白いテキストを表示します。デフォルトでは、ラベルはテキストを表示しません。
 
-### リスナー・ベース・クラスの追加
+### リスナー基底クラスの追加
 
-JUCEでは、ボタンやスライダーなど、他のオブジェクトに状態の変化を知らせる必要のあるコントロールの多くは*ブロードキャスター*オブジェクトの変更に対応するために、他のクラスがブロードキャスター・オブジェクトの変更に応答するためには、他のクラスが*リスナー*リスナーは、そのブロードキャスターの特定のタイプに登録する必要があります。リスナーはまた、そのタイプの少なくとも1つの特定のブロードキャスターオブジェクトに登録される必要があります。(JUCEのブロードキャスター・リスナーシステムは[observer pattern](https://en.wikipedia.org/wiki/Observer_pattern).)多くの放送局オブジェクトは、ネストされた`Listener`クラスを継承することで、そのタイプのブロードキャスターのリスナーになることができる。例えば[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスは、ネストされたクラス[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")そのためである。
+JUCE では、ボタン、スライダー、および状態の変化を他のオブジェクトに通知する必要がある他の多くのタイプのコントロールは、*ブロードキャスター*オブジェクトの一種です。ブロードキャスターオブジェクトの変化に応答するには、他のクラスはその特定のタイプのブロードキャスターの*リスナー*である必要があります。リスナーはまた、そのタイプの少なくとも 1 つの特定のブロードキャスターオブジェクトに登録する必要があります。（JUCE のブロードキャスター-リスナーシステムは[オブザーバーパターン](https://en.wikipedia.org/wiki/Observer_pattern)に従います。）多くのブロードキャスターオブジェクトには、そのタイプのブロードキャスターのリスナーになるために継承できるネストされた`Listener`クラスが含まれています。例えば、[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")クラスには、この目的のためにネストされたクラス[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "Used to receive callbacks when a button is clicked.")が含まれています。
 
-:::note
-
-について[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")クラスのインスタンスを含む、さまざまなボタンタイプをリッスンするために使用できます。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスは次のようになる。
-
+:::tip
+[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "Used to receive callbacks when a button is clicked.")クラスは、ここに示されている[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")クラスのインスタンスを含む、異なるボタンタイプのいずれかをリッスンするために使用できます。
 :::
 
-を使用する。[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")クラスをベース・クラスとして追加する必要がある。私たちの場合は[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")クラスをベース・クラスとしている。`MainContentComponent`クラス\[1\]:
+[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "Used to receive callbacks when a button is clicked.")クラスを使用するには、基底クラスとして追加する必要があります。私たちの場合、[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "Used to receive callbacks when a button is clicked.")クラスを`MainContentComponent`クラスの基底クラスとして追加する必要があります[1]：
 
 ```cpp
-class MainContentComponent   : public juce::Component,
-                               public juce::Button::Listener // [1]
+class MainContentComponent : public juce::Component,
+                             public juce::Button::Listener // [1]
 {
 public:
 ```
 
-カスタム・クラスは、同じようにリスナー・ベース・クラスを追加することで、異なるタイプのブロードキャスターのリスナーになることができる。
+カスタムクラスは、同様に複数のリスナー基底クラスを追加することで、異なるタイプのブロードキャスターのリスナーになることができます。
 
-### リスナーのコールバックを宣言する
+### リスナーのコールバックの宣言
 
-通常、各リスナークラスは少なくとも1つの[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数を呼び出します。これは、ブロードキャスター・オブジェクトがその変更をブロードキャストする必要があるときに、コールバックとして呼び出される関数である。コードをコンパイルして使うためには、これをオーバーライドしなければならない。
+通常、各リスナークラスには少なくとも 1 つの[純粋仮想](http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数があります。これは、ブロードキャスターオブジェクトが変更をブロードキャストする必要があるときにコールバックとして呼び出される関数です。コードをコンパイルし、使用するためにはこれをオーバーライドする必要があります。
 
-:::note
-
-リスナー・クラスは、オーバーライドされるかもしれない他の仮想関数をしばしば含むが、それらは必要なケースが少ないのでオプションである。のドキュメントを参照してください。[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスの例である。
-
+:::tip
+リスナークラスには、オーバーライドできる他の仮想関数が含まれていることが多いですが、これらは少数のケースで必要とされるため、オプションです。例として[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスのドキュメントを参照してください。
 :::
 
-について[pure virtual](https://docs.juce.com/master/http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数の[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")クラスは[Button::Listener::buttonClicked()](https://docs.juce.com/master/classButton_1_1Listener.html#a81499cef24b7189cd0d1581fd9dc9e14 "ボタンがクリックされたときに呼び出される。")関数を追加する必要があります。その宣言を追加する必要がある。\[2\]我々の`MainContentComponent`クラスは次のようになる：
+[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "Used to receive callbacks when a button is clicked.")クラスの[純粋仮想](http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/)関数は[Button::Listener::buttonClicked()](https://docs.juce.com/master/classButton_1_1Listener.html#a81499cef24b7189cd0d1581fd9dc9e14 "Called when the button is clicked.")関数です。ここに示すように、`MainContentComponent`クラス内にその宣言[2]を追加する必要があります：
 
 ```cpp
-    MainContentComponent()
-    {
-        // ...
-    }
- 
-    ~MainContentComponent()
-    {
-        // ...
-    }
- 
-    void resized() override
-    {
-        // ...
-    }
- 
-    void buttonClicked (juce::Button* button) override // [2]
-    {
-    }
- 
+MainContentComponent()
+{
+    // ...
+}
+
+~MainContentComponent()
+{
+    // ...
+}
+
+void resized() override
+{
+    // ...
+}
+
+void buttonClicked (juce::Button* button) override // [2]
+{
+}
+
 // ...
-buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInterface.h:200
 ```
 
-### リスナー・コールバックの実装
+### リスナーコールバックの実装
 
-では`MainContentComponent::buttonClicked()`関数に渡される。ここでは、変更をブロードキャストしたオブジェクトへのポインタが渡される。そして、このポインターを他のオブジェクトと比較することで、どのオブジェクトが変更されたかを判断できる：
+では、`MainContentComponent::buttonClicked()`関数を実装しましょう。ここでは、変更をブロードキャストしたオブジェクトへのポインタが渡されます。このポインタを他のオブジェクトと比較して、どのオブジェクトかを判断できます：
 
 ```cpp
-    void buttonClicked (juce::Button* button) override  // [2]
+void buttonClicked (juce::Button* button) override // [2]
+{
+    if (button == &checkTheTimeButton) // [3]
     {
-        if (button == &checkTheTimeButton)                                                      // [3]
-        {
-            auto currentTime = juce::Time::getCurrentTime();                                          // [4]
- 
-            auto includeDate = true;
-            auto includeTime = true;
-            auto currentTimeString = currentTime.toString (includeDate, includeTime);           // [5]
- 
-            timeLabel.setText (currentTimeString, juce::dontSendNotification);                        // [6]
-        }
+        auto currentTime = juce::Time::getCurrentTime(); // [4]
+
+        auto includeDate = true;
+        auto includeTime = true;
+        auto currentTimeString = currentTime.toString (includeDate, includeTime); // [5]
+
+        timeLabel.setText (currentTimeString, juce::dontSendNotification); // [6]
     }
+}
 ```
 
-- \[3\]ここでは、関数に渡されたポインタとボタンのアドレスを比較して、それが一致するかどうかを確認する。今回のようにボタンが1つしかない場合でも、この処理を行う必要がある。ポインタとベースとなる[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")クラスのインスタンスを持つ[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")のようなサブクラスがあります。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")クラスは次のようになる。
-- \[4\]これは[Time](https://docs.juce.com/master/classTime.html "絶対日時を保持する。")クラスを使ってオペレーティング・システムから現在時刻を取得する。
-- \[5\]を変換する。[Time](https://docs.juce.com/master/classTime.html "絶対日時を保持する。")オブジェクトを読みやすい文字列に変換する。2つの`bool`のドキュメントを参照のこと）。[Time::toString()](https://docs.juce.com/master/classTime.html#a330e0926141abd7ef42957bce8a9e054 "この日付と時刻を、このマシンのローカルタイムゾーンを使用して文字列で返します。")関数を参照)。
-- \[6\]ここでは、ラベル内に表示されるテキストを更新する。
+- [3]：ここでは、関数に渡されたポインタをボタンのアドレスと比較して、一致するかどうかを確認します。ここのように 1 つしかボタンがなくても、これを行うべきです。関数に渡された基底[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")クラスへのポインタを、ここに示されている[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")クラスなどの[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")サブクラスのインスタンスと比較するのは安全です。
+- [4]：これは[Time](https://docs.juce.com/master/classTime.html "Holds an absolute date and time.")クラスを使用してオペレーティングシステムから現在の時刻を取得します。
+- [5]：これは[Time](https://docs.juce.com/master/classTime.html "Holds an absolute date and time.")オブジェクトを読みやすい文字列に変換します。2 つの`bool`値により、出力のカスタマイズが可能です（詳細は[Time::toString()](https://docs.juce.com/master/classTime.html#a330e0926141abd7ef42957bce8a9e054 "Returns a string version of this date and time, using this machine's local timezone.")関数のドキュメントを参照）。
+- [6]：ここではラベル内に表示されるテキストを更新します。
 
-:::note
-
-について`dontSendNotification`議論\[7\]は、ラベルがこの変更をリスナーに伝えるのを防ぎます。([Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトもリスナーを持つことができます）。この場合、リスナーを持つことができないことは分かっています（私たち自身のプライベート・メンバーだからです）。
-
+:::tip
+`dontSendNotification`引数[7]は、ラベルがリスナーを持っている場合、この変更をリスナーにブロードキャストすることを防ぎます。（[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")オブジェクトはテキストの編集にも使用できるため、リスナーを持つことができます。）この場合、リスナーを持つことができないことはわかっています（自分のプライベートメンバーなので）が、明示的にすることは良い習慣です。
 :::
 
-### 放送局へのリスナー登録
+### ブロードキャスターへのリスナーとしての登録
 
-ブロードキャストされたメッセージを受信するには、リスナー・オブジェクトを1つ以上のブロードキャスター・オブジェクトに登録する必要がある。この場合[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトを返します。通常、これはリスナー・サブクラスのコンストラクタ内で行われる。\[7\]:
+ブロードキャストされるメッセージを受信するには、1 つ以上のブロードキャスターオブジェクトにリスナーオブジェクトを登録する必要があります。この場合、[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")オブジェクトに登録する必要があります。通常、これはリスナーサブクラスのコンストラクタ内で行われます[7]：
 
 ```cpp
-    MainContentComponent()
-    {
-        addAndMakeVisible (checkTheTimeButton);
-        checkTheTimeButton.setButtonText ("Check the time...");
-        checkTheTimeButton.addListener (this); // [7]
+MainContentComponent()
+{
+    addAndMakeVisible (checkTheTimeButton);
+    checkTheTimeButton.setButtonText ("Check the time...");
+    checkTheTimeButton.addListener (this); // [7]
 ```
 
-:::note
-
-ほとんどの放送局オブジェクトは`addListener()`この目的のために[ChangeBroadcaster](https://docs.juce.com/master/classChangeBroadcaster.html "ChangeListenersのリストを保持し、指示があったときにメッセージを送信する。")オブジェクトは例外です。[ChangeBroadcaster::addChangeListener()](https://docs.juce.com/master/classChangeBroadcaster.html#ad68416fe79a94cd5c99519bdea6c2a06 "このブロードキャスターからの変更コールバックを受け取るリスナーを登録します。")関数の代わりに)。
-
+:::tip
+ほとんどのブロードキャスターオブジェクトには、この目的のための`addListener()`関数があります（[ChangeBroadcaster](https://docs.juce.com/master/classChangeBroadcaster.html "Holds a list of ChangeListeners, and sends messages to them when instructed.")オブジェクトは例外で、代わりに[ChangeBroadcaster::addChangeListener()](https://docs.juce.com/master/classChangeBroadcaster.html#ad68416fe79a94cd5c99519bdea6c2a06 "Registers a listener to receive change callbacks from this broadcaster.")関数があります）。
 :::
 
-#### 放送局へのリスナー登録解除
+### ブロードキャスターへのリスナー登録解除
 
-放送局もまた`removeListener()`関数もある。例えば[Button::removeListener()](https://docs.juce.com/master/classButton.html#aa7016d2e4b8ab37a12c2736057eb28de "以前に登録されたボタンリスナーを削除します。")関数を使用します。このボタンは、リスニングを実行しているのと同じクラスが所有しているので、実際には*必要*ボタンがリスナーと同時に破壊されるので、リスナーを削除する。念のため*可能性がある*これをデストラクタに追加する：
+ブロードキャスターには`removeListener()`関数もあります。例えば、[Button::removeListener()](https://docs.juce.com/master/classButton.html#aa7016d2e4b8ab37a12c2736057eb28de "Removes a previously-registered button listener.")関数を参照してください。ボタンはリスニングを行っているクラスと同じクラスに所有されているため、ボタンはリスナーと同時に破棄されるため、リスナーを削除する必要は実際には*ありません*。完全性のために、デストラクタにこれを追加*できます*：
 
 ```cpp
 ~MainContentComponent()
@@ -212,95 +198,89 @@ buttonfloat float UnityEventModifiers int buttonDefinition juce_UnityPluginInter
 ```
 
 :::warning
-
-リスナーを適切に削除することは、より複雑なブロードキャスターとリスナーのシステムをセットアップする場合に重要である。
-
+より複雑なブロードキャスター-リスナーシステムを設定する場合、リスナーを適切に削除することは重要です。
 :::
 
-アプリケーションをビルドして実行します。ボタンをクリックすると、ラベルに時間が表示されるはずです。
+アプリケーションをビルドして実行してください。ボタンをクリックすると、ラベル内に時刻が表示されるはずです。
 
 <CaptionImage
   src="/_images/tutorial_listeners_and_broadcasters_screenshot2.png"
-  caption="ボタンで現在時刻を表示する。"
+  caption="ボタンを使用して現在の時刻を表示"
 />
 
-:::note
-
-このセクションの完成したコードは`ListenersAndBroadcastersTutorial_02.h`ファイルを参照してください。
-
+:::tip
+このセクションの完成したコードは、このチュートリアルのデモプロジェクトの`ListenersAndBroadcastersTutorial_02.h`ファイルにあります。
 :::
 
-:::danger[エクササイズ]
-
-表示されるテキストのフォーマットを変更してみてください。これは[Time::toString()](https://docs.juce.com/master/classTime.html#a330e0926141abd7ef42957bce8a9e054 "この日付と時刻を、このマシンのローカルタイムゾーンを使用して文字列で返します。")関数を使います。また、ラベルが絶対時間ではなく、ボタンをクリックする間のミリ秒数を表示するようにコードを変更することもできる。
-
-:::
+<!-- -->
 
 :::note
-
-この練習のコードの実装例は`ListenersAndBroadcastersTutorial_03.h`ファイルを参照してください。
-
+演習：表示されるテキストの形式を変更してみてください。[Time::toString()](https://docs.juce.com/master/classTime.html#a330e0926141abd7ef42957bce8a9e054 "Returns a string version of this date and time, using this machine's local timezone.")関数に渡す引数を変更することで行えます。また、絶対時間ではなく、ボタンクリック間のミリ秒数を表示するようにコードを変更することもできます。
 :::
 
-### Buttonコールバックの簡素化
+<!-- -->
 
-このチュートリアルで示したようなリスナーやブロードキャスターのパラダイムを使う代わりに、最新のC++標準のラムダ関数を使うことで、ボタンのコールバックを単純化できます。これは、複雑な実装を必要としない単純なコールバックには特に有効です。
+:::tip
+この演習のコードの例は、このチュートリアルのデモプロジェクトの`ListenersAndBroadcastersTutorial_03.h`ファイルにあります。
+:::
 
-まずは[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "ボタンがクリックされたときにコールバックを受け取るために使用します。")クラスを作成し、次のようにMainContentComponentクラスの定義を復元する：
+### Button コールバックの簡素化
+
+このチュートリアルで示されているリスナーとブロードキャスターのパラダイムを使用する代わりに、最新の C++標準のラムダ関数を使用してボタンコールバックを簡素化できます。これは、複雑な実装を必要としないシンプルなコールバックに特にうまく機能します。
+
+まず、[Button::Listener](https://docs.juce.com/master/classButton_1_1Listener.html "Used to receive callbacks when a button is clicked.")クラスからの継承を削除し、MainContentComponent クラスの定義を以下のように復元します：
 
 ```cpp
-class MainContentComponent   : public juce::Component
+class MainContentComponent : public juce::Component
 {
 public:
 ```
 
-では、MainContentComponentをリスナーとして追加する代わりに[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")ラムダ関数を[Button::onClick](https://docs.juce.com/master/classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "このコールバック・オブジェクトにラムダを代入すると、ボタンがクリックされたときに呼び出されるようになります。")ヘルパーオブジェクト\[8\]以下の通りである：
+次に、MainContentComponent を[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")のリスナーとして追加する代わりに、[Button::onClick](https://docs.juce.com/master/classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "You can assign a lambda to this callback object to have it called when the button is clicked.")ヘルパーオブジェクトにラムダ関数を割り当てます[8]：
 
 ```cpp
-    MainContentComponent()
-    {
-        addAndMakeVisible (checkTheTimeButton);
-        checkTheTimeButton.setButtonText ("Check the time...");
-        checkTheTimeButton.onClick = [this] { checkTime(); };   // [8]
+MainContentComponent()
+{
+    addAndMakeVisible (checkTheTimeButton);
+    checkTheTimeButton.setButtonText ("Check the time...");
+    checkTheTimeButton.onClick = [this] { checkTime(); }; // [8]
 ```
 
-これは[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")オブジェクトを呼び出します。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")がクリックされる。
+これは、ユーザーが[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")をクリックしたときに呼び出す関数を[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")オブジェクトに伝えます。
 
-最後に、コールバック関数の名前をcheckTime()に変更します。\[9\]へのポインタをチェックするif() ステートメントを削除する。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")オブジェクトをチェックする必要がないからだ。[Button](https://docs.juce.com/master/classButton.html "ボタンの基本クラス。")はもうその関数を呼び出さない：
+最後に、コールバック関数の名前を checkTime()[9]に変更し、どの[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")が関数を呼び出したかをチェックする必要がなくなったので、[Button](https://docs.juce.com/master/classButton.html "A base class for buttons.")オブジェクトへのポインタをチェックする if()文を削除します：
 
 ```cpp
-    void checkTime() // [9]
-    {
-        auto currentTime = juce::Time::getCurrentTime();
- 
-        auto includeDate = true;
-        auto includeTime = true;
-        auto currentTimeString = currentTime.toString (includeDate, includeTime);
- 
-        timeLabel.setText (currentTimeString, juce::dontSendNotification);
-    }
+void checkTime() // [9]
+{
+    auto currentTime = juce::Time::getCurrentTime();
+
+    auto includeDate = true;
+    auto includeTime = true;
+    auto currentTimeString = currentTime.toString (includeDate, includeTime);
+
+    timeLabel.setText (currentTimeString, juce::dontSendNotification);
+}
 ```
 
-:::note
-
-コードの実装は`ListenersAndBroadcastersTutorial_04.h`ファイルを参照してください。
-
+:::tip
+このコードの実装は、このチュートリアルのデモプロジェクトの`ListenersAndBroadcastersTutorial_04.h`ファイルにあります。
 :::
 
-## 概要
+## まとめ
 
-このチュートリアルでは、JUCEにおけるブロードキャスターとリスナーのシステムの基本を紹介しました。このチュートリアルではボタンに焦点を当てましたが、同じテクニックはJUCEコードの多くの領域に適用できます。特に、以下のことを学びました：
+このチュートリアルでは、JUCE のブロードキャスター-リスナーシステムの基本を紹介しました。このチュートリアルではボタンに焦点を当てましたが、同じ技術は JUCE コードの多くの領域に適用できます。特に、以下のことを学びました：
 
-- カスタム・クラスの1つをリスナー・タイプのオブジェクトにする方法
-- リスナーのコールバック関数の追加方法
-- ブロードキャスター・オブジェクトのリスナーとしての登録と登録解除の方法
-- を使って現在時刻にアクセスする方法[Time](https://docs.juce.com/master/classTime.html "絶対日時を保持する。")クラスである
-- ラムダ関数でコールバックを単純化する方法。
+- カスタムクラスの 1 つをリスナータイプのオブジェクトにする方法。
+- リスナーコールバック関数を追加する方法。
+- ブロードキャスターオブジェクトへのリスナーとしての登録と登録解除の方法。
+- [Time](https://docs.juce.com/master/classTime.html "Holds an absolute date and time.")クラスを使用して現在の時刻にアクセスする方法。
+- ラムダ関数でコールバックを簡素化する方法。
 
-## 参照
+## 関連項目
 
-- [Tutorial: The Label class](../tutorial_label/)
-- [Tutorial: The ComboBox class](../tutorial_combo_box/)
-- [Tutorial: Radio buttons and checkboxes](../tutorial_radio_buttons_checkboxes/)
-- [Tutorial: The Slider class](../tutorial_slider_values/)
-- [Tutorial: Build an audio player](../../audio/tutorial_playing_sound_files/)
+- [チュートリアル：Label クラス](../tutorial_label/)
+- [チュートリアル：ComboBox クラス](../tutorial_combo_box/)
+- [チュートリアル：ラジオボタンとチェックボックス](../tutorial_radio_buttons_checkboxes/)
+- [チュートリアル：Slider クラス](../tutorial_slider_values/)
+- [チュートリアル：オーディオプレーヤーの構築](../../audio/tutorial_playing_sound_files/)

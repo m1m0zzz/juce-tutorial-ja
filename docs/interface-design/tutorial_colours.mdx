@@ -1,172 +1,165 @@
 ---
-title: JUCEのカラー
+title: JUCE での色
 sidebar_position: 3
 tags: [初級]
 ---
 
-# JUCEの色
+# チュートリアル：JUCE での色
 
 <SourcePageLink path="tutorial_colours" />
 
-アプリケーション内で色を指定し、さまざまな方法で適用します。
+アプリケーション内でさまざまな方法で色を指定し適用します。
 
-レベル初心者
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [Colour](https://docs.juce.com/master/classColour.html "Represents a colour, also including a transparency value."), [Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)"), [LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。"),[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。"),[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/ColoursTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/ColoursTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルを Projucer で開いてください。
 
-## スタート
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucer を始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/ColoursTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/ColoursTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-## デモ・プロジェクト
-
-デモ・プロジェクトは、いくつかの子コンポーネントを表示し、いくつかの簡単な描画コマンドを実行します。これは、JUCEでどのように色が指定され、コンポーネントに適用されるかを説明するために使用されます。アプリケーションは以下のスクリーンショットのようになるはずです：
+デモプロジェクトはいくつかの子コンポーネントを表示し、JUCE でコンポーネントに色を指定して適用する方法を示すシンプルな描画コマンドを実行します。アプリケーションは以下のスクリーンショットと同様に見えるはずです：
 
 <CaptionImage
   src="/_images/tutorial_colours_screenshot1.png"
-  caption="デモ・アプリケーション"
+  caption="色デモアプリケーション"
 />
 
-このチュートリアルの最初の部分では、より一般的な色の指定について見ていきます。の描画コードを変更することで説明します。`paint()`関数を使用します。チュートリアルの第2部では、組み込みのコンポーネント・タイプ（ラベルやスライダーなど）の要素に対して、どのように色を指定するかを示します。
+このチュートリアルの最初の部分では、より一般的な色の指定方法を見ていきます。これはデモアプリケーションの`paint()`関数内の描画コードを変更することで説明されます。チュートリアルの 2 番目の部分では、組み込みコンポーネントタイプ（ラベル、スライダーなど）の要素に色を指定する方法を示します。
 
-## 色と一般的な塗装作業
+## 色と一般的な描画操作
 
-JUCEは、赤、緑、青、アルファ（透明度）の値を使って色を指定します。これはもちろん、コンピュータで色を指定する方法として広く使われているものですが、実装はすべて微妙に異なります。特に、JUCEは色を操作するためのいくつかの便利なメソッドを提供しており、アプリケーションの一貫したカラーパレットを維持するのに役立ちます。まず`paint()`関数をデモ・アプリケーションから呼び出す：
+JUCE は赤、緑、青、アルファ（透明度）の値を使用して色を指定します。これはもちろん、コンピューティングで広く使用されている色を指定する方法ですが、すべての実装は若干異なります。特に、JUCE は色を操作するための便利なメソッドを提供しており、アプリケーションの一貫したカラーパレットを維持するのに役立ちます。まず、デモアプリケーションの`paint()`関数を見てみましょう：
 
 ```cpp
-    void paint (juce::Graphics& g) override
+void paint (juce::Graphics& g) override
+{
+    g.fillAll (juce::Colours::lightgreen);
+    g.setColour (juce::Colours::orange);
+
+    auto centralArea = getLocalBounds().toFloat().reduced (10.0f);
+    g.drawRoundedRectangle (centralArea, 5.0f, 3.0f);
+
+    juce::Array<juce::Colour> colours { juce::Colours::red, juce::Colours::green, juce::Colours::blue };
+
+    auto colourBarArea = centralArea.reduced (4.0f).withHeight (20.0f);
+    auto colourArea = colourBarArea.withWidth (colourBarArea.getWidth() / (float) colours.size());
+
+    for (auto colour : colours)
     {
-        g.fillAll (juce::Colours::lightgreen);
-        g.setColour (juce::Colours::orange);
- 
-        auto centralArea = getLocalBounds().toFloat().reduced (10.0f);
-        g.drawRoundedRectangle (centralArea, 5.0f, 3.0f);
- 
-        juce::Array colours { juce::Colours::red, juce::Colours::green, juce::Colours::blue };
- 
-        auto colourBarArea = centralArea.reduced (4.0f).withHeight (20.0f);
-        auto colourArea = colourBarArea.withWidth (colourBarArea.getWidth() / (float) colours.size());
- 
-        for (auto colour : colours)
-        {
-            g.setColour (colour);
-            g.fillRect (colourArea);
- 
-            colourArea.translate (colourArea.getWidth(), 0.0f);
-        }
+        g.setColour (colour);
+        g.fillRect (colourArea);
+
+        colourArea.translate (colourArea.getWidth(), 0.0f);
     }
+}
 ```
 
-最初の行は、グラフィックス・コンテキスト全体を単一色で塗りつぶします（これはコンポーネントの境界全体を意味します）：
+最初の行はグラフィックスコンテキスト全体を単一の色で塗りつぶします（これはコンポーネントの境界全体を意味します）：
 
 ```cpp
 g.fillAll (juce::Colours::lightgreen);
 ```
 
-次の行は、与えられたグラフィックス・コンテキストに対して、今後描画操作を行う際の色を設定する。
+次の行は、指定されたグラフィックスコンテキストで今後の描画操作の色を設定します。
 
 ```cpp
 g.setColour (juce::Colours::orange);
 ```
 
-次に、わずかに挿入された長方形を定義し、現在の色を使用して、境界線として丸みを帯びた長方形を描画する：
+次に、わずかにインセットした矩形を定義し、現在の色を使用して角丸矩形をボーダーとして描画します：
 
 ```cpp
 auto centralArea = getLocalBounds().toFloat().reduced (10.0f);
 g.drawRoundedRectangle (centralArea, 5.0f, 3.0f);
 ```
 
-次に、色の配列を設定し、それを使って異なる色の長方形の列を描く。
+次に、異なる色の矩形の行を描画するために使用する色の配列を設定します。
 
 ```cpp
-juce::Array colours { juce::Colours::red, juce::Colours::green, juce::Colours::blue };
+juce::Array<juce::Colour> colours { juce::Colours::red, juce::Colours::green, juce::Colours::blue };
 ```
 
-この色のついた長方形の列を描くには、まず、長方形を配置する領域を定義する：
+この色付き矩形の行を描画するために、まずそれらが配置される領域を定義します：
 
 ```cpp
 auto colourBarArea = centralArea.reduced (4.0f).withHeight (20.0f);
 ```
 
-次に、最初の色の矩形の面積を定義する。これは、矩形の全幅に対する割合となる。`colourBarArea`長方形を使用する色の数で割ったもの：
+次に、最初の色付き矩形の領域を定義します。これは`colourBarArea`矩形の合計幅を使用する色の数で割った比率になります：
 
 ```cpp
 auto colourArea = colourBarArea.withWidth (colourBarArea.getWidth() / colours.size());
 ```
 
-最後に、色の配列を繰り返し処理し、矩形を指定された色で塗りつぶし、矩形を移動させる。`colourArea`次の反復のために、矩形を右に寄せる：
+最後に、色の配列を反復処理し、指定された色で矩形を塗りつぶし、次の反復のために`colourArea`矩形を右に移動します：
 
 ```cpp
 for (auto colour : colours)
 {
     g.setColour (colour);
     g.fillRect (colourArea);
- 
+
     colourArea.translate (colourArea.getWidth(), 0.0f);
 }
 ```
 
-この後のいくつかの例では、色を指定するためのいくつかの方法を示します。`colours`配列である。
+次のいくつかの例では、`colours`配列に追加する色を変更することで、色を指定するいくつかの方法を示します。
 
-### 名前で色を指定する
+### 名前による色の指定
 
-デモ・プロジェクトと上のコードに示されているように、JUCEでは、色は[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")の名前空間を使用します。
+デモプロジェクトと上記のコードに示されているように、[Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)")名前空間のいくつかの定数を使用して JUCE で色を指定できます。
 
-:::note
-
-のAPIドキュメントをご覧ください。[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")名前空間の全リストは、ほとんどが標準的なHTMLカラーです。
-
+:::tip
+利用可能な色の完全なリストについては、[Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)")名前空間の API ドキュメントを参照してください。これらはほとんど標準的な HTML 色です。
 :::
 
-内の定数に加えて[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")名前空間では[Colours::findColourForName()](https://docs.juce.com/master/namespaceColours.html#af4f192e53312f7dd625afc1ce029025f "既知の色名のリストから文字列を検索し、適切な色を返そうとする。")関数を使用して、文字列を使用して希望の色名を検索します。例えば、同じ赤、緑、青の色を使って、次のようなコードで`colours`配列である：
+[Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)")名前空間内の定数に加えて、[Colours::findColourForName()](https://docs.juce.com/master/namespacejuce_1_1Colours.html#af4f192e53312f7dd625afc1ce029025f "Attempts to look up a string in the list of known colour names, and return the appropriate colour.")関数を使用して、文字列を使用して目的の色名を検索できます。例えば、以下のコードを使用して`colours`配列を同じ赤、緑、青の色で埋めることができます：
 
 ```cpp
 auto defaultColour = Colours::black;
- 
-juce::Array colours { juce::Colours::findColourForName ("red", defaultColour),
-                                    juce::Colours::findColourForName ("green", defaultColour),
-                                    juce::Colours::findColourForName ("blue", defaultColour) };
-Colours::blackconst Colour blackDefinition juce_Colours.h:58
+
+juce::Array<juce::Colour> colours { juce::Colours::findColourForName ("red", defaultColour),
+    juce::Colours::findColourForName ("green", defaultColour),
+    juce::Colours::findColourForName ("blue", defaultColour) };
 ```
 
-:::note
-
-指定した色の検索に失敗した場合に備えて、デフォルトの色（この場合は黒）を用意しておく必要がある。
-
+:::tip
+名前付きの色の検索が失敗した場合に備えて、デフォルトの色を提供する必要があります（この場合は単に黒を使用）。
 :::
 
-について[Colours::findColourForName()](https://docs.juce.com/master/namespaceColours.html#af4f192e53312f7dd625afc1ce029025f "既知の色名のリストから文字列を検索し、適切な色を返そうとする。")関数は大文字と小文字を区別せずに検索を行い、文字列の先頭と末尾の空白を切り捨てますが、文字列内の空白は切り捨てません。例えば、以下のコードは、色が内部的にすべて小文字の文字列を使用して保存されていても、期待通りに動作します：
+[Colours::findColourForName()](https://docs.juce.com/master/namespacejuce_1_1Colours.html#af4f192e53312f7dd625afc1ce029025f "Attempts to look up a string in the list of known colour names, and return the appropriate colour.")関数は大文字と小文字を区別せずに検索し、文字列の先頭と末尾の空白を削除しますが、文字列内のスペースは削除しません。例えば、色は内部的にすべて小文字の文字列を使用して保存されていますが、以下のコードは期待通りに動作します：
 
 ```cpp
 auto defaultColour = juce::Colours::black;
- 
-juce::Array colours { juce::Colours::findColourForName ("DarkRed", defaultColour),
-                                    juce::Colours::findColourForName ("DarkGreen", defaultColour),
-                                    juce::Colours::findColourForName ("DarkBlue", defaultColour) };
+
+juce::Array<juce::Colour> colours { juce::Colours::findColourForName ("DarkRed", defaultColour),
+    juce::Colours::findColourForName ("DarkGreen", defaultColour),
+    juce::Colours::findColourForName ("DarkBlue", defaultColour) };
 ```
 
-これにより、次のような色が生まれる：
+これにより以下の色が生成されます：
 
 <CaptionImage
   src="/_images/tutorial_colours_screenshot2.png"
   caption="ダークレッド、グリーン、ブルー"
 />
 
-しかし、色名の中に空白を含むと失敗し、この場合はいずれも黒を返す：
+しかし、色名内にスペースを含めると失敗し、各ケースで黒い色が返されます：
 
 ```cpp
 auto defaultColour = Colours::black;
- 
-juce::Array colours { juce::Colours::findColourForName ("Dark Red", defaultColour),
-                                    juce::Colours::findColourForName ("Dark Green", defaultColour),
-                                    juce::Colours::findColourForName ("Dark Blue", defaultColour) };
+
+juce::Array<juce::Colour> colours { juce::Colours::findColourForName ("Dark Red", defaultColour),
+    juce::Colours::findColourForName ("Dark Green", defaultColour),
+    juce::Colours::findColourForName ("Dark Blue", defaultColour) };
 ```
 
-このような場合、ニーズに合わせて独自の関数を書くのは簡単だ。例えば、文字列からすべてのスペースを取り除く関数を書くことができる：
+これらのインスタンスで必要に応じて独自の関数を書くのは簡単です。例えば、文字列からすべてのスペースを削除する関数を書くことができます：
 
 ```cpp
 static juce::String removeSpaces (const juce::String& text)
@@ -175,305 +168,284 @@ static juce::String removeSpaces (const juce::String& text)
 }
 ```
 
-そして、文字列を[Colours::findColourForName()](https://docs.juce.com/master/namespaceColours.html#af4f192e53312f7dd625afc1ce029025f "既知の色名のリストから文字列を検索し、適切な色を返そうとする。")関数である：
+そして[Colours::findColourForName()](https://docs.juce.com/master/namespacejuce_1_1Colours.html#af4f192e53312f7dd625afc1ce029025f "Attempts to look up a string in the list of known colour names, and return the appropriate colour.")関数に文字列を渡すときにそれを使用します：
 
 ```cpp
 auto defaultColour = juce::Colours::black;
- 
-juce::Array colours { juce::Colours::findColourForName (removeSpaces ("Dark Red"), defaultColour),
-                                    juce::Colours::findColourForName (removeSpaces ("Dark Green"), defaultColour),
-                                    juce::Colours::findColourForName (removeSpaces ("Dark Blue"), defaultColour) };
+
+juce::Array<juce::Colour> colours { juce::Colours::findColourForName (removeSpaces ("Dark Red"), defaultColour),
+    juce::Colours::findColourForName (removeSpaces ("Dark Green"), defaultColour),
+    juce::Colours::findColourForName (removeSpaces ("Dark Blue"), defaultColour) };
 ```
 
-### 値から色を指定する
+### 値による色の指定
 
-[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")は、生の赤、緑、青、アルファ値を使って指定することもできる。ここでは[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。")オブジェクトは、0.0-1.0の範囲の浮動小数点値か、0-255の整数（uint8型）のいずれかを使用します。整数を使えば、同じ赤、緑、青の色を次のように作ることができる：
+[Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)")は、生の赤、緑、青、アルファ値を使用して指定することもできます。ここでは、0.0〜1.0 の範囲の浮動小数点値、または 0〜255 の整数（uint8 型）を使用して[Colour](https://docs.juce.com/master/classColour.html "Represents a colour, also including a transparency value.")オブジェクトを作成できます。整数を使用すると、同じ赤、緑、青の色を次のように作成できます：
 
 ```cpp
-juce::Array colours { juce::Colour (255, 0, 0),   // red
-                                    juce::Colour (0, 128, 0),   // green
-                                    juce::Colour (0, 0, 255) }; // blue
+juce::Array<juce::Colour> colours { juce::Colour (255, 0, 0), // red
+    juce::Colour (0, 128, 0), // green
+    juce::Colour (0, 0, 255) }; // blue
 ```
 
-:::note
-
-標準の "緑 "カラーは、カラーの緑要素に最大値255を持たない。
-
+:::tip
+標準の「green」色は、色の緑要素に最大値 255 を持っていません。
 :::
 
-この場合、アルファ値を省略すると、アルファ値は最大値（255）に設定され、色は完全に不透明になります。
+この場合、アルファ値を省略するとアルファ値は最大（255）に設定され、色は完全に不透明になります。
 
-また、16進数値1つで色を指定することもできる。この場合、色値要素の順番はアルファ、赤、緑、青となる：
+単一の 16 進数値を使用して色を指定することもできます。この場合、色値要素の順序は：アルファ、赤、緑、青です：
 
 ```cpp
-juce::Array colours { juce::Colour (0xffff0000),   // red
-                                    juce::Colour (0xff008000),   // green
-                                    juce::Colour (0xff0000ff) }; // blue
+juce::Array<juce::Colour> colours { juce::Colour (0xffff0000), // red
+    juce::Colour (0xff008000), // green
+    juce::Colour (0xff0000ff) }; // blue
 ```
 
-:::note
-
-この場合、アルファ値を指定しなければならない。そうしないとアルファ値はゼロに設定される（つまり透明になる）。
-
+:::tip
+この場合、アルファ値を指定しないとゼロに設定される（したがって透明になる）ため、必ずアルファ値を指定する必要があります。
 :::
 
-を使用して浮動小数点値を使用することもできます。[Colour::fromFloatRGBA()](https://docs.juce.com/master/classColour.html#a3992d5ea9bdaf0471bd6caa0595b0185 "浮動小数点の赤、緑、青、アルファ値を使用して色を作成します。")関数である：
+[Colour::fromFloatRGBA()](https://docs.juce.com/master/classColour.html#a3992d5ea9bdaf0471bd6caa0595b0185 "Creates a colour using floating point red, green, blue and alpha values.")関数を使用して浮動小数点値も使用できます：
 
 ```cpp
-juce::Array colours { juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 1.0f),   // red
-                                    juce::Colour::fromFloatRGBA (0.0f, 0.5f, 0.0f, 1.0f),   // green
-                                    juce::Colour::fromFloatRGBA (0.0f, 0.0f, 1.0f, 1.0f) }; // blue
+juce::Array<juce::Colour> colours { juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 1.0f), // red
+    juce::Colour::fromFloatRGBA (0.0f, 0.5f, 0.0f, 1.0f), // green
+    juce::Colour::fromFloatRGBA (0.0f, 0.0f, 1.0f, 1.0f) }; // blue
 ```
 
-:::note
-
-128の整数値は、約0.501961の浮動小数点値に相当する。したがって、緑の色は*かなり*は前の例と同じだが、このデモでは0.5が近い。
-
+:::tip
+整数値 128 は約 0.501961 の浮動小数点値に相当します。したがって、緑の色は前の例と*完全に*同じではありませんが、0.5 はこのデモには十分近いです。
 :::
 
-:::danger[エクササイズ]
+<!-- -->
 
-さまざまな色の値を試し、アプリケーションを実行して結果を確認してください。に追加する色は3色に限定されません。`colours`配列では、任意の色数（1色以上）を使用できます。
-
+:::note
+異なる色値を試して、アプリケーションを実行して結果を確認してください。`colours`配列に追加する色は 3 つに限定されず、任意の数（1 以上）の色を使用できます。
 :::
 
 ### 色相、彩度、明度
 
-[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。")オブジェクトを色相、彩度、明度値から初期化することもできる。これは、知覚的な性質を共有する異なる色を生成する1つの方法です。
+[Colour](https://docs.juce.com/master/classColour.html "Represents a colour, also including a transparency value.")オブジェクトは、色相、彩度、明度の値から初期化することもできます。これは、いくつかの知覚的特性を共有する異なる色を生成する 1 つの方法です。
 
-例えば、以下のコードを使って、明るい赤と暗い赤のシリーズを作ることができる：
+例えば、以下のコードを使用して、明るい赤と暗い赤のシリーズを作成できます：
 
 ```cpp
-juce::Array colours { juce::Colour::fromHSV (0.0f,    // hue
-                                                           0.5f,    // saturation
-                                                           0.3f,    // brightness
-                                                           1.0f),   // alpha
-                                    juce::Colour::fromHSV (0.0f, 0.5f, 0.5f, 1.0f),
-                                    juce::Colour::fromHSV (0.0f, 0.5f, 0.7f, 1.0f) };
+juce::Array<juce::Colour> colours { juce::Colour::fromHSV (0.0f, // hue
+                                        0.5f, // saturation
+                                        0.3f, // brightness
+                                        1.0f), // alpha
+    juce::Colour::fromHSV (0.0f, 0.5f, 0.5f, 1.0f),
+    juce::Colour::fromHSV (0.0f, 0.5f, 0.7f, 1.0f) };
 ```
 
-ここでは、色相、彩度、アルファ値は各色で一定です（色相0.0fは「赤」として知覚される色を生成するはずです）。結果は次のスクリーンショットのようになります：
+ここでは、各色の色相、彩度、アルファ値は一定です（0.0f の色相は「赤」として認識される色を生成するはずです）。結果は以下のスクリーンショットに示されています：
 
 <CaptionImage
   src="/_images/tutorial_colours_screenshot3.png"
-  caption="赤（彩度0.5、明度0.3、0.5、0.7"
+  caption="彩度0.5、明度0.3、0.5、0.7の赤"
 />
 
-また、色相、彩度、明度の値を[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。")オブジェクトを使うことができる。例えば、異なる明るさの紫色を並べたい場合、次のようなコードを使うことができる：
+[Colour](https://docs.juce.com/master/classColour.html "Represents a colour, also including a transparency value.")オブジェクトから色相、彩度、明度の値を取得することもできます。例えば、異なる明度の紫のシリーズが必要な場合は、以下のコードを使用できます：
 
 ```cpp
 auto purpleHue = juce::Colours::purple.getHue();
- 
-juce::Array colours { juce::Colour::fromHSV (purpleHue, 0.5f, 0.3f, 1.0f),
-                                    juce::Colour::fromHSV (purpleHue, 0.5f, 0.5f, 1.0f),
-                                    juce::Colour::fromHSV (purpleHue, 0.5f, 0.7f, 1.0f) };
+
+juce::Array<juce::Colour> colours { juce::Colour::fromHSV (purpleHue, 0.5f, 0.3f, 1.0f),
+    juce::Colour::fromHSV (purpleHue, 0.5f, 0.5f, 1.0f),
+    juce::Colour::fromHSV (purpleHue, 0.5f, 0.7f, 1.0f) };
 ```
 
-その結果が次のスクリーンショットである：
+この結果は以下のスクリーンショットに示されています：
 
 <CaptionImage
   src="/_images/tutorial_colours_screenshot4.png"
-  caption="紫、彩度0.5、明度0.3、0.5、0.7"
+  caption="彩度0.5、明度0.3、0.5、0.7の紫"
 />
 
-### 色の値を操作する
+### 色値の操作
 
-また、既存の色を使って新しい色を作ることもできます。例えば、既存の色より少し明るい色や暗い色を作るには[Colour::brighter()](https://docs.juce.com/master/classColour.html#a614c7699a1b47dcf324106d548238bac "この色の明るいバージョンを返します。")または[Colour::darker()](https://docs.juce.com/master/classColour.html#a9910d9b8385825a87ea0d62d96115872 "この色の暗いバージョンを返します。")関数をそれぞれ使用する：
+既存の色を使用して新しい色を作成することもできます。例えば、既存の色よりも若干明るいまたは暗い色を作成するには、それぞれ[Colour::brighter()](https://docs.juce.com/master/classColour.html#a614c7699a1b47dcf324106d548238bac "Returns a brighter version of this colour.")または[Colour::darker()](https://docs.juce.com/master/classColour.html#a9910d9b8385825a87ea0d62d96115872 "Returns a darker version of this colour.")関数を使用できます：
 
 ```cpp
 auto baseColour = juce::Colours::orange;
- 
-juce::Array colours { baseColour.darker(),
-                                    baseColour,
-                                    baseColour.brighter() };
+
+juce::Array<juce::Colour> colours { baseColour.darker(),
+    baseColour,
+    baseColour.brighter() };
 ```
 
-または[Colour::interpolatedWith()](https://docs.juce.com/master/classColour.html#ac1500fb05c7775db2e1b21f07cc28c0c "この色と別の色の中間の色を返す。")関数である：
+または、[Colour::interpolatedWith()](https://docs.juce.com/master/classColour.html#ac1500fb05c7775db2e1b21f07cc28c0c "Returns a colour that lies somewhere between this one and another.")関数を使用して 2 つの色をブレンドできます：
 
 ```cpp
 auto colour1 = juce::Colours::red;
 auto colour2 = juce::Colours::purple;
- 
-juce::Array colours { colour1,
-                                    colour1.interpolatedWith (colour2, 0.5f),
-                                    colour2 };
+
+juce::Array<juce::Colour> colours { colour1,
+    colour1.interpolatedWith (colour2, 0.5f),
+    colour2 };
 ```
 
-その結果が次のスクリーンショットである：
+この結果は以下のスクリーンショットに示されています：
 
 <CaptionImage
   src="/_images/tutorial_colours_screenshot5.png"
-  caption="赤と紫が同程度にブレンドされている。"
+  caption="赤と紫、その間に赤と紫の等しいブレンド"
 />
 
-ある色が与えられたら、別の色に対してはっきりと見える別の色を作ることができます。[Colour::contrasting()](https://docs.juce.com/master/classColour.html#a50e8a45cda60f6853cb74ed1ff1fb7d7 "この色に対してはっきりと見える色を返します。")関数を使用します。これは、引数を使ってコントラストの量を指定できる：
+ある色に対して、別の色に対して明確に見える色を作成するには、[Colour::contrasting()](https://docs.juce.com/master/classColour.html#a50e8a45cda60f6853cb74ed1ff1fb7d7 "Returns a colour that will be clearly visible against this colour.")関数を使用できます。これにより、引数を使用してコントラストの量を指定できます：
 
 ```cpp
 auto baseColour = juce::Colours::darkcyan;
- 
-juce::Array colours { baseColour,
-                                    baseColour.contrasting (0.5f) };
+
+juce::Array<juce::Colour> colours { baseColour,
+    baseColour.contrasting (0.5f) };
 ```
 
-他の2色に対して対照的な色を作ることもできる：
+2 つの他の色に対してコントラストのある色を作成することもできます：
 
 ```cpp
-auto colour1 = juce;:Colours::lightblue;
-auto colour2 = juce;:Colours::darkred;
- 
-juce::Array colours { colour1,
-                                    juce::Colour::contrasting (colour1, colour2),
-                                    colour2 };
-Colours::lightblueconst Colour lightblueDefinition juce_Colours.h:114
-Colours::darkredconst Colour darkredDefinition juce_Colours.h:82
-juceDefinition juce_AudioWorkgroup_mac.h:36
+auto colour1 = juce::Colours::lightblue;
+auto colour2 = juce::Colours::darkred;
+
+juce::Array<juce::Colour> colours { colour1,
+    juce::Colour::contrasting (colour1, colour2),
+    colour2 };
 ```
 
-を使用して、重ね合わせた色のアルファチャンネルを考慮して2色をブレンドするなど、他にもさまざまな操作が可能です。[Colour::overlaidWith()](https://docs.juce.com/master/classColour.html#a3c6c94ff6f05b403b783acaf7c68b439 "この色の上に新しい色をアルファ合成した結果の色を返します。")関数である。
+[Colour::overlaidWith()](https://docs.juce.com/master/classColour.html#a3c6c94ff6f05b403b783acaf7c68b439 "Returns a colour that is the result of alpha-compositing a new colour over this one.")関数を使用して、重ねられた色のアルファチャネルを考慮して 2 つの色をブレンドするなど、他にもさまざまな操作を実行できます。
 
-## コンポーネントカラーの指定
+## コンポーネントの色の指定
 
-前のセクションでは、コンポーネントの`paint()`関数を使用します。組み込みコンポーネント（スライダーやラベルなど）の色をカスタマイズするには、Component::setColour() または[LookAndFeel::setColour()](https://docs.juce.com/master/classLookAndFeel.html#a167a1e914771f32e433a0d45aaba45e3 "特定の目的に使用する色を登録する。")の機能がある。
+前のセクションでは、コンポーネントの`paint()`関数で独自の描画操作を実行するときの色の使用を探りました。組み込みコンポーネント（スライダー、ラベルなど）の色をカスタマイズするには、Component::setColour()または[LookAndFeel::setColour()](https://docs.juce.com/master/classLookAndFeel.html#a167a1e914771f32e433a0d45aaba45e3 "Registers a colour to be used for a particular purpose.")関数を使用する必要があります。
 
-基本的に[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")サブクラスには`enum`には、特定の色を持つことができるコンポーネントのさまざまな要素がリストされています。これらの各項目は*カラーID*.(これらのカラーIDの値はJUCEライブラリ全体で一意です。) 例えば[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")クラスは以下の通りである。[Label::ColourIds](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701 "ラベルの様々な部分の色を変更するために使用する色IDのセット。")):
+基本的に、各組み込み[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")サブクラスには、特定の色を持つことができるコンポーネントのさまざまな要素をリストする`enum`が含まれています。これらの各項目は*カラー ID*と呼ばれます。（これらのカラー ID の値は JUCE ライブラリ全体で一意です。）例えば、[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")クラスのカラー ID は以下のとおりです（[Label::ColourIds](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701 "A set of colour IDs to use to change the colour of various aspects of the label.")から）：
 
-- [Label::backgroundColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a80bf4bb58a466a4debb994f3ee2c8cab "ラベルを塗りつぶす背景色")ラベルを塗りつぶす背景色
+- [Label::backgroundColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a80bf4bb58a466a4debb994f3ee2c8cab "The background colour to fill the label with.")：ラベルを塗りつぶす背景色。
+- [Label::textColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a1f25238374bf53d43f8c73e68c8e937c "The colour for the text.")：テキストの色。
+- [Label::outlineColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701ab67bf6af853bcef12b41b3e81f7d18bb "An optional colour to use to draw a border around the label.")：ラベルの周りにボーダーを描画するためのオプションの色。アウトラインを持たない場合は透明のままにします。
+- [Label::backgroundWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6ccfd805ecc818013ea4bdde69d4258b "The background colour when the label is being edited.")：ラベルが編集されているときの背景色。
+- [Label::textWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701adb6284340066b8c4d9ea389087c7d69d "The colour for the text when the label is being edited.")：ラベルが編集されているときのテキストの色。
+- [Label::outlineWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6c7adfce6c830c9faa94efd3445f78cf "An optional border colour when the label is being edited.")：ラベルが編集されているときのオプションのボーダー色。
 
-- [Label::textColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a1f25238374bf53d43f8c73e68c8e937c "テキストの色")テキストの色
-
-- [Label::outlineColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701ab67bf6af853bcef12b41b3e81f7d18bb "ラベルの周囲に境界線を引くために使用するオプションの色"): ラベルの周囲に境界線を引くために使用するオプションの色
-
-アウトラインを持たないように透明にしておく。
-
-- [Label::backgroundWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6ccfd805ecc818013ea4bdde69d4258b "ラベル編集時の背景色ベル編集時の背景色
-
-- [Label::textWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701adb6284340066b8c4d9ea389087c7d69d "ラベル編集時のテキストの色")ラベルを編集しているときのテキストの色
-
-- [Label::outlineWhenEditingColourId](https://docs.juce.com/master/classLabel.html#a41756012394513222e1323bb432fa701a6c7adfce6c830c9faa94efd3445f78cf "ラベルが編集されているときのオプションの枠色")ラベルが編集されているときのボーダーカラー
-
-これらの色をいくつか変えてみよう。を見ると`MainContentComponent`コンストラクタの[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。"), a[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。"), a[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")そして2つ[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを子コンポーネントとして追加する。次の行を追加する。\[1\]ラベルの文字色を黒に変更するには、下図のようにします：
+これらの色のいくつかを変更してみましょう。`MainContentComponent`コンストラクタを見ると、[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")、[TextEditor](https://docs.juce.com/master/classTextEditor.html "An editable text box.")、[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")、および 2 つの[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクトが子コンポーネントとして追加されています。ラベルのテキスト色を黒に変更するために、以下のように行[1]を追加します：
 
 ```cpp
 MainContentComponent()
 {
-    label.setColour (juce::Label::textColourId, Colours::black);            // [1]
+    label.setColour (juce::Label::textColourId, Colours::black); // [1]
     label.setEditable (true);
     addAndMakeVisible (label);
     //...
-AccessibilityRole::label@ label
 ```
 
-結果は以下のスクリーンショットのようになるはずだ：
+結果は以下のスクリーンショットと同様になるはずです：
 
 <CaptionImage
   src="/_images/tutorial_colours_screenshot6.png"
-  caption="カスタマイズした文字色でラベルを表示する"
+  caption="カスタマイズされたテキスト色のラベルを表示"
 />
 
-:::danger[エクササイズ]
-
-のカラーIDを見てください。[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。"),[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")そして[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")クラス([TextEditor::ColourIds](https://docs.juce.com/master/classTextEditor.html#aa805220923c93cd808a92fff0e3fb71d "エディタの様々な部分の色を変更するために使用するカラーIDのセット。"),[TextButton::ColourIds](https://docs.juce.com/master/classTextButton.html#afb6c1da587aebb63b58a2569bed70c2c "ボタンの様々な部分の色を変更するために使用するカラーIDのセット。")そして[Slider::ColourIds](https://docs.juce.com/master/classSlider.html#a1012002c53381ccc7c1fe7e604a75f44 "スライダーの様々な部分の色を変更するために使用するカラーIDのセット。"))で、デモ・アプリケーションの子コンポーネントに異なる色を設定して試してみてください。
-
+:::note
+[TextEditor](https://docs.juce.com/master/classTextEditor.html "An editable text box.")、[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")、[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")クラスのカラー ID（[TextEditor::ColourIds](https://docs.juce.com/master/classTextEditor.html#aa805220923c93cd808a92fff0e3fb71d "A set of colour IDs to use to change the colour of various aspects of the editor.")、[TextButton::ColourIds](https://docs.juce.com/master/classTextButton.html#afb6c1da587aebb63b58a2569bed70c2c "A set of colour IDs to use to change the colour of various aspects of the button.")、[Slider::ColourIds](https://docs.juce.com/master/classSlider.html#a1012002c53381ccc7c1fe7e604a75f44 "A set of colour IDs to use to change the colour of various aspects of the slider.")）を確認し、デモアプリケーションの子コンポーネントに異なる色を設定して実験してください。
 :::
 
-### ルック＆フィールカラーの設定
+### ルック＆フィールの色の設定
 
-アプリケーションやアプリケーションの一部では、同じタイプのすべてのコンポーネントに同じカラーパレットを必要とすることがよくあります。前のセクションの練習問題で、同じ外観にするために両方のスライダーにComponent::setColour()関数を繰り返し呼び出す必要があることに気づいたかもしれません。関数の1つの使い方は[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスは、これらの色を指定できる単一のポイントを提供することです。これを説明するために`MainContentComponent`コンストラクタを元の状態に戻す：
+アプリケーション、またはアプリケーションの一部で、同じタイプのすべてのコンポーネントに同じカラーパレットが必要なことは非常に一般的です。前のセクションの演習で、両方のスライダーに同じ外観を与えるために Component::setColour()関数の呼び出しを繰り返す必要があることに気づいたかもしれません。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")クラスの 1 つの使用法は、これらの色を指定する単一のポイントを提供することです。これを説明するために、`MainContentComponent`コンストラクタを以下のように元の状態に戻します：
 
 ```cpp
-    MainContentComponent()
-    {
-        label.setEditable (true);
-        addAndMakeVisible (label);
- 
-        textEditor.setText ("This is a text editor.");
-        addAndMakeVisible (textEditor);
- 
-        textButton.setClickingTogglesState (true);
-        addAndMakeVisible (textButton);
- 
-        addAndMakeVisible (slider1);
-        addAndMakeVisible (slider2);
- 
-        setSize (600, 210);
-    }
+MainContentComponent()
+{
+    label.setEditable (true);
+    addAndMakeVisible (label);
+
+    textEditor.setText ("This is a text editor.");
+    addAndMakeVisible (textEditor);
+
+    textButton.setClickingTogglesState (true);
+    addAndMakeVisible (textButton);
+
+    addAndMakeVisible (slider1);
+    addAndMakeVisible (slider2);
+
+    setSize (600, 210);
+}
 ```
 
-次の行を追加する。\[2\]で両方のスライダーの親指の色を設定します：
+次に、両方のスライダーのサムの色を設定するために以下の行[2]を追加します：
 
 ```cpp
 //...
-getLookAndFeel().setColour (juce::Slider::thumbColourId, juce::Colours::red);  // [2]
+getLookAndFeel().setColour (juce::Slider::thumbColourId, juce::Colours::red); // [2]
 addAndMakeVisible (slider1);
 addAndMakeVisible (slider2);
 //...
 ```
 
-これにより、以下のスクリーンショットのような結果が得られるはずだ：
+これにより、以下のスクリーンショットと同様の結果が得られるはずです：
 
 <CaptionImage
   src="/_images/tutorial_colours_screenshot7.png"
-  caption="1行のコードで複数のスライダー親指の色をカスタマイズする"
+  caption="1行のコードで複数のスライダーサムの色をカスタマイズ"
 />
 
-### カスタム・ルック＆フィール・カラー
+### カスタムルック＆フィールの色
 
-のサブクラスを作ることもできます。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラス([LookAndFeel\_V1](https://docs.juce.com/master/classLookAndFeel__V1.html "2002年から2007年頃まで使用されていたオリジナルのJUCEのルック＆フィール。"),[LookAndFeel\_V2](https://docs.juce.com/master/classLookAndFeel__V2.html "このLookAndFeelサブクラスは、2008-12年頃のjuceスタイルを実装しています。"),[LookAndFeel\_V3](https://docs.juce.com/master/classLookAndFeel__V3.html "2013年に登場した最新のJUCEルック＆フィールスタイル。")あるいは[LookAndFeel\_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "2017年に登場した最新のJUCEルック＆フィールスタイル。")) を作成し、そのコンストラクタで特定の色をカスタマイズします。これを行うには、次のクラスを`MainContentComponent`クラスである：
+[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")クラス（[LookAndFeel_V1](https://docs.juce.com/master/classLookAndFeel__V1.html "The original JUCE look-and-feel, as used back from 2002 to about 2007ish.")、[LookAndFeel_V2](https://docs.juce.com/master/classLookAndFeel__V2.html "This LookAndFeel subclass implements the juce style from around 2008-12.")、[LookAndFeel_V3](https://docs.juce.com/master/classLookAndFeel__V3.html "The latest JUCE look-and-feel style, as introduced in 2013.")、または[LookAndFeel_V4](https://docs.juce.com/master/classLookAndFeel__V4.html "The latest JUCE look-and-feel style, as introduced in 2017.")）のサブクラスを作成し、コンストラクタで特定の色をカスタマイズすることもできます。これを行うには、`MainContentComponent`クラスのネストされたクラスとして以下のクラスを追加できます：
 
 ```cpp
-    class CustomLookAndFeel  : public juce::LookAndFeel_V4
+class CustomLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    CustomLookAndFeel()
     {
-    public:
-        CustomLookAndFeel()
-        {
-            setColour (juce::Slider::thumbColourId, juce::Colours::red);
-        }
-    };
+        setColour (juce::Slider::thumbColourId, juce::Colours::red);
+    }
+};
 ```
 
-このクラスのインスタンスをプライベート・メンバー・セクションに追加する。\[3\]:
+このクラスのインスタンスを private メンバーセクションに追加します[3]：
 
 ```cpp
 private:
     CustomLookAndFeel lf; // [3]
-    juce::Label label            { {}, "This is some label text." };
+    juce::Label label { {}, "This is some label text." };
 ```
 
-そして、MainContentComponentクラスのコンストラクタで、このルック＆フィールを使用するように設定する。\[4\]:
+そして MainContentComponent クラスにこのルック＆フィールを使用するようにコンストラクタで設定します[4]：
 
 ```cpp
-    MainContentComponent()
-    {
-        setLookAndFeel (&lf); // [4]
- 
-        label.setEditable (true);
+MainContentComponent()
+{
+    setLookAndFeel (&lf); // [4]
+
+    label.setEditable (true);
 ```
 
+:::tip
+このサブセクションの変更されたコードは、デモプロジェクトの`ColoursTutorial_02.h`ファイルにあります。
+:::
+
+<!-- -->
+
 :::note
-
-このサブセクションの変更されたコードは`ColoursTutorial_02.h`ファイルにある。
-
+`CustomLookAndFeel`コンストラクタでより多くの色をカスタマイズしてください。
 :::
 
-:::danger[エクササイズ]
+## まとめ
 
-でさらに色をカスタマイズする。`CustomLookAndFeel`ビルダー
+このチュートリアルでは、独自のアプリケーションで使用できる以下の項目を見てきました：
 
-:::
+- [Colour](https://docs.juce.com/master/classColour.html "Represents a colour, also including a transparency value.")クラスと[Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)")名前空間を使用して JUCE で色を指定する方法。
+- 描画操作を実行するときにコンポーネントの`paint()`関数で色を使用する。
+- カラー ID を使用して組み込みコンポーネントの要素の色を指定する。
+- [LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeel objects define the appearance of all the JUCE widgets, and subclasses can be used to appl...")クラスを使用してアプリケーションの一部またはアプリケーション全体で色を指定する。
 
-## 概要
+## 関連項目
 
-このチュートリアルでは、あなた自身のアプリケーションで使用できる以下の項目を見てきました：
-
-- の使い方[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。")クラスと[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")名前空間を使用します。
-- コンポーネントの`paint()`関数で描画操作を行う。
-- カラーIDを使った組み込みコンポーネントの要素の色の指定。
-- を使用して、アプリケーションの一部またはアプリケーション全体で色を指定します。[LookAndFeel](https://docs.juce.com/master/classLookAndFeel.html "LookAndFeelオブジェクトは、すべてのJUCEウィジェットの外観を定義します。")クラスである。
-
-## 参照
-
-- [Tutorial: The Random class](../../utility-classes/tutorial_random/)
-- [Tutorial: Customise the look and feel of your app](../tutorial_look_and_feel_customisation/)
-- [Tutorial: Parent and child components](../tutorial_component_parents_children/)
-- [Tutorial: The Point, Line, and Rectangle classes](../tutorial_point_line_rectangle/)
-- [Tutorial: Advanced GUI layout techniques](../tutorial_rectangle_advanced/)
+- [チュートリアル：Random クラス](../../utility-classes/tutorial_random/)
+- [チュートリアル：アプリのルック＆フィールをカスタマイズ](../tutorial_look_and_feel_customisation/)
+- [チュートリアル：親コンポーネントと子コンポーネント](../tutorial_component_parents_children/)
+- [チュートリアル：Point、Line、Rectangle クラス](../tutorial_point_line_rectangle/)
+- [チュートリアル：高度な GUI レイアウト技術](../tutorial_rectangle_advanced/)

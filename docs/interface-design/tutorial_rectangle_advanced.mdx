@@ -1,321 +1,315 @@
 ---
-title: 高度なGUIレイアウト・テクニック
+title: 高度な GUI レイアウト技術
 sidebar_position: 5
 tags: [中級]
 ---
 
-# 高度なGUIレイアウトテクニック
+# チュートリアル：高度な GUI レイアウト技術
 
 <SourcePageLink path="tutorial_rectangle_advanced" />
 
-シンプルかつ強力なテクニックを使ってコンポーネントをレイアウトすれば、バグが少なくエレガントなコードを作成できます。このテクニックでは、コンポーネントの矩形をさまざまな方法で何度か細分化し、コンポーネント全体をコンテンツで満たします。
+コンポーネントの矩形を何度もさまざまな方法で細分化してコンポーネント全体をコンテンツで埋める、シンプルながら強力な技術でコンポーネントをレイアウトします。バグの少ないエレガントなコードが生成されます。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [Rectangle](https://docs.juce.com/master/classRectangle.html "Manages a rectangle and allows geometric operations to be performed on it."), [TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it."), [Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。"),[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。"),[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/RectangleAdvancedTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/RectangleAdvancedTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルを Projucer で開いてください。
 
-## スタート
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucer を始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/RectangleAdvancedTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/RectangleAdvancedTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-## デモ・プロジェクト
-
-デモ・プロジェクトでは、少数のボタン・コンポーネントを使用し、親コンポーネント内に配置しています。この例では、プレースホルダとしてボタンを使用していますが、JUCEコンポーネントであればどのようなものでも構いません。IDEからアプリケーションをビルドして実行すると、メインウィンドウは次のスクリーンショットのようになります。
+デモプロジェクトは少数のボタンコンポーネントを使用し、親コンポーネント内にレイアウトします。この例ではボタンをプレースホルダーとして使用していますが、任意のタイプの JUCE コンポーネントにすることができます。IDE でアプリケーションをビルドして実行すると、メインウィンドウは以下のスクリーンショットのようになるはずです。
 
 <CaptionImage
   src="/_images/tutorial_rectangle_advanced_screenshot1.png"
-  caption="シンプルなアプリケーション・レイアウト"
+  caption="シンプルなアプリケーションレイアウト"
 />
 
-## 長方形レイアウト
+## 矩形レイアウト
 
-このシンプルなアプリケーションでは、メイン・ウィンドウにいくつかのセクションがあります：
+このシンプルなアプリケーションには、メインウィンドウにいくつかのセクションがあります：
 
-- A*ヘッダー*セクションは、タイトルやツールバーを含むかもしれない。
-- A*フッター*セクションには、アプリケーションに関する他の情報が含まれているかもしれません。
-- A*サイドバー*これは、一連のセクションやその他のコンテンツを含む可能性がある。
-- ウィンドウの残りの部分には、いくつかのコンテンツが表示されます。
+- タイトルやツールバーを含む可能性のある*ヘッダー*セクション。
+- アプリケーションに関する他の情報を含む可能性のある*フッター*セクション。
+- 一連のセクションや他のコンテンツを含む可能性のある*サイドバー*。
+- ウィンドウの残りの部分にリストされたいくつかのコンテンツ項目。
 
-これらは`MainContentComponent`コンストラクタ ([Tutorial: Parent and child components](../tutorial_component_parents_children/)そして[Tutorial: Colours in JUCE](../tutorial_colours/)):
-
-```cpp
-    MainContentComponent()
-    {
-        header.setColour (juce::TextButton::buttonColourId, juce::Colours::cornflowerblue);
-        header.setButtonText ("Header");
-        addAndMakeVisible (header);
- 
-        footer.setColour (juce::TextButton::buttonColourId, juce::Colours::cornflowerblue);
-        footer.setButtonText ("Footer");
-        addAndMakeVisible (footer);
- 
-        sidebar.setColour (juce::TextButton::buttonColourId, juce::Colours::grey);
-        sidebar.setButtonText ("Sidebar");
-        addAndMakeVisible (sidebar);
- 
-        limeContent.setColour (juce::TextButton::buttonColourId, juce::Colours::lime);
-        addAndMakeVisible (limeContent);
- 
-        grapefruitContent.setColour (juce::TextButton::buttonColourId, juce::Colours::yellowgreen);
-        addAndMakeVisible (grapefruitContent);
- 
-        lemonContent.setColour (juce::TextButton::buttonColourId, juce::Colours::yellow);
-        addAndMakeVisible (lemonContent);
- 
-        orangeContent.setColour (juce::TextButton::buttonColourId, juce::Colours::orange);
-        addAndMakeVisible (orangeContent);
- 
-        setSize (400, 400);
-    }
-```
-
-実際のレイアウトは、Component::resized()をオーバーライドして行うのが一般的だ。
-
-### 伝統的なレイアウト
-
-従来は、さまざまな位置とサイズを計算し、それらの合計が常に正しいサイズになるように注意しながら、コンポーネントをレイアウトしていた。ウィンドウのメイン部分にカラーボタンを配置するのでさえ、面倒になるし、間違いやすい。同じ大きさのボタンを4つ並べるには、次のようにします：
+これらは`MainContentComponent`コンストラクタで追加されます（[チュートリアル：親コンポーネントと子コンポーネント](../tutorial_component_parents_children/)と[チュートリアル：JUCE での色](../tutorial_colours/)を参照）：
 
 ```cpp
-//...
-    limeContent      .setBounds (0, 0,  200, 24);
-    grapefruitContent.setBounds (0, 24, 200, 24);
-    lemonContent     .setBounds (0, 48, 200, 24);
-    orangeContent    .setBounds (0, 72, 200, 24);
-//...
-```
+MainContentComponent()
+{
+    header.setColour (juce::TextButton::buttonColourId, juce::Colours::cornflowerblue);
+    header.setButtonText ("Header");
+    addAndMakeVisible (header);
 
-(このチュートリアルを書くにあたって、最終的に`orangeContent`コンポーネントを2度間違えた！ )
+    footer.setColour (juce::TextButton::buttonColourId, juce::Colours::cornflowerblue);
+    footer.setButtonText ("Footer");
+    addAndMakeVisible (footer);
 
-少なくとも、コーディングの労力をもっと重要なことに集中できるのに、計算には時間がかかる！ その[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスは、コンポーネントをレイアウトする作業をより柔軟に、ある意味では簡単にするための、シンプルかつ強力な機能をいくつか提供している。これは、メインの矩形をより小さなサブ矩形に細分化するものである。
-
-### 長方形の細分化によるレイアウト
-
-メインの長方形を細分化してコンポーネントをレイアウトする方法は、従来の方法と同等に思えるかもしれない。しかし、多くの利点がある：
-
-- そのため、使用量を減らすことができる。*マジックナンバー*(ハードコードされた値)がコードに含まれていると、将来レイアウトを変更したり保守したりするのが難しくなります。
-- 多くの場合、レイアウトは、値を変更する必要はなく、コードの順序を変えるだけで変更できる！
-- レイアウトが親コンポーネントからはみ出したり、まったく埋まらなかったりするよりも、利用可能なスペースを正確に埋める方がはるかに簡単です。
-- サイズ変更可能なコンポーネントを扱い、特定のセクションが少なくとも一定のサイズでなければならないというルールを作る方が簡単だ。
-
-のコードは`MainContentComponent::resized()`関数は次のようになる：
-
-```cpp
-    void resized() override
-    {
-        auto area = getLocalBounds();
- 
-        auto headerFooterHeight = 36;
-        header.setBounds (area.removeFromTop    (headerFooterHeight));
-        footer.setBounds (area.removeFromBottom (headerFooterHeight));
- 
-        auto sidebarWidth = 80;
-        sidebar.setBounds (area.removeFromLeft (sidebarWidth)); // [2]
- 
-        auto contentItemHeight = 24;
-        orangeContent.setBounds     (area.removeFromTop (contentItemHeight));
-        limeContent.setBounds       (area.removeFromTop (contentItemHeight)); // [1]
-        grapefruitContent.setBounds (area.removeFromTop (contentItemHeight));
-        lemonContent.setBounds      (area.removeFromTop (contentItemHeight));
-    }
-```
-
-この関数の最初の数行を詳しく見てみよう。最初に*ローカル・バウンズ*Component::getLocalBounds()関数を使用します。これは常に、位置 (0, 0) にあるコンポーネントと同じ幅と高さの矩形を返します：
-
-```cpp
-        auto area = getLocalBounds();
-```
-
-これは、子コンポーネントをレイアウトするために細分化する矩形である。最初の分割はヘッダーをレイアウトすることです：
-
-```cpp
-        header.setBounds (area.removeFromTop    (headerFooterHeight));
-```
-
-ここでは、コンポーネント全体を表す長方形を取り出し、効果的に2つの長方形を作成します。その[Rectangle::removeFromTop()](https://docs.juce.com/master/classRectangle.html#a3fbd4e7e1df5336980fb7ec5e752a222 "この矩形の上部からストリップを削除し、この矩形を指定された量だけ縮小し、r...")関数は、元の矩形の位置に、同じ幅で、引数で要求された高さだけの矩形を返す。この場合、高さ36ピクセルの矩形を要求している。この関数が行うもうひとつのことは*モディファイ*元の矩形から先ほど返した矩形を取り除く。基本的には、矩形を上から36ピクセルでスライスし、上の矩形を返し、元の矩形を下の矩形と等しくなるように修正します。
-
-単体ではこのようになる：
-
-<CaptionImage
-  src="/_images/tutorial_rectangle_advanced_screenshot2.png"
-  caption="最初のサブディビジョン"
-/>
-
-番目の細目は、フッターのレイアウトである：
-
-```cpp
-        footer.setBounds (area.removeFromBottom (headerFooterHeight));
-```
-
-について[Rectangle::removeFromBottom()](https://docs.juce.com/master/classRectangle.html#a6f7d3a88adfc3b3bf699ca4ce5b9e6c0 "この矩形の底辺から帯を取り除き、この矩形を指定された量だけ縮小する。")関数は[Rectangle::removeFromTop()](https://docs.juce.com/master/classRectangle.html#a3fbd4e7e1df5336980fb7ec5e752a222 "この矩形の上部からストリップを削除し、この矩形を指定された量だけ縮小し、r...")ただし、メイン矩形の下部から矩形を削除し、上部の矩形を保持する。この時点で、私たちのコンポーネントは次のようになります：
-
-<CaptionImage
-  src="/_images/tutorial_rectangle_advanced_screenshot3.png"
-  caption="第二分譲地"
-/>
-
-- 次に、残りの長方形の左から80ピクセルを削除してサイドバーを作成する。
-- 次に、残りの矩形を[Rectangle::removeFromTop()](https://docs.juce.com/master/classRectangle.html#a3fbd4e7e1df5336980fb7ec5e752a222 "この矩形の上部からストリップを削除し、この矩形を指定された量だけ縮小し、r...")関数である。
-
-最後に、完全にレイアウトされたコンポーネントが完成する。
-
-### アイテムの並び替え
-
-前述したように、このテクニックを使えばアイテムの並び替えは実に簡単だ。例えば、オレンジ色のコンテンツを一番上に移動させることができる。`resized()`機能\[1\]:
-
-```cpp
-        auto contentItemHeight = 24;
-        orangeContent.setBounds     (area.removeFromTop (contentItemHeight));
-        limeContent.setBounds       (area.removeFromTop (contentItemHeight)); // [1]
-        grapefruitContent.setBounds (area.removeFromTop (contentItemHeight));
-        lemonContent.setBounds      (area.removeFromTop (contentItemHeight));
-```
-
-こんな感じだ：
-
-<CaptionImage
-  src="/_images/tutorial_rectangle_advanced_screenshot4.png"
-  caption="アイテムの並び替え"
-/>
-
-:::note
-
-固定数のコンポーネントでは、このアプローチの方が明らかにエレガントだ。可変コンテンツをレンダリングする場合には、さらに有効である。
-
-:::
-
-項目の並び替えだけではサイドバーを右側に移動させることはできない。[Rectangle::removeFromRight()](https://docs.juce.com/master/classRectangle.html#a67c1ae2bf4753bda71894271dc94b4f6 "この矩形の右端からストリップを削除し、この矩形を指定された ... だけ縮小する。")関数ではなく[Rectangle::removeFromLeft()](https://docs.juce.com/master/classRectangle.html#a6f09929fd89d447eb230c170446788ac "この矩形の左端からストリップを削除し、この矩形を指定された長さだけ縮小する。") \[2\]:
-
-```cpp
-        auto sidebarWidth = 80;
-        sidebar.setBounds (area.removeFromLeft (sidebarWidth)); // [2]
-```
-
-今はこうなっている：
-
-<CaptionImage
-  src="/_images/tutorial_rectangle_advanced_screenshot5.png"
-  caption="サイドバーを右に移動"
-/>
-
-### コンポーネントのサイズ変更
-
-このアプローチで得られるもうひとつの利点は、リサイズがしばしば「うまくいく」ことだ。これは、幅を広く、高さを低くしたコンポーネントです：
-
-<CaptionImage
-  src="/_images/tutorial_rectangle_advanced_screenshot6.png"
-  caption="シンプルなレイアウトのサイズ変更"
-/>
-
-レイアウトの一部または全部をプロポーショナルにしたい場合、コードに組み込むのは簡単だ。例えば、サイドバーの幅を常に全体の4分の1にしたい場合などです：
-
-```cpp
-sidebar.setBounds (area.removeFromRight (area.getWidth() / 4));
-```
-
-これを試してみれば、有用な下限があることがわかるだろう。この方法を取り入れるのも簡単です。サイドバーの幅を全幅の4分の1に設定し、80ピクセルを下限とする：
-
-```cpp
-sidebar.setBounds (area.removeFromRight (juce::jmax (80, area.getWidth() / 4)));
-```
-
-:::danger[エクササイズ]
-
-さらに異なる色のボタンをいくつか作成し、それらを水平に並べて、以下のセクションに追加する。`orangeContent`,`limeContent`,`grapefruitContent`そして`lemonContent`コンポーネントを使用する。残りの幅いっぱいになるようにする。
-
-:::
-
-### その他のシナリオ
-
-ここまでの例では、シーケンスの次のコンポーネントを配置するために、残りの矩形を細分化し続けてきた。サブ矩形の1つを保存して、代わりにそれを細分化する必要がある場合もあるでしょう。
-
-例えば、リストに項目を配置するには**内**その*サイドバー*この例では、サイドバーの矩形を一時的に保存し、それを細分化する必要があります。これを説明するために、デモ・プロジェクトにさらに3つのコンポーネントを追加します。\[3\],\[4\]そして\[5\]:
-
-```cpp
-private:
-    juce::TextButton header;
-    juce::TextButton sidebar;
- 
-    juce::TextButton sideItemA; // [3]
-    juce::TextButton sideItemB; // [4]
-    juce::TextButton sideItemC; // [5]
- 
-    juce::TextButton limeContent;
-    juce::TextButton grapefruitContent;
-    juce::TextButton lemonContent;
-    juce::TextButton orangeContent;
-    juce::TextButton footer;
-```
-
-次に、サイドバーのボタンからテキストを削除しながら、コンストラクタでそれらを設定する。\[7\]:
-
-```cpp
-//...
     sidebar.setColour (juce::TextButton::buttonColourId, juce::Colours::grey);
-    // [7]
+    sidebar.setButtonText ("Sidebar");
     addAndMakeVisible (sidebar);
- 
-    sideItemA.setColour (juce::TextButton::buttonColourId, juce::Colours::maroon);
-    sideItemB.setColour (juce::TextButton::buttonColourId, juce::Colours::maroon);
-    sideItemC.setColour (juce::TextButton::buttonColourId, juce::Colours::maroon);
-    sideItemA.setButtonText ("Item A");
-    sideItemB.setButtonText ("Item B");
-    sideItemC.setButtonText ("Item C");
-    addAndMakeVisible (sideItemA);
-    addAndMakeVisible (sideItemB);
-    addAndMakeVisible (sideItemC);
+
+    limeContent.setColour (juce::TextButton::buttonColourId, juce::Colours::lime);
+    addAndMakeVisible (limeContent);
+
+    grapefruitContent.setColour (juce::TextButton::buttonColourId, juce::Colours::yellowgreen);
+    addAndMakeVisible (grapefruitContent);
+
+    lemonContent.setColour (juce::TextButton::buttonColourId, juce::Colours::yellow);
+    addAndMakeVisible (lemonContent);
+
+    orangeContent.setColour (juce::TextButton::buttonColourId, juce::Colours::orange);
+    addAndMakeVisible (orangeContent);
+
+    setSize (400, 400);
+}
+```
+
+実際のレイアウトは通常、Component::resized()をオーバーライドして行われます。
+
+### 従来のレイアウト
+
+従来は、さまざまな位置とサイズを計算してコンポーネントをレイアウトし、これらが常に正しい合計サイズになるように注意します。ウィンドウのメイン部分に色付きボタンをレイアウトするだけでも面倒で、ミスが起きやすいです。4 つの等しいサイズのボタンをレイアウトするには、次のようにします：
+
+```cpp
+//...
+limeContent.setBounds (0, 0, 200, 24);
+grapefruitContent.setBounds (0, 24, 200, 24);
+lemonContent.setBounds (0, 48, 200, 24);
+orangeContent.setBounds (0, 72, 200, 24);
 //...
 ```
 
-最後に`resized()`関数を以下のように変更する：
+（このチュートリアルを書いているときに、最後の`orangeContent`コンポーネントを間違った位置に 2 回入れてしまい、自分の主張を証明しました！）
+
+少なくとも、より重要なことにコーディング努力を集中できるときに、計算は時間がかかります！[Rectangle](https://docs.juce.com/master/classRectangle.html "Manages a rectangle and allows geometric operations to be performed on it.")クラスは、コンポーネントのレイアウト作業をより柔軟にし、技術に慣れれば、ある意味でより簡単にするためのシンプルながら強力な機能を提供します。これには、メインの矩形をより小さなサブ矩形に細分化することが含まれます。
+
+### 矩形の細分化によるレイアウト
+
+メインの矩形をより小さな部分に細分化してコンポーネントをレイアウトすることは、従来の方法と同等に見えるかもしれません。しかし、いくつかの利点があります：
+
+- コード内で*マジックナンバー*（ハードコードされた値）の使用を減らすことを奨励し、将来のレイアウトの変更と保守を難しくします。
+- 多くの場合、値を変更する必要なく、コードを単に並べ替えるだけでレイアウトを変更できます！
+- 利用可能なスペースを正確に埋めることがはるかに簡単になり、レイアウトが親コンポーネントを超えたり、完全に埋まらなかったりすることがなくなります。
+- リサイズ可能なコンポーネントで作業し、特定のセクションが少なくとも特定のサイズでなければならないというルールを作成することが容易になります。
+
+デモアプリケーションの`MainContentComponent::resized()`関数のコードは以下のようになります：
 
 ```cpp
 void resized() override
 {
     auto area = getLocalBounds();
- 
+
     auto headerFooterHeight = 36;
-    header.setBounds (area.removeFromTop    (headerFooterHeight));
+    header.setBounds (area.removeFromTop (headerFooterHeight));
     footer.setBounds (area.removeFromBottom (headerFooterHeight));
- 
+
+    auto sidebarWidth = 80;
+    sidebar.setBounds (area.removeFromLeft (sidebarWidth)); // [2]
+
+    auto contentItemHeight = 24;
+    orangeContent.setBounds (area.removeFromTop (contentItemHeight));
+    limeContent.setBounds (area.removeFromTop (contentItemHeight)); // [1]
+    grapefruitContent.setBounds (area.removeFromTop (contentItemHeight));
+    lemonContent.setBounds (area.removeFromTop (contentItemHeight));
+}
+```
+
+この関数の最初の数行を詳しく見てみましょう。まず、Component::getLocalBounds()関数を使用して、レイアウトしているコンポーネントの*ローカル境界*を取得します。これは常に位置(0, 0)でコンポーネントと同じ幅と高さの矩形を返します：
+
+```cpp
+auto area = getLocalBounds();
+```
+
+これは子コンポーネントをレイアウトするために細分化する矩形です。最初の細分化はヘッダーをレイアウトします：
+
+```cpp
+header.setBounds (area.removeFromTop (headerFooterHeight));
+```
+
+ここでは、コンポーネント全体を表す矩形を取り、効果的に 2 つの矩形を作成します。[Rectangle::removeFromTop()](https://docs.juce.com/master/classRectangle.html#a3fbd4e7e1df5336980fb7ec5e752a222 "Removes a strip from the top of this rectangle, reducing this rectangle by the specified amount and r...")関数は、元の矩形の位置にあり、同じ幅で、引数で要求された高さだけの矩形を返します。この場合、36 ピクセルの高さの矩形を要求しています。この関数が行うもう 1 つのことは、返した矩形を削除して元の矩形を*変更*することです。本質的に、上から 36 ピクセルの位置で矩形をスライスし、上の矩形を返し、元の矩形を下の矩形と等しくなるように変更します。
+
+単独では、以下のようになります：
+
+<CaptionImage
+  src="/_images/tutorial_rectangle_advanced_screenshot2.png"
+  caption="最初の細分化"
+/>
+
+2 番目の細分化はフッターをレイアウトします：
+
+```cpp
+footer.setBounds (area.removeFromBottom (headerFooterHeight));
+```
+
+[Rectangle::removeFromBottom()](https://docs.juce.com/master/classRectangle.html#a6f7d3a88adfc3b3bf699ca4ce5b9e6c0 "Removes a strip from the bottom of this rectangle, reducing this rectangle by the specified amount an...")関数は[Rectangle::removeFromTop()](https://docs.juce.com/master/classRectangle.html#a3fbd4e7e1df5336980fb7ec5e752a222 "Removes a strip from the top of this rectangle, reducing this rectangle by the specified amount and r...")関数と同じことを行いますが、メインの矩形の下から矩形を削除し、上の矩形を保持します。この時点で、コンポーネントは以下のようになります：
+
+<CaptionImage
+  src="/_images/tutorial_rectangle_advanced_screenshot3.png"
+  caption="2番目の細分化"
+/>
+
+- 次に、残りの矩形の左から 80 ピクセルを削除してサイドバーを作成します。
+- その後、[Rectangle::removeFromTop()](https://docs.juce.com/master/classRectangle.html#a3fbd4e7e1df5336980fb7ec5e752a222 "Removes a strip from the top of this rectangle, reducing this rectangle by the specified amount and r...")関数を使用して残りの矩形を複数回細分化します。
+
+最終的に、完全にレイアウトされたコンポーネントになります。
+
+### 項目の並べ替え
+
+前述のように、この技術を使用すると項目を並べ替えるのが非常に簡単です。例えば、`resized()`関数で最初にリストするだけで、オレンジのコンテンツを先頭に移動できます[1]：
+
+```cpp
+auto contentItemHeight = 24;
+orangeContent.setBounds (area.removeFromTop (contentItemHeight));
+limeContent.setBounds (area.removeFromTop (contentItemHeight)); // [1]
+grapefruitContent.setBounds (area.removeFromTop (contentItemHeight));
+lemonContent.setBounds (area.removeFromTop (contentItemHeight));
+```
+
+これは以下のようになります：
+
+<CaptionImage
+  src="/_images/tutorial_rectangle_advanced_screenshot4.png"
+  caption="項目の並べ替え"
+/>
+
+:::tip
+固定数のコンポーネントでは、このアプローチは明らかにエレガントです。可変コンテンツをレンダリングする場合はさらに便利です。
+:::
+
+項目を並べ替えるだけではサイドバーを右側に移動できませんが、[Rectangle::removeFromLeft()](https://docs.juce.com/master/classRectangle.html#a6f09929fd89d447eb230c170446788ac "Removes a strip from the left-hand edge of this rectangle, reducing this rectangle by the specified a...")の代わりに[Rectangle::removeFromRight()](https://docs.juce.com/master/classRectangle.html#a67c1ae2bf4753bda71894271dc94b4f6 "Removes a strip from the right-hand edge of this rectangle, reducing this rectangle by the specified ...")関数を使用するだけです[2]：
+
+```cpp
+auto sidebarWidth = 80;
+sidebar.setBounds (area.removeFromLeft (sidebarWidth)); // [2]
+```
+
+これは以下のようになります：
+
+<CaptionImage
+  src="/_images/tutorial_rectangle_advanced_screenshot5.png"
+  caption="サイドバーを右側に移動"
+/>
+
+### コンポーネントのリサイズ
+
+このアプローチでもう 1 つ無料で得られるのは、リサイズが「単に動作する」ことです。以下は、幅を広く、高さを低くしたコンポーネントです：
+
+<CaptionImage
+  src="/_images/tutorial_rectangle_advanced_screenshot6.png"
+  caption="シンプルなレイアウトのリサイズ"
+/>
+
+レイアウトの一部またはすべてを比例的にしたい場合は、コードに簡単に組み込むことができます。例えば、サイドバーを常に全幅の 4 分の 1 にしたい場合：
+
+```cpp
+sidebar.setBounds (area.removeFromRight (area.getWidth() / 4));
+```
+
+これを試すと、下限の有用な制限があることがわかります。このアプローチでもこれを簡単に組み込むことができます。代わりに以下を試してください。これはサイドバーの幅を全幅の 4 分の 1 に設定しますが、80 ピクセルを下限にします：
+
+```cpp
+sidebar.setBounds (area.removeFromRight (juce::jmax (80, area.getWidth() / 4)));
+```
+
+:::note
+演習：異なる色のボタンをいくつか作成し、`orangeContent`、`limeContent`、`grapefruitContent`、`lemonContent`コンポーネントの下のセクションに水平に配置して追加してください。残りの幅全体を埋めるようにしてください。
+:::
+
+### 他のシナリオ
+
+これまでの例では、シーケンス内の次のコンポーネントを配置するために残りの矩形を細分化し続けました。いくつかのケースでは、サブ矩形の 1 つを保存し、代わりにそれを細分化する必要があります。
+
+例えば、サイドバー*内*にリストの項目を配置するには、サイドバーの矩形を一時的に保存してからそれを細分化する必要があります。これを説明するために、デモプロジェクトに 3 つのコンポーネントを追加します[3]、[4]、[5]：
+
+```cpp
+private:
+juce::TextButton header;
+juce::TextButton sidebar;
+
+juce::TextButton sideItemA; // [3]
+juce::TextButton sideItemB; // [4]
+juce::TextButton sideItemC; // [5]
+
+juce::TextButton limeContent;
+juce::TextButton grapefruitContent;
+juce::TextButton lemonContent;
+juce::TextButton orangeContent;
+juce::TextButton footer;
+```
+
+次にコンストラクタでそれらを設定し、サイドバーボタンからテキストを削除します[7]：
+
+```cpp
+//...
+sidebar.setColour (juce::TextButton::buttonColourId, juce::Colours::grey);
+// [7]
+addAndMakeVisible (sidebar);
+
+sideItemA.setColour (juce::TextButton::buttonColourId, juce::Colours::maroon);
+sideItemB.setColour (juce::TextButton::buttonColourId, juce::Colours::maroon);
+sideItemC.setColour (juce::TextButton::buttonColourId, juce::Colours::maroon);
+sideItemA.setButtonText ("Item A");
+sideItemB.setButtonText ("Item B");
+sideItemC.setButtonText ("Item C");
+addAndMakeVisible (sideItemA);
+addAndMakeVisible (sideItemB);
+addAndMakeVisible (sideItemC);
+//...
+```
+
+最後に、`resized()`関数を以下のように変更します：
+
+```cpp
+void resized() override
+{
+    auto area = getLocalBounds();
+
+    auto headerFooterHeight = 36;
+    header.setBounds (area.removeFromTop (headerFooterHeight));
+    footer.setBounds (area.removeFromBottom (headerFooterHeight));
+
     auto sideBarArea = area.removeFromRight (juce::jmax (80, area.getWidth() / 4));
     sidebar.setBounds (sideBarArea);
- 
+
     auto sideItemHeight = 40;
     auto sideItemMargin = 5;
     sideItemA.setBounds (sideBarArea.removeFromTop (sideItemHeight).reduced (sideItemMargin));
     sideItemB.setBounds (sideBarArea.removeFromTop (sideItemHeight).reduced (sideItemMargin));
     sideItemC.setBounds (sideBarArea.removeFromTop (sideItemHeight).reduced (sideItemMargin));
- 
+
     auto contentItemHeight = 24;
-    orangeContent.setBounds     (area.removeFromTop (contentItemHeight));
-    limeContent.setBounds       (area.removeFromTop (contentItemHeight));
+    orangeContent.setBounds (area.removeFromTop (contentItemHeight));
+    limeContent.setBounds (area.removeFromTop (contentItemHeight));
     grapefruitContent.setBounds (area.removeFromTop (contentItemHeight));
-    lemonContent.setBounds      (area.removeFromTop (contentItemHeight));
+    lemonContent.setBounds (area.removeFromTop (contentItemHeight));
 }
 ```
 
-の使用にも注目してほしい。[Rectangle::reduced()](https://docs.juce.com/master/classRectangle.html#a5623a7886c63a08917b392c7bc1135a9 "この矩形より指定した量だけ小さい矩形を返す。")この関数は矩形の端をはめ込み、矩形を効果的にマージン内に配置します。アプリケーションをビルドして実行すると、次のようになります。
+[Rectangle::reduced()](https://docs.juce.com/master/classRectangle.html#a5623a7886c63a08917b392c7bc1135a9 "Returns a rectangle that is smaller than this one by a given amount.")関数の使用にも注意してください。これは矩形の端をインセットし、効果的にマージン内に矩形を配置します。アプリケーションをビルドして実行すると、以下のようになるはずです。
 
 <CaptionImage
   src="/_images/tutorial_rectangle_advanced_screenshot7.png"
-  caption="より洗練された分譲地"
+  caption="より洗練された細分化"
 />
 
-## 概要
+## まとめ
 
-このチュートリアルでは[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスを使って矩形を細分化できる。特に、このテクニックを使ってコンポーネントをレイアウトすることを見てきた。できる：
+このチュートリアルでは、矩形を細分化するための[Rectangle](https://docs.juce.com/master/classRectangle.html "Manages a rectangle and allows geometric operations to be performed on it.")クラス内の特定の関数セットの使用を探りました。特に、コンポーネントをレイアウトするためにこの技術を使用すると以下のことができることを見てきました：
 
 - よりエレガントなコードでコンポーネントをレイアウトする。
-- レイアウトコードのマジックナンバーの使用を減らす。
-- 最小限のコード変更で、レイアウト位置やコンポーネントの配置順序を変更できます。
+- レイアウトコード内のマジックナンバーの使用を減らす。
+- コードへの最小限の変更でレイアウト位置とコンポーネントのレイアウト順序を変更する。
 
-## 参照
+## 関連項目
 
-- [Tutorial: Parent and child components](../tutorial_component_parents_children/)
-- [Tutorial: Customise the look and feel of your app](../tutorial_look_and_feel_customisation/)
-- [Tutorial: The Point, Line, and Rectangle classes](../tutorial_point_line_rectangle/)
-- [Tutorial: Responsive GUI layouts using FlexBox and Grid](../tutorial_flex_box_grid/)
+- [チュートリアル：親コンポーネントと子コンポーネント](../tutorial_component_parents_children/)
+- [チュートリアル：アプリのルック＆フィールをカスタマイズ](../tutorial_look_and_feel_customisation/)
+- [チュートリアル：Point、Line、Rectangle クラス](../tutorial_point_line_rectangle/)
+- [チュートリアル：FlexBox と Grid を使用したレスポンシブ GUI レイアウト](../tutorial_flex_box_grid/)

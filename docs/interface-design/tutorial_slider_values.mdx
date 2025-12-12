@@ -1,250 +1,241 @@
 ---
-title: スライダークラス
+title: Slider クラス
 sidebar_position: 8
 tags: [初級]
 ---
 
-# スライダークラス
+# チュートリアル：Slider クラス
 
 <SourcePageLink path="tutorial_slider_values" />
 
-このチュートリアルでは[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")クラスで、スライダーの動きに応答する方法と、スライダーから値を取得する方法を示します。このチュートリアルでは、スライダーで値を表示するために不可欠なカスタマイズテクニックも紹介します。
+このチュートリアルでは、[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")クラスを紹介し、スライダーの動きに応答する方法と、スライダーから値を取得する方法を示します。また、スライダーで値を表示するための基本的なカスタマイズ技術も紹介します。
 
-レベル初心者
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value."), [Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a), [Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。"),[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a),[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")
-
-## スタート
-
-:::note
-
-このチュートリアルは[Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)それは最初に読んで理解すべきだった。
-
+:::tip
+このチュートリアルは[チュートリアル：リスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)から続いており、最初にそれを読んで理解しておく必要があります。
 :::
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/SliderValuesTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/SliderValuesTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/SliderValuesTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/SliderValuesTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルを Projucer で開いてください。
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucer を始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-## デモ・プロジェクト
+## デモプロジェクト
 
-デモ・プロジェクトでは、2つの直線的な水平スライダーを示しています。一方のスライダーには**頻度**もうひとつは**期間**次のスクリーンショットのように：
+デモプロジェクトは 2 つの水平線形スライダーを表示します。1 つのスライダーには**Frequency**というラベルが付けられ、もう 1 つには**Duration**というラベルが付けられています。以下のスクリーンショットに示されています：
 
 <CaptionImage
   src="/_images/tutorial_slider_values_screenshot1.png"
-  caption="2つのスライダーとその値を示すデモ・プロジェクトのユーザー・インターフェース。"
+  caption="2つのスライダーとその値を示すデモプロジェクトのユーザーインターフェース"
 />
 
-どちらのスライダーも、基本的には同じ値を表示するということだ。f)は継続時間(d):
+両方のスライダーは、周波数（_f_）が持続時間（_d_）の逆数であるため、本質的に同じ基礎値を表示するという考えです：
 
-f =1⁄d
+_f_ = <sup>1</sup>／<sub>d</sub>
 
-どちらかのスライダーを動かすと、もう一方のスライダーも更新され、変更が反映される。
+どちらかのスライダーが動かされると、もう一方が変更を反映して更新されます。
 
-## JUCE Sliderクラス。
+## JUCE Slider クラス
 
-このチュートリアルでは、スライダを作成し、その範囲を設定し、値の変化をリッスンし、スライダの値をプログラムで更新する方法を示します。デモ・アプリケーションを実行すると、両方のスライダにテキスト・ボックスが含まれ、このテキスト・ボックスには周波数の単位 (**ヘルツ**ヘルツ）と持続時間(**s**秒）。
+このチュートリアルでは、スライダーの作成、範囲の設定、値の変更のリッスン、およびプログラム的にスライダーの値を更新する方法を示します。デモアプリケーションの実行時に、両方のスライダーにテキストボックスが含まれていることに気づくでしょう。このテキストボックスには、周波数の単位（**Hz**、ヘルツ）と持続時間の単位（**s**、秒）も含まれています。
 
 ### スライダーの追加
 
-このスライダーは、プライベート・メンバーとして我々のチームに加えられている。`MainContentComponent`クラスである：
+スライダーは`MainContentComponent`クラスのプライベートメンバーとして追加されています：
 
 ```cpp
 private:
     juce::Slider frequencySlider;
-    juce::Label  frequencyLabel;
+    juce::Label frequencyLabel;
     juce::Slider durationSlider;
-    juce::Label  durationLabel;
- 
-    //==============================================================================
+    juce::Label durationLabel;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-を追加していることに注意してください。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトは[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを表示します。これらはテキストを表示する**頻度**そして**期間**をスライダーの左に置く。スライダー・コントロールのすぐ左にあるボックスは、現在のスライダー値を表示するもので、実際には[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトがある。
+各[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクトに対して[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")オブジェクトも追加していることに注意してください。これらは、スライダーの左側に**Frequency**と**Duration**というテキストを表示するためのものです。現在のスライダー値を表示するスライダーコントロールのすぐ左側のボックスは、実際には[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクトの一部です。
 
-を追加した。[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスを基底クラスとして使用することで、スライダーの変更を受け取るようにクラスを登録できます。
+また、スライダーの変更を受信するためにクラスを登録できるよう、[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスを基底クラスとして追加しています：
 
 ```cpp
-class MainContentComponent   : public juce::Component,
-                               public juce::Slider::Listener
+class MainContentComponent : public juce::Component,
+                             public juce::Slider::Listener
 {
 public:
 ```
 
-我々の`MainContentComponent`コンストラクタの子コンポーネントとしてスライダーを追加する ([Tutorial: Parent and child components](../tutorial_component_parents_children/))を設定し、それらを表示させ、スライダーが表すことのできる値の範囲を設定します。最初に`frequencySlider`メンバーだ：
+`MainContentComponent`コンストラクタでは、スライダーを子コンポーネントとして追加し（[チュートリアル：親コンポーネントと子コンポーネント](../tutorial_component_parents_children/)を参照）、可視化して、スライダーが表す値の範囲を設定します。まず、`frequencySlider`メンバーを設定します：
 
 ```cpp
-    MainContentComponent()
-    {
-        addAndMakeVisible (frequencySlider);
-        frequencySlider.setRange (50, 5000.0);          // [1]
-        frequencySlider.setTextValueSuffix (" Hz");     // [2]
-        frequencySlider.addListener (this);             // [3]
+MainContentComponent()
+{
+    addAndMakeVisible (frequencySlider);
+    frequencySlider.setRange (50, 5000.0); // [1]
+    frequencySlider.setTextValueSuffix (" Hz"); // [2]
+    frequencySlider.addListener (this); // [3]
 ```
 
-- \[1\]スライダーの範囲は[Slider::setRange()](https://docs.juce.com/master/classSlider.html#a9fbc23e67deb4a18d172c357a7cff14c "スライダーの値の限界を設定します。")関数である。
-- \[2\]スライダーのテキストボックスのテキスト表示に、値の単位を示すサフィックスを追加します。
-- \[3\]を加える。`MainContentComponent`オブジェクトをスライダーのリスナーとして使用します。
+- [1]：スライダーの範囲は[Slider::setRange()](https://docs.juce.com/master/classSlider.html#a9fbc23e67deb4a18d172c357a7cff14c "Sets the limits that the slider's value can take.")関数を使用して設定します。
+- [2]：スライダーのテキストボックスのテキスト表示に接尾辞を追加して、値の単位を表示します。
+- [3]：`MainContentComponent`オブジェクトをスライダーのリスナーとして追加します。
 
-対応するラベルは以下のように設定されている：
+対応するラベルは以下のように設定されます：
 
 ```cpp
-        addAndMakeVisible (frequencyLabel);
-        frequencyLabel.setText ("Frequency", juce::dontSendNotification);
-        frequencyLabel.attachToComponent (&frequencySlider, true); // [4]
+addAndMakeVisible (frequencyLabel);
+frequencyLabel.setText ("Frequency", juce::dontSendNotification);
+frequencyLabel.attachToComponent (&frequencySlider, true); // [4]
 ```
 
-について[Label::attachToComponent()](https://docs.juce.com/master/classLabel.html#a3c2397c0da1249f9e27e2279e0f2d4eb "このラベルを別のコンポーネントに「くっつける」。")機能\[4\]は、ラベルを他のコンポーネントに隣接させるのにとても便利です。番目の引数、`true`ラベルを他のコンポーネント (`false`では上に配置される)。後ほど説明するが、これによって、ラベルの位置を手動で`MainContentComponent::resized()`関数である。
+[Label::attachToComponent()](https://docs.juce.com/master/classLabel.html#a3c2397c0da1249f9e27e2279e0f2d4eb)関数[4]は、別のコンポーネントの隣にラベルを配置するのに非常に便利です。2 番目の引数`true`は、ラベルを他のコンポーネントの左側に配置します（`false`は上に配置します）。後で見るように、これにより`MainContentComponent::resized()`関数でラベルを手動で配置する必要がなくなります。
 
-について`durationSlider`そして`durationLabel`の範囲の逆数となるように設定される。`frequencySlider`メンバーだ：
+`durationSlider`と`durationLabel`メンバーも同様に設定されますが、このスライダーの範囲は`frequencySlider`メンバーの範囲の逆数に設定されます：
 
 ```cpp
-        addAndMakeVisible (durationSlider);
-        durationSlider.setRange (1.0 / frequencySlider.getMaximum(),
-                                 1.0 / frequencySlider.getMinimum());
-        durationSlider.setTextValueSuffix (" s");
-        durationSlider.addListener (this);
- 
-        addAndMakeVisible (durationLabel);
-        durationLabel.setText ("Duration", juce::dontSendNotification);
-        durationLabel.attachToComponent (&durationSlider, true);
+addAndMakeVisible (durationSlider);
+durationSlider.setRange (1.0 / frequencySlider.getMaximum(),
+    1.0 / frequencySlider.getMinimum());
+durationSlider.setTextValueSuffix (" s");
+durationSlider.addListener (this);
+
+addAndMakeVisible (durationLabel);
+durationLabel.setText ("Duration", juce::dontSendNotification);
+durationLabel.attachToComponent (&durationSlider, true);
 ```
 
-### スライダーの位置
+### スライダーの配置
 
-スライダーは`MainContentComponent::resized()`関数を使用した。私たちは[Label::attachToComponent()](https://docs.juce.com/master/classLabel.html#a3c2397c0da1249f9e27e2279e0f2d4eb "このラベルを別のコンポーネントに「くっつける」。")関数を使用してラベルをスライダーに貼り付けると、ラベルは自動的にスライダーの左側に配置されます。
+スライダーは`MainContentComponent::resized()`関数で配置されます。[Label::attachToComponent()](https://docs.juce.com/master/classLabel.html#a3c2397c0da1249f9e27e2279e0f2d4eb)関数を使用してラベルをスライダーにアタッチしたため、これらはスライダーの左側に自動的に配置されます。
 
 ```cpp
-    void resized() override
-    {
-        auto sliderLeft = 120;
-        frequencySlider.setBounds (sliderLeft, 20, getWidth() - sliderLeft - 10, 20);
-        durationSlider .setBounds (sliderLeft, 50, getWidth() - sliderLeft - 10, 20);
-    }
+void resized() override
+{
+    auto sliderLeft = 120;
+    frequencySlider.setBounds (sliderLeft, 20, getWidth() - sliderLeft - 10, 20);
+    durationSlider.setBounds (sliderLeft, 50, getWidth() - sliderLeft - 10, 20);
+}
 ```
 
-### スライダーの変化への対応
+### スライダーの変更への応答
 
-次のコードは、スライダーのリスナーがスライダーの値の変化に反応するようにします。
+以下のコードは、スライダーのリスナーがスライダーの値の変更に反応するようにします。
 
 ```cpp
-    void sliderValueChanged (juce::Slider* slider) override
-    {
-        if (slider == &frequencySlider)
-            durationSlider.setValue (1.0 / frequencySlider.getValue(), juce::dontSendNotification);
-        else if (slider == &durationSlider)
-            frequencySlider.setValue (1.0 / durationSlider.getValue(), juce::dontSendNotification);
-    }
+void sliderValueChanged (juce::Slider* slider) override
+{
+    if (slider == &frequencySlider)
+        durationSlider.setValue (1.0 / frequencySlider.getValue(), juce::dontSendNotification);
+    else if (slider == &durationSlider)
+        frequencySlider.setValue (1.0 / durationSlider.getValue(), juce::dontSendNotification);
+}
 ```
 
-これは[Slider::Listener::sliderValueChanged()](https://docs.juce.com/master/classSliderListener.html#aa43e257ace7dd4a61399b30cb3285e75 "スライダーの値が変更されたときに呼び出される。")関数を追加する場合は、オーバーライドする必要があります。[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)を基本クラスとする。を呼び出すことで、スライダーの逆数をもう一方のスライダーに渡すだけです。[Slider::setValue()](https://docs.juce.com/master/classSlider.html#a430a5c4e56b39dd622f5800f787e0822 "スライダーの現在値を変更する。")関数を使います。また、スライダーにその変化をブロードキャストしないように指示する。これは、このように2つのスライダーが互いに依存している場合、無限のフィードバックループが発生する可能性があるからです。スライダーの[dontSendNotification](https://docs.juce.com/master/group__juce__events-messages.html#gga25a31a4bdc02a0d0adb743e26dd14ba9a057928146704d53dfee6f4ac33c92629)値はこのループの可能性を断ち切る。演算が正確で、両方向の変換が同じ結果を生むと仮定すると、これは必要ないはずです。というのも、スライダーがリスナーにブロードキャストするのは、値が実際に変化した場合だけだからです。(このような状況では、変換にわずかな丸め誤差がある場合に問題が発生することがあります)。を省略することもできます。[dontSendNotification](https://docs.juce.com/master/group__juce__events-messages.html#gga25a31a4bdc02a0d0adb743e26dd14ba9a057928146704d53dfee6f4ac33c92629)この値は、スライダーのデフォルト動作である*意志*放送が変わる。を使うかどうかは、本当に慎重に考える必要がある。[dontSendNotification](https://docs.juce.com/master/group__juce__events-messages.html#gga25a31a4bdc02a0d0adb743e26dd14ba9a057928146704d53dfee6f4ac33c92629)あるいは、そうでなくても、あなた自身のアプリケーションにおける特定のユースケースに対応できる。
+これは、[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)を基底クラスとして追加した場合にオーバーライドする必要がある[Slider::Listener::sliderValueChanged()](https://docs.juce.com/master/classSliderListener.html#aa43e257ace7dd4a61399b30cb3285e75 "Called when the slider's value is changed.")関数です。ここでは、[Slider::setValue()](https://docs.juce.com/master/classSlider.html#a430a5c4e56b39dd622f5800f787e0822 "Changes the slider's current value.")関数を呼び出すことで、スライダーの逆数を他のスライダーに渡すだけです。また、スライダーにその変更をブロードキャストしないように伝えます。これは、2 つのスライダーが互いに依存しているこのような場合に、無限のフィードバックループが発生する可能性があるためです。[dontSendNotification](#)の値はこの潜在的なループを中断します。算術が正確で、両方向の変換が同一の結果を生成すると仮定すると、これは必要ないはずです。これは、値が実際に変更された場合にのみスライダーがリスナーにブロードキャストするためです。（このような状況で変換にわずかな丸め誤差がある場合に問題が発生する可能性があります。）[dontSendNotification](#)の値を省略してみることができます。これにより、スライダーが変更をブロードキャスト*する*デフォルトの動作が発生します。独自のアプリケーションの特定のユースケースで[dontSendNotification](#)を使用するかどうかを慎重に検討する必要があります。
 
 ### 初期値の設定
 
-コンストラクタでは`frequencySlider`スライダーは500に設定されている。これにより`durationSlider`スライダーを更新する。[dontSendNotification](https://docs.juce.com/master/group__juce__events-messages.html#gga25a31a4bdc02a0d0adb743e26dd14ba9a057928146704d53dfee6f4ac33c92629)今回は価値がある：
+コンストラクタで`frequencySlider`スライダーは 500 の値に設定されます。これにより、今回は[dontSendNotification](#)の値を省略するため、`durationSlider`スライダーが更新されます：
 
 ```cpp
-        frequencySlider.setValue (500.0); // [5]
+frequencySlider.setValue (500.0); // [5]
 ```
 
 ## いくつかのカスタマイズ
 
-インタフェースをより効果的にするために、ここにいくつかの簡単なカスタマイズを加えることができる。
+インターフェースをより効果的にするために、いくつかのシンプルなカスタマイズを追加できます。
 
 ### テキストボックスを広くする
 
-のテキストボックス`durationSlider`特にスライダーは、その値を満足に表示するために多くの桁を必要とする。そのために[Slider::setTextBoxStyle()](https://docs.juce.com/master/classSlider.html#a5bc748a21e72fe14153bc9fe5ac03e77 "テキスト入力ボックスの位置とプロパティを変更する。")関数に追加する。以下の2行のコードを`MainContentComponent`ビルダー
+特に`durationSlider`スライダーのテキストボックスは、値を満足に表示するために多くの桁が必要です。これを行うには、[Slider::setTextBoxStyle()](https://docs.juce.com/master/classSlider.html#a5bc748a21e72fe14153bc9fe5ac03e77 "Changes the location and properties of the text-entry box.")関数を使用できます。`MainContentComponent`コンストラクタに以下の 2 行のコードを追加します：
 
 ```cpp
-        frequencySlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 160, frequencySlider.getTextBoxHeight());
-        durationSlider .setTextBoxStyle (juce::Slider::TextBoxLeft, false, 160, durationSlider .getTextBoxHeight());
+frequencySlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 160, frequencySlider.getTextBoxHeight());
+durationSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 160, durationSlider.getTextBoxHeight());
 ```
 
-これにより、テキストボックスはいずれも160ピクセルに設定されます（ただし、高さは[Slider::getTextBoxHeight()](https://docs.juce.com/master/classSlider.html#a8258ee0e1222f3e02a696243a3468578 "テキストボックスの高さを返します。")関数)。
+これにより、各ケースでテキストボックスが 160 ピクセルに設定されます（ただし、[Slider::getTextBoxHeight()](https://docs.juce.com/master/classSlider.html#a8258ee0e1222f3e02a696243a3468578 "Returns the height used for the text-box.")関数を使用して高さを維持します）。
 
 <CaptionImage
   src="/_images/tutorial_slider_values_screenshot2.png"
-  caption="テキストボックスの幅が広くなったスライダー。"
+  caption="より広いテキストボックスのスライダー"
 />
 
-### スライダー値の歪み
+### スライダー値のスキュー
 
-デフォルトでは、スライダートラックはリニアで、スライダーの値はスライダートラックに沿ったスライダーサムの位置に比例します。インタフェースを操作してみると、これがどうもしっくりこないのは明らかだ。スライダーを調整する*スキュー*を使ってスライダーの軌跡を対数にできます。これを行うには[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "値の分布方法を変更するためのスキュー係数を設定する。")関数に追加します。以下の2行のコードを`MainContentComponent`のコンストラクタは、スライダが設定された後に使用します：
+デフォルトでは、スライダートラックは線形です。つまり、スライダーの値はスライダートラックに沿ったスライダーサムの位置に比例します。インターフェースを操作すると、これが正しくないと感じることがわかります。スライダー*スキュー*を調整して、スライダートラックを対数にすることができます。これを行うには、[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "Sets up a skew factor to alter the way values are distributed.")関数を使用できます。スライダーが設定された後、`MainContentComponent`コンストラクタに以下の 2 行のコードを追加して試してみてください：
 
 ```cpp
-        frequencySlider.setSkewFactorFromMidPoint (500);
-        durationSlider .setSkewFactorFromMidPoint (0.002);
+frequencySlider.setSkewFactorFromMidPoint (500);
+durationSlider.setSkewFactorFromMidPoint (0.002);
 ```
 
-のスライダートラックの中間点に500を置く。`frequencySlider`スライダーは0.002である。`durationSlider`スライダーを動かす。事実上、スライダーは等しく、しかし反対方向に動くように見えます。このような非線形のスライダートラックは、時間や周波数など、小さな値ではより細かくコントロールしたいが、大きな値ではそれほど細かいコントロールが必要でない傾向があるパラメータに効果的です。
+これにより、`frequencySlider`スライダーのスライダートラックの中央に 500 の値が配置され、`durationSlider`スライダーには 0.002 が配置されます。効果的に、スライダーは同じように動くように見えますが、反対方向に動きます。このような非線形のスライダートラックは、時間や周波数などのパラメータでうまく機能します。小さい値に対してより細かい制御が必要ですが、大きい値に対してはそれほど細かい制御を必要としない場合です。
+
+:::tip
+このセクションの完成したコードは、このチュートリアルのデモプロジェクトの`SliderValuesTutorial_02.h`ファイルにあります。
+:::
+
+<!-- -->
 
 :::note
-
-このセクションの完成したコードは`SliderValuesTutorial_02.h`ファイルを参照してください。
-
+演習：[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "Sets up a skew factor to alter the way values are distributed.")関数の呼び出しに異なる値を試したり、異なるテキストボックスサイズを試したりしてください。[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")クラスの API リファレンスを見て、他のカスタマイズを試してください。
 :::
 
-:::danger[エクササイズ]
+### Slider コールバックの簡素化
 
-への呼び出しの値を変えてみる。[Slider::setSkewFactorFromMidPoint()](https://docs.juce.com/master/classSlider.html#a2d948c662c1f636810d3125d8b3f0d47 "値の分布方法を変更するためのスキュー係数を設定する。")関数を使用して、さまざまなテキストボックスのサイズを試してみてください。のAPIリファレンスを見てください。[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")クラスを作成し、他のカスタマイズを試してみる。
+このチュートリアルで示されているリスナーとブロードキャスターのパラダイムを使用する代わりに、最新の C++標準のラムダ関数を使用してスライダーコールバックを簡素化できます。これは、複雑な実装を必要としないシンプルなコールバックに特にうまく機能します。
 
-:::
-
-### スライダー・コールバックの簡素化
-
-このチュートリアルで示したようなリスナーやブロードキャスターのパラダイムを使う代わりに、最新のC++ 標準のラムダ関数を使うことで、スライダーのコールバックを単純化できます。これは、複雑な実装を必要としない単純なコールバックには特に効果的です。
-
-まずは[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスを作成し、次のようにMainContentComponentクラスの定義を復元する：
+まず、[Slider::Listener](https://docs.juce.com/master/classSlider.html#a1977aeac9b4363e8ed0cac0ac103055a)クラスからの継承を削除し、MainContentComponent クラスの定義を以下のように復元します：
 
 ```cpp
-class MainContentComponent   : public juce::Component
+class MainContentComponent : public juce::Component
 {
 public:
 ```
 
-次に、MainContentComponentをリスナーとして追加する代わりに、MainContentComponentを[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")ラムダ関数を[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "このコールバックオブジェクトにラムダを代入して、スライダーの値が変更されたときにコールさせることができます。")ヘルパー・オブジェクトは次のようになる：
+次に、MainContentComponent を[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")のリスナーとして追加する代わりに、[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "You can assign a lambda to this callback object to have it called when the slider value is changed.")ヘルパーオブジェクトにラムダ関数を割り当てます：
 
 ```cpp
-    MainContentComponent()
-    {
-        addAndMakeVisible (frequencySlider);
-        frequencySlider.setRange (50, 5000.0);
-        frequencySlider.setTextValueSuffix (" Hz");
-        frequencySlider.onValueChange = [this] { durationSlider.setValue (1.0 / frequencySlider.getValue(), juce::dontSendNotification); };
- 
-        addAndMakeVisible (frequencyLabel);
-        frequencyLabel.setText ("Frequency", juce::dontSendNotification);
-        frequencyLabel.attachToComponent (&frequencySlider, true);
- 
-        addAndMakeVisible (durationSlider);
-        durationSlider.setRange (1.0 / frequencySlider.getMaximum(),
-                                 1.0 / frequencySlider.getMinimum());
-        durationSlider.setTextValueSuffix (" s");
-        durationSlider.onValueChange = [this] { frequencySlider.setValue (1.0 / durationSlider.getValue(), juce::dontSendNotification); };
+MainContentComponent()
+{
+    addAndMakeVisible (frequencySlider);
+    frequencySlider.setRange (50, 5000.0);
+    frequencySlider.setTextValueSuffix (" Hz");
+    frequencySlider.onValueChange = [this] { durationSlider.setValue (1.0 / frequencySlider.getValue(), juce::dontSendNotification); };
+
+    addAndMakeVisible (frequencyLabel);
+    frequencyLabel.setText ("Frequency", juce::dontSendNotification);
+    frequencyLabel.attachToComponent (&frequencySlider, true);
+
+    addAndMakeVisible (durationSlider);
+    durationSlider.setRange (1.0 / frequencySlider.getMaximum(),
+        1.0 / frequencySlider.getMinimum());
+    durationSlider.setTextValueSuffix (" s");
+    durationSlider.onValueChange = [this] { frequencySlider.setValue (1.0 / durationSlider.getValue(), juce::dontSendNotification); };
 ```
 
-これは[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを呼び出します。[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")の値はユーザーによって変更される。
+これは、ユーザーが[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")の値を変更したときに呼び出す関数を[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクトに伝えます。
 
-:::note
-
-コードの実装は`SliderValuesTutorial_03.h`ファイルを参照してください。
-
+:::tip
+このコードの実装は、このチュートリアルのデモプロジェクトの`SliderValuesTutorial_03.h`ファイルにあります。
 :::
 
-## 概要
+## まとめ
 
-このチュートリアルでは[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")クラスで学んだ。特に私たちは学んだ：
+このチュートリアルでは、[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")クラスを紹介しました。特に、以下のことを学びました：
 
-- スライダーが特定の範囲で動作するように設定する方法
-- スライダーの値の変化にどう対応するか
-- 対数目盛りを使用するようにスライダーの傾きを設定する方法
+- 特定の範囲で動作するようにスライダーを設定する方法。
+- スライダー値の変更に応答する方法。
+- 対数スケールを使用するようにスライダースキューを設定する方法。
 
-## 参照
+## 関連項目
 
-- [Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)
-- [Tutorial: The ComboBox class](../tutorial_combo_box/)
-- [Tutorial: The Label class](../tutorial_label/)
-- [Tutorial: Radio buttons and checkboxes](../tutorial_radio_buttons_checkboxes/)
+- [チュートリアル：リスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)
+- [チュートリアル：ComboBox クラス](../tutorial_combo_box/)
+- [チュートリアル：Label クラス](../tutorial_label/)
+- [チュートリアル：ラジオボタンとチェックボックス](../tutorial_radio_buttons_checkboxes/)

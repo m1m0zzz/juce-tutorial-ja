@@ -1,317 +1,333 @@
 ---
-title: ComboBoxクラス
+title: ComboBox クラス
 sidebar_position: 10
 tags: [初級]
 ---
 
-# ComboBoxクラス
+# チュートリアル：ComboBox クラス
 
 <SourcePageLink path="tutorial_combo_box" />
 
-このチュートリアルでは[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")クラスは、ユーザーにアイテムのリストを表示するためのコンポーネントです。リストの内容は[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")オブジェクトは動的に変更でき、テキスト入力にも使える。
+このチュートリアルでは、ユーザーに項目のリストを表示するためのコンポーネントである[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")クラスを紹介します。[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")オブジェクトの内容は動的に変更でき、テキスト入力にも使用できます。
 
-レベル初心者
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices."), [Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked."), [Font](https://docs.juce.com/master/classFont.html "Represents a particular font, including its size, style, etc."), [Colour](https://docs.juce.com/master/classColour.html "Represents a colour, also including a transparency value."), [Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。"),[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。"),[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。"),[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。"),[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/ComboBoxTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/ComboBoxTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルを Projucer で開いてください。
 
-## スタート
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucer を始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/ComboBoxTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/ComboBoxTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-## デモ・プロジェクト
-
-デモ・プロジェクトでは、ウィンドウ上部の[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")コンポーネント[Tutorial: The Label class](../tutorial_label/)). A[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")コンポーネントには**プレーン**,**太字**そして**イタリック**.ユーザーはこれらの項目のいずれかを選択して、ラベル内のテキストのスタイルを変更できます。
+デモプロジェクトは、[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")コンポーネント内のウィンドウ上部にテキストを表示します（[チュートリアル：Label クラス](../tutorial_label/)を参照）。[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")コンポーネントには、**Plain**、**Bold**、**Italic**の項目が含まれています。ユーザーはこれらの項目のいずれかを選択して、ラベル内のテキストのスタイルを変更できます。
 
 <CaptionImage
   src="/_images/tutorial_combo_box_screenshot1.png"
   caption="フォントスタイルの選択"
 />
 
-## ComboBoxクラス
+## ComboBox クラス
 
-の機能の多くを紹介します。[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")クラスA[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")コンポーネントには、テキスト文字列のリストが含まれている。これらのテキスト文字列はそれぞれID番号(`int`値)。どの項目が現在選択されているかは、以下の方法で問い合わせることができる：
+このチュートリアルでは、[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")クラスの多くの機能を紹介します。[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")コンポーネントには、テキスト文字列のリストが含まれています。これらの各テキスト文字列は、ID 番号（`int`値）に関連付けられています。現在選択されている項目を照会できます：
 
-- を使用して、現在選択されているIDを取得する。[ComboBox::getSelectedId()](https://docs.juce.com/master/classComboBox.html#ab6232527104faad901ba0fa1380cd8ec "現在ボックスに表示されているアイテムのIDを返します。")または
-- を使用して、現在表示されているテキストを要求する。[ComboBox::getText()](https://docs.juce.com/master/classComboBox.html#a420630894c696545c29271f557f7614d "コンボボックスのテキストフィールドに現在表示されているテキストを返します。")関数である。
+- [ComboBox::getSelectedId()](https://docs.juce.com/master/classComboBox.html#ab6232527104faad901ba0fa1380cd8ec "Returns the ID of the item that's currently shown in the box.")関数を使用して現在選択されている ID を取得する。
+- [ComboBox::getText()](https://docs.juce.com/master/classComboBox.html#a420630894c696545c29271f557f7614d "Returns the text that is currently shown in the combo-box's text field.")関数を使用して現在表示されているテキストを要求する。
 
-について[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")クラスはブロードキャスターでもある。変更を聞くには[ComboBox::Listener](https://docs.juce.com/master/classComboBox_1_1Listener.html "ComboBox からのイベントを受け取るためのクラスです。")クラス（参照[Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)を使ってラムダ関数を使うこともできる。[ComboBox::onChange](https://docs.juce.com/master/classComboBox.html#a9cf2e20990541b9fbb539cd4a8e0ac4e "このコールバック・オブジェクトにラムダを割り当てることで、セレクテッドIDが変更されたときに呼び出されるようにすることができる。")ヘルパーオブジェクト。
+[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")クラスはブロードキャスターでもあります。変更をリッスンするには、[ComboBox::Listener](https://docs.juce.com/master/classComboBox_1_1Listener.html "A class for receiving events from a ComboBox.")クラスを登録するか（[チュートリアル：リスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)を参照）、代わりに[ComboBox::onChange](https://docs.juce.com/master/classComboBox.html#a9cf2e20990541b9fbb539cd4a8e0ac4e "You can assign a lambda to this callback object to have it called when the selected ID is changed.")ヘルパーオブジェクトでラムダ関数を使用できます。
 
-デモ・プロジェクトを見てみよう。私たちの`MainContentComponent`クラスには4人のプライベートメンバーがいる：
-
-```cpp
-    juce::Label textLabel { {}, "The quick brown fox jumps over the lazy dog." };
-    juce::Font textFont   { 12.0f };
-    juce::ComboBox styleMenu;
-```
-
-について[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")そして[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。")オブジェクトはコンストラクタで設定される：
+デモプロジェクトを見てみましょう。`MainContentComponent`クラスには 4 つのプライベートメンバーがあります：
 
 ```cpp
-    MainContentComponent()
-    {
-        addAndMakeVisible (textLabel);
-        textLabel.setFont (textFont);
+juce::Label textLabel { {}, "The quick brown fox jumps over the lazy dog." };
+juce::Font textFont { 12.0f };
+juce::ComboBox styleMenu;
 ```
 
-### アイテムの追加
-
-アイテムは[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")オブジェクトを1つずつ[ComboBox::addItem()](https://docs.juce.com/master/classComboBox.html#a37491da45f1cbb74e47f145e5664d8bf "ドロップダウンリストに表示する項目を追加します。")関数を使う。ここでは、ID番号1、2、3の「プレーン」「ボールド」「イタリック」項目をそれぞれ追加する：
+[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")と[Font](https://docs.juce.com/master/classFont.html "Represents a particular font, including its size, style, etc.")オブジェクトはコンストラクタで設定されます：
 
 ```cpp
-        // add items to the combo-box
-        addAndMakeVisible (styleMenu);
-        styleMenu.addItem ("Plain",  1);
-        styleMenu.addItem ("Bold",   2);
-        styleMenu.addItem ("Italic", 3);
- 
-        styleMenu.onChange = [this] { styleMenuChanged(); };
-        styleMenu.setSelectedId (1);
- 
-        setSize (400, 200);
-    }
+MainContentComponent()
+{
+    addAndMakeVisible (textLabel);
+    textLabel.setFont (textFont);
 ```
 
-### 変化への対応
+### 項目の追加
 
-登録することもできた。`MainContentComponent`オブジェクトをリスナーとして使用する。`styleMenu` [ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")オブジェクトはアプリケーション内でユーザーによって変更される。しかし、この場合[ComboBox::onChange](https://docs.juce.com/master/classComboBox.html#a9cf2e20990541b9fbb539cd4a8e0ac4e "このコールバック・オブジェクトにラムダを割り当てることで、セレクテッドIDが変更されたときに呼び出されるようにすることができる。")ヘルパー・オブジェクトを直接呼び出す`styleMenuChanged()`関数である：
+項目は、[ComboBox::addItem()](https://docs.juce.com/master/classComboBox.html#a37491da45f1cbb74e47f145e5664d8bf "Adds an item to be shown in the drop-down list.")関数を使用して[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")オブジェクトに 1 つずつ追加できます。ここでは、「Plain」、「Bold」、「Italic」の項目をそれぞれ ID 番号 1、2、3 で追加します：
+
+```cpp
+// add items to the combo-box
+addAndMakeVisible (styleMenu);
+styleMenu.addItem ("Plain", 1);
+styleMenu.addItem ("Bold", 2);
+styleMenu.addItem ("Italic", 3);
+
+styleMenu.onChange = [this] { styleMenuChanged(); };
+styleMenu.setSelectedId (1);
+
+setSize (400, 200);
+}
+```
+
+### 変更への応答
+
+`styleMenu` [ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")オブジェクトがアプリケーションでユーザーによって変更されたときに通知を受けるために、`MainContentComponent`オブジェクトをリスナーとして登録することもできました。しかし、この場合は[ComboBox::onChange](https://docs.juce.com/master/classComboBox.html#a9cf2e20990541b9fbb539cd4a8e0ac4e "You can assign a lambda to this callback object to have it called when the selected ID is changed.")ヘルパーオブジェクトを実装して`styleMenuChanged()`関数を直接呼び出します：
 
 ```cpp
 styleMenu.onChange = [this] { styleMenuChanged(); };
 ```
 
-について`styleMenuChanged()`関数は`styleMenu`オブジェクトがある：
-
-```cpp
-    void styleMenuChanged()
-    {
-        switch (styleMenu.getSelectedId())
-        {
-            case 1: textFont.setStyleFlags (juce::Font::plain);  break;
-            case 2: textFont.setStyleFlags (juce::Font::bold);   break;
-            case 3: textFont.setStyleFlags (juce::Font::italic); break;
-            default: break;
-        }
- 
-        textLabel.setFont (textFont);
-    }
-```
-
-ここでは`textFont` [Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。")オブジェクトをユーザーの選択に応じて適切に変更します。次に、このフォントを使って`textLabel` [Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")オブジェクトのフォント。
-
-### アイテムID番号の使用
-
-アイテムIDには任意の整数を使用できます。*ただし*ゼロ。ゼロには特別な意味がある。これは、どの項目も選択されていないことを示すのに使われる（項目がまだ選択されていないか、あるいは[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")オブジェクトが他のカスタム・テキストを表示している）。
-
-1、2、3のような単純な数字をコードに使用することで、管理は簡単だ。しかし、アプリの開発が進むにつれて、これはすぐに管理しきれなくなる。この場合は`enum`.プライベートの`enum`私たちのスタイルのために：
-
-```cpp
-    enum FontStyles
-    {
-        stylePlain = 1,
-        styleBold,
-        styleItalic,
-        numberOfStyles
-    };
-```
-
-そして、これらの値を[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")オブジェクトがある：
-
-```cpp
-        addAndMakeVisible (styleMenu);
- 
-        // add items to the combo-box
-        styleMenu.addItem ("Plain",  1);
-        styleMenu.addItem ("Bold",   2);
-        styleMenu.addItem ("Italic", 3);
- 
-        styleMenu.onChange = [this] { styleMenuChanged(); };
-        styleMenu.setSelectedId (stylePlain);
-```
-
-そして、我々の`styleMenuChanged()`関数である：
+`styleMenuChanged()`関数は`styleMenu`オブジェクトの変更を処理します：
 
 ```cpp
 void styleMenuChanged()
 {
     switch (styleMenu.getSelectedId())
     {
-        case stylePlain:  textFont.setStyleFlags (juce::Font::plain);  break;
-        case styleBold:   textFont.setStyleFlags (juce::Font::bold);   break;
-        case styleItalic: textFont.setStyleFlags (juce::Font::italic); break;
+        case 1:
+            textFont.setStyleFlags (juce::Font::plain);
+            break;
+        case 2:
+            textFont.setStyleFlags (juce::Font::bold);
+            break;
+        case 3:
+            textFont.setStyleFlags (juce::Font::italic);
+            break;
+        default:
+            break;
     }
- 
+
     textLabel.setFont (textFont);
 }
 ```
 
-少なくとも、これでコードはずっと読みやすくなる。
+ここでは、ユーザーの選択に基づいて`textFont` [Font](https://docs.juce.com/master/classFont.html "Represents a particular font, including its size, style, etc.")オブジェクトを適切に設定していることがわかります。次に、このフォントを使用して`textLabel` [Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")オブジェクトのフォントを更新します。
 
-IDナンバーを使用する他の一般的な戦略は以下の通り：
+### 項目 ID 番号の使用
 
-- 配列を使用して、コンボボックスの項目に関連するデータを格納します。IDを配列のインデックスとして使用できますが、インデックス0は未使用のままにするか、オフセットを使用する必要があります。たとえば、IDを100から始めることができます（100、101、102など）。ID100は配列のインデックス0と関連付けられ、100を足したり引いたりすることで、IDとインデックスを簡単に変換できます。
-- アプリのコンボボックスごとに、異なる範囲の整数のバッチを使う。例えば、あるコンボボックスには100, 101, 102...、別のコンボボックスには200, 201, 202...といった具合です。
-- アイテムテキストのハッシュを使う次のように使用できます。[String::hashCode()](https://docs.juce.com/master/classString.html#ad8ca5cb11984df03ff9697442da5ae4b "この文字列からおそらくユニークな32ビットハッシュコードを生成する。")を取得する。*おそらく*文字列の一意なハッシュコードを返します。しかし、これはゼロを返す可能性があることに注意してください（空の文字列にこの関数を使用すると、ハッシュコードはゼロを返します）。
+項目 ID として任意の整数を使用できます。ただし、ゼロは使用できません。ゼロには特別な意味があります。項目がまだ選択されていない、または[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")オブジェクトが他のカスタムテキストを表示していることを示すために使用されます。
 
-### セクションと仕切り
-
-コンボボックスの項目リストには、仕切りやセクションの見出しを含めることができます。これは非常に長いリストでは特に便利です。テキストの色を変えるコンボボックスをアプリに追加してみよう。まず`enum`私たちの色のために：
+少数の項目では、コード内で 1、2、3 のような単純な数字を使用するのは管理しやすいです。しかし、アプリをさらに開発すると、すぐに管理できなくなります。私たちの場合、`enum`を使用するとより明確になります。スタイル用のプライベート`enum`を追加しましょう：
 
 ```cpp
-    enum TextColours
+enum FontStyles {
+    stylePlain = 1,
+    styleBold,
+    styleItalic,
+    numberOfStyles
+};
+```
+
+次に、[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")オブジェクトを設定するときにこれらの値を使用できます：
+
+```cpp
+addAndMakeVisible (styleMenu);
+
+// add items to the combo-box
+styleMenu.addItem ("Plain", 1);
+styleMenu.addItem ("Bold", 2);
+styleMenu.addItem ("Italic", 3);
+
+styleMenu.onChange = [this] { styleMenuChanged(); };
+styleMenu.setSelectedId (stylePlain);
+```
+
+そして`styleMenuChanged()`関数でも：
+
+```cpp
+void styleMenuChanged()
+{
+    switch (styleMenu.getSelectedId())
     {
-        black = 1,
-        white,
-        red,
-        darkred,
-        indianred,
-        green,
-        darkgreen,
-        lightgreen,
-        blue,
-        darkblue,
-        lightblue,
-        numberOfColours
-    };
-```
-
-そして新しいメンバーが加わった。`MainContentComponent`クラスである：
-
-```cpp
-    juce::Label textLabel { {}, "The quick brown fox jumps over the lazy dog." };
-    juce::Font textFont   { 12.0f };
-    juce::ComboBox styleMenu;
-    juce::ComboBox coloursMenu;
-```
-
-の中で`MainContentComponent`コンストラクタに新しいコンボボックスをセットアップするコードを追加する必要がある。ここでは2つの新しい関数を紹介する、[ComboBox::addSeparator()](https://docs.juce.com/master/classComboBox.html#af53bb419bb136f11f6f0342702d8d902 "ドロップダウンリストに区切り線を追加する。")そして[ComboBox::addSectionHeading()](https://docs.juce.com/master/classComboBox.html#ad376928ef517800c42628399e1a80990 "ドロップダウンリストに見出しを追加し、項目を異なるセクションにグループ分けできるようにします。"):
-
-```cpp
-        addAndMakeVisible (coloursMenu);
- 
-        coloursMenu.addItem ("Black", black);
-        coloursMenu.addItem ("White", white);
-        coloursMenu.addSeparator();
- 
-        coloursMenu.addSectionHeading ("Reds");
-        coloursMenu.addItem ("Red",        red);
-        coloursMenu.addItem ("Dark Red",   darkred);
-        coloursMenu.addItem ("Indian Red", indianred);
-        coloursMenu.addSeparator();
- 
-        coloursMenu.addSectionHeading ("Greens");
-        coloursMenu.addItem ("Green",       green);
-        coloursMenu.addItem ("Dark Green",  darkgreen);
-        coloursMenu.addItem ("Light Green", lightgreen);
-        coloursMenu.addSeparator();
- 
-        coloursMenu.addSectionHeading ("Blues");
-        coloursMenu.addItem ("Blue",       blue);
-        coloursMenu.addItem ("Dark Blue",  darkblue);
-        coloursMenu.addItem ("Light Blue", lightblue);
- 
-        coloursMenu.onChange = [this] { coloursMenuChanged(); };
-        coloursMenu.setSelectedId (black);
- 
-        coloursMenu.setEditableText (true);
- 
-        setSize (400, 200);
+        case stylePlain:
+            textFont.setStyleFlags (juce::Font::plain);
+            break;
+        case styleBold:
+            textFont.setStyleFlags (juce::Font::bold);
+            break;
+        case styleItalic:
+            textFont.setStyleFlags (juce::Font::italic);
+            break;
     }
+
+    textLabel.setFont (textFont);
+}
 ```
 
-セクション見出しなしでセパレーターを使うことも、セパレーターなしでセクション見出しを使うこともできるが、これらは一緒に使うとうまくいく。
+少なくとも、これによりコードがはるかに読みやすくなります。
 
-:::note
+ID 番号を使用する他の一般的な戦略は以下のとおりです：
 
-セパレーターとセクション見出しは選択できず、関連するID番号もありません。
+- コンボボックスの項目に関連するデータを格納する配列を使用する。インデックス 0 を未使用のままにするか、オフセットを使用する必要がありますが、ID を配列へのインデックスとして使用できます。例えば、ID は 100 から始めることができます（100、101、102 など）。ID 100 は配列のインデックス 0 に関連付けられ、100 を加算または減算することで ID とインデックス間を簡単に変換できます。
+- アプリ内の各コンボボックスに対して異なる範囲の整数のバッチを使用する。例えば、1 つのコンボボックスには ID 100、101、102...を使用し、別のコンボボックスには 200、201、202...などを使用できます。
+- 項目テキストのハッシュを使用する。[String::hashCode()](https://docs.juce.com/master/classString.html#ad8ca5cb11984df03ff9697442da5ae4b "Generates a probably-unique 32-bit hashcode from this string.")を使用して文字列の*おそらく*一意のハッシュコードを取得できます。ただし、これがゼロを返す可能性があることに注意してください（この関数を空の文字列で使用するとゼロのハッシュコードが返されます）。
 
+### セクションと区切り線
+
+コンボボックスの項目リストには、区切り線とセクション見出しを含めることができます。これは非常に長いリストで特に便利です。テキストの色を変更するコンボボックスをアプリに追加しましょう。まず、色用の別の`enum`を追加します：
+
+```cpp
+enum TextColours {
+    black = 1,
+    white,
+    red,
+    darkred,
+    indianred,
+    green,
+    darkgreen,
+    lightgreen,
+    blue,
+    darkblue,
+    lightblue,
+    numberOfColours
+};
+```
+
+そして`MainContentComponent`クラスに新しいメンバーを追加します：
+
+```cpp
+juce::Label textLabel { {}, "The quick brown fox jumps over the lazy dog." };
+juce::Font textFont { 12.0f };
+juce::ComboBox styleMenu;
+juce::ComboBox coloursMenu;
+```
+
+`MainContentComponent`コンストラクタでは、新しいコンボボックスを設定するコードを追加する必要があります。ここでは、[ComboBox::addSeparator()](https://docs.juce.com/master/classComboBox.html#af53bb419bb136f11f6f0342702d8d902 "Adds a separator line to the drop-down list.")と[ComboBox::addSectionHeading()](https://docs.juce.com/master/classComboBox.html#ad376928ef517800c42628399e1a80990 "Adds a heading to the drop-down list, so that you can group the items into different sections.")という 2 つの新しい関数を紹介します：
+
+```cpp
+addAndMakeVisible (coloursMenu);
+
+coloursMenu.addItem ("Black", black);
+coloursMenu.addItem ("White", white);
+coloursMenu.addSeparator();
+
+coloursMenu.addSectionHeading ("Reds");
+coloursMenu.addItem ("Red", red);
+coloursMenu.addItem ("Dark Red", darkred);
+coloursMenu.addItem ("Indian Red", indianred);
+coloursMenu.addSeparator();
+
+coloursMenu.addSectionHeading ("Greens");
+coloursMenu.addItem ("Green", green);
+coloursMenu.addItem ("Dark Green", darkgreen);
+coloursMenu.addItem ("Light Green", lightgreen);
+coloursMenu.addSeparator();
+
+coloursMenu.addSectionHeading ("Blues");
+coloursMenu.addItem ("Blue", blue);
+coloursMenu.addItem ("Dark Blue", darkblue);
+coloursMenu.addItem ("Light Blue", lightblue);
+
+coloursMenu.onChange = [this] { coloursMenuChanged(); };
+coloursMenu.setSelectedId (black);
+
+coloursMenu.setEditableText (true);
+
+setSize (400, 200);
+}
+```
+
+セクション見出しなしで区切り線を使用したり、区切り線なしでセクション見出しを使用したりできますが、これらは一緒にうまく機能します。
+
+:::tip
+区切り線とセクション見出しは選択できず、関連する ID 番号がありません。
 :::
 
-の変更を処理する新しい関数を実装する必要がある。`coloursMenu`オブジェクトがある：
+`coloursMenu`オブジェクトの変更を処理する新しい関数を実装する必要があります：
 
 ```cpp
 void coloursMenuChanged()
 {
     juce::Colour textColour;
- 
+
     switch (coloursMenu.getSelectedId())
     {
-        case black:      textColour = Colours::black;      break;
-        case white:      textColour = Colours::white;      break;
- 
-        case red:        textColour = Colours::red;        break;
-        case darkred:    textColour = Colours::darkred;    break;
-        case indianred:  textColour = Colours::indianred;  break;
- 
-        case green:      textColour = Colours::green;      break;
-        case darkgreen:  textColour = Colours::darkgreen;  break;
-        case lightgreen: textColour = Colours::lightgreen; break;
- 
-        case blue:       textColour = Colours::blue;       break;
-        case darkblue:   textColour = Colours::darkblue;   break;
-        case lightblue:  textColour = Colours::lightblue;  break;
+        case black:
+            textColour = Colours::black;
+            break;
+        case white:
+            textColour = Colours::white;
+            break;
+
+        case red:
+            textColour = Colours::red;
+            break;
+        case darkred:
+            textColour = Colours::darkred;
+            break;
+        case indianred:
+            textColour = Colours::indianred;
+            break;
+
+        case green:
+            textColour = Colours::green;
+            break;
+        case darkgreen:
+            textColour = Colours::darkgreen;
+            break;
+        case lightgreen:
+            textColour = Colours::lightgreen;
+            break;
+
+        case blue:
+            textColour = Colours::blue;
+            break;
+        case darkblue:
+            textColour = Colours::darkblue;
+            break;
+        case lightblue:
+            textColour = Colours::lightblue;
+            break;
     }
- 
+
     textLabel.setColour (juce::Label::textColourId, textColour);
 }
-Colours::lightblueconst Colour lightblueDefinition juce_Colours.h:114
-Colours::greenconst Colour greenDefinition juce_Colours.h:102
-Colours::darkblueconst Colour darkblueDefinition juce_Colours.h:72
-Colours::darkredconst Colour darkredDefinition juce_Colours.h:82
-Colours::whiteconst Colour whiteDefinition juce_Colours.h:188
-Colours::blueconst Colour blueDefinition juce_Colours.h:60
-Colours::blackconst Colour blackDefinition juce_Colours.h:58
-Colours::indianredconst Colour indianredDefinition juce_Colours.h:106
-Colours::darkgreenconst Colour darkgreenDefinition juce_Colours.h:76
-Colours::redconst Colour redDefinition juce_Colours.h:165
-Colours::lightgreenconst Colour lightgreenDefinition juce_Colours.h:118
 ```
 
-の境界を設定することをお忘れなく。`coloursMenu`オブジェクトを`resized()`関数である：
+`resized()`関数で`coloursMenu`オブジェクトの境界を設定することを忘れないでください：
 
 ```cpp
-    void resized() override
-    {
-        textLabel  .setBounds (10, 10, getWidth() - 20, 20);
-        styleMenu  .setBounds (10, 40, getWidth() - 20, 20);
-        coloursMenu.setBounds (10, 70, getWidth() - 20, 20);
-    }
+void resized() override
+{
+    textLabel.setBounds (10, 10, getWidth() - 20, 20);
+    styleMenu.setBounds (10, 40, getWidth() - 20, 20);
+    coloursMenu.setBounds (10, 70, getWidth() - 20, 20);
+}
 ```
 
-プロジェクトを実行すると、ウィンドウは次のようになるはずだ：
+プロジェクトを実行すると、ウィンドウは以下のようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_combo_box_screenshot2.png"
   caption="色とスタイルの選択"
 />
 
-ラベルテキストの色を変更できるようになりました。
+これでラベルテキストの色を変更できます。
 
 ### テキスト入力
 
-コンボボックスのデフォルトの動作は、ユーザーがリストされた項目のみを選択できるようにすることです。しかし、コンボボックスを編集可能にして、ユーザーが他のテキストを入力できるようにできます。コンボボックスの`MainContentComponent`コンストラクタで`coloursMenu`オブジェクトを編集可能にする：
+コンボボックスのデフォルトの動作は、リストされている項目のみをユーザーが選択できるようにすることです。ただし、コンボボックスを編集可能にして、ユーザーが他のテキストを入力できるようにすることができます。`MainContentComponent`コンストラクタで`coloursMenu`オブジェクトを編集可能にしましょう：
 
 ```cpp
-        coloursMenu.setEditableText (true);
+coloursMenu.setEditableText (true);
 ```
 
-では、この関数に`coloursMenu`オブジェクトで、テキストを16進数のカラーコードとして扱います。カラーコードはARGB形式です（例えば、"ff8888888 "は不透明な中間灰色になります）：
+## まとめ
 
-## 概要
+このチュートリアルでは、[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")クラスを紹介しました。このチュートリアルを読んだ後、以下のことができるようになるはずです：
 
-このチュートリアルでは[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")クラスです。このチュートリアルを読めば、次のことができるようになるでしょう：
-
-- コンボボックスを作成し、そこに項目を追加する。
-- コンボボックスの項目に関連するID番号を管理します。
-- コンボボックスで選択されている項目を変更するユーザーに対応する。
+- コンボボックスを作成し、項目を追加する。
+- コンボボックスの項目に関連付けられた ID 番号を管理する。
+- コンボボックスで選択された項目が変更されたときにユーザーに応答する。
 - コンボボックスにカスタムテキストを入力できるようにする。
-- コンボボックスの項目を無効にしたり有効にしたりする。
+- コンボボックスの項目を無効化および有効化する。
 
-## 参照
+## 関連項目
 
-- [Tutorial: The Label class](../tutorial_label/)
-- [Tutorial: The TableListBox class](../tutorial_table_list_box/)
-- [Tutorial: Listeners and Broadcasters](../tutorial_listeners_and_broadcasters/)
+- [チュートリアル：Label クラス](../tutorial_label/)
+- [チュートリアル：TableListBox クラス](../tutorial_table_list_box/)
+- [チュートリアル：リスナーとブロードキャスター](../tutorial_listeners_and_broadcasters/)
