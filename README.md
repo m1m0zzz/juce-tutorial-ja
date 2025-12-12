@@ -47,7 +47,7 @@ all: ✅
 
 ### Mobile
 
-all: 🤖
+all: ✅
 
 ### Utility Classes
 
