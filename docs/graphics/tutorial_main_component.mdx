@@ -1,71 +1,62 @@
 ---
-title: 主要部品
+title: メインコンポーネント
 sidebar_position: 2
 tags: [初級]
 ---
 
-# メイン・コンポーネント
+# チュートリアル：メインコンポーネント
 
 <SourcePageLink path="tutorial_main_component" />
 
-このチュートリアルでは、メイン・コンテンツ・コンポーネントを作成することによって、アプリケーション・ウィンドウにグラフィカル・コンテンツを追加する方法を説明します。これは、ウィンドウ内でユーザーにコンテンツを表示するために重要です。
+このチュートリアルでは、メインコンテンツコンポーネントを作成してアプリケーションウィンドウにグラフィカルコンテンツを追加する方法を示します。これはウィンドウ内でユーザーにコンテンツを表示するために重要です。
 
-レベル初心者
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [DocumentWindow](https://docs.juce.com/master/classDocumentWindow.html "A resizable window with a title bar and maximise, minimise and close buttons."), [Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects."), [Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [DocumentWindow](https://docs.juce.com/master/classDocumentWindow.html "タイトルバーと最大化、最小化、閉じるボタンを備えたサイズ変更可能なウィンドウ。"),[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。"),[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")
+Projucer を起動し、**MainComponentTutorial**という名前で新しい GUI アプリケーションプロジェクトを作成します。**Files to Auto-Generate:**フィールドで**Create a Main.cpp file only**を選択してください。
 
-## スタート
+この手順でサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucer を始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-Projucerを起動し、次の名前で新しいGUIアプリケーション・プロジェクトを作成します。**メインコンポーネントチュートリアル**.での**自動生成するファイル：**フィールドで**Main.cppファイルのみを作成する**.
-
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-を変更する。`MainComponentTutorialApplication`クラスには以下が含まれる。`MainWindow`クラスを以下のように変更した：
+以下のように`MainWindow`クラスを含めるように`MainComponentTutorialApplication`クラスを変更します：
 
 ```cpp
 //==============================================================================
-class MainComponentTutorialApplication  : public juce::JUCEApplication
+class MainComponentTutorialApplication : public juce::JUCEApplication
 {
 public:
     //...
- 
+
     //==============================================================================
-    class MainWindow    : public juce::DocumentWindow
+    class MainWindow : public juce::DocumentWindow
     {
     public:
-        MainWindow (juce::String name)  : DocumentWindow (name,
-                                                          juce::Colours::lightgrey,
-                                                          DocumentWindow::allButtons)
+        MainWindow (juce::String name) : DocumentWindow (name,
+                                             juce::Colours::lightgrey,
+                                             DocumentWindow::allButtons)
         {
             setUsingNativeTitleBar (true);
             centreWithSize (300, 200);
             setVisible (true);
         }
- 
+
         void closeButtonPressed() override
         {
             JUCEApplication::getInstance()->systemRequestedQuit();
         }
- 
+
     private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
- 
+
 private:
-    std::unique_ptr mainWindow;
+    std::unique_ptr<MainWindow> mainWindow;
 };
-DocumentWindowA resizable window with a title bar and maximise, minimise and close buttons.Definition juce_DocumentWindow.h:67
-JUCEApplication::getInstancestatic JUCEApplication *JUCE_CALLTYPE getInstance() noexceptReturns the global instance of the application object being run.
-JUCEApplication::systemRequestedQuitvoid systemRequestedQuit() overrideCalled when the operating system is trying to close the application.
-nameint UnityEventModifiers const char * nameDefinition juce_UnityPluginInterface.h:204
-JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(className)This is a shorthand way of writing both a JUCE_DECLARE_NON_COPYABLE and JUCE_LEAK_DETECTOR macro for ...Definition juce_PlatformDefs.h:262
-ColoursContains a set of predefined named colours (mostly standard HTML colours)Definition juce_Colours.h:46
-juceDefinition juce_AudioWorkgroup_mac.h:36
 ```
 
-以下の行を`initialise()`関数である：
+`initialise()`関数に以下の行を追加します：
 
 ```cpp
 void initialise (const juce::String& commandLine) override
@@ -74,7 +65,7 @@ void initialise (const juce::String& commandLine) override
 }
 ```
 
-最後に、以下の行を`shutdown()`関数である：
+最後に、`shutdown()`関数に以下の行を追加します：
 
 ```cpp
 void shutdown() override
@@ -85,120 +76,112 @@ void shutdown() override
 
 ## はじめに
 
-前回のチュートリアル([Tutorial: The application window](../tutorial_main_window/))では、アプリケーションのグラフィカル・インタフェースのフレームとなるメイン・ウィンドウについて説明しました。このチュートリアルでは*メインコンテンツコンポーネント*を示すオブジェクトである。*内容*アプリのインタフェースのメインコンテンツコンポーネントは、すべてのJUCEアプリに不可欠なオブジェクトです。
+前回のチュートリアル（[チュートリアル：アプリケーションウィンドウ](../tutorial_main_window/)）では、アプリケーションのグラフィカルインターフェースが存在するフレームとなるメインウィンドウについて説明しました。このチュートリアルでは、アプリのインターフェースの*コンテンツ*を表示するオブジェクトである*メインコンテンツコンポーネント*を作成します。メインコンテンツコンポーネントはすべての JUCE アプリにとって必須のオブジェクトです。
 
-新しいGUIアプリケーションを[The Projucer](https://juce.com/projucer)JUCEアプリのメインコンテンツコンポーネントが自動的に生成されます。しかし、この概念に慣れ、JUCEアプリがどのように構成されているかを理解する良い方法は、このようなメインコンテンツコンポーネントを自分で作成することです。これが、このチュートリアルで行うことです。
+[Projucer](https://juce.com/projucer)で新しい GUI アプリケーションを作成すると、自動的にメインコンテンツコンポーネントが生成されます。しかし、この概念に慣れ、JUCE アプリがどのように構造化されているかを理解する良い方法は、そのようなメインコンテンツコンポーネントを自分で作成することです。これがこのチュートリアルで行うことです。
 
-IDEでチュートリアル・プロジェクトを開いてください。前回のチュートリアルと同じところ、つまり空のアプリケーション・ウィンドウから始めます。つまり、空のアプリケーション・ウィンドウです。`Main.cpp`ファイルでは`MainWindow`クラスを使用します。その使い方は前回のチュートリアルですでに学んだ([Tutorial: The application window](../tutorial_main_window/)).では、このウィンドウをコンテンツで埋めましょう！
+IDE でチュートリアルプロジェクトを開いてください。前回のチュートリアルで到達した同じ場所から始めます：空のアプリケーションウィンドウがある状態です。`Main.cpp`ファイルには`MainWindow`クラスがあります。前回のチュートリアル（[チュートリアル：アプリケーションウィンドウ](../tutorial_main_window/)）でその使い方をすでに学びました。今度は、このウィンドウにコンテンツを入れていきます！
 
-しかし、その前に、まずは*コンポーネント*もう少し先だ。
+しかし、その前に、まず*コンポーネント*の概念についてもう少し探ってみましょう。
 
-## コンポーネント・クラス
+## Component クラス
 
-全てのJUCEグラフィカル・インタフェースの最も重要な基本クラスは[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスを使用します。JUCEでは、ボタンであれ、スライダーであれ、テキスト・フィールドであれ、GUIの実質的に目に見える要素はすべて*コンポーネント*このクラスから派生したものです。JUCEでこのようなアプリを書く方法は*主成分*これはメイン・アプリケーション・ウィンドウが所有し、ウィンドウの*内容*.他のすべてのコンポーネントは*子供たち*この主要コンポーネントの[Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)).その[DocumentWindow](https://docs.juce.com/master/classDocumentWindow.html "タイトルバーと最大化、最小化、閉じるボタンを備えたサイズ変更可能なウィンドウ。")クラスがある。`MainWindow`を派生させたもので、メインウィンドウがそのコンテンツ（メインコンポーネントとその子コンポーネントを含む）を正しく表示するために必要な機能を含んでいます。
+すべての JUCE グラフィカルインターフェースの最も重要な基本クラスは[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")クラスです。JUCE では、ボタン、スライダー、テキストフィールドなど、GUI のほぼすべての可視要素がこのクラスから派生する*コンポーネント*です。JUCE でそのようなアプリを書く方法は、メインアプリケーションウィンドウが所有し、ウィンドウの*コンテンツ*である*メインコンポーネント*を作成することです。他のすべてのコンポーネントはこのメインコンポーネントの*子*になります（[チュートリアル：親コンポーネントと子コンポーネント](../../interface-design/tutorial_component_parents_children/)を参照）。`MainWindow`が派生している[DocumentWindow](https://docs.juce.com/master/classDocumentWindow.html "A resizable window with a title bar and maximise, minimise and close buttons.")クラスには、メインウィンドウがそのコンテンツ（メインコンポーネントとその子を含む）を正しく表示するために必要な機能が含まれています。
 
-:::note
-
-覚えておいてください：JUCEのすべてのグラフィカル要素は[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスで構成される。GUIを構築するには、さまざまなコンポーネントを*親*そして*子供*コンポーネントで構成される。一番上のコンポーネントは*メインコンテンツコンポーネント*.参照[Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)を参照されたい。
-
+:::tip
+覚えておいてください：JUCE のすべてのグラフィカル要素は[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")クラスから派生しています。GUI を構築するために、異なるコンポーネントが*親*と*子*コンポーネントのネストされた階層に配置されます。最上位のコンポーネントは*メインコンテンツコンポーネント*と呼ばれます。詳細は[チュートリアル：親コンポーネントと子コンポーネント](../../interface-design/tutorial_component_parents_children/)を参照してください。
 :::
 
-## メイン・コンポーネント・クラスの追加
+## メインコンポーネントクラスの追加
 
 ### 新しいソースファイルの作成
 
-では、メイン・コンポーネント・クラスを作りましょう。そのためには、このクラスのソース・コードを格納する新しいファイルを作成する必要があります。に戻りましょう。[The Projucer](https://juce.com/projucer)でチュートリアル・プロジェクトを開きます。左側の**ファイル**ブラウザを開く。次に**ソース**グループ（新しいC++ソース・ファイルが常に置かれるべきファイル・グループ）を選択し**新しいコンポーネントクラスを追加（CPPとヘッダーに分割）...**.[The Projucer](https://juce.com/projucer)は、新しい[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")サブクラスのサブクラスを作成します。ダイアログで**メインコンポーネント**をクリックし**ファイル作成**.次のことがわかるだろう。[The Projucer](https://juce.com/projucer)は2つの新しいファイルを作成した：`MainComponent.cpp`そして`MainComponent.h`.ここで、プロジェクトを保存し、あなたの[IDE](https://en.wikipedia.org/wiki/Integrated_development_environment).新しいファイルもそこに表示されるはずだ。[The Projucer](https://juce.com/projucer)は新しいコンポーネント・クラスのコードを自動的に作成した。
+では、メインコンポーネントクラスを作成しましょう。このためには、このクラスのソースコードが入る新しいファイルを作成する必要があります。[Projucer](https://juce.com/projucer)に戻り、そこでチュートリアルプロジェクトを開きます。左側で**Files**ブラウザが開いていることを確認します。次に、**Source**グループ（新しい C++ソースファイルは常にここに入れるべきファイルグループ）を右クリックし、**Add new Component class (split between CPP & header)..**を選択します。[Projucer](https://juce.com/projucer)は新しい[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")サブクラスの名前を尋ねます。ダイアログで**MainComponent**と入力し、**Create Files**をクリックします。[Projucer](https://juce.com/projucer)が 2 つの新しいファイル`MainComponent.cpp`と`MainComponent.h`を作成したことがわかります。プロジェクトを保存し、[IDE](https://en.wikipedia.org/wiki/Integrated_development_environment)で再度開きます。そこにも新しいファイルが表示されるはずです。[Projucer](https://juce.com/projucer)は新しいコンポーネントクラス用のコードを自動的に作成しており、次のセクションで検討します。
 
 <CaptionImage
   src="/_images/tutorial_main_component_screenshot1.png"
-  caption="The Projucerに新しいコンポーネント・クラスを追加する。"
+  caption="Projucerで新しいコンポーネントクラスを追加"
 />
 
-:::note
-
-覚えておいてください: 新しいクラスを作成する場合、クラス名と同じファイル名で、独自のファイルを作成する必要があります。常に[The Projucer](https://juce.com/projucer)を使用して新しいファイルを作成します。[IDE](https://en.wikipedia.org/wiki/Integrated_development_environment)([The Projucer](https://juce.com/projucer)そのような変更は、次にプロジェクトを保存するときに上書きされます）。
-
+:::tip
+覚えておいてください：新しいクラスを作成する場合、それらは独自のファイルに入れ、ファイル名はクラス名と一致させるべきです。常に[Projucer](https://juce.com/projucer)を使用して新しいファイルを作成してください。[IDE](https://en.wikipedia.org/wiki/Integrated_development_environment)からは絶対に作成しないでください（[Projucer](https://juce.com/projucer)は次にプロジェクトを保存するときにそのような変更を上書きします）。
 :::
 
-### 新しいコンポーネント・クラス
+### 新しいコンポーネントクラス
 
-ご覧の通りだ、[The Projucer](https://juce.com/projucer)から新しいクラスを自動的に派生させた。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスに以下のクラス宣言を追加した：
+ご覧のように、[Projucer](https://juce.com/projucer)は自動的に新しいクラスを[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")クラスから派生させ、以下のクラス宣言を追加しました：
 
 ```cpp
-class MainComponent    : public juce::Component
+class MainComponent : public juce::Component
 {
 public:
     MainComponent();
     ~MainComponent();
- 
+
     void paint (juce::Graphics&) override;
     void resized() override;
- 
+
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
 ```
 
-について[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")基底クラスには2つの重要な仮想メンバー関数があり、派生クラスでオーバーライドする必要があります。[The Projucer](https://juce.com/projucer)この2つのオーバーライドは、すでにあなたのために作成されている：
+[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")基本クラスには、そこから派生するすべてのクラスでオーバーライドすべき 2 つの重要な仮想メンバー関数があります。[Projucer](https://juce.com/projucer)はすでにこれら 2 つのオーバーライドを作成しています：
 
-- Component::paint(): このメンバー関数は、コンポーネントがどのように画面に描画されるかを決定します。
-- Component::resized()：このメンバー関数は、コンポーネントがリサイズされたときに何が起こるかを決定する。
+- Component::paint()：このメンバー関数はコンポーネントが画面上にどのように描画されるべきかを決定し、すべてのコンポーネントクラスで実装する必要があります。
+- Component::resized()：このメンバー関数はコンポーネントがリサイズされたときに何が起こるべきかを決定し、すべてのコンポーネントクラスで実装する必要があります（アプリでこのコンポーネントが決してリサイズ可能にならないことが確実な場合を除く）。
 
-:::note
-
-キーワード`override`を、ベース・クラスの関数をオーバーライドすべきクラス内のすべての関数に適用します。これは、アプリで予期せぬエラーが発生するのを防ぐためです。[JUCE coding standards](https://docs.juce.com/master/http://www.juce.com/learn/coding-standards).
-
+:::tip
+基本クラスの関数をオーバーライドするすべてのクラスの関数には、常に`override`キーワードを追加してください。これにより、アプリでの予期しないエラーを防ぎ、[JUCE コーディング標準](http://www.juce.com/learn/coding-standards)の一部です。
 :::
 
-### ペイント機能の実装
+### paint 関数の実装
 
-について`paint()`関数は[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")オブジェクトがスクリーンにレンダリングされる。ここで、カスタム・アピアランスを`MainComponent`クラスである。
+`paint()`関数は[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")オブジェクトが画面上にどのようにレンダリングされるかを決定します。ここで`MainComponent`クラスにカスタムの外観を追加します。
 
-[The Projucer](https://juce.com/projucer)は自動的にいくつかのデモ・コードを追加した。独自のコードを`paint()`関数である。
+[Projucer](https://juce.com/projucer)は自動的にいくつかのデモコードを追加しました。`paint()`関数に独自のコードを入れましょう。
 
 ```cpp
 void MainComponent::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::lightblue);
- 
+
     g.setColour (juce::Colours::darkblue);
     g.setFont (20.0f);
     g.drawText ("Hello, World!", getLocalBounds(), juce::Justification::centred, true);
 }
 ```
 
-このコードの詳細にはあまり立ち入る必要はない。次のチュートリアルで、ここで使われている関数について（さらに）詳しく学びます：[Tutorial: The Graphics class](../tutorial_graphics_class/).とりあえず、このデモ・コードがコンポーネントを水色の背景で満たし、テキストをレンダリングしていることは想像がつくだろう。**ハロー、ワールド！ **とコンポーネントの中央に青いフォントで表示される。ここでのポイントは`MainComponent`オブジェクトは`paint()`関数である。
+このコードの詳細にはあまり立ち入る必要はありません。ここで使用されている関数（およびそれ以上）については、次のチュートリアル[チュートリアル：Graphics クラス](../tutorial_graphics_class/)で詳しく学びます。今のところ、このデモコードがコンポーネントを水色の背景で塗りつぶし、次にコンポーネントの中央に青いフォントで**Hello, World!**というテキストをレンダリングすることはおそらく推測できるでしょう。ポイントは、`MainComponent`オブジェクトがどのように見えるべきかを決定するすべてのコードは、まさにここの`paint()`関数内に入るということです。
 
-### メインコンポーネントを可視化する
+### メインコンポーネントを表示する
 
-では、コードをコンパイルして実行してください。青い背景とテキストの代わりに、空のアプリケーション・ウィンドウが表示されるだけです。なぜでしょうか？
+では、コードをコンパイルして実行してください。青い背景とテキストの代わりに、まだ空のアプリケーションウィンドウしか表示されていないことがわかります。なぜでしょうか？
 
-まあ、私たちはそのことを`MainWindow`オブジェクトにコンテンツを表示する必要がある。まず最初に、ヘッダーを含める必要がある。`MainWindow`クラスは`MainComponent`クラスを追加する。クラスの先頭に以下のインクルードを追加する。`Main.cpp`ファイルを、すでに存在するインクルードの下に置く：
+実は、`MainWindow`オブジェクトにコンテンツを表示すべきだと伝えていなかったのです。まず、`MainWindow`クラスが`MainComponent`クラスについて知ることができるようにヘッダをインクルードする必要があります。`Main.cpp`ファイルの先頭、すでに存在するインクルードの下に以下のインクルードを追加します：
 
 ```cpp
 #include "MainComponent.h"
 ```
 
-次のステップは`MainComponent`オブジェクトとして追加する。*内容*を呼び出せばよい。そのためには[DocumentWindow::setContentOwned()](https://docs.juce.com/master/classResizableWindow.html#a97940f07b6014bac018cbe9330abc769 "現在のコンテンツコンポーネントを変更します。")関数である。
+次のステップは`MainComponent`オブジェクトを作成し、メインウィンドウの*コンテンツ*として追加することです。[DocumentWindow::setContentOwned()](https://docs.juce.com/master/classResizableWindow.html#a97940f07b6014bac018cbe9330abc769 "Changes the current content component.")関数を呼び出すことでこれを行えます。
 
-:::note
-
-「所有」とは`MainWindow`オブジェクトの寿命に責任を持つようになった。`MainComponent`オブジェクトのデストラクタが呼ばれたときに自動的に破棄される。
-
+:::tip
+「Owned」とは、`MainWindow`オブジェクトが`MainComponent`オブジェクトのライフタイムを担当し、自身のデストラクタが呼ばれたときに自動的に破棄することを意味します。
 :::
 
-のコンストラクタに以下の行を追加する。`MainWindow`クラスである：
+`MainWindow`クラスのコンストラクタに以下の行を追加します：
 
 ```cpp
 setContentOwned (new MainComponent(), true);
 ```
 
-となるような`MainWindow`コンストラクタは次のようになる：
+`MainWindow`コンストラクタが以下のようになるようにします：
 
 ```cpp
-MainWindow (juce::String name)  : DocumentWindow (name,
-                                                  juce::Colours::lightgrey,
-                                                  DocumentWindow::allButtons)
+MainWindow (juce::String name) : DocumentWindow (name,
+                                     juce::Colours::lightgrey,
+                                     DocumentWindow::allButtons)
 {
     setUsingNativeTitleBar (true);
     setContentOwned (new MainComponent(), true);
@@ -207,84 +190,78 @@ MainWindow (juce::String name)  : DocumentWindow (name,
 }
 ```
 
-Component::centreWithSize()関数の引数も変わりました。のサイズを明示的に設定しないようになりました。`MainWindow`オブジェクトの内容からサイズを割り出すように指示する：
+もう 1 つの詳細を変更したことに注意してください：Component::centreWithSize()関数への引数も変更されました。もう`MainWindow`オブジェクトのサイズを明示的に設定せず、そのコンテンツに基づいてサイズを判断するよう指示しています：
 
 ```cpp
 centreWithSize (getWidth(), getHeight());
 ```
 
-しかし、これが機能するためには`MainComponent`オブジェクトのサイズを`centreWithSize()`関数の呼び出しが発生します。これが行われないと、メイン・ウィンドウは適切なウィンドウ・サイズを知ることができません（これを実行するとアサーションが失敗します）。次のセクションでは、この方法を説明します。
+しかし、これが機能するためには、`centreWithSize()`関数呼び出しが発生する前に`MainComponent`オブジェクトのサイズが設定されている必要があります。これが行われていない場合、メインウィンドウは適切なウィンドウサイズがわかりません（実行するとアサーション失敗が発生します）。次のセクションでこれを達成する方法を説明します。
 
-### コンポーネントのサイズを設定する
+### コンポーネントのサイズの設定
 
-原則として、以下の2つの方法がある。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")オブジェクトに設定します。コンポーネントのコンストラクタでサイズを設定するか、親コンポーネントのコンストラクタでサイズを設定します。メイン・コンポーネントの場合、通常はコンポーネント自体にサイズを設定します。のコンストラクタに次の行を追加します。`MainComponent`クラスである：
+原則として、[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")オブジェクトのサイズを設定する方法は 2 つあります。コンポーネント自身のコンストラクタでサイズを設定するか、親コンポーネントのコンストラクタでサイズを設定するかです。メインコンポーネントの場合、通常はコンポーネント自身でサイズを設定します。`MainComponent`クラスのコンストラクタに以下の行を追加します：
 
 ```cpp
 setSize (400, 300);
 ```
 
-(もちろん、他のサイズを選ぶこともできる）。
+（もちろん、お好みで別のサイズを選択できます。）
 
 :::warning
-
-覚えておいてください: コンポーネントのサイズは必ず設定してください。このステップを省略することは、JUCEのバグの非常に一般的な原因です。
-
+覚えておいてください：コンポーネントのサイズは常に設定してください。このステップを省略することは JUCE で非常によくあるバグの原因です。
 :::
 
-の関数Component::getWidth() とComponent::getHeight() の呼び出しが、このような理由である。`MainWindow`クラスは、メイン・コンポーネントが正しいサイズで表示されるように、ウィンドウのサイズを把握できます。この`MainComponent`オブジェクトのサイズは、それ自身のコンストラクタで設定される。`MainWindow`オブジェクトの位置とサイズが決まります。
+これが`MainWindow`クラスで Component::getWidth()と Component::getHeight()関数の呼び出しがウィンドウのサイズを把握し、メインコンポーネントが正しいサイズで表示される理由です。`MainComponent`オブジェクトのサイズは、`MainWindow`オブジェクトが配置されサイズ設定される前に、独自のコンストラクタで設定されます。
 
-これで必要なパーツはすべて揃った。アプリをコンパイルして実行すると、メイン・コンポーネントがアプリケーション・ウィンドウに正しく描画されているのが見えるはずだ：
+これで必要な部品がすべて揃いました。今アプリをコンパイルして実行すると、メインコンポーネントがアプリケーションウィンドウ内に正しく描画されているのが見えるはずです：
 
 <CaptionImage
   src="/_images/tutorial_main_component_screenshot2.png"
-  caption="新しいMainComponentオブジェクトがスクリーンにレンダリングされる。"
+  caption="新しいMainComponentオブジェクトが画面にレンダリングされる"
 />
 
-:::danger[エクササイズ]
-
-の第2引数が何であるかを調べる。`setContentOwned()`関数が意味するものである。`true`こちら）と、それを変更した場合の動作について。ヒント[ResizableWindow::setContentOwned()](https://docs.juce.com/master/classResizableWindow.html#a97940f07b6014bac018cbe9330abc769 "現在のコンテンツコンポーネントを変更します。")関数である。
-
+:::note
+演習：`setContentOwned()`関数の 2 番目の引数（ここでは`true`に設定）の意味と、変更した場合の動作を調べてください。ヒント：[ResizableWindow::setContentOwned()](https://docs.juce.com/master/classResizableWindow.html#a97940f07b6014bac018cbe9330abc769 "Changes the current content component.")関数のドキュメントを確認してください。
 :::
 
-## リサイズ機能の実装
+## resize 関数の実装
 
-ここまでで`paint()`関数をどのように使うことができるか見てみよう。`MainComponent`クラスはサイズ変更に反応する。
+`paint()`関数について説明したので、次に`MainComponent`クラスがリサイズに反応する方法を見てみましょう。
 
-まず最初に、メイン・ウィンドウのサイズを変更できるようにする必要があります。詳しくは[Tutorial: The application window](../tutorial_main_window/)その方法を覚えていないのなら。
+まず、メインウィンドウがリサイズ可能であるべきことを伝える必要があります。方法を忘れた場合は[チュートリアル：アプリケーションウィンドウ](../tutorial_main_window/)を参照してください。
 
-アプリをコンパイルして実行し、マウスを使ってウィンドウのサイズを変更してください。すると`MainComponent`オブジェクトは、メイン・ウィンドウのサイズに合うように自分自身のサイズを変更します。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")基底クラス。
+では、アプリをコンパイルして実行し、マウスを使ってウィンドウをリサイズしてください。`MainComponent`オブジェクトがメインウィンドウのサイズに合わせて自身をリサイズすることがわかります --- これを行うために必要なすべてのコードは、[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")基本クラスにすでに実装されています。
 
-しかし、コンポーネントのサイズが変更されるたびに、カスタム作業を行いたい場合はどうでしょうか？ もしかしたら、子コンポーネントがあり、メインコンポーネントのサイズによってレイアウトを変える必要があるかもしれません。この単純なデモアプリでは、メイン・コンポーネント内のテキストを変更し、コンポーネントの現在のサイズを表示するようにしてみましょう。
+しかし、コンポーネントがリサイズされるたびにカスタム作業を行いたい場合はどうでしょうか？メインコンポーネントのサイズに応じて異なるレイアウトにする必要がある子コンポーネントがあるかもしれません。シンプルなデモアプリでは、メインコンポーネント内のテキストを変更して、コンポーネントの現在のサイズを表示するようにしましょう。
 
-コンポーネントのサイズを変更する際に必要な作業や更新は、コンポーネントの`resized()`関数を使用する。現在、この関数は空です。ここに私たちの機能を追加しましょう。
+コンポーネントをリサイズするときに行う必要がある、または更新する必要があるものはすべて、コンポーネントの`resized()`関数に入ります。現在、この関数は空です。ここに機能を追加しましょう。
 
 :::warning
-
-Component::resized()関数は、コンポーネントのサイズ変更につながる何かが起こるたびに自動的に呼び出されます。決して自分でこの関数を呼び出してはいけません！
-
+Component::resized()関数は、コンポーネントのサイズ変更につながる何かが起こるたびに自動的に呼び出されます。この関数を自分で呼び出さないでください！
 :::
 
-コンポーネント内に表示されるテキストは現在、リテラル文字列として与えられている。- です。`paint()`関数を使用します。新しいメンバー変数を`MainComponent`クラスで使用されます。変数には常に、説明的で意図がわかる名前をつけるのがよい習慣です。そうすることで、コードが読みやすく理解しやすくなり、追加コードのコメント量も減ります。新しい変数は、メイン・コンポーネントの現在のサイズを文字列で表すようにします。`currentSizeAsString`.
+コンポーネント内に表示されるテキストは現在、`paint()`関数内のリテラル文字列 --- 「Hello, World!」--- として与えられています。`MainComponent`クラスに新しいメンバー変数を導入してこれを変更しましょう。変数には常に説明的で意図を明らかにする名前を付けることが良い習慣です。これによりコードが読みやすく理解しやすくなり、追加のコードコメントの量が減ります。新しい変数にメインコンポーネントの現在のサイズを文字列として表現させたいので、`currentSizeAsString`と呼びましょう。
 
-メンバー変数は常にクラスのprivateセクションで宣言される：
+メンバー変数は常にクラスの private セクションで宣言します：
 
 ```cpp
-class MainComponent    : public juce::Component
+class MainComponent : public juce::Component
 {
     // ...
- 
+
 private:
     juce::String currentSizeAsString;
     // ...
 };
 ```
 
-では、その動作を実装してみよう。`currentSizeAsString`オブジェクトです。やるべきことは2つある：
+では、`currentSizeAsString`オブジェクトの望ましい動作を実装しましょう。行うべきことは 2 つあります：
 
-- の内容である。`currentSizeAsString`オブジェクトが画面にレンダリングされなければならない。
-- について`currentSizeAsString`オブジェクトは、メイン・コンポーネントのサイズが変わるたびに自分自身を更新しなければならない。
+- `currentSizeAsString`オブジェクトの内容を画面にレンダリングする必要があります。
+- `currentSizeAsString`オブジェクトはメインコンポーネントのサイズが変更されるたびに自身を更新する必要があります。
 
-最初の部分を実現する方法はいたって簡単だ。`paint()`関数は`g.drawText()`関数が呼び出されたら、単にリテラル文字列を`currentSizeAsString`オブジェクトがある：
+最初の部分を達成する方法はかなり簡単です：`paint()`関数内で`g.drawText()`関数が呼び出されるとき、そこのリテラル文字列を`currentSizeAsString`オブジェクトに置き換えるだけです：
 
 ```cpp
 void MainComponent::paint (juce::Graphics& g)
@@ -294,7 +271,7 @@ void MainComponent::paint (juce::Graphics& g)
 }
 ```
 
-番目の部分はもっと興味深い。サイズを変更するたびに`resized()`関数が呼び出される。では`currentSizeAsString`オブジェクトがそこにある：
+2 番目の部分はより興味深いです。リサイズするたびに`resized()`関数が呼び出されることはすでに知っています。そこで`currentSizeAsString`オブジェクトの値を更新しましょう：
 
 ```cpp
 void MainComponent::resized()
@@ -303,38 +280,36 @@ void MainComponent::resized()
 }
 ```
 
-Component::getWidth() とComponent::getHeight() は、コンポーネントの現在のサイズを問い合わせることができる便利な関数です。また、これらの整数を[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトを使用します。(オブジェクトの操作方法については[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスは今後のチュートリアルで紹介する)。
+Component::getWidth()と Component::getHeight()はコンポーネントの現在のサイズを照会できる便利な関数です。また、これらの整数を[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトに変換する必要があります。（[String](https://docs.juce.com/master/classString.html "The JUCE String class!")クラスの操作方法については、将来のチュートリアルで詳しく学べます。）
 
-今アプリをコンパイルして実行すると、常に現在のサイズが表示されることがわかるだろう：
+今アプリをコンパイルして実行すると、常に現在のサイズが表示されることがわかります：
 
 <CaptionImage
   src="/_images/tutorial_main_component_screenshot3.png"
-  caption="完成したデモアプリ。"
+  caption="完成したデモアプリ"
 />
 
-ここで2つの興味深い観察ができる。第一に、表示は自動的に更新される。`paint()`関数は`resized()`関数が呼び出される。第二に、アプリの起動時、ウィンドウのサイズを自分で変更する前でも、サイズはすでに正しく表示されている。そのため`resized()`関数は*何でも*はコンポーネントのサイズを変更します。これには、コンポーネントのサイズが最初に設定されたときと、アプリ起動後にコンポーネントが描画されたときが含まれます。
+ここで 2 つの興味深い観察ができます。まず、表示は自動的に更新されます --- `paint()`関数は`resized()`関数が呼び出された後に自動的に呼び出されます。次に、ウィンドウを自分で最初にリサイズする前でも、アプリが起動したときにサイズはすでに正しく表示されています。`resized()`関数は、コンポーネントのサイズを変更する*何か*が起こるたびに常に呼び出されることを覚えておいてください。これには、アプリ起動後にコンポーネントのサイズが最初に設定されてコンポーネントが描画されるときも含まれます。
 
-:::danger[エクササイズ]
-
-を変更する。`MainComponent::resize()`関数は、サイズを変更するたびに`MainComponent`オブジェクトの背景色も変わる。
-
+:::note
+演習：`MainComponent::resize()`関数を変更して、リサイズするたびに`MainComponent`オブジェクトの背景色も変更されるようにしてください。
 :::
 
-チュートリアル・プロジェクトの完成版はこちらからダウンロードできる：[PIP](https://docs.juce.com/tutorials/PIPs/MainComponentTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/MainComponentTutorial.zip)そして自分のものと比較する。
+チュートリアルプロジェクトの完成版はこちらからダウンロードできます：[PIP](https://docs.juce.com/tutorials/PIPs/MainComponentTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/MainComponentTutorial.zip)。自分のものと比較してみてください。
 
-## 概要
+## まとめ
 
-このチュートリアルでは、メイン・コンポーネントの概念、アプリへの追加方法、そして`paint()`そして`resized()`関数を使用できます。このチュートリアルを読めば、以下の重要なことがわかるはずだ：
+このチュートリアルでは、メインコンポーネントの概念、アプリへの追加方法、`paint()`と`resized()`関数の実装方法を説明しました。このチュートリアルを読んだ後、以下の重要なことに慣れているはずです：
 
-- すべてのJUCEアプリケーション・ウィンドウには、メイン・コンポーネントがあります。これは、アプリのGUIを構成する他のすべてのコンポーネントの親となります。
-- メイン・コンポーネントを含むすべてのコンポーネントには、オーバーライドする必要のある2つの重要な関数がある：`paint()`そして`resized()`.
-- の中で`paint()`関数に、コンポーネントを画面にレンダリングするコードを追加する。
-- を実装する必要があります。`resized()`関数は、コンポーネントがサイズの変化に反応するような特別な動作が必要な場合に使用します。
-- について`paint()`そして`resized()`関数は*コールバック*関数は、必要なときに自動的に呼び出される。
-- メイン・コンポーネントのサイズを設定し、メイン・ウィンドウに追加して表示させることを忘れてはならない。
+- すべての JUCE アプリケーションウィンドウにはメインコンポーネントがあります。これはアプリの GUI を構成する他のすべてのコンポーネントの親です。
+- メインコンポーネントを含むすべてのコンポーネントには、オーバーライドする必要がある 2 つの重要な関数があります：`paint()`と`resized()`。
+- `paint()`関数には、コンポーネントを画面にレンダリングするコードを追加する必要があります。
+- コンポーネントがサイズ変更に反応するための特別な動作が必要な場合は、`resized()`関数を実装する必要があります。
+- `paint()`と`resized()`関数は、必要なときに自動的に呼び出される*コールバック*関数です。
+- メインコンポーネントのサイズを設定し、メインウィンドウに追加して表示することを忘れないでください。
 
-## 参照
+## 関連項目
 
-- [Tutorial: The application window](../tutorial_main_window/)
-- [Tutorial: The Graphics class](../tutorial_graphics_class/)
-- [Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)
+- [チュートリアル：アプリケーションウィンドウ](../tutorial_main_window/)
+- [チュートリアル：Graphics クラス](../tutorial_graphics_class/)
+- [チュートリアル：親コンポーネントと子コンポーネント](../../interface-design/tutorial_component_parents_children/)

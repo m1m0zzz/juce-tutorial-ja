@@ -4,291 +4,271 @@ sidebar_position: 3
 tags: [初級]
 ---
 
-# Graphicsクラス
+# チュートリアル：Graphics クラス
 
 <SourcePageLink path="tutorial_graphics_class" />
 
-このチュートリアルでは[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトを使用して、テキスト、線、幾何学図形を描画します。これはJUCEで描画を行うための基本です。
+このチュートリアルでは、[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")オブジェクトを使用してテキスト、線、幾何学的形状を描画する方法を示します。これは JUCE で描画を行うための基本です。
 
-レベルビステン
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects."), [Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image."), [Font](https://docs.juce.com/master/classFont.html "Represents a particular font, including its size, style, etc."), [Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)"), [Path](https://docs.juce.com/master/classPath.html "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。"),[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。"),[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。"),[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。"),[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/GraphicsTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/GraphicsTutorial.zip)
 
-## スタート
+## デモプロジェクト
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/GraphicsTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/GraphicsTutorial.zip)
+このチュートリアルのデモプロジェクトには、メインアプリケーションウィンドウとメインコンポーネントが含まれています。これらについては前回のチュートリアル[チュートリアル：アプリケーションウィンドウ](../tutorial_main_window/)と[チュートリアル：メインコンポーネント](../tutorial_main_component/)で馴染みがあるはずです。
 
-## デモ・プロジェクト
-
-このチュートリアルのデモ・プロジェクトには、メイン・アプリケーション・ウィンドウとメイン・コンポーネントが含まれています。これらは前回のチュートリアルで慣れ親しんでいるはずです：[Tutorial: The application window](../tutorial_main_window/)そして[Tutorial: The main component](../tutorial_main_component/).
-
-メイン・コンポーネント（あるいは、実のところ、他のどのコンポーネントでも！）の外観は、その実装によって決定されることはすでにご存じだろう。`paint()`関数を使用します。ここでのデモ・プロジェクトは、前回のチュートリアル([Tutorial: The main component](../tutorial_main_component/))は結論づけた。を実施した。`paint()`関数は、最初は次のようになる：
+メインコンポーネント（または実際には他の Component!）の外観は、その`paint()`関数の実装によって決定されることはすでにご存知でしょう。ここでのデモプロジェクトは、前回のチュートリアル（[チュートリアル：メインコンポーネント](../tutorial_main_component/)）が終了した場所から始まります。`paint()`関数の実装は最初は以下のようになっています：
 
 ```cpp
 void paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::lightblue);
- 
+
     g.setColour (juce::Colours::darkblue);
     g.setFont (14.0f);
     g.drawText ("Hello, World!", getLocalBounds(), juce::Justification::centred, true);
 }
 ```
 
-このアプリをコンパイルして実行すると、ウィンドウの背景色が水色になり、テキストが次のように表示されます。**ハロー、ワールド！ **がその上に描かれている。
+今アプリをコンパイルして実行すると、ウィンドウが水色の背景色になり、その上に**Hello, World!**というテキストがウィンドウの中央に描画されているのが見えるはずです。
 
-以下では、さらにグラフィックを描画するコードを`MainComponent`オブジェクトを使用する。[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスを使用します。これは非常に強力なクラスであり、今後のチュートリアルで様々なJUCEコンポーネントのカスタム外観を実装するために多用する予定です。
+以下では、[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")クラスを使用して`MainComponent`オブジェクトにさらにグラフィックスを描画するコードを追加します。これは非常に強力なクラスで、将来のチュートリアルで異なる JUCE コンポーネントのカスタムビジュアル外観を実装するために頻繁に使用します。
 
 ## Graphics クラス
 
-ペイント機能をもう一度見てみよう。ここで`paint()`関数は、レンダリング時にオペレーティング・システムから呼び出されるコールバックです。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")この関数を自分で呼んではいけない。
+paint 関数をもう一度見てみましょう。`paint()`関数は、オペレーティングシステムが[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")を画面にレンダリングする時間になったときに呼び出されるコールバックであることを覚えておいてください --- この関数を自分で呼び出すべきではありません。
 
-このコールバックの引数として[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")インスタンスが渡される。これは[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトは、基礎となるフレームワークによって提供されます。これは、テキスト、線、図形、色、グラデーションなど、あらゆるグラフィック要素をレンダリングするために使用できるグラフィック・コンテキストです。このチュートリアルでは、これらのいくつかについて説明します。
+このコールバックの引数として、[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")インスタンスへの参照が渡されることに注意してください。この[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")オブジェクトは、基盤となるフレームワークによって提供されます。これは、テキスト、線、形状、色、グラデーションなど、あらゆるグラフィカル要素をレンダリングするために使用できるグラフィックスコンテキストです。このチュートリアルではこれらのいくつかを探ります。
 
 :::warning
-
-について[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスは通常`paint()`コールバックを使用します。通常、画像に描画するとき以外は、このコールバックを使うべきではありません。
-
+[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")クラスは通常、`paint()`コールバック内でのみ使用されます。通常、画像への描画を除いて、他の場所では使用すべきではありません。
 :::
 
 ## テキストのレンダリング
 
 ### フォントの設定
 
-まずはテキストの続きから。行
+まずテキストから続けましょう。以下の行
 
 ```cpp
 g.setFont (20.0f);
 ```
 
-は、次の行のフォント・サイズを20ピクセルに設定する。**ハロー、ワールド！ **そのフォントを使用)。しかし、フォントのサイズを変えるだけでなく、別の書体を使ったり、太字や斜体を使ったりしたい場合はどうすればいいのだろうか。また、テキストの位置はどのように変更するのでしょうか？
+は、後続の行（そのフォントを使用して**Hello, World!**というテキストを描画する）のフォントサイズを 20 ピクセルに設定します。しかし、フォントのサイズだけでなく、別の書体や太字やイタリック文字を使用したい場合はどうでしょうか？そしてテキストの位置を変更するにはどうすればよいでしょうか？
 
-には、実はもう1つのバージョンがある。[Graphics::setFont()](https://docs.juce.com/master/classGraphics.html#a1fbdb321975d90c45243027a61ac2be9 "以降のテキスト描画機能で使用するフォントを変更する。")関数は[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。")オブジェクトの代わりに`float`サイズを決定する新しい[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。")オブジェクトのようなものだ：
+実際には、サイズを決定する`float`だけでなく、[Font](https://docs.juce.com/master/classFont.html "Represents a particular font, including its size, style, etc.")オブジェクトを取る[Graphics::setFont()](https://docs.juce.com/master/classGraphics.html#a1fbdb321975d90c45243027a61ac2be9 "Changes the font to use for subsequent text-drawing functions.")関数の別のバージョンがあります。新しい[Font](https://docs.juce.com/master/classFont.html "Represents a particular font, including its size, style, etc.")オブジェクトは次のように作成できます：
 
 ```cpp
 juce::Font mainComponentFont ("Times New Roman", 20.0f, juce::Font::italic);
 ```
 
-メイン・コンポーネントにこのフォントを使うので、説明的な変数名を選びました。`mainComponentFont`.
+このフォントをメインコンポーネントに使用するので、説明的な変数名`mainComponentFont`を選びます。
 
-の第一引数は[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。")コンストラクタは書体を決定し、2番目はフォント・サイズ、3番目はフォント・スタイルである。ここではイタリック体を選んでいる。フォント・スタイルは、実際にはビットマスクとして使用できるフラグである ([Tutorial: The application window](../tutorial_main_window/))なので、例えば次のように組み合わせることができる：
+[Font](https://docs.juce.com/master/classFont.html "Represents a particular font, including its size, style, etc.")コンストラクタの最初の引数は書体を決定し、2 番目はフォントサイズ、3 番目はフォントスタイルです。ここではスタイルにイタリックを選びました。フォントスタイルは実際にはビットマスクとして使用できるフラグです（[チュートリアル：アプリケーションウィンドウ](../tutorial_main_window/)を参照）。そのため、例えば次のように組み合わせることができます：
 
 ```cpp
 juce::Font mainComponentFont ("Times New Roman", 20.0f, juce::Font::bold | juce::Font::italic);
 ```
 
-アプリを再度コンパイルして実行すると、フォントが変更されていることが確認できるはずだ。
+アプリを再度コンパイルして実行すると、フォントが変更されているのが見えるはずです。
 
 :::warning
-
-コンピュータに実際にインストールされていない書体を使用することは、JUCEアプリでフォントが正しく動作しない非常に一般的な原因です。
-
+コンピュータに実際にインストールされていない書体をフォントに使用することは、JUCE アプリでフォントが正しく動作しない非常によくある理由です。
 :::
 
-を作成する代わりに[Font](https://docs.juce.com/master/classFont.html "サイズやスタイルなど、特定のフォントを表します。")オブジェクトに設定し[Graphics::setFont()](https://docs.juce.com/master/classGraphics.html#a1fbdb321975d90c45243027a61ac2be9 "以降のテキスト描画機能で使用するフォントを変更する。")関数を次の行に書くこともできるし、両方を1つのステートメントで書くこともできる：
+名前付きの[Font](https://docs.juce.com/master/classFont.html "Represents a particular font, including its size, style, etc.")オブジェクトを作成してから次の行で[Graphics::setFont()](https://docs.juce.com/master/classGraphics.html#a1fbdb321975d90c45243027a61ac2be9 "Changes the font to use for subsequent text-drawing functions.")関数で設定する代わりに、両方を 1 つのステートメントで行うこともできます：
 
 ```cpp
 g.setFont (juce::Font ("Times New Roman", 20.0f, juce::Font::italic));
 ```
 
-とはいえ、通常はステートメントを分離して名前付き変数を使った方が、コードの可読性と保守性は向上する。(最近のコンパイラーでは、このような追加変数を導入してもパフォーマンスには影響しません)。
+ただし、ステートメントを分離して名前付き変数を使用すると、コードの可読性と保守性が向上します。（現代のコンパイラでは、このような追加の変数を導入してもパフォーマンスに影響はありません。）
 
-### ポジションの設定
+### 位置の設定
 
-ここで、テキストの位置を変更します。その過程で、JUCEで位置決めがどのように処理されるかを学びます。
+次にテキストの位置を変更します。この過程で、JUCE での位置指定がどのように処理されるかを学びます。
 
-簡単な方法は、コンポーネント全体に対するテキストのアライメントを変更することだ。[Justification::centred](https://docs.juce.com/master/classJustification.html#a1f8c07756c56fe8f31ed44964e51bfbcaf9d9adde20dce1aa38ff9a69be2b4384 "項目が縦と横の中央に配置されることを示す。")値を別の値に変更できます。[Justification::topLeft](https://docs.juce.com/master/classJustification.html#a1f8c07756c56fe8f31ed44964e51bfbcaf2d7cc575db9d4d9a1305407625b7afd "項目を左上隅に配置することを示す。")の値を指定する。(他の可能な[Justification::Flags](https://docs.juce.com/master/classJustification.html#a1f8c07756c56fe8f31ed44964e51bfbc "コンストラクタで組み合わせて使用できるフラグ値。")値)。しかし、もう1つの非常に強力なアプローチは、サイズと位置を明示的に定義することである。別のバージョンの[Graphics::drawText()](https://docs.juce.com/master/classGraphics.html#aff45fc088e19374d3984e44a5c7d7639 "指定した矩形内にテキストの行を描画します。")関数をこのアプローチで使用する。で始まる行を`g.drawText()`を呼ぶ：
+簡単な方法は、コンポーネント全体に対するテキストの配置を変更することです。例えば、[Justification::centred](https://docs.juce.com/master/classJustification.html#a1f8c07756c56fe8f31ed44964e51bfbcaf9d9adde20dce1aa38ff9a69be2b4384 "Indicates that the item should be centred vertically and horizontally.")値を他の可能な値の 1 つ、例えば[Justification::topLeft](https://docs.juce.com/master/classJustification.html#a1f8c07756c56fe8f31ed44964e51bfbcaf2d7cc575db9d4d9a1305407625b7afd "Indicates that the item should be placed in the top-left corner.")値に変更することです。（他の可能な[Justification::Flags](https://docs.juce.com/master/classJustification.html#a1f8c07756c56fe8f31ed44964e51bfbc "Flag values that can be combined and used in the constructor.")値も確認できます。）しかし、別の非常に強力なアプローチは、サイズと位置を明示的に定義することです。このアプローチを使用する[Graphics::drawText()](https://docs.juce.com/master/classGraphics.html#aff45fc088e19374d3984e44a5c7d7639 "Draws a line of text within a specified rectangle.")関数の別のバージョンがあります。`g.drawText()`呼び出しで始まる行を以下に変更します：
 
 ```cpp
 g.drawText ("Hello, World!", 20, 40, 200, 40, juce::Justification::centred, true);
 ```
 
-これは[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトを使用して、幅200ピクセル、高さ40ピクセル、メインコンポーネントの左上隅から右に20ピクセル、下に40ピクセルの領域にテキストをレンダリングする。
+これは[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")オブジェクトに、幅 200 ピクセル、高さ 40 ピクセルの領域にテキストをレンダリングし、メインコンポーネントの左上隅から右に 20 ピクセル、下に 40 ピクセルの位置に配置するよう指示します。
 
-アプリはこのようになるはずだ：
+アプリは次のようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_graphics_class_screenshot1.png"
-  caption="テキストのフォントと位置のカスタマイズ"
+  caption="テキストのフォントと位置をカスタマイズ"
 />
 
-:::note
-
-覚えておいてください：JUCEでの座標は常に現在のコンポーネントの左上隅から測定されます。(0, 0).これらは次のように与えられる。`int`または`float`数値で指定する。グラフィカル要素や子コンポーネントの位置を指定するために使用すると、その左上隅が指定された位置に表示されるように配置される。
-
+:::tip
+覚えておいてください：JUCE での座標は常に現在のコンポーネントの左上隅から測定され、それが点`(0, 0)`です。座標は`int`または`float`数値として与えることができます。グラフィカル要素または子コンポーネントの位置を指定するために使用される場合、その左上隅が指定された位置に表示されるように配置されます。
 :::
 
-最後に[Graphics::drawText()](https://docs.juce.com/master/classGraphics.html#aff45fc088e19374d3984e44a5c7d7639 "指定した矩形内にテキストの行を描画します。")関数は`bool`このフラグは、テキストが与えられた幅に収まらない場合に省略記号 (...) を表示するか、あるいは単にテキストを切り落とすかを決定します。
-
-:::danger[エクササイズ]
-
-テキストフィールドの幅を200から小さい値に変更し、省略フラグがどのように機能するかに注目してください。
-
-:::
+最後に、[Graphics::drawText()](https://docs.juce.com/master/classGraphics.html#aff45fc088e19374d3984e44a5c7d7639 "Draws a line of text within a specified rectangle.")関数の最後の引数は、テキストが指定された幅に収まらない場合に省略記号（...）を表示するか、テキストを単に切り捨てるかを決定する`bool`フラグです。
 
 :::note
+演習：テキストフィールドの幅を 200 からより小さい値に変更し、省略記号フラグがどのように機能するか注意してください。
+:::
 
-について[Graphics::drawText()](https://docs.juce.com/master/classGraphics.html#aff45fc088e19374d3984e44a5c7d7639 "指定した矩形内にテキストの行を描画します。")関数は、単一行のテキストをレンダリングするのに適している。複数行のテキストに対しては、次のような他の関数が用意されている。[Graphics::drawMultiLineText()](https://docs.juce.com/master/classGraphics.html#ae6ae0dc5e9e1956af5998c18e0955a56 "複数行に渡ってテキストを描画する。")そして[Graphics::drawFittedText()](https://docs.juce.com/master/classGraphics.html#a41c5a930dfc9b8cdd8c8a464f7e11b46 "与えられたスペース内に文字列を描画しようとする。").
+<!-- -->
 
+:::tip
+[Graphics::drawText()](https://docs.juce.com/master/classGraphics.html#aff45fc088e19374d3984e44a5c7d7639 "Draws a line of text within a specified rectangle.")関数は単一行テキストのレンダリングに適しています。複数行テキストには、[Graphics::drawMultiLineText()](https://docs.juce.com/master/classGraphics.html#ae6ae0dc5e9e1956af5998c18e0955a56 "Draws text across multiple lines.")や[Graphics::drawFittedText()](https://docs.juce.com/master/classGraphics.html#a41c5a930dfc9b8cdd8c8a464f7e11b46 "Tries to draw a text string inside a given space.")などの他の関数があります。
 :::
 
 ## 幾何学的形状のレンダリング
 
-このセクションでは、引き続き[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスである。
+このセクションでは、[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")クラスを使用していくつかの幾何学的形状を描画していきます。
 
-### 線を引く
+### 線の描画
 
-以下の行を`paint()`関数である：
+`paint()`関数の末尾に以下の行を追加します：
 
 ```cpp
 g.setColour (juce::Colours::green);
 g.drawLine (10, 300, 590, 300, 5);
 ```
 
-を起点に、ウィンドウを横切る幅5ピクセルの緑色の水平線を描画する。(10, 300)で終わる。(590, 300).幾何学図形を前回使用した色とは別の色で描画したい場合は、毎回[Graphics::setColour()](https://docs.juce.com/master/classGraphics.html#a9a944a0006b7277fda473f0b1b4f028f "現在の描画色を変更する。")関数を呼び出す。
+これは`(10, 300)`から始まり`(590, 300)`で終わる、幅 5 ピクセルの緑色の水平線をウィンドウに描画します。最後に使用した色とは別の色で幾何学的形状を描画するたびに、描画する前に[Graphics::setColour()](https://docs.juce.com/master/classGraphics.html#a9a944a0006b7277fda473f0b1b4f028f "Changes the current drawing colour.")関数を呼び出す必要があることに注意してください。
 
-もちろん、他の座標を指定して対角線を描くこともできます。実際、JUCEはサブピクセル座標もサポートしています(`float`の値)。位置が物理的な画面ピクセルの間にある場合、JUCEは描画にアンチエイリアスを適用します。
+もちろん、他の座標を指定して対角線を描くこともできます。実際、JUCE はサブピクセル座標もサポートしています（位置に`float`値を使用できます）。位置が物理的な画面ピクセルの間に落ちる場合、JUCE は描画にアンチエイリアスを適用します。
 
-:::danger[エクササイズ]
-
-他の種類の線も試してみよう。破線や矢印の引き方がわかるかな？ ヒント[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスのドキュメント。
-
+:::note
+演習：他のタイプの線を探ってみてください。破線や矢印を描画する方法がわかりますか？ヒント：[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")クラスのドキュメントを見てください。
 :::
 
-### 長方形を描く
+### 矩形の描画
 
-を使った矩形の描画[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトは非常に簡単だ。以下の行を`paint()`関数本体：
+[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")オブジェクトを使用した矩形の描画は非常に簡単です。`paint()`関数本体に以下の行を追加します：
 
 ```cpp
 g.setColour (juce::Colours::sandybrown);
 g.drawRect (300, 120, 200, 170);
 ```
 
-この場合、幅200ピクセル、高さ170ピクセルの茶色の長方形が、左上隅が次の位置になるように描画される。(300, 120)。
+これは茶色の矩形をレンダリングし、幅 200 ピクセル、高さ 170 ピクセルで、左上隅が位置`(300, 120)`に配置されます。
 
-オプションの第5引数で線の太さを指定できる：
+オプションの 5 番目の引数で線の太さを指定できます：
 
 ```cpp
 g.setColour (juce::Colours::sandybrown);
 g.drawRect (300, 120, 200, 170, 3);
 ```
 
-塗りつぶされた矩形が欲しい場合は、関数[Graphics::fillRect()](https://docs.juce.com/master/classGraphics.html#a747de9976729f72d9f6188104e6b2215 "矩形を現在の色またはブラシで塗りつぶす。")その代わりだ：
+塗りつぶされた矩形が必要な場合は、代わりに[Graphics::fillRect()](https://docs.juce.com/master/classGraphics.html#a747de9976729f72d9f6188104e6b2215 "Fills a rectangle with the current colour or brush.")関数を使用します：
 
 ```cpp
 g.setColour (juce::Colours::sandybrown);
 g.fillRect (300, 120, 200, 170);
 ```
 
-位置、幅、高さを別々に与える代わりに、長方形を表すより便利なクラスがあります。[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスがある。のバージョンもある。[Graphics::drawRect()](https://docs.juce.com/master/classGraphics.html#a42dc569175294c1e20e8177031a761af "現在の色またはブラシを使用して、長方形の輪郭を描画します。")このような[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")インスタンスで矩形の位置を指定する：
+位置、幅、高さを別々に与える代わりに、矩形を表すより便利なクラス[Rectangle](https://docs.juce.com/master/classRectangle.html "Manages a rectangle and allows geometric operations to be performed on it.")クラスがあります。このような[Rectangle](https://docs.juce.com/master/classRectangle.html "Manages a rectangle and allows geometric operations to be performed on it.")インスタンスを取って矩形の位置を指定する[Graphics::drawRect()](https://docs.juce.com/master/classGraphics.html#a42dc569175294c1e20e8177031a761af "Draws a rectangular outline, using the current colour or brush.")関数のバージョンもあります：
 
 ```cpp
-juce::Rectangle house (300, 120, 200, 170);
+juce::Rectangle<int> house (300, 120, 200, 170);
 g.setColour (juce::Colours::sandybrown);
 g.fillRect (house);
 ```
 
-これは非常に便利である。[Rectangle](https://docs.juce.com/master/classRectangle.html "矩形を管理し、その矩形に対して幾何学的操作を実行できるようにする。")クラスについては、今後のチュートリアルで取り上げる予定である。
+この非常に便利な[Rectangle](https://docs.juce.com/master/classRectangle.html "Manages a rectangle and allows geometric operations to be performed on it.")クラスは将来のチュートリアルで探ります。
 
-:::danger[エクササイズ]
-
-を描く方法を見つける。*どっしり*長方形。次に*充填*丸みを帯びた長方形。
-
+:::note
+演習：*角丸*矩形を描画する方法を調べてください。次に、*塗りつぶされた*角丸矩形を描画してみてください。
 :::
 
-矩形を無地で塗りつぶす必要はありません。色のグラデーションや、他のいくつかのパターンのいずれかを使用することもできます。茶色の長方形が家を表しているとしましょう。市松模様で塗りつぶすことで、レンガのような質感を加えることができます。次のコードで長方形を描画します：
+矩形を単色で塗りつぶす必要はありません。カラーグラデーションや他のいくつかのパターンも使用できます。茶色の矩形が家を表しているとしましょう。チェッカーボードパターンで塗りつぶすことで、レンガのようなテクスチャを追加できます。矩形を描画するには以下のコードを使用します：
 
 ```cpp
-juce::Rectangle house (300, 120, 200, 170);
+juce::Rectangle<float> house (300, 120, 200, 170);
 g.fillCheckerBoard (house, 30, 10, juce::Colours::sandybrown, juce::Colours::saddlebrown);
 ```
 
-今、アプリケーションをコンパイルして実行すると、以下のようになるはずだ：
+今アプリケーションをコンパイルして実行すると、次のようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_graphics_class_screenshot2.png"
-  caption="線と市松模様で塗りつぶされた長方形を加える。"
+  caption="線とチェッカーボードパターンで塗りつぶされた矩形を追加"
 />
 
-### 円を描く
+### 円の描画
 
-では[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスは円と楕円を描画します。関数[Graphics::drawEllipse()](https://docs.juce.com/master/classGraphics.html#ae4cce288a14b690ce0eb3dd514559887 "現在の色またはブラシを使って楕円形のストロークを描きます。")そして[Graphics::fillEllipse()](https://docs.juce.com/master/classGraphics.html#ae965bf1c5fadee50c665b6508eb3e8f4 "楕円を現在の色またはブラシで塗りつぶす。").と同じように機能する。[Graphics::drawRect()](https://docs.juce.com/master/classGraphics.html#a42dc569175294c1e20e8177031a761af "現在の色またはブラシを使用して、長方形の輪郭を描画します。")そして[Graphics::fillRect()](https://docs.juce.com/master/classGraphics.html#a747de9976729f72d9f6188104e6b2215 "矩形を現在の色またはブラシで塗りつぶす。")の機能がある。
+[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")クラスが円と楕円をどのように描画するか見てみましょう。[Graphics::drawEllipse()](https://docs.juce.com/master/classGraphics.html#ae4cce288a14b690ce0eb3dd514559887 "Draws an elliptical stroke using the current colour or brush.")と[Graphics::fillEllipse()](https://docs.juce.com/master/classGraphics.html#ae965bf1c5fadee50c665b6508eb3e8f4 "Fills an ellipse with the current colour or brush.")関数を見てください。これらは[Graphics::drawRect()](https://docs.juce.com/master/classGraphics.html#a42dc569175294c1e20e8177031a761af "Draws a rectangular outline, using the current colour or brush.")と[Graphics::fillRect()](https://docs.juce.com/master/classGraphics.html#a747de9976729f72d9f6188104e6b2215 "Fills a rectangle with the current colour or brush.")関数と同じように機能します。
 
-小さな風景に太陽を加えてみよう。次のコードは、ウィンドウの右上に60ピクセルの円を描く：
+小さな風景に太陽を追加しましょう。以下のコードは、ウィンドウの右上領域に直径 60 ピクセルの円を描画します：
 
 ```cpp
 g.setColour (juce::Colours::yellow);
 g.drawEllipse (530, 10, 60, 60, 3);
 ```
 
-ただし(530, 10)する*ない*は円の中心をその位置に配置する。その代わりに、他のすべてのグラフィック要素と同様に、オブジェクトは、それを囲む矩形の左上隅が指定された位置になるように配置される。
+与えられた位置`(530, 10)`は円の中心をその位置に配置する*わけではない*ことに注意してください。代わりに、他のすべてのグラフィカル要素と同様に、オブジェクトはその囲む矩形の左上隅が指定された位置に配置されるように配置されます。
 
-例えば、コンポーネントの境界を明示的に使って位置を計算することもできる：
+コンポーネントの境界を明示的に使用して位置を計算することもできます。例えば：
 
 ```cpp
 g.setColour (juce::Colours::yellow);
 g.drawEllipse (getWidth() - 70, 10, 60, 60, 3);
 ```
 
-:::danger[エクササイズ]
-
-を囲むラッパー関数を書く。[Graphics::drawEllipse()](https://docs.juce.com/master/classGraphics.html#ae4cce288a14b690ce0eb3dd514559887 "現在の色またはブラシを使って楕円形のストロークを描きます。")関数を使えば、円をより簡単に描くことができる。この関数は点と半径の座標を取り、その点を中心とし、与えられた半径を持つ円を描画する。
-
+:::note
+演習：円をより便利に描画するための[Graphics::drawEllipse()](https://docs.juce.com/master/classGraphics.html#ae4cce288a14b690ce0eb3dd514559887 "Draws an elliptical stroke using the current colour or brush.")関数のラッパー関数を書いてください。関数は点の座標と半径を取り、その点を中心として与えられた半径の円を描画する必要があります。
 :::
 
-### 他のポリゴンを描く
+### 他の多角形の描画
 
-最後に、家に屋根をつけよう。これは赤い三角形になる。
+最後に、家に屋根を追加しましょう。これは赤い三角形になります。
 
-という関数がないことがわかります。`drawTriangle()`または`drawPolygon()`での[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスである。そのためには、より一般的なアプローチを取らなければならない。
+[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")クラスには`drawTriangle()`や`drawPolygon()`という関数がないことがわかります。このためには、より汎用的なアプローチを取る必要があります。
 
-をチェックしよう。[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスである。このクラスは基本的に、接続された点のあらゆる集合を扱う。この場合、3点からなる三角形が必要だ。例えば、3つの点(300, 110),(500, 110),(400, 70)屋根の三角形が家の長方形の上に乗るように。
+[Path](https://docs.juce.com/master/classPath.html "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.")クラスを確認してください。これは基本的に接続された点の任意のセットを処理します。この場合、3 つの点で構成される三角形が必要です。例えば、屋根の三角形が家の矩形の上に載るように、3 つの点`(300, 110)`、`(500, 110)`、`(400, 70)`を使用できます。
 
-これがJUCEコードで私たちの赤い屋根がどのように見えるかだ：
+JUCE コードでの赤い屋根は次のようになります：
 
 ```cpp
 g.setColour (juce::Colours::red);
- 
+
 Path roof;
 roof.addTriangle (300, 110, 500, 110, 400, 70);
 g.fillPath (roof);
-PathA path is a sequence of lines and curves that may either form a closed shape or be open-ended.Definition juce_Path.h:77
-Path::addTrianglevoid addTriangle(float x1, float y1, float x2, float y2, float x3, float y3)Adds a triangle to the path.
 ```
 
-完成したデモアプリをコンパイルして実行すると、こんな感じになるはずだ：
+今コンパイルして実行すると、完成したデモアプリは次のようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_graphics_class_screenshot3.png"
-  caption="完成したデモアプリ。"
+  caption="完成したデモアプリ"
 />
 
-:::note
-
-について[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスは他にもいろいろなことができるので、今後のチュートリアルで詳しく説明します。
-
+:::tip
+[Path](https://docs.juce.com/master/classPath.html "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.")クラスは他にも多くのことができ、将来のチュートリアルでより深く探ります。
 :::
 
-## 概要
+## まとめ
 
-このチュートリアルでは[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトを`paint()`コールバック[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")クラスを使用して、コンポーネントの内部に描画できます。これで、あなたは
+このチュートリアルでは、[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")クラスの`paint()`コールバック内で[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")オブジェクトを使用してコンポーネント内に描画する方法を示しました。今では以下に慣れているはずです：
 
 - テキストのレンダリングとフォーマット。
-- 線を引く。
-- 長方形、円、多角形などの幾何学図形を描く。
+- 線の描画。
+- 矩形、円、多角形などの幾何学的形状の描画。
 
-また[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")オブジェクトは、基礎となるフレームワークによって提供される描画コンテキストであり`paint()`コールバック。
+また、[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")オブジェクトは基盤となるフレームワークによって提供される描画コンテキストであり、`paint()`コールバックの外では使用すべきではないことも知っているはずです。
 
-## 備考
+## 注記
 
-について[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスは、このチュートリアルで説明する以上のグラフィカルなレンダリング機能を備えています。特に、このクラスを使って（画像ファイルから）画像を画面に描画できます。を使ってできることは他にもたくさんあります。[Path](https://docs.juce.com/master/classPath.html "パスとは、線と曲線が連続したもので、閉じた形を形成することもあれば、開放的な形を形成することもある。")クラスである。その他に[Graphics](https://docs.juce.com/master/classGraphics.html "コンポーネントや画像を描画するためのグラフィックスコンテキスト。")クラスには、カラーグラデーション、透明レイヤー、トランスフォームなどがあります。これらのいくつかは今後のチュートリアルで取り上げます。
+[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")クラスは、このチュートリアルで説明した以上のグラフィカルレンダリング機能を持っています。特に、画像ファイルからの画像を画面に描画するために使用できます。[Path](https://docs.juce.com/master/classPath.html "A path is a sequence of lines and curves that may either form a closed shape or be open-ended.")クラスを使用してできることも他にたくさんあります。[Graphics](https://docs.juce.com/master/classGraphics.html "A graphics context, used for drawing a component or image.")クラスの他の機能には、カラーグラデーション、透明度レイヤー、変換などがあります。これらのいくつかは将来のチュートリアルでカバーされます。
 
-## 参照
+## 関連項目
 
-- [Tutorial: Colours in JUCE](../../interface-design/tutorial_colours/)
-- [Tutorial: Parent and child components](../../interface-design/tutorial_component_parents_children/)
-- [Tutorial: The Point, Line, and Rectangle classes](../../interface-design/tutorial_point_line_rectangle/)
-- [Tutorial: Advanced GUI layout techniques](../../interface-design/tutorial_rectangle_advanced/)
-- [Tutorial: Build an OpenGL application](../tutorial_open_gl_application/)
+- [チュートリアル：JUCE での色](../../interface-design/tutorial_colours/)
+- [チュートリアル：親コンポーネントと子コンポーネント](../../interface-design/tutorial_component_parents_children/)
+- [チュートリアル：Point、Line、Rectangle クラス](../../interface-design/tutorial_point_line_rectangle/)
+- [チュートリアル：高度な GUI レイアウト技術](../../interface-design/tutorial_rectangle_advanced/)
+- [チュートリアル：OpenGL アプリケーションの構築](../tutorial_open_gl_application/)
