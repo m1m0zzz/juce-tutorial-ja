@@ -1,0 +1,10 @@
+.image {
+  margin: auto;
+  display: block;
+}
+
+.caption {
+  margin-top: 0.5rem;
+  text-align: center;
+
+}

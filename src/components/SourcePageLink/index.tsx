@@ -1,3 +1,5 @@
+import styles from "./styles.module.css";
+
 interface Props {
   path: string;
 }
@@ -5,7 +7,7 @@ interface Props {
 export default function SourcePageLink({ path }: Props) {
   return (
     <a
-      className="sourcePageLink"
+      className={styles.sourcePageLink}
       href={`https://docs.juce.com/master/${path}.html`}
       target="_blank"
       rel="noopener noreferrer"

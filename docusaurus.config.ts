@@ -51,7 +51,7 @@ const config: Config = {
         },
         blog: false,
         theme: {
-          customCss: './src/css/custom.css',
+          // customCss: './src/css/custom.css',
         },
         gtag: {
           trackingID: 'G-1662Y26YFC',

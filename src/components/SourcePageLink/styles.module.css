@@ -1,12 +1,3 @@
-figure > img {
-  margin: auto;
-  display: block;
-}
-
-figure > figcaption {
-  text-align: center;
-}
-
 .sourcePageLink {
   display: block;
   width: fit-content;

@@ -1,5 +1,7 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
 
+import styles from "./styles.module.css";
+
 interface Props {
   src: string;
   caption: string;
@@ -19,8 +21,14 @@ export default function CaptionImage({
 
   return (
     <figure>
-      <img src={imgSrc} alt={alt || caption} width={width} height={height} />
-      <figcaption>{caption}</figcaption>
+      <img
+        src={imgSrc}
+        alt={alt || caption}
+        width={width}
+        height={height}
+        className={styles.image}
+      />
+      <figcaption className={styles.caption}>{caption}</figcaption>
     </figure>
   );
 }
