@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'JUCE日本語版チュートリアル',
   tagline: 'JUCEを始めよう',
-  favicon: 'img/juce.png',
+  favicon: 'img/juice.svg',
 
   staticDirectories: ['static', 'JUCE-tutorials'],
 
@@ -67,7 +67,7 @@ const config: Config = {
       { name: 'keywords', content: 'JUCE, plugin, VST, 日本語, チュートリアル' },
     ],
     // Replace with your project's social card
-    image: 'img/juce-social-card.jpg',
+    image: 'img/social-card.png',
     docs: {
       sidebar: {
         autoCollapseCategories: true
@@ -77,7 +77,7 @@ const config: Config = {
       title: 'JUCE日本語版チュートリアル',
       logo: {
         alt: 'Logo',
-        src: 'img/juce.png',
+        src: 'img/juice.svg',
       },
       items: [
         {
