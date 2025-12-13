@@ -1,515 +1,501 @@
 ---
-title: アプリ分析収集
+title: アプリアナリティクス収集
 sidebar_position: 6
 tags: [中級]
 ---
 
-# アプリ分析の収集
+# チュートリアル：アプリアナリティクス収集
 
 <SourcePageLink path="tutorial_analytics_collection" />
 
-JUCEアプリケーションのユーザーからアプリの利用データを収集する。アナリティクスモジュールを使用して、アナリティクスイベントをGoogle Analyticsに送信します。
+JUCEアプリケーションでユーザーからアプリ使用データを収集します。アナリティクスモジュールを使用してGoogle Analyticsにアナリティクスイベントを送信します。
 
-レベル：中級
-
-プラットフォーム：Windows, macOS, Linux, iOS, Android
-
-クラス： [ThreadedAnalyticsDestination](https://docs.juce.com/master/classThreadedAnalyticsDestination.html "専用のスレッドで分析イベントをディスパッチするための基本クラス。"),[ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "ボタンがクリックされると、自動的にAnalyticsシングルトンにアナリティクス・イベントを送信するクラス。"),[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "指定したURLから読み込むためのInputStream。"),[CriticalSection](https://docs.juce.com/master/classCriticalSection.html "リエントラントなミューテックス。"),[CriticalSection::ScopedLockType](https://docs.juce.com/master/classCriticalSection.html#a4d398019b977a4c2151c6f1e2a06210b "CriticalSection で使用するスコープ付きロックのタイプを指定します。")
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [ThreadedAnalyticsDestination](https://docs.juce.com/master/classThreadedAnalyticsDestination.html "A base class for dispatching analytics events on a dedicated thread."), [ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "A class that automatically sends analytics events to the Analytics singleton when a button is clicked..."), [WebInputStream](https://docs.juce.com/master/classWebInputStream.html "An InputStream which can be used to read from a given URL."), [CriticalSection](https://docs.juce.com/master/classCriticalSection.html "A re-entrant mutex."), [CriticalSection::ScopedLockType](https://docs.juce.com/master/classCriticalSection.html#a4d398019b977a4c2151c6f1e2a06210b "Provides the type of scoped lock to use with a CriticalSection.")
 
 :::warning
-
-このプロジェクトにはGoogle Analyticsのアカウントが必要です。アカウント取得にヘルプが必要な場合は[Google Analytics website](https://support.google.com/analytics/)口座を開設する。
-
+このプロジェクトにはGoogle Analyticsアカウントが必要です。サポートが必要な場合は、[Google Analyticsウェブサイト](https://support.google.com/analytics/)の指示に従ってアカウントを開設してください。
 :::
 
-## スタート
+## はじめに
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/AnalyticsCollectionTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/AnalyticsCollectionTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/AnalyticsCollectionTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/AnalyticsCollectionTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+この手順についてサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルが完全に機能するように、Google Analytics APIキーをメモして準備しておいてください。
+このチュートリアルが完全に機能するように、Google Analytics APIキーを書き留めて準備しておいてください。
 
-## デモ・プロジェクト
+## デモプロジェクト
 
-デモ・プロジェクトでは、2つのボタンが押されたときにアナリティクス・イベントを送信する、非常にシンプルなUIを示している。APIキーはまだ設定されていないので、実装前はGoogleはイベントを受け取らない。
+デモプロジェクトは、押されたときにアナリティクスイベントを送信する2つのボタンを持つ非常にシンプルなUIを表示します。APIキーがまだ設定されていないため、実装前はGoogleはイベントを受信しません。
 
 <CaptionImage
   src="/_images/tutorial_analytics_collection_screenshot1.png"
   caption="デモプロジェクトのアプリウィンドウ"
 />
 
-:::note
-
-このプロジェクトでは、Google Analyticsを使用してアプリの分析を追跡していますが、使用したい他のサービスにも適用できます。
-
-ここで紹介するコードは、大まかに以下のものと似ている。**アナリティクスコレクション**JUCE Examplesより。
-
+:::tip
+このプロジェクトはGoogle Analyticsを使用してアプリアナリティクスを追跡しますが、使用したい他のサービスにも適用できます。ここで紹介するコードは、JUCE Examplesの**AnalyticsCollection**と大まかに類似しています。
 :::
 
-## イベントの解剖学
+## イベントの構造
 
-イベントは、ユーザーがアプリケーションのコンテンツとどのようにインタラクションしたかを記述し、アナリティクスのトラッキングシステムに送信されます。インタラクションをよりよく分類し、フィルタリングするために、イベントは以下のキーワードを使って構造化されます：
+イベントは、アプリケーション内でユーザーがコンテンツとどのようにインタラクションしたかを説明し、アナリティクス追跡システムに送信されます。インタラクションをより良く分類およびフィルタリングするために、イベントは以下のキーワードを使用して構造化されています：
 
-- カテゴリー：分析レポートの下に組み合わされるイベントのグループを記述します。
+- カテゴリ：アナリティクスレポートの下で結合されるイベントのグループを説明します。
 - アクション：イベントをトリガーするために実行されたアクションを指定します。
-- ラベル：ユーザーと相互作用した特定のオブジェクトを説明する追加情報。
-- 価値がある：[Optional](https://docs.juce.com/master/classOptional.html "シンプルなオプショナル型。")当該イベントに数値データを提供する整数。
+- ラベル：ユーザーとインタラクションした特定のオブジェクトを説明する追加情報。
+- 値：問題のイベントに数値データを提供するための[Optional](https://docs.juce.com/master/classOptional.html "A simple optional type.")整数。
 
-すべてのイベントは、上記のキーワードとともに、ユニークなユーザーIDとタイムスタンプとともに送信される。さらに、ベータテスターや開発者など、ユーザーの能力をよりよく説明するために、ユーザーをカテゴリーにグループ化できます。
+すべてのイベントは、上記のキーワードとともに一意のユーザーIDとタイムスタンプとともに送信されます。さらに、ユーザーは、ベータテスターや開発者などの能力をより良く説明するためにカテゴリにグループ化できます。
 
-## APIキーの設定
+## APIキーのセットアップ
 
-プロジェクトが正しく動作するための最初のステップは、Google Analytics APIキーを設定することです。トラッキングIDはGoogleアナリティクスのダッシュボードにあります：
+プロジェクトが正しく機能するための最初のステップは、Google Analytics APIキーをセットアップすることです。Google Analyticsダッシュボードでトラッキングを見つけることができます：
 
 <CaptionImage
   src="/_images/tutorial_analytics_collection_screenshot2.png"
   caption="Google AnalyticsトラッキングID"
 />
 
-このIDをコピーして`apiKey`のプレースホルダ変数`GoogleAnalyticsDestination`クラスである：
+このIDをコピーし、`GoogleAnalyticsDestination`クラスの`apiKey`プレースホルダー変数を置き換えます：
 
 ```cpp
-            apiKey = "UA-XXXXXXXXX-1";
+apiKey = "UA-XXXXXXXXX-1";
 ```
 
 :::warning
-
-理想的には、このAPIキーはバイナリー・ディストリビューションでは見えないようにすべきです。発見された場合、あらゆる種類の悪意のある使い方があり、アナリティクス・データをスパムで汚染するかもしれないからです。これを防ぐ1つの方法は、実行時にAPIキーを動的に取得することです（独自のサーバーからなど）。
-
+理想的には、このAPIキーはバイナリ配布物に表示されるべきではありません。発見された場合、悪意のある使用があり、スパムでアナリティクスデータを汚染する可能性があるためです。これを防ぐ1つの方法は、実行時に動的にAPIキーを取得することです（たとえば、独自のサーバーから）。
 :::
 
-## トラッキングアプリの起動
+## アプリ起動の追跡
 
-まず、アプリの起動などユーザーに依存しない情報を追跡することから始め、分析システムで使用される一定のユーザー情報を定義しましょう。アプリのコンストラクタで`MainContentComponent`クラスへの参照を取得することから始めます。[Analytics](https://docs.juce.com/master/classAnalytics.html "分析データを管理するシングルトン・クラス。")を呼び出してシングルトン化する。`Analytics::getInstance()`.
+まず、アプリの起動などのユーザーに依存しない情報を追跡し、アナリティクスシステムによって使用される定数ユーザー情報を定義することから始めましょう。`MainContentComponent`クラスのコンストラクタで、`Analytics::getInstance()`を呼び出して[Analytics](https://docs.juce.com/master/classAnalytics.html "A singleton class to manage analytics data.")シングルトンへの参照を取得することから始めます。
 
-次に、ユーザーIDを`setUserID()`このユーザーに固有の識別子を選択する\[1\].この識別子には、機密性の高い個人情報を含めないようにしてください。また、このユーザーにユーザー・グループを設定するには`setUserProperties()`を使用している。[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "別の文字列をキーとする文字列のセットを保持するための容器。") \[2\].
+次に、このユーザーの一意の識別子を選択して`setUserID()`でユーザーIDを設定できます [1]。この識別子には機密性の高い個人情報を含めないようにしてください。また、[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "A container for holding a set of strings which are keyed by another string.")を使用して`setUserProperties()`を呼び出すことで、このユーザーにユーザーグループを設定することもできます [2]。
 
-イベントを受信するためには、少なくとも1つの宛先を指定する必要がある。[Analytics](https://docs.juce.com/master/classAnalytics.html "分析データを管理するシングルトン・クラス。")インスタンスに追加できます。オプションで複数の目的地を追加することもできます。この場合はGoogleAnalyticsDestinationクラスのインスタンスをシングルトンに追加します。\[3\]。
+イベントを受信するには、[Analytics](https://docs.juce.com/master/classAnalytics.html "A singleton class to manage analytics data.")インスタンスに少なくとも1つの送信先を指定する必要があります。希望すれば、オプションで複数の送信先を追加できます。この場合、GoogleAnalyticsDestinationクラスのインスタンスをシングルトンに追加します [3]。
 
-以来`MainContentComponent`コンストラクタは、MainWindowがインスタンス化されたときに呼び出されるので、このイベントをログに記録するには、関数`logEvent()`コンポーネントがMainWindowに所有された時\[4\]。
+`MainContentComponent`コンストラクタはMainWindowがインスタンス化されるときに呼び出されるため、コンポーネントがMainWindowに所有されたときに`logEvent()`関数を使用してこのイベントをログに記録できます [4]。
 
 ```cpp
-    MainContentComponent()
-    {
-        // Add an analytics identifier for the user. Make sure you don't accidentally
-        // collect identifiable information if you haven't asked for permission!
-        juce::Analytics::getInstance()->setUserId ("AnonUser1234");                                 // [1]
- 
-        // Add any other constant user information.
-        juce::StringPairArray userData;
-        userData.set ("group", "beta");
-        juce::Analytics::getInstance()->setUserProperties (userData);                               // [2]
- 
-        // Add any analytics destinations we want to use to the Analytics singleton.
-        juce::Analytics::getInstance()->addDestination (new GoogleAnalyticsDestination());          // [3]
- 
-        // The event type here should probably be DemoAnalyticsEventTypes::sessionStart
-        // in a more advanced app.
-        juce::Analytics::getInstance()->logEvent ("startup", {}, DemoAnalyticsEventTypes::event);   // [4]
+MainContentComponent()
+{
+    // ユーザーのアナリティクス識別子を追加します。許可を求めていない場合、
+    // 誤って識別可能な情報を収集しないように注意してください！
+    juce::Analytics::getInstance()->setUserId ("AnonUser1234"); // [1]
+
+    // その他の定数ユーザー情報を追加します。
+    juce::StringPairArray userData;
+    userData.set ("group", "beta");
+    juce::Analytics::getInstance()->setUserProperties (userData); // [2]
+
+    // 使用したいアナリティクス送信先をAnalyticsシングルトンに追加します。
+    juce::Analytics::getInstance()->addDestination (new GoogleAnalyticsDestination()); // [3]
+
+    // ここでのイベントタイプは、より高度なアプリでは
+    // おそらくDemoAnalyticsEventTypes::sessionStartであるべきです。
+    juce::Analytics::getInstance()->logEvent ("startup", {}, DemoAnalyticsEventTypes::event); // [4]
 ```
 
-同様に、シャットダウンイベントを`MainContentComponent`MainWindowが削除されたときにデストラクタを実行する。\[5\]。
+同様に、MainWindowが削除されたときに`MainContentComponent`デストラクタでシャットダウンイベントをログに記録できます [5]。
 
 ```cpp
-    ~MainContentComponent() override
-    {
-        // The event type here should probably be DemoAnalyticsEventTypes::sessionEnd
-        // in a more advanced app.
-        juce::Analytics::getInstance()->logEvent ("shutdown", {}, DemoAnalyticsEventTypes::event);  // [5]
-    }
+~MainContentComponent() override
+{
+    // ここでのイベントタイプは、より高度なアプリでは
+    // おそらくDemoAnalyticsEventTypes::sessionEndであるべきです。
+    juce::Analytics::getInstance()->logEvent ("shutdown", {}, DemoAnalyticsEventTypes::event); // [5]
+}
 ```
 
-## ボタン操作のトラッキング
+## ボタン動作の追跡
 
-特定のユーザーアクションにトラッキングを追加するには、どのユーザーインタラクションを記録して送信したいかを定義する必要があります。幸いなことに、ボタンの動作を記録するには、JUCE analyticsモジュールに含まれている[ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "ボタンがクリックされると、自動的にAnalyticsシングルトンにアナリティクス・イベントを送信するクラス。")が自動的に処理してくれる。
+特定のユーザーアクションに追跡を追加するには、どのユーザーインタラクションを記録して送信するかを定義する必要があります。幸いなことに、ボタンの動作を記録するには、JUCEアナリティクスモジュールに含まれている[ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "A class that automatically sends analytics events to the Analytics singleton when a button is clicked...")という便利なクラスを使用でき、これが自動的に処理してくれます。
 
-まず[ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "ボタンがクリックされると、自動的にAnalyticsシングルトンにアナリティクス・イベントを送信するクラス。")のメンバー変数として`MainContentComponent`クラス\[1\]。
+まず、`MainContentComponent`クラスのメンバー変数として[ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "A class that automatically sends analytics events to the Analytics singleton when a button is clicked...")を宣言しましょう [1]。
 
 ```cpp
-    juce::TextButton eventButton { "Press me!" }, crashButton { "Simulate crash!" };
-    std::unique_ptr logEventButtonPress;   // [1]
- 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
+juce::TextButton eventButton { "Press me!" }, crashButton { "Simulate crash!" };
+std::unique_ptr<juce::ButtonTracker> logEventButtonPress; // [1]
+
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-これで、MainContentComponentコンストラクタで、特定の[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")に引数として渡すことで、追跡したいオブジェクトを指定できる。[ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "ボタンがクリックされると、自動的にAnalyticsシングルトンにアナリティクス・イベントを送信するクラス。")コンストラクタを使用します。また、イベントが発生したときに送信するイベント・カテゴリーとアクション・プロパティも設定します。\[2\]。
+MainContentComponentコンストラクタで、追跡したい特定の[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")オブジェクトを[ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "A class that automatically sends analytics events to the Analytics singleton when a button is clicked...")コンストラクタに引数として渡すことでリンクできます。また、イベントが発火されたときに送信するイベントカテゴリとアクションプロパティも設定します [2]。
 
 ```cpp
-        juce::StringPairArray logButtonPressParameters;
-        logButtonPressParameters.set ("id", "a");
-        logEventButtonPress.reset (new juce::ButtonTracker (eventButton, "button_press", logButtonPressParameters)); // [2]
-    }
+juce::StringPairArray logButtonPressParameters;
+logButtonPressParameters.set ("id", "a");
+logEventButtonPress.reset (new juce::ButtonTracker (eventButton, "button_press", logButtonPressParameters)); // [2]
+}
 ```
 
-:::danger[エクササイズ]
-
-追加のGUIコンポーネントを作成し、異なるイベントパラメータでトラッキングを実装する。
-
+:::note
+演習：追加のGUIコンポーネントを作成し、異なるイベントパラメータで追跡を実装してください。
 :::
 
 ## イベントの送信
 
-JUCEアナリティクス・モジュールは、専用スレッドでイベントのロギングを処理し、定期的にバッチでアナリティクス・データを送信します。そのため、データが送信されるまで、イベントを一時的にローカルストレージに保存する必要があります。このチュートリアルの残りの部分では`GoogleAnalyticsDestination`クラスである。
+JUCEアナリティクスモジュールは、専用スレッドでのイベントのログを処理し、アナリティクスデータを定期的にバッチで送信します。したがって、データが送信されるまでイベントをローカルストレージに一時的に保存する必要があります。このチュートリアルの残りの部分では、`GoogleAnalyticsDestination`クラスで作業します。
 
-まず、アプリケーション・データ・ディレクトリにアナリティクス・イベント・データを保存する場所を指定する必要があります。このために、特別な場所`[File::userApplicationDataDirectory](https://docs.juce.com/master/classFile.html#a3e19cafabb03c5838160263a6e76313da0c9f89d8dc9f9f32c9eb42428385351d "The folder in which applications store their persistent user-specific settings.")`で正しい場所を探し、アプリの対応するアプリケーション・フォルダーに移動する。\[1\].場所が存在しない場合は、フォルダを作成します。\[2\]そして、ファイルパスをXMLファイル名の拡張子として保存する。\[3\]。
+まず、アプリケーションデータディレクトリにアナリティクスイベントデータを保存する場所を指定する必要があります。これには、特別な場所[`File::userApplicationDataDirectory`](https://docs.juce.com/master/classFile.html#a3e19cafabb03c5838160263a6e76313da0c9f89d8dc9f9f32c9eb42428385351d "The folder in which applications store their persistent user-specific settings.")を使用して正しい場所を見つけ、アプリの対応するアプリケーションフォルダに移動します [1]。場所が存在しない場合はフォルダを作成し [2]、ファイルパスをXMLファイル名拡張子として保存します [3]。
 
-スレッドを開始するには`startAnalyticsThread()`関数で、イベントのバッチ間の待ち時間をミリ秒単位で指定する。\[4\]。
+これで、`startAnalyticsThread()`関数を使用してスレッドを開始し、イベントのバッチ間の待機時間をミリ秒単位で指定できます [4]。
 
 ```cpp
-    GoogleAnalyticsDestination()
-        : ThreadedAnalyticsDestination ("GoogleAnalyticsThread")
+GoogleAnalyticsDestination()
+    : ThreadedAnalyticsDestination ("GoogleAnalyticsThread")
+{
     {
-        {
-            // Choose where to save any unsent events.
- 
-            auto appDataDir = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
-                                   .getChildFile (juce::JUCEApplication::getInstance()->getApplicationName());  // [1]
- 
-            if (! appDataDir.exists())
-                appDataDir.createDirectory();                                                                   // [2]
- 
-            savedEventsFile = appDataDir.getChildFile ("analytics_events.xml");                                 // [3]
-        }
-```
+        // 未送信イベントを保存する場所を選択します。
 
-```cpp
-        startAnalyticsThread (initialPeriodMs);                                                                 // [4]
+        auto appDataDir = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                              .getChildFile (juce::JUCEApplication::getInstance()->getApplicationName()); // [1]
+
+        if (!appDataDir.exists())
+            appDataDir.createDirectory(); // [2]
+
+        savedEventsFile = appDataDir.getChildFile ("analytics_events.xml"); // [3]
     }
 ```
 
-クラスのデストラクタでは、アプリケーションがオペレーティング・システムによって強制終了されることなく、最後のバッチ・イベントを送信できるようにしなければならない。これを可能にするために、1秒後にスレッドを強制的に停止する前に、スレッドをスリープさせている間に最後のバッチ期間を1回提供します。これにより、アプリケーションのシャットダウン時間をあまり長くすることなく、最後の送信を試みるのに十分な時間が確保される。
-
 ```cpp
-    ~GoogleAnalyticsDestination() override
-    {
-        // Here we sleep so that our background thread has a chance to send the
-        // last lot of batched events. Be careful - if your app takes too long to
-        // shut down then some operating systems will kill it forcibly!
-        juce::Thread::sleep (initialPeriodMs);  // [5]
- 
-        stopAnalyticsThread (1000);             // [6]
-    }
+startAnalyticsThread (initialPeriodMs); // [4]
+}
 ```
 
-をオーバーライドすることで、バッチで送信するイベントの最大数を指定できます。`getMaximumBatchSize()`関数は次のようになる：
+クラスデストラクタでは、オペレーティングシステムによってアプリケーションが強制終了されることなく、最後のバッチイベントが送信できるようにする必要があります。これを許可するために、スレッドを強制的に停止する前に1秒後にスレッドをスリープさせながら最後のバッチ期間を提供します。これにより、アプリケーションのシャットダウン時間を過度に延長することなく、最後の送信試行に十分な時間を提供します。
 
 ```cpp
-    int getMaximumBatchSize() override   { return 20; }
+~GoogleAnalyticsDestination() override
+{
+    // ここでスリープして、バックグラウンドスレッドが
+    // 最後のバッチイベントを送信する機会を与えます。注意 - アプリの
+    // シャットダウンに時間がかかりすぎると、一部のオペレーティングシステムは
+    // 強制的に終了します！
+    juce::Thread::sleep (initialPeriodMs); // [5]
+
+    stopAnalyticsThread (1000); // [6]
+}
+```
+
+バッチで送信するイベントの最大数は、`getMaximumBatchSize()`関数をオーバーライドすることで指定できます：
+
+```cpp
+int getMaximumBatchSize() override { return 20; }
 ```
 
 ### HTTPリクエストのフォーマット
 
-次に、これらのイベントをアナリティクス・サーバーに記録するために、正しいHTTPリクエストをフォーマットする必要があります。その[URL](https://docs.juce.com/master/classURL.html "URLを表し、それを操作するための便利な関数がたくさんある。")例えば、ボタンが押された場合の動作は次のようになります：
+次に、これらのイベントをアナリティクスサーバーにログ記録するための正しいHTTPリクエストをフォーマットする必要があります。例えば、ボタン押下動作の場合に構築しようとしている[URL](https://docs.juce.com/master/classURL.html "Represents a URL and has a bunch of useful functions to manipulate it.")とその対応するPOSTデータは以下のようになります：
 
-```cpp
+```
 POST /batch HTTP/1.1
 Host: www.google-analytics.com
- 
-v=1                            // Version Number
-&aip=1                         // Anonymise IP
-&tid=UA-XXXXXXXXX-1            // Tracking ID
-&t=event                       // Log Type
-&ec=button_press               // Event Category
-&ea=a                          // Event Action
-&cid=AnonUser1234              // User ID
+
+v=1 // バージョン番号
+&aip=1 // IPを匿名化
+&tid=UA-XXXXXXXXX-1 // トラッキングID
+&t=event // ログタイプ
+&ec=button_press // イベントカテゴリ
+&ea=a // イベントアクション
+&cid=AnonUser1234 // ユーザーID
 ```
 
-- \[v\]バッチロギングAPIのバージョン。
-- \[アイピー］送信者のIPアドレスは匿名化されます。
-- \[tid\]。該当アプリのトラッキングID。
-- \[t\]分析システムのロギングのタイプ。
-- \[ec］ログに記録されたイベントのカテゴリー識別子。
-- ea\]\[eaログに記録されたイベントのアクション識別子。
-- \[cid］対応するユーザーのユーザーID。
+- [v]：バッチログAPIバージョン。
+- [aip]：送信者のIPアドレスが匿名化されます。
+- [tid]：対応するアプリのトラッキングID。
+- [t]：アナリティクスシステムのログのタイプ。
+- [ec]：ログされたイベントのカテゴリ識別子。
+- [ea]：ログされたイベントのアクション識別子。
+- [cid]：対応するユーザーのユーザーID。
 
-典型的なアプリのライフサイクルでは、バッチ化されたロガーは、アプリが起動すると、まずappStartedイベントを処理します。次に、ユーザーがボタンをクリックすると、button\_pressイベントをログに記録し、最後に、アプリケーションが終了すると、appStoppedイベントをログに記録します。
+典型的なアプリのライフサイクルでは、バッチロガーはアプリケーションが起動したときにまずappStartedイベントを処理します。次に、ユーザーがボタンをクリックすると、button_pressイベントをログに記録し、最後にアプリケーションが終了するときにappStoppedイベントをログに記録します。
 
-これら3つのロギングシナリオを考慮するために、私たちは`logBatchedEvents()`関数である：
+これら3つのログシナリオに対応するために、`logBatchedEvents()`関数で異なるリクエストを構築する必要があります：
 
 ```cpp
-    bool logBatchedEvents (const juce::Array& events) override
+bool logBatchedEvents (const juce::Array<AnalyticsEvent>& events) override
+{
+    // イベントをGoogle Analyticsに送信します。
+
+    juce::String appData ("v=1&aip=1&tid=" + apiKey); // [1]
+
+    juce::StringArray postData;
+
+    for (auto& event : events) // [2]
     {
-        // Send events to Google Analytics.
- 
-        juce::String appData ("v=1&aip=1&tid=" + apiKey);       // [1]
- 
-        juce::StringArray postData;
- 
-        for (auto& event : events)                              // [2]
+        juce::StringPairArray data;
+
+        switch (event.eventType)
         {
-            juce::StringPairArray data;
- 
-            switch (event.eventType)
+            case (DemoAnalyticsEventTypes::event):
             {
-                case (DemoAnalyticsEventTypes::event):
+                data.set ("t", "event");
+
+                if (event.name == "startup")
                 {
-                    data.set ("t", "event");
- 
-                    if (event.name == "startup")
-                    {
-                        data.set ("ec",  "info");
-                        data.set ("ea",  "appStarted");
-                    }
-                    else if (event.name == "shutdown")
-                    {
-                        data.set ("ec",  "info");
-                        data.set ("ea",  "appStopped");
-                    }
-                    else if (event.name == "button_press")
-                    {
-                        data.set ("ec",  "button_press");
-                        data.set ("ea",  event.parameters["id"]);
-                    }
-                    else if (event.name == "crash")
-                    {
-                        data.set ("ec",  "crash");
-                        data.set ("ea",  "crash");
-                    }
-                    else
-                    {
-                        jassertfalse;
-                        continue;
-                    }
- 
-                    break;
+                    data.set ("ec", "info");
+                    data.set ("ea", "appStarted");
                 }
- 
-                default:
+                else if (event.name == "shutdown")
                 {
-                    // Unknown event type! In this demo app we're just using a
-                    // single event type, but in a real app you probably want to
-                    // handle multiple ones.
+                    data.set ("ec", "info");
+                    data.set ("ea", "appStopped");
+                }
+                else if (event.name == "button_press")
+                {
+                    data.set ("ec", "button_press");
+                    data.set ("ea", event.parameters["id"]);
+                }
+                else if (event.name == "crash")
+                {
+                    data.set ("ec", "crash");
+                    data.set ("ea", "crash");
+                }
+                else
+                {
                     jassertfalse;
-                    break;
+                    continue;
                 }
+
+                break;
             }
- 
-            data.set ("cid", event.userID);                                 // [3]
- 
-            juce::StringArray eventData;
- 
-            for (auto& key : data.getAllKeys())                             // [4]
-                eventData.add (key + "=" + juce::URL::addEscapeChars (data[key], true));
- 
-            postData.add (appData + "&" + eventData.joinIntoString ("&"));  // [5]
+
+            default:
+            {
+                // 不明なイベントタイプです！このデモアプリでは単一の
+                // イベントタイプのみを使用していますが、実際のアプリでは
+                // おそらく複数を処理したいでしょう。
+                jassertfalse;
+                break;
+            }
         }
- 
-        auto url = juce::URL ("https://www.google-analytics.com/batch")
-                       .withPOSTData (postData.joinIntoString ("\n"));      // [6]
-```
 
-- \[1\]バージョン番号、匿名化されたIP、トラッキングIDをappData文字列変数に追加することから始めます。
-- \[2\]次に、バッチ内の各イベントについて、問題のイベントのタイプを判断し、そのカテゴリとアクションプロパティを設定する。イベントがスタートアップまたはシャットダウンの場合、イベント・カテゴリーを "info "に設定し、アクション・プロパティをそれぞれ "appStarted "または "appStopped "に設定する。イベントがボタン押下であれば、イベント・カテゴリーを "button\_press "に設定し、アクション・プロパティを[ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "ボタンがクリックされると、自動的にAnalyticsシングルトンにアナリティクス・イベントを送信するクラス。").
-- \[3\]また、ログに記録するイベントのユーザーIDも設定します。
-- \[4\]さて、個々の[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "別の文字列をキーとする文字列のセットを保持するための容器。")エントリーの間に等号を挿入し、特殊文字をエスケープすることで、キーと対応する値を連結します。[URL](https://docs.juce.com/master/classURL.html "URLを表し、それを操作するための便利な関数がたくさんある。").
-- \[5\]最後に、すべてのイベント・パラメーターをアンパサンド記号で連結し、appDataの内容を先頭に追加する。
-- \[6\]:その[URL](https://docs.juce.com/master/classURL.html "URLを表し、それを操作するための便利な関数がたくさんある。")は最終的に、POSTデータが一行ずつ追加されて構築される。このようにして、1つのHTTPリクエストで複数のイベントを送信できる。
+        data.set ("cid", event.userID); // [3]
 
-:::danger[エクササイズ]
+        juce::StringArray eventData;
 
-上記のコードを修正して、label属性とvalue属性を含むすべてのイベント・プロパティを処理する。
+        for (auto& key : data.getAllKeys()) // [4]
+            eventData.add (key + "=" + juce::URL::addEscapeChars (data[key], true));
 
-:::
-
-これで[URL](https://docs.juce.com/master/classURL.html "URLを表し、それを操作するための便利な関数がたくさんある。")リクエストをサーバーに送信する必要がある。[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "指定したURLから読み込むためのInputStream。").まず[CriticalSection](https://docs.juce.com/master/classCriticalSection.html "リエントラントなミューテックス。")webStreamCreationというメンバー変数として宣言されたミューテックスです。ScopedLockオブジェクトを使用すると、中かっこで区切られたコード部分に対してミューテックスを自動的にロックしたりアンロックしたりできます。\[1\]。
-
-もし`stopLoggingEvents()`関数がアプリケーションの終了によって呼び出された場合は、アプリケーションの初期化を試みずに即座にリターンする。[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "指定したURLから読み込むためのInputStream。") \[2\].そうでなければ、先に構築した[URL](https://docs.juce.com/master/classURL.html "URLを表し、それを操作するための便利な関数がたくさんある。")を引数にとり、メソッドとしてPOSTを使用する。\[3\]。
-
-そして、指定された[URL](https://docs.juce.com/master/classURL.html "URLを表し、それを操作するための便利な関数がたくさんある。")を使ってリクエストを実行する。`connect()`関数を使用する。[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "指定したURLから読み込むためのInputStream。") \[4\].応答が成功した場合は、関数から正の値を返すだけである。そうでない場合は、バッチ期間に指数関数的減衰を設定し、以前のレートに2を掛けて、関数から負を返します。\[5\]。
-
-```cpp
- 
-        {
-            const juce::ScopedLock lock (webStreamCreation);        // [1]
- 
-            if (shouldExit)                                         // [2]
-                return false;
- 
-            webStream.reset (new juce::WebInputStream (url, true)); // [3]
-        }
- 
-        auto success = webStream->connect (nullptr);                // [4]
- 
-        // Do an exponential backoff if we failed to connect.
-        if (success)
-            periodMs = initialPeriodMs;
-        else
-            periodMs *= 2;
- 
-        setBatchPeriod (periodMs);                                  // [5]
- 
-        return success;
+        postData.add (appData + "&" + eventData.joinIntoString ("&")); // [5]
     }
+
+    auto url = juce::URL ("https://www.google-analytics.com/batch")
+                   .withPOSTData (postData.joinIntoString ("\n")); // [6]
 ```
 
-アプリケーションがシャットダウンしたら、以下の接続をキャンセルする必要がある。[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "指定したURLから読み込むためのInputStream。")同時に実行されているものがある場合。最初に同じ[CriticalSection](https://docs.juce.com/master/classCriticalSection.html "リエントラントなミューテックス。")オブジェクトにScopedLockを使用することで、以前に遭遇したコードのクリティカル・セクションが、ScopedLockを使用していることを確認します。`logBatchedEvents()`関数が終了する前に\[1\].shouldExitブール値をtrueに設定すると、その後に新しい接続が作成されることはありません。\[2\].そして、最終的に[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "指定したURLから読み込むためのInputStream。")を使用して接続します。`cancel()`関数がある場合\[3\]。
-
-```cpp
-    void stopLoggingEvents() override
-    {
-        const juce::ScopedLock lock (webStreamCreation);            // [1]
- 
-        shouldExit = true;                                          // [2]
- 
-        if (webStream.get() != nullptr)                             // [3]
-            webStream->cancel();
-    }
-```
-
-これで、チュートリアルのイベント・ロギングに関する部分は終了です。しかし、イベント・データの送信に失敗してアプリケーションが終了した場合、ログに記録されていないイベントを追跡する方法は今のところありません。
-
-## 未記録イベントの保存と復元
-
-このセクションでは、接続が失われた場合に備えて、ログに記録されていないイベントをディスクに保存するためのXMLファイルの使用について説明する。
-
-ログに記録されないイベント情報を格納するXMLドキュメントは、ボタンが1回押された場合、次のようになる：
-
-```cpp
-
-                                                                                              // Root XML element for the whole document.
-     // Event node with name, type, timestamp and user ID.
-                                                                      // Parameters related to the parent event.
-                                                      // Properties for the user in the parent event.
-    
-    //...
-
-```
-
-を見ていく。`saveUnloggedEvents()`そして`restoreUnloggedEvents()`関数はそれぞれイベントの保存と復元を行う。その`saveUnloggedEvents()`関数は、上に示したフォーマットに基づいてXML構造を構築し、その内容をXMLファイルに保存します：
-
-```cpp
-    void saveUnloggedEvents (const std::deque& eventsToSave) override
-    {
-        // Save unsent events to disk. Here we use XML as a serialisation format, but
-        // you can use anything else as long as the restoreUnloggedEvents method can
-        // restore events from disk. If you're saving very large numbers of events then
-        // a binary format may be more suitable if it is faster - remember that this
-        // method is called on app shutdown so it needs to complete quickly!
- 
-        juce::XmlDocument previouslySavedEvents (savedEventsFile);
-        std::unique_ptr xml (previouslySavedEvents.getDocumentElement()); // [1]
- 
-        if (xml.get() == nullptr || xml->getTagName() != "events")                          // [2]
-            xml.reset (new juce::XmlElement ("events"));
- 
-        for (auto& event : eventsToSave)
-        {
-            auto* xmlEvent = new juce::XmlElement ("google_analytics_event");               // [3]
-            xmlEvent->setAttribute ("name", event.name);
-            xmlEvent->setAttribute ("type", event.eventType);
-            xmlEvent->setAttribute ("timestamp", (int) event.timestamp);
-            xmlEvent->setAttribute ("user_id", event.userID);
- 
-            auto* parameters = new juce::XmlElement ("parameters");                         // [4]
- 
-            for (auto& key : event.parameters.getAllKeys())
-                parameters->setAttribute (key, event.parameters[key]);
- 
-            xmlEvent->addChildElement (parameters);
- 
-            auto* userProperties = new juce::XmlElement ("user_properties");                // [5]
- 
-            for (auto& key : event.userProperties.getAllKeys())
-                userProperties->setAttribute (key, event.userProperties[key]);
- 
-            xmlEvent->addChildElement (userProperties);
- 
-            xml->addChildElement (xmlEvent);                                                // [6]
-        }
- 
-        xml->writeTo (savedEventsFile);                                                     // [7]
-    }
-```
-
-- \[1\]最初に、あらかじめ定義されたファイルの場所に保存されているXMLファイルから、以前に保存されたイベントを取得し[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")それをベースにしている。
-- \[2\]もし[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")が存在しないか、ルート "events "ノードがない場合は、それを作成する。
-- \[3\]キュー内の未保存のイベントごとに、イベント名、タイプ、タイムスタンプ、ユーザーIDを属性として持つ「google\_analytics\_event」ノードを作成する。
-- \[4\]また、先に作成したノードの子ノードとして、イベント・パラメーターを属性として持つ "parameters "ノードを作成する。
-- \[5\]同じ階層レベルに、ユーザー・プロパティを属性として持つ子ノードとして「user\_properties」ノードを作成する。
-- \[6\]次に、個々のイベント・ノードをルート・ノード "events "の子ノードとしてできる。る。
-- \[7\]最後に、XML構造をXMLファイルに書き込み、イベントを保存する。
-
-一方`restoreUnloggedEvents()`関数は、先に示したのと同じフォーマットに基づいてXML構造体を読み込み、イベントキューを埋める：
-
-```cpp
-    void restoreUnloggedEvents (std::deque& restoredEventQueue) override
-    {
-        juce::XmlDocument savedEvents (savedEventsFile);
-        std::unique_ptr xml (savedEvents.getDocumentElement());           // [1]
- 
-        if (xml.get() == nullptr || xml->getTagName() != "events")                          // [2]
-            return;
- 
-        auto numEvents = xml->getNumChildElements();
- 
-        for (auto iEvent = 0; iEvent < numEvents; ++iEvent)
-        {
-            auto* xmlEvent = xml->getChildElement (iEvent);                                 // [3]
- 
-            juce::StringPairArray parameters;
-            auto* xmlParameters = xmlEvent->getChildByName ("parameters");                  // [4]
-            auto numParameters = xmlParameters->getNumAttributes();
- 
-            for (auto iParam = 0; iParam < numParameters; ++iParam)
-                parameters.set (xmlParameters->getAttributeName (iParam),
-                                xmlParameters->getAttributeValue (iParam));
- 
-            juce::StringPairArray userProperties;
-            auto* xmlUserProperties = xmlEvent->getChildByName ("user_properties");         // [5]
-            auto numUserProperties = xmlUserProperties->getNumAttributes();
- 
-            for (auto iProp = 0; iProp < numUserProperties; ++iProp)
-                userProperties.set (xmlUserProperties->getAttributeName (iProp),
-                                    xmlUserProperties->getAttributeValue (iProp));
- 
-            restoredEventQueue.push_back ({
-                xmlEvent->getStringAttribute ("name"),                                      // [6]
-                xmlEvent->getIntAttribute ("type"),
-                static_cast (xmlEvent->getIntAttribute ("timestamp")),
-                parameters,
-                xmlEvent->getStringAttribute ("user_id"),
-                userProperties
-            });
-        }
- 
-        savedEventsFile.deleteFile();                                                       // [7]
-    }
-```
-
-- \[1\]先ほどと同じように、あらかじめ定義されたファイルの場所に保存されているXMLファイルから、以前に保存されたイベントを取得し[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")それをベースにしている。
-- \[2\]もし[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")が存在しないか、ルート "events "ノードがない場合、何もすることがないので、関数から戻る。
-- \[3\]まず、ルートの親ノードから解析するイベントの子ノードを1つ取得する。
-- \[4\]子ノード "parameters "の各属性について、キーと値のペアを設定し、それを[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "別の文字列をキーとする文字列のセットを保持するための容器。").
-- \[5\]子ノード "user\_properties "の各属性について、キーと値のペアを設定し、それを[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "別の文字列をキーとする文字列のセットを保持するための容器。").
-- \[6\]個々のイベントをイベント・キューに戻すには、対応するパラメータを[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "別の文字列をキーとする文字列のセットを保持するための容器。")オブジェクトがある。
-- \[7\]最後に、XMLファイルをディスクから削除する。
+- [1]：まず、バージョン番号、匿名化IP、トラッキングIDをappData文字列変数に追加します。
+- [2]：次に、バッチ内の各イベントについて、問題のイベントのタイプを判断してカテゴリとアクションプロパティを設定します。イベントが起動またはシャットダウンの場合、イベントカテゴリを「info」に設定し、アクションプロパティをそれぞれ「appStarted」または「appStopped」に設定します。イベントがボタン押下の場合、イベントカテゴリを「button_press」に設定し、[ButtonTracker](https://docs.juce.com/master/classButtonTracker.html "A class that automatically sends analytics events to the Analytics singleton when a button is clicked...")のidパラメータからアクションプロパティを取得します。
+- [3]：また、ログするイベントのユーザーIDを設定します。
+- [4]：次に、すべての個別の[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "A container for holding a set of strings which are keyed by another string.")エントリについて、等号を挿入してキーを対応する値と連結し、[URL](https://docs.juce.com/master/classURL.html "Represents a URL and has a bunch of useful functions to manipulate it.")から特殊文字をエスケープします。
+- [5]：最後に、すべてのイベントパラメータをアンパサンド記号で結合し、最初のappDataコンテンツを先頭に付加します。
+- [6]：[URL](https://docs.juce.com/master/classURL.html "Represents a URL and has a bunch of useful functions to manipulate it.")は最終的にPOSTデータが行ごとに追加されて構築されます。これにより、単一のHTTPリクエストで複数のイベントを送信できます。
 
 :::note
-
-我々はXMLをシリアライゼーション・フォーマットとして使用したが、大量の未保存のイベントを保存する必要がある場合は、バイナリ・フォーマットの方が効率的だろう。
-
+演習：ラベルと値の属性を含むすべてのイベントプロパティを処理するように上記のコードを変更してください。
 :::
 
-:::danger[エクササイズ]
+[URL](https://docs.juce.com/master/classURL.html "Represents a URL and has a bunch of useful functions to manipulate it.")の準備ができたので、[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "An InputStream which can be used to read from a given URL.")を作成してサーバーにリクエストを送信する必要があります。まず、webStreamCreationというメンバー変数として宣言された[CriticalSection](https://docs.juce.com/master/classCriticalSection.html "A re-entrant mutex.")ミューテックスをロックする必要があります。ScopedLockオブジェクトを使用すると、中括弧で区切られたコード部分のミューテックスを自動的にロックおよびアンロックできます [1]。
 
-ログに記録されていないイベントを、以下のような別のシリアライズ形式で保存および復元する。[JSON](https://docs.juce.com/master/classJSON.html "JSON 形式のテキストを var オブジェクトとの間で変換するための静的メソッドが含まれています。")またはバイナリ形式。
+アプリケーションが終了したために`stopLoggingEvents()`関数が以前に呼び出された場合、[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "An InputStream which can be used to read from a given URL.")を初期化しようとせずにすぐに戻ります [2]。そうでなければ、以前に構築された[URL](https://docs.juce.com/master/classURL.html "Represents a URL and has a bunch of useful functions to manipulate it.")を引数として渡し、メソッドとしてPOSTを使用してstd::unique_ptrに作成できます [3]。
 
+次に、指定された[URL](https://docs.juce.com/master/classURL.html "Represents a URL and has a bunch of useful functions to manipulate it.")に接続し、[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "An InputStream which can be used to read from a given URL.")の`connect()`関数を使用してリクエストを実行できます [4]。応答が成功した場合、関数から正常に戻ります。そうでなければ、前のレートに2を掛けてバッチ期間に指数減衰を設定し、関数から負の値を返します [5]。
+
+```cpp
+{
+    const juce::ScopedLock lock (webStreamCreation); // [1]
+
+    if (shouldExit) // [2]
+        return false;
+
+    webStream.reset (new juce::WebInputStream (url, true)); // [3]
+}
+
+auto success = webStream->connect (nullptr); // [4]
+
+// 接続に失敗した場合、指数バックオフを行います。
+if (success)
+    periodMs = initialPeriodMs;
+else
+    periodMs *= 2;
+
+setBatchPeriod (periodMs); // [5]
+
+return success;
+}
+```
+
+アプリケーションがシャットダウンするとき、同時に実行されている[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "An InputStream which can be used to read from a given URL.")への接続がある場合はキャンセルする必要があります。同じ[CriticalSection](https://docs.juce.com/master/classCriticalSection.html "A re-entrant mutex.")オブジェクトからScopedLockを使用してロックを最初に取得することで、`logBatchedEvents()`関数で以前に遭遇したコードのクリティカルセクションが終了する前に終了することを保証します [1]。shouldExitブール値をtrueに設定すると、その後新しい接続が作成されるのを防ぎます [2]。次に、[WebInputStream](https://docs.juce.com/master/classWebInputStream.html "An InputStream which can be used to read from a given URL.")接続がある場合は`cancel()`関数を使用してキャンセルできます [3]。
+
+```cpp
+void stopLoggingEvents() override
+{
+    const juce::ScopedLock lock (webStreamCreation); // [1]
+
+    shouldExit = true; // [2]
+
+    if (webStream.get() != nullptr) // [3]
+        webStream->cancel();
+}
+```
+
+これでイベントのログに関するチュートリアルの部分が完了します。ただし、イベントデータの送信に失敗してアプリケーションが終了した場合、現在は未ログイベントを追跡する方法がありません。
+
+## 未ログイベントの保存と復元
+
+このセクションでは、接続が失われた場合に未ログイベントをディスクに保存するためのXMLファイルの使用について説明します。
+
+未ログイベント情報を保存するXMLドキュメントは、単一のボタン押下の場合、以下のようになります：
+
+```xml
+<?xml version="1.0" ?>
+<events> // ドキュメント全体のルートXML要素。
+<google_analytics_event
+    name="button_press"
+    type="event"
+    timestamp="xxxx"
+    user_id="AnonUser1234"
+  > // 名前、タイプ、タイムスタンプ、ユーザーIDを持つイベントノード。
+<parameters id="a" /> // 親イベントに関連するパラメータ。
+<user_properties group="beta" /> // 親イベントのユーザーのプロパティ。
+</google_analytics_event>
+//...
+</events>
+```
+
+イベントの保存と復元をそれぞれ処理する`saveUnloggedEvents()`と`restoreUnloggedEvents()`関数を見てみましょう。`saveUnloggedEvents()`関数は、上記の形式に基づいてXML構造を構築し、内容をXMLファイルに保存します：
+
+```cpp
+void saveUnloggedEvents (const std::deque<AnalyticsEvent>& eventsToSave) override
+{
+    // 未送信イベントをディスクに保存します。ここではシリアライゼーション形式として
+    // XMLを使用していますが、restoreUnloggedEventsメソッドがディスクから
+    // イベントを復元できる限り、他の何でも使用できます。非常に多くの
+    // イベントを保存する場合、より高速であればバイナリ形式の方が
+    // 適しているかもしれません - このメソッドはアプリのシャットダウン時に
+    // 呼び出されるため、迅速に完了する必要があることを覚えておいてください！
+
+    juce::XmlDocument previouslySavedEvents (savedEventsFile);
+    std::unique_ptr<juce::XmlElement> xml (previouslySavedEvents.getDocumentElement()); // [1]
+
+    if (xml.get() == nullptr || xml->getTagName() != "events") // [2]
+        xml.reset (new juce::XmlElement ("events"));
+
+    for (auto& event : eventsToSave)
+    {
+        auto* xmlEvent = new juce::XmlElement ("google_analytics_event"); // [3]
+        xmlEvent->setAttribute ("name", event.name);
+        xmlEvent->setAttribute ("type", event.eventType);
+        xmlEvent->setAttribute ("timestamp", (int) event.timestamp);
+        xmlEvent->setAttribute ("user_id", event.userID);
+
+        auto* parameters = new juce::XmlElement ("parameters"); // [4]
+
+        for (auto& key : event.parameters.getAllKeys())
+            parameters->setAttribute (key, event.parameters[key]);
+
+        xmlEvent->addChildElement (parameters);
+
+        auto* userProperties = new juce::XmlElement ("user_properties"); // [5]
+
+        for (auto& key : event.userProperties.getAllKeys())
+            userProperties->setAttribute (key, event.userProperties[key]);
+
+        xmlEvent->addChildElement (userProperties);
+
+        xml->addChildElement (xmlEvent); // [6]
+    }
+
+    xml->writeTo (savedEventsFile); // [7]
+}
+```
+
+- [1]：まず、以前に定義されたファイルの場所に保存されたXMLファイルから以前に保存されたイベントを取得し、それに基づいて[XmlElement](https://docs.juce.com/master/classXmlElement.html "Used to build a tree of elements representing an XML document.")を構築します。
+- [2]：[XmlElement](https://docs.juce.com/master/classXmlElement.html "Used to build a tree of elements representing an XML document.")が存在しないか、ルート「events」ノードを持たない場合、作成します。
+- [3]：キュー内の各未保存イベントについて、イベント名、タイプ、タイムスタンプ、ユーザーIDを属性として持つ「google_analytics_event」ノードを作成します。
+- [4]：また、以前に作成したノードの子ノードとして、イベントパラメータを属性として持つ「parameters」ノードを作成します。
+- [5]：同じ階層レベルで、ユーザープロパティを属性として持つ「user_properties」ノードを子ノードとして作成します。
+- [6]：次に、個々のイベントノードをルート「events」ノードの子として追加できます。
+- [7]：最後に、XML構造をXMLファイルに書き込み、イベントを保存します。
+
+一方、`restoreUnloggedEvents()`関数は、以前に示したのと同じ形式に基づいてXML構造を読み取り、イベントキューを埋めます：
+
+```cpp
+void restoreUnloggedEvents (std::deque<AnalyticsEvent>& restoredEventQueue) override
+{
+    juce::XmlDocument savedEvents (savedEventsFile);
+    std::unique_ptr<juce::XmlElement> xml (savedEvents.getDocumentElement()); // [1]
+
+    if (xml.get() == nullptr || xml->getTagName() != "events") // [2]
+        return;
+
+    auto numEvents = xml->getNumChildElements();
+
+    for (auto iEvent = 0; iEvent < numEvents; ++iEvent)
+    {
+        auto* xmlEvent = xml->getChildElement (iEvent); // [3]
+
+        juce::StringPairArray parameters;
+        auto* xmlParameters = xmlEvent->getChildByName ("parameters"); // [4]
+        auto numParameters = xmlParameters->getNumAttributes();
+
+        for (auto iParam = 0; iParam < numParameters; ++iParam)
+            parameters.set (xmlParameters->getAttributeName (iParam),
+                xmlParameters->getAttributeValue (iParam));
+
+        juce::StringPairArray userProperties;
+        auto* xmlUserProperties = xmlEvent->getChildByName ("user_properties"); // [5]
+        auto numUserProperties = xmlUserProperties->getNumAttributes();
+
+        for (auto iProp = 0; iProp < numUserProperties; ++iProp)
+            userProperties.set (xmlUserProperties->getAttributeName (iProp),
+                xmlUserProperties->getAttributeValue (iProp));
+
+        restoredEventQueue.push_back ({ xmlEvent->getStringAttribute ("name"), // [6]
+            xmlEvent->getIntAttribute ("type"),
+            static_cast<juce::uint32> (xmlEvent->getIntAttribute ("timestamp")),
+            parameters,
+            xmlEvent->getStringAttribute ("user_id"),
+            userProperties });
+    }
+
+    savedEventsFile.deleteFile(); // [7]
+}
+```
+
+- [1]：以前と同様に、以前に定義されたファイルの場所に保存されたXMLファイルから以前に保存されたイベントを取得し、それに基づいて[XmlElement](https://docs.juce.com/master/classXmlElement.html "Used to build a tree of elements representing an XML document.")を構築します。
+- [2]：[XmlElement](https://docs.juce.com/master/classXmlElement.html "Used to build a tree of elements representing an XML document.")が存在しないか、ルート「events」ノードを持たない場合、何もすることがないので関数から戻ります。
+- [3]：まず、ルート親からパースする単一のイベント子ノードを取得します。
+- [4]：子「parameters」ノードの各属性について、キー/値ペアを設定し、[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "A container for holding a set of strings which are keyed by another string.")に追加します。
+- [5]：子「user_properties」ノードの各属性について、キー/値ペアを設定し、[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "A container for holding a set of strings which are keyed by another string.")に追加します。
+- [6]：次に、[StringPairArray](https://docs.juce.com/master/classStringPairArray.html "A container for holding a set of strings which are keyed by another string.")オブジェクトから対応するパラメータを設定することで、個々のイベントをイベントキューにプッシュバックできます。
+- [7]：最後に、完了したらディスクからXMLファイルを削除します。
+
+:::tip
+シリアライゼーション形式としてXMLを使用しましたが、大量の未保存イベントを保存する必要がある場合は、バイナリ形式の方が効率的です。
 :::
 
-## 概要
+:::note
+演習：未ログイベントを[JSON](https://docs.juce.com/master/classJSON.html "Contains static methods for converting JSON-formatted text to and from var objects.")などの異なるシリアライゼーション形式またはバイナリ形式で保存および復元してください。
+:::
 
-このチュートリアルでは、GoogleアナリティクスとJUCEアナリティクスモジュールを使って利用データを追跡する方法を学びました。特に
+## まとめ
 
-- Google Analyticsにアナリティクスイベントを別スレッドで送信。
-- 未送信のイベントをXMLドキュメントにローカルに保存。
-- 保存されたイベントをXMLドキュメントからイベントキューに復元。
+このチュートリアルでは、Google AnalyticsとJUCEアナリティクスモジュールを使用して使用データを追跡する方法を学びました。特に、以下のことを行いました：
 
-## 参照
+- 別のスレッドでGoogle Analyticsにアナリティクスイベントを送信しました。
+- 未送信イベントをXMLドキュメントにローカルで保存しました。
+- XMLドキュメントから保存されたイベントをイベントキューに復元しました。
 
-- [Tutorial: Getting started with Android](../../mobile/tutorial_android_studio/)
-- [Tutorial: Managing Android screen sizes](../../mobile/tutorial_android_screen_sizes/)
-- [Tutorial: In-App Purchases on desktop and mobile devices](../../mobile/tutorial_in_app_purchases/)
-- [Tutorial: Push Notifications on desktop and mobile devices](../../mobile/tutorial_push_notifications/)
-- [Tutorial: Package your app or plugin for distribution](../tutorial_app_plugin_packaging/)
+## 関連項目
+
+- [チュートリアル：Androidを始めよう](../../mobile/tutorial_android_studio/)
+- [チュートリアル：Androidの画面サイズを管理する](../../mobile/tutorial_android_screen_sizes/)
+- [チュートリアル：デスクトップとモバイルデバイスでのアプリ内購入](../../mobile/tutorial_in_app_purchases/)
+- [チュートリアル：デスクトップとモバイルデバイスでのプッシュ通知](../../mobile/tutorial_push_notifications/)
+- [チュートリアル：配布用にアプリやプラグインをパッケージ化する](../tutorial_app_plugin_packaging/)

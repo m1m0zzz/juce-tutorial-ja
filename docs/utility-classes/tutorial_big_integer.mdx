@@ -4,96 +4,92 @@ sidebar_position: 1
 tags: [初級]
 ---
 
-# BigInteger クラス
+# チュートリアル：BigIntegerクラス
 
 <SourcePageLink path="tutorial_big_integer" />
 
-このチュートリアルでは[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")クラスは、任意に大きな整数を扱うためのものである。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトは、大きなビットマスクが必要な暗号アプリケーションや、本当に大きな整数が必要な場所でよく使われる。
+このチュートリアルでは、任意に大きな整数を扱うための[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")クラスを紹介します。[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトは、暗号アプリケーション、大きなビットマスクが必要な場合、およびその他本当に大きな整数が必要な場所でよく使用されます。
 
-レベル初心者
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class."), [TextEditor](https://docs.juce.com/master/classTextEditor.html "An editable text box."), [MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "A class to hold a resizable block of raw data.")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。"),[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。"),[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "リサイズ可能な生データ・ブロックを保持するクラス。")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/BigIntegerTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/BigIntegerTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-## スタート
+この手順についてサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/BigIntegerTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/BigIntegerTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+デモプロジェクトは、さまざまな計算の結果を表示できるシンプルなテキストコンソールを設定しています。これにより、このチュートリアルで[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")クラスが実行できるいくつかの操作を実証できます。
 
-## デモ・プロジェクト
-
-このデモ・プロジェクトでは、さまざまな計算結果を表示できるシンプルなテキスト・コンソールをセットアップしている。これによって[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")クラスがあります。
-
-デフォルトの設定では、デモ・プロジェクトは11から始まる100個の整数を表示する。それぞれの新しい値は、古い値に11を掛けたものである。
+デフォルト設定では、デモプロジェクトは値11から始まる100個の整数の系列を表示します。各新しい値は古い値に11を掛けたものです。
 
 <CaptionImage
   src="/_images/tutorial_big_integer_screenshot1.png"
   caption="一連の大きな整数を表示するテストコンソール"
 />
 
-ご覧のように[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")クラスは確かに非常に大きな整数を表すことができる！ 符号付き32ビット整数（たとえば`int`ほとんどのコンパイラでは、この型は2,147,483,647までの数値を表すことができます。`int64`JUCEのタイプ）は、最大9,223,372,036,854,775,807まで表現できる！
+ご覧のように、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")クラスは確かに非常に大きな整数を表現できます！符号付き32ビット整数（例えば、ほとんどのコンパイラでの`int`型）は最大2,147,483,647までの数値を表現でき、64ビット整数（JUCEでの`int64`型）は「たった」9,223,372,036,854,775,807までを表現できます！
 
-## テストベッド・コード
+## テストベッドコード
 
-このチュートリアルでは、デモ・プロジェクトの一部を変更し、以下の機能のさまざまなデモンストレーションを行います。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")クラスである。これから説明するコードはすべて`MainComponent`クラスです。実際、すべての変更は`runExample()`関数である。
-
-```cpp
-    void runExample()
-    {
-        logMessage ("------------------------- START --------------------------");
- 
-        int base = 10;
-        juce::BigInteger bigInt = 11;
- 
-        for (auto iteration = 0; iteration < 100; ++iteration)
-        {
-            logMessage (bigInt.toString (base));
- 
-            bigInt *= 11;
-        }
- 
-        logMessage ("----------------------- FINISHED -------------------------");
-    }
-```
-
-ここでは[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトが11で初期化され、それを繰り返すたびに11が掛けられる。`for()`ループその`logMessage()`関数に渡された文字列を、単に[TextEditor](https://docs.juce.com/master/classTextEditor.html "編集可能なテキストボックス。")オブジェクトがある。
-
-テストベッドのコードを紹介したところで、次の操作を試してみましょう。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトがある。
-
-:::danger[エクササイズ]
-
-異なる幾何学的シーケンスを生成するために、異なる開始値と乗数を試してみてください。
-
-:::
-
-## バイナリーパターン
-
-について[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")クラスはバイナリ演算もサポートしている。実際[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")クラスはしばしばビットマスクとして使われる（例えば[AudioIODevice](https://docs.juce.com/master/classAudioIODevice.html "同期された入出力チャンネルを持つオーディオ・デバイスの基本クラス。")クラス使用[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトは、有効な入出力チャンネルを表します。[Tutorial: The AudioDeviceManager class](../../audio/tutorial_audio_device_manager/)).以下は[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")の値から始まる2進数（base-2を使用）の値 (`11`を2進数で表し、各反復ごとに1つ左へビットシフトする：
+このチュートリアル全体を通して、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")クラスのさまざまな機能を実証するためにデモプロジェクトの一部を変更します。議論中のすべてのコードは`MainComponent`クラス内にあります。実際、すべての変更は`runExample()`関数に対するものです。
 
 ```cpp
 void runExample()
 {
     logMessage ("------------------------- START --------------------------");
- 
-    int base = 2;
-    juce::BigInteger bigInt = 3;
- 
+
+    int base = 10;
+    juce::BigInteger bigInt = 11;
+
     for (auto iteration = 0; iteration < 100; ++iteration)
     {
         logMessage (bigInt.toString (base));
- 
-        bigInt = bigInt << 1;
+
+        bigInt *= 11;
     }
- 
+
     logMessage ("----------------------- FINISHED -------------------------");
 }
 ```
 
-ここでは、2つの1と多くの末尾のゼロを含む2進値が得られることがわかる：
+ここでは、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトが11に初期化され、`for()`ループの各反復で11を掛けています。`logMessage()`関数は単に渡された文字列を[TextEditor](https://docs.juce.com/master/classTextEditor.html "An editable text box.")オブジェクトに投稿します。
+
+テストベッドコードを紹介したので、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトに対するいくつかの操作を試すことができます。
+
+:::note
+演習：異なる開始値と乗数を試して、異なる等比数列を生成してみてください。
+:::
+
+## 2進数パターン
+
+[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")クラスは2進演算もサポートしています。実際、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")クラスはビットマスクとしてよく使用されます（例えば、[AudioIODevice](https://docs.juce.com/master/classAudioIODevice.html "Base class for an audio device with synchronised input and output channels.")クラスは有効な入力および出力チャンネルを表すために[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトを使用します --- [チュートリアル：AudioDeviceManagerクラス](../../audio/tutorial_audio_device_manager/)を参照）。以下は、値3（2進数で`11`）から始めて、各反復で1桁左にビットシフトしながら、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")値を2進数（基数2を使用）で表示する簡単な例です：
 
 ```cpp
+void runExample()
+{
+    logMessage ("------------------------- START --------------------------");
+
+    int base = 2;
+    juce::BigInteger bigInt = 3;
+
+    for (auto iteration = 0; iteration < 100; ++iteration)
+    {
+        logMessage (bigInt.toString (base));
+
+        bigInt = bigInt << 1;
+    }
+
+    logMessage ("----------------------- FINISHED -------------------------");
+}
+```
+
+ここでは、2つの1と多くの末尾の0を含む2進数値になることがわかります：
+
+```
 ...
 11000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -105,37 +101,34 @@ void runExample()
 ----------------------- FINISHED -------------------------
 ```
 
-:::danger[エクササイズ]
-
-開始ビットパターンを変えてみる。あるいは、非常に大きな値から始めて、代わりに徐々に右にビットシフトしてください。
-
+:::note
+演習：異なる開始ビットパターンを試してみてください。または、非常に大きな値から始めて、代わりに徐々に右にビットシフトしてみてください。
 :::
 
-ビットを個別に設定し、テストすることもできる。例えば、これは最初の30個の偶数ビットを設定し、その結果を2進数、10進数、16進数、8進数で表示する：
+ビットを個別に設定およびテストすることもできます。例えば、これは最初の30個の偶数番号のビットを設定し、結果を2進数、10進数、16進数、8進数で表示します：
 
 ```cpp
 void runExample()
 {
     logMessage ("------------------------- START --------------------------");
- 
+
     juce::BigInteger bigInt;
- 
+
     for (auto bit = 0; bit < 60; bit += 2)
         bigInt.setBit (bit);
- 
-    logMessage (juce::String ("binary: ")  + bigInt.toString (2));
+
+    logMessage (juce::String ("binary: ") + bigInt.toString (2));
     logMessage (juce::String ("decimal: ") + bigInt.toString (10));
-    logMessage (juce::String ("hex: ")     + bigInt.toString (16));
-    logMessage (juce::String ("octal: ")   + bigInt.toString (8));
- 
- 
+    logMessage (juce::String ("hex: ") + bigInt.toString (16));
+    logMessage (juce::String ("octal: ") + bigInt.toString (8));
+
     logMessage ("----------------------- FINISHED -------------------------");
 }
 ```
 
-結果はこうなるはずだ：
+結果は以下のようになるはずです：
 
-```cpp
+```
 ------------------------- START --------------------------
 binary: 10101010101010101010101010101010101010101010101010101010101
 decimal: 384307168202282325
@@ -144,88 +137,83 @@ octal: 25252525252525252525
 ----------------------- FINISHED -------------------------
 ```
 
-:::danger[エクササイズ]
-
-上記のコードを出発点として、さまざまなパターンのビットを設定してみてください。
-
+:::note
+演習：上記のコードを出発点として、異なるパターンのビットを設定してみてください。
 :::
 
-のビットをテストできる。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")あたかも[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトは`bool`値をテストします。この例では、幾何学的シーケンスを生成するためにオリジナルのコードを使用し、生成された各値に対してビット3をテストする：
+[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトが`bool`値の配列であるかのように、添字演算子を使用して[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトのビットをテストできます。この例では、元のコードを使用して等比数列を生成し、生成された各値のビット3をテストします：
 
 ```cpp
 void runExample()
 {
     logMessage ("------------------------- START --------------------------");
- 
+
     int base = 10;
     juce::BigInteger bigInt = 11;
- 
+
     for (auto iteration = 0; iteration < 100; ++iteration)
     {
         bool isBit3set = bigInt[3];
         logMessage (bigInt.toString (base) + " : " + (isBit3set ? "Bit 3 is set" : "Bit 3 is NOT set"));
- 
+
         bigInt *= 11;
     }
- 
+
     logMessage ("----------------------- FINISHED -------------------------");
 }
 ```
 
-これにより、C++の標準的なビット単位の演算子を使うよりも、コードがずっと読みやすくなる。ビットのセットとテストは[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")クラスでは、整数が小さくても役に立つ！
+これにより、C++の標準的なビット演算子を使用するよりもコードがはるかに読みやすくなります。[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")クラスを使用してビットを設定およびテストすることが非常に簡単なので、整数が小さくても便利です！
 
 ## 任意のデータ
 
-[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトを任意のデータに変換することもできます。[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "リサイズ可能な生データ・ブロックを保持するクラス。")オブジェクトに変換します。次の例は、文字列を[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "リサイズ可能な生データ・ブロックを保持するクラス。")オブジェクトを経由して[MemoryOutputStream](https://docs.juce.com/master/classMemoryOutputStream.html "内部メモリ・バッファにデータを書き込み、必要に応じてバッファを増やす。")オブジェクト)、そして[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")そして、最終的には[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトを経由して[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "リサイズ可能な生データ・ブロックを保持するクラス。")オブジェクトがある：
+[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトは、[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "A class to hold a resizable block of raw data.")オブジェクトを介して任意のデータとの間で変換することもできます。以下の例は、文字列を[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "A class to hold a resizable block of raw data.")オブジェクト（[MemoryOutputStream](https://docs.juce.com/master/classMemoryOutputStream.html "Writes data to an internal memory buffer, which grows as required.")オブジェクト経由）に変換し、次に[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")に変換し、最後に[MemoryBlock](https://docs.juce.com/master/classMemoryBlock.html "A class to hold a resizable block of raw data.")オブジェクトを介して[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトに戻します：
 
 ```cpp
 void runExample()
 {
     logMessage ("------------------------- START --------------------------");
- 
+
     juce::String originalText ("BigInteger objects are really useful for cryptography");
     logMessage ("Original text: ");
     logMessage (originalText);
     logMessage (newLine);
- 
+
     juce::MemoryOutputStream originalData;
     originalData << originalText;
- 
+
     juce::BigInteger originalInteger;
     originalInteger.loadFromMemoryBlock (originalData.getMemoryBlock());
- 
+
     logMessage ("Original text as a BigInteger: ");
     logMessage (originalInteger.toString (10));
     logMessage (newLine);
- 
+
     juce::MemoryBlock convertedData (originalInteger.toMemoryBlock());
     juce::String convertedString (convertedData.toString());
- 
+
     logMessage ("BigInteger converted back to a string: ");
     logMessage (convertedString);
- 
+
     logMessage ("----------------------- FINISHED -------------------------");
 }
-newLineNewLine newLineA predefined object representing a new-line, which can be written to a string or stream.
 ```
 
-アプリケーションのメッセージにある通りだ、[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトは暗号解読に本当に役に立つ。その[RSAKey](https://docs.juce.com/master/classRSAKey.html "RSA 公開鍵/秘密鍵ペア暗号化クラス。")クラスはその暗号アルゴリズムを[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトを使用してメッセージを暗号化・復号化する。
+アプリケーションのメッセージが示すように、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトは暗号に本当に便利です。[RSAKey](https://docs.juce.com/master/classRSAKey.html "RSA public/private key-pair encryption class.")クラスは、メッセージを暗号化および復号化するために[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトに暗号アルゴリズムを適用します。
 
-:::danger[エクササイズ]
-
-上のコードで文字列を変えて実験してみてください。例えば、長い文字列や短い文字列を使うとどうなるでしょうか？
-
+:::note
+演習：上記のコードで異なる文字列を試してみてください。例えば、より長いまたは短い文字列を使用すると何が起こりますか？
 :::
 
-## 概要
+## まとめ
 
-このチュートリアルでは[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")クラスです。このチュートリアルに従うと、次のことができるようになります：
+このチュートリアルでは、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")クラスを紹介しました。このチュートリアルに従った後、以下のことができるはずです：
 
-- 用途[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトに整数を格納し、通常の整数と同様に算術演算を適用する。
-- を変換する。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトを文字列に変換し、2進数、10進数、16進数、8進数で表示します。
-- の各ビットをテストし、設定する。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトがある。
-- 文字列やその他の任意のデータを、以下のように変換する。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトがある。
+- [BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトを使用して整数を格納し、通常の整数と同様に算術演算を適用する。
+- [BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトを2進数、10進数、16進数、8進数で表示するための文字列に変換する。
+- [BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトの個々のビットをテストおよび設定する。
+- 文字列やその他の任意のデータを[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトとの間で変換する。
 
-## 参照
+## 関連項目
 
-- [Tutorial: The Label class](../../interface-design/tutorial_label/)
+- [チュートリアル：Labelクラス](../../interface-design/tutorial_label/)

@@ -4,476 +4,461 @@ sidebar_position: 9
 tags: [中級]
 ---
 
-# アプリにOSCプロトコルを実装する
+# チュートリアル：アプリにOSCプロトコルを実装する
 
 <SourcePageLink path="tutorial_osc_sender_receiver" />
 
-Open Sound Controlプロトコルを利用して、複数のアプリケーションをネットワークで接続する方法をご紹介します。アプリケーション間のインタラクションデータの送受信
+Open Sound Controlプロトコルを活用して、ネットワーク上で複数のアプリケーションを接続する方法を学びます。アプリケーション間でインタラクションデータを送受信します。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [OSCSender](https://docs.juce.com/master/classOSCSender.html "An OSC message sender."), [OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "A class for receiving OSC data."), [OSCReceiver::Listener](https://docs.juce.com/master/classOSCReceiver_1_1Listener.html "A class for receiving OSC data from an OSCReceiver."), [OSCReceiver::ListenerWithOSCAddress](https://docs.juce.com/master/classOSCReceiver_1_1ListenerWithOSCAddress.html "A class for receiving only those OSC messages from an OSCReceiver that match a given OSC address."), [OSCMessage](https://docs.juce.com/master/classOSCMessage.html "An OSC Message."), [OSCBundle](https://docs.juce.com/master/classOSCBundle.html "An OSC bundle.")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [OSCSender](https://docs.juce.com/master/classOSCSender.html "OSCメッセージの送信者。"),[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。"),[OSCReceiver::Listener](https://docs.juce.com/master/classOSCReceiver_1_1Listener.html "OSCReceiverからOSCデータを受信するクラス。"),[OSCReceiver::ListenerWithOSCAddress](https://docs.juce.com/master/classOSCReceiver_1_1ListenerWithOSCAddress.html "OSCReceiverからのOSCメッセージのうち、指定されたOSCアドレスにマッチするものだけを受信するためのクラス。"),[OSCMessage](https://docs.juce.com/master/classOSCMessage.html "OSCメッセージ。"),[OSCBundle](https://docs.juce.com/master/classOSCBundle.html "OSCバンドル。")
+このチュートリアルに付属するいくつかのデモプロジェクトがあります。これらのプロジェクトのダウンロードリンクは、チュートリアルの関連セクションで提供されています。
 
-## スタート
+各セクションでこの手順についてサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルにはいくつかのデモ・プロジェクトがあります。これらのプロジェクトのダウンロード・リンクは、チュートリアルの関連セクションに記載されています。
+## デモプロジェクト
 
-各セクションのこのステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+このチュートリアルで提供されるデモプロジェクトは、OSCインタラクションに必要なさまざまなアプリケーションを示しています。要約すると、これらのアプリケーションは：
 
-## デモ・プロジェクト
+- OSC Sender：送信アプリケーションはロータリーノブを含み、他のインスタンスに情報を送信します。
+- OSC Receiver：受信アプリケーションは送信インスタンスに接続し、処理して表示するための情報を受信します。
+- OSC Monitor：モニターアプリケーションも送信インスタンスに接続しますが、インタラクションをより正確に監視およびログします。
 
-このチュートリアルで提供されるデモ・プロジェクトは、OSCとのインタラクションに必要な様々なアプリケーションを紹介します。要約すると、これらのアプリケーションは以下の通りです：
-
-- OSCセンダー：センダーアプリケーションにはロータリーノブがあり、他のインスタンスに情報を送信する。
-- OSCレシーバー：レシーバー・アプリケーションは、センダー・インスタンスに接続し、情報を受信して処理・表示する。
-- OSCモニター：モニター・アプリケーションも送信者インスタンスに接続するが、より正確にやりとりをモニターし、ログに記録する。
-
-:::note
-
-このチュートリアルが正しく機能するためには、送信側と受信側/モニター側のアプリケーションを同時に1つだけ開く必要があります。
-
-ここで紹介するコードは、JUCE ExamplesのOSCデモアプリとほぼ同様です。
-
+:::tip
+このチュートリアルが正しく機能するためには、送信アプリケーション1つと受信/モニターアプリケーション1つのみを同時に開く必要があります。
 :::
 
-## OSCトランスミッター
+:::note
+ここで紹介するコードは、JUCE ExamplesのOSCデモアプリと大まかに類似しています。
+:::
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/OSCSenderTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/OSCSenderTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## OSC Sender
 
-完成すると、OSCセンダー・アプリケーションは1つのロータリー・ノブを表示し、起動時にそれを操作できるようになる：
+このセクションのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/OSCSenderTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/OSCSenderTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
+
+完成すると、OSC送信アプリケーションは起動時にインタラクションできる単一のロータリーノブを表示します：
 
 <CaptionImage
   src="/_images/tutorial_osc_sender_receiver_screenshot1.png"
-  caption="OSC送信アプリのウィンドウ"
+  caption="OSC送信アプリウィンドウ"
 />
 
-### OSCトランスミッターの実装
+### OSC Senderの実装
 
-まずは送信者アプリケーションの実装から始めよう。
+送信アプリケーションの実装を始めましょう。
 
-の中で`MainContentComponent`クラスでは、まずこのアプリケーションのプライベート・メンバー変数を次のように宣言する：
+`MainContentComponent`クラスで、このアプリケーションのプライベートメンバー変数を以下のように宣言します：
 
 ```cpp
-    juce::Slider rotaryKnob;    // [1]
-    juce::OSCSender sender;     // [2]
- 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
+juce::Slider rotaryKnob; // [1]
+juce::OSCSender sender; // [2]
+
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-追加[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを使用してユーザーのインタラクションをキャプチャします。\[1\]そして[OSCSender](https://docs.juce.com/master/classOSCSender.html "OSCメッセージの送信者。")オブジェクトを後でレシーバーに接続する\[2\]。
+ユーザーインタラクションをキャプチャするための[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクト [1] と、後で受信機に接続するための[OSCSender](https://docs.juce.com/master/classOSCSender.html "An OSC message sender.")オブジェクト [2] を追加します。
 
-クラスのコンストラクタで、スライダー・パラメータを設定し、以下のようにネットワークへの接続を試みる：
+クラスコンストラクタで、スライダーのパラメータを設定し、以下のようにネットワークへの接続を試みます：
 
 ```cpp
-    MainContentComponent()
-    {
-        rotaryKnob.setRange (0.0, 1.0);
-        rotaryKnob.setSliderStyle (juce::Slider::RotaryVerticalDrag);
-        rotaryKnob.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 150, 25);
-        rotaryKnob.setBounds (10, 10, 180, 180);
-        addAndMakeVisible (rotaryKnob);             // [3]
+MainContentComponent()
+{
+    rotaryKnob.setRange (0.0, 1.0);
+    rotaryKnob.setSliderStyle (juce::Slider::RotaryVerticalDrag);
+    rotaryKnob.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 150, 25);
+    rotaryKnob.setBounds (10, 10, 180, 180);
+    addAndMakeVisible (rotaryKnob); // [3]
 ```
 
 ```cpp
-        // specify here where to send OSC messages to: host URL and UDP port number
-        if (! sender.connect ("127.0.0.1", 9001))   // [4]
-            showConnectionErrorMessage ("Error: could not connect to UDP port 9001.");
- 
-        setSize (200, 200);
-    }
+// OSCメッセージの送信先を指定：ホストURLとUDPポート番号
+if (!sender.connect ("127.0.0.1", 9001)) // [4]
+    showConnectionErrorMessage ("Error: could not connect to UDP port 9001.");
+
+setSize (200, 200);
+}
 ```
 
-- \[3\]スライダーの範囲、スタイル、境界を設定し[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")をこのクラスに加える。
-- \[4\]ここでは**ローカルホスト**またはIPアドレス "127.0.0.1 "をUDPポート番号9001で呼び出す。`connect()`関数を使用する。[OSCSender](https://docs.juce.com/master/classOSCSender.html "OSCメッセージの送信者。")オブジェクトを呼び出します。接続に失敗した場合は、プライベート関数`showConnectionErrorMessage()`エラーメッセージをユーザーに表示するために、後で宣言する。
+- [3]：スライダーの範囲、スタイル、境界を設定し、このクラスに[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")を追加します。
+- [4]：ここでは、[OSCSender](https://docs.juce.com/master/classOSCSender.html "An OSC message sender.")オブジェクトで`connect()`関数を呼び出すことで、**localhost**またはIPアドレス「127.0.0.1」のUDPポート番号9001に接続を試みます。接続が失敗した場合、後で宣言するプライベート関数`showConnectionErrorMessage()`を呼び出してユーザーにエラーメッセージを表示します。
 
-:::note
-
-このチュートリアルでは、後でレシーバーで指定する任意のポート番号で、開発マシンのローカル・ネットワークに接続する。
-
+:::tip
+このチュートリアルの目的のために、受信機で後で指定する任意のポート番号で開発マシンのローカルネットワークに接続します。
 :::
 
-次に[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "このコールバックオブジェクトにラムダを代入して、スライダーの値が変更されたときにコールさせることができます。")コールバック[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを作成し、OSCメッセージをレシーバー・アプリケーションに送信する：
+次に、受信アプリケーションにOSCメッセージを送信するために[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクトの[Slider::onValueChange](https://docs.juce.com/master/classSlider.html#a680d007f6a824a28a60aa05b4045e794 "You can assign a lambda to this callback object to have it called when the slider value is changed.")コールバックを以下のように実装します：
 
 ```cpp
-        rotaryKnob.onValueChange = [this]
-        {
-            // create and send an OSC message with an address and a float value:
-            if (! sender.send ("/juce/rotaryknob", (float) rotaryKnob.getValue()))
-                showConnectionErrorMessage ("Error: could not send OSC message.");
-        };
+rotaryKnob.onValueChange = [this] {
+    // アドレスとfloat値を持つOSCメッセージを作成して送信：
+    if (!sender.send ("/juce/rotaryknob", (float) rotaryKnob.getValue()))
+        showConnectionErrorMessage ("Error: could not send OSC message.");
+};
 ```
 
-ラムダ関数の中で`send()`関数を使用する。[OSCSender](https://docs.juce.com/master/classOSCSender.html "OSCメッセージの送信者。")オブジェクトのアドレスとロータリーノブの値\[5\].ここで"/juce/rotaryknob "として提供されるアドレスは、後で受信機でメッセージを分類することを可能にする。メッセージの送信に失敗した場合は、同じヘルパー関数`showConnectionErrorMessage()`をクリックするとエラーが表示されます。
+ラムダ関数で、アドレスとロータリーノブの値を指定して[OSCSender](https://docs.juce.com/master/classOSCSender.html "An OSC message sender.")オブジェクトの`send()`関数を使用してOSCメッセージを送信します [5]。ここで「/juce/rotaryknob」として提供されるアドレスにより、後で受信機でメッセージを分類できます。メッセージの送信に失敗した場合、同じヘルパー関数`showConnectionErrorMessage()`を呼び出してエラーを表示します。
 
-この機能を実装するには、関数`[AlertWindow::showMessageBoxAsync()](https://docs.juce.com/master/classAlertWindow.html#abf9c608d6e03ddf828fa9629cff1418b "Shows a dialog box that just has a message and a single button to get rid of it.")`:
+この関数は、[`AlertWindow::showMessageBoxAsync()`](https://docs.juce.com/master/classAlertWindow.html#abf9c608d6e03ddf828fa9629cff1418b "Shows a dialog box that just has a message and a single button to get rid of it.")関数を使用してダイアログボックスにエラーテキストを非同期で表示することで実装します：
 
 ```cpp
-    void showConnectionErrorMessage (const juce::String& messageText)
-    {
-        juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
-                                                "Connection error",
-                                                messageText,
-                                                "OK");
-    }
+void showConnectionErrorMessage (const juce::String& messageText)
+{
+    juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
+        "Connection error",
+        messageText,
+        "OK");
+}
 ```
 
-これで送信側の実装は完了した。
+送信機の実装が完了しました。
 
-:::note
-
-この修正版のソースコードは`OSCSenderTutorial_02.h`ファイルにある。
-
+:::tip
+このコードの変更版のソースコードは、デモプロジェクトの`OSCSenderTutorial_02.h`ファイルにあります。
 :::
 
-## OSCレシーバー
+## OSC Receiver
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/OSCReceiverTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/OSCReceiverTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このセクションのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/OSCReceiverTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/OSCReceiverTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-完成すると、OSCレシーバー・アプリケーションは、起動時に操作できない1つのロータリー・ノブを表示する：
+完成すると、OSC受信アプリケーションは起動時にインタラクションできない単一のロータリーノブを表示します：
 
 <CaptionImage
   src="/_images/tutorial_osc_sender_receiver_screenshot2.png"
-  caption="OSCレシーバーアプリのウィンドウ"
+  caption="OSC受信アプリウィンドウ"
 />
 
-### OSCレシーバーの実装
+### OSC Receiverの実装
 
-レシーバーを実装するには[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクト`MainContentComponent`クラスで、送り手のロータリー・ノブで行った変更を反映させる：
+受信機を実装するには、送信機のロータリーノブで行われた変更を反映するために`MainContentComponent`クラスで[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクトを宣言するだけです：
 
 ```cpp
-    //==============================================================================
-    juce::Slider rotaryKnob;
- 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
+//==============================================================================
+juce::Slider rotaryKnob;
+
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-を宣言する代わりに[OSCSender](https://docs.juce.com/master/classOSCSender.html "OSCメッセージの送信者。")オブジェクトをメンバーとして継承する。[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")のサブクラスとしてMainContentComponentを実装する。\[1\]:
+送信アプリケーションのように[OSCSender](https://docs.juce.com/master/classOSCSender.html "An OSC message sender.")オブジェクトをメンバーとして宣言する代わりに、今回は[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "A class for receiving OSC data.")を継承してMainContentComponentをサブクラスとして実装します [1]：
 
 ```cpp
-class MainContentComponent   : public juce::Component,
-                               private juce::OSCReceiver, // [1]
-                               private juce::OSCReceiver::ListenerWithOSCAddress // [2]
+class MainContentComponent : public juce::Component,
+                             private juce::OSCReceiver, // [1]
+                             private juce::OSCReceiver::ListenerWithOSCAddress<juce::OSCReceiver::MessageLoopCallback> // [2]
 {
 public:
 ```
 
-また、メッセージ受信時にコールバックを受け取るために、OSCReceiver::ListenerWithOSCAddress\<OSCReceiver::MessageLoopCallback\>を継承する必要があります。\[2\]。
+また、メッセージを受信したときにコールバックを受け取るためにOSCReceiver::ListenerWithOSCAddress\<OSCReceiver::MessageLoopCallback\>から継承する必要があります [2]。
 
-クラスのコンストラクタで、同じパラメータを[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")オブジェクトを作成する：
+クラスコンストラクタで、送信アプリケーションと同じパラメータを[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")オブジェクトに設定します：
 
 ```cpp
-    MainContentComponent()
-    {
-        rotaryKnob.setRange (0.0, 1.0);
-        rotaryKnob.setSliderStyle (juce::Slider::RotaryVerticalDrag);
-        rotaryKnob.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 150, 25);
-        rotaryKnob.setBounds (10, 10, 180, 180);
-        rotaryKnob.setInterceptsMouseClicks (false, false);
-        addAndMakeVisible (rotaryKnob);
- 
-        // specify here on which UDP port number to receive incoming OSC messages
-        if (! connect (9001))                       // [3]
-            showConnectionErrorMessage ("Error: could not connect to UDP port 9001.");
- 
-        // tell the component to listen for OSC messages matching this address:
-        addListener (this, "/juce/rotaryknob");     // [4]
- 
-        setSize (200, 200);
-    }
+MainContentComponent()
+{
+    rotaryKnob.setRange (0.0, 1.0);
+    rotaryKnob.setSliderStyle (juce::Slider::RotaryVerticalDrag);
+    rotaryKnob.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 150, 25);
+    rotaryKnob.setBounds (10, 10, 180, 180);
+    rotaryKnob.setInterceptsMouseClicks (false, false);
+    addAndMakeVisible (rotaryKnob);
+
+    // OSCメッセージを受信するUDPポート番号を指定
+    if (!connect (9001)) // [3]
+        showConnectionErrorMessage ("Error: could not connect to UDP port 9001.");
+
+    // このアドレスに一致するOSCメッセージをリッスンするようコンポーネントに指示：
+    addListener (this, "/juce/rotaryknob"); // [4]
+
+    setSize (200, 200);
+}
 ```
 
-のサブクラスとして[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")メッセージを受信するには、正しいポート番号に直接接続してください。\[3\]をリッスンするアドレスを提供し、このクラスを自分自身のリスナーとして登録する。\[4\]。
+[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "A class for receiving OSC data.")のサブクラスとして、メッセージを受信するための正しいポート番号に直接接続し [3]、リッスンするアドレスを提供してこのクラスを自分自身へのリスナーとして登録します [4]。
 
 :::warning
-
-ポート番号とOSCアドレスが送信側アプリケーションと一致していることを確認してください。
-
+ポート番号とOSCアドレスが送信アプリケーションと一致していることを確認してください。
 :::
 
-(1)の場合[OSCMessage](https://docs.juce.com/master/classOSCMessage.html "OSCメッセージ。")オブジェクトを受信すると`oscMessageReceived()`コールバック関数が呼び出される：
+[OSCMessage](https://docs.juce.com/master/classOSCMessage.html "An OSC Message.")オブジェクトが受信されると、`oscMessageReceived()`コールバック関数が呼び出されます：
 
 ```cpp
-    void oscMessageReceived (const juce::OSCMessage& message) override
-    {
-        if (message.size() == 1 && message[0].isFloat32())                              // [5]
-            rotaryKnob.setValue (juce::jlimit (0.0f, 10.0f, message[0].getFloat32()));  // [6]
-    }
+void oscMessageReceived (const juce::OSCMessage& message) override
+{
+    if (message.size() == 1 && message[0].isFloat32()) // [5]
+        rotaryKnob.setValue (juce::jlimit (0.0f, 10.0f, message[0].getFloat32())); // [6]
+}
 ```
 
-この関数をオーバーライドして、まずメッセージのサイズと値の型をチェックする。\[5\].次に、ロータリー・ノブの値を設定します。[Slider](https://docs.juce.com/master/classSlider.html "値を変更するためのスライダーコントロール。")範囲\[6\]。
+メッセージのサイズと値の型を最初にチェックしてこの関数をオーバーライドします [5]。次に、範囲が[Slider](https://docs.juce.com/master/classSlider.html "A slider control for changing a value.")の範囲に準拠していることを確認してロータリーノブの値を設定します [6]。
 
-接続に失敗した場合に備えて、送信側アプリケーションと同じエラー・ロギング機能を実装する：
+接続が失敗した場合に備えて、送信アプリケーションと同じエラーログ関数を実装します：
 
 ```cpp
-    void showConnectionErrorMessage (const juce::String& messageText)
-    {
-        juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
-                                                "Connection error",
-                                                messageText,
-                                                "OK");
-    }
+void showConnectionErrorMessage (const juce::String& messageText)
+{
+    juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
+        "Connection error",
+        messageText,
+        "OK");
+}
 ```
 
-これで、両方のアプリケーションを起動したときに、送信側ノブを動かして受信側ノブをコントロールできるはずです。
+これで、両方のアプリケーションが起動しているときに、送信ノブを動かすことで受信ノブを制御できるはずです。
 
-:::note
-
-この修正版のソースコードは`OSCReceiverTutorial_02.h`ファイルにある。
-
+:::tip
+このコードの変更版のソースコードは、デモプロジェクトの`OSCReceiverTutorial_02.h`ファイルにあります。
 :::
 
-## OSCモニター
+## OSC Monitor
 
-このセクションのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/OSCMonitorTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/OSCMonitorTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+このセクションのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/OSCMonitorTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/OSCMonitorTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-完了すると、OSCモニターアプリケーションはやりとりを記録するウィンドウを表示します。送信者インスタンスなしで最初に起動した場合、モニター・アプリケーションは接続できず、ウィンドウは次のように表示されます：
+完成すると、OSCモニターアプリケーションはインタラクションをログするウィンドウを表示します。送信インスタンスなしで最初に起動すると、モニターアプリケーションは接続できず、ウィンドウは以下のようになります：
 
 <CaptionImage
   src="/_images/tutorial_osc_sender_receiver_screenshot3.png"
-  caption="OSCモニターアプリのウィンドウ"
+  caption="OSCモニターアプリウィンドウ"
 />
 
-センダー・インスタンスの実行中に起動すると、モニター・アプリケーションはそのインスタンスに接続できるようになり、ウィンドウは次のように表示されます：
+送信インスタンスが実行されている間に起動すると、モニターアプリケーションはそれに接続でき、ウィンドウは以下のようになります：
 
 <CaptionImage
   src="/_images/tutorial_osc_sender_receiver_screenshot4.png"
-  caption="OSCモニターアプリのウィンドウ"
+  caption="OSCモニターアプリウィンドウ"
 />
 
-### OSCモニター実施
+### OSC Monitorの実装
 
-を表示する別のタイプのレシーバーを実装してみよう。[OSCMessage](https://docs.juce.com/master/classOSCMessage.html "OSCメッセージ。")オブジェクトをテキストとして扱う。
+[OSCMessage](https://docs.juce.com/master/classOSCMessage.html "An OSC Message.")オブジェクトをテキストとして表示する異なるタイプの受信機を実装しましょう。
 
-の中で`MainContentComponent`クラスを継承していることがわかります。[OSCReceiver::Listener](https://docs.juce.com/master/classOSCReceiver_1_1Listener.html "OSCReceiverからOSCデータを受信するクラス。")クラス\[1\].を継承していないことに注意してほしい。[OSCReceiver::ListenerWithOSCAddress](https://docs.juce.com/master/classOSCReceiver_1_1ListenerWithOSCAddress.html "OSCReceiverからのOSCメッセージのうち、指定されたOSCアドレスにマッチするものだけを受信するためのクラス。")アドレスに関係なく送信されたすべてのメッセージを受信したいからだ：
+`MainContentComponent`クラスで、クラスが[OSCReceiver::Listener](https://docs.juce.com/master/classOSCReceiver_1_1Listener.html "A class for receiving OSC data from an OSCReceiver.")クラスから継承していることがわかります [1]。アドレスに関係なく送信されるすべてのメッセージを受信したいため、[OSCReceiver::ListenerWithOSCAddress](https://docs.juce.com/master/classOSCReceiver_1_1ListenerWithOSCAddress.html "A class for receiving only those OSC messages from an OSCReceiver that match a given OSC address.")からは継承しないことに注意してください：
 
 ```cpp
-class MainContentComponent   : public juce::Component,
-                               private juce::OSCReceiver::Listener // [1]
+class MainContentComponent : public juce::Component,
+                             private juce::OSCReceiver::Listener<juce::OSCReceiver::MessageLoopCallback> // [1]
 {
 public:
 ```
 
-OSCLogListBoxと[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")オブジェクトをプライベート・メンバー変数として使用します。\[2\]を定義し、ポート番号を格納する一時的なint変数を定義する。\[3\]以下の通りである：
+OSCLogListBoxと[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "A class for receiving OSC data.")オブジェクトをプライベートメンバー変数として宣言し [2]、以下に示すようにポート番号を保存するための一時的なint変数を定義します [3]：
 
 ```cpp
-    OSCLogListBox oscLogListBox;        // [2]
-    juce::OSCReceiver oscReceiver;
- 
-    int currentPortNumber = -1;         // [3]
+OSCLogListBox oscLogListBox; // [2]
+juce::OSCReceiver oscReceiver;
+
+int currentPortNumber = -1; // [3]
 ```
 
-コンストラクターで、対応するパラメーターを以下のように設定する：
+コンストラクタで、対応するパラメータを以下のように設定します：
 
 ```cpp
-    MainContentComponent()
+MainContentComponent()
+{
+```
+
+```cpp
+oscLogListBox.setBounds (0, 60, 700, 340); // [4]
+addAndMakeVisible (oscLogListBox);
+
+oscReceiver.addListener (this); // [5]
+oscReceiver.registerFormatErrorHandler ([this] (const char* data, int dataSize) // [6]
     {
+        oscLogListBox.addInvalidOSCPacket (data, dataSize);
+    });
+
+setSize (700, 400);
+}
 ```
 
+- [4]：OSCLogListBoxに境界を設定し、[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")を表示します。
+- [5]：コールバックを受け取るために、このクラスを[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "A class for receiving OSC data.")オブジェクトのリスナーとして追加します。
+- [6]：ラムダ関数を使用して[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "A class for receiving OSC data.")にカスタムエラーハンドラフォーマットをインストールします。ここでは、パースに失敗したデータへのポインタとそのサイズをOSCLogListBoxオブジェクトに提供します。
+
+モニターアプリケーションのユーザーインターフェースでボタンがクリックされると、次のステップで実装する対応する関数を呼び出します。
+
+ユーザーが「connect」ボタンをクリックすると、アプリケーションの状態に応じて接続/切断する必要があります [7]。さらに、「connect」ボタンが押されるたびに、ここに示すように`updateConnectionStatusLabel()`ヘルパー関数を呼び出します [8]：
+
 ```cpp
-        oscLogListBox.setBounds (0, 60, 700, 340);  // [4]
-        addAndMakeVisible (oscLogListBox);
- 
-        oscReceiver.addListener (this);             // [5]
-        oscReceiver.registerFormatErrorHandler ([this] (const char* data, int dataSize) // [6]
-                                                {
-                                                    oscLogListBox.addInvalidOSCPacket (data, dataSize);
-                                                });
- 
-        setSize (700, 400);
+void connectButtonClicked()
+{
+    if (!isConnected()) // [7]
+        connect();
+    else
+        disconnect();
+
+    updateConnectionStatusLabel(); // [8]
+}
+```
+
+ステータスラベルを更新するには、以下のように接続状態に応じてテキストと色を変更するだけです：
+
+```cpp
+void updateConnectionStatusLabel()
+{
+    juce::String text = "Status: ";
+
+    if (isConnected())
+        text += "Connected to UDP port " + juce::String (currentPortNumber);
+    else
+        text += "Disconnected";
+
+    auto textColour = isConnected() ? juce::Colours::green : juce::Colours::red;
+```
+
+接続状態を判断するには、ポート番号がデフォルト値の-1から変更されたかどうかを確認します：
+
+```cpp
+bool isConnected() const
+{
+    return currentPortNumber != -1;
+}
+```
+
+それ以外の場合、ユーザーが「clear」ボタンを押すと、OSCLogListBoxにクリア命令を送信して画面ログをリセットするだけです：
+
+```cpp
+void clearButtonClicked()
+{
+    oscLogListBox.clear();
+}
+```
+
+送信アプリケーションに接続するために、`connect()`関数を実装しましょう：
+
+```cpp
+void connect()
+{
+    auto portToConnect = portNumberField.getText().getIntValue(); // [9]
+
+    if (!isValidOscPort (portToConnect)) // [10]
+    {
+        handleInvalidPortNumberEntered();
+        return;
     }
+
+    if (oscReceiver.connect (portToConnect)) // [11]
+    {
+        currentPortNumber = portToConnect;
+        connectButton.setButtonText ("Disconnect");
+    }
+    else // [12]
+    {
+        handleConnectError (portToConnect);
+    }
+}
 ```
 
-- \[4\]OSCLogListBoxに境界を設定して[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")が見える。
-- \[5\]このクラスを[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")オブジェクトでコールバックを受け取ります。
-- \[6\]: カスタムエラーハンドラフォーマットを[OSCReceiver](https://docs.juce.com/master/classOSCReceiver.html "OSCデータを受信するためのクラス。")をラムダ関数で返します。ここでは、解析に失敗したデータへのポインタとそのサイズをOSCLogListBoxオブジェクトに渡している。
+- [9]：ポート番号テキストをint値に変換し、一時変数に保存します。
+- [10]：ポート番号が無効な場合、`handleInvalidPortNumberEntered()`ヘルパー関数を使用してエラーメッセージを表示します。
+- [11]：それ以外の場合、ポート番号が有効であることを意味し、接続を試みることができます。接続が成功した場合、一時ポート番号変数を正しい値に更新し、「connect」ボタンのテキストを変更します。
+- [12]：接続が失敗した場合、対応する`handleConnectError()`ヘルパー関数を呼び出してエラーを表示します。
 
-モニター・アプリケーションのユーザー・インタフェース上でボタンがクリックされると、次のステップで実装する対応する関数を呼び出します。
-
-ユーザーが "connect "ボタンをクリックした場合、アプリケーションの状態に応じて接続/切断を行う。\[7\].さらに、「接続」ボタンが押されるたびに`updateConnectionStatusLabel()`ヘルパー関数\[8\]この通りである：
+ポート番号が有効であることを確認するには、範囲が`1 .. 65535`の範囲内（両端を含む）かどうかを確認します：
 
 ```cpp
-    void connectButtonClicked()
-    {
-        if (! isConnected())            // [7]
-            connect();
-        else
-            disconnect();
- 
-        updateConnectionStatusLabel();  // [8]
-    }
+bool isValidOscPort (int port) const
+{
+    return port > 0 && port < 65536;
+}
 ```
 
-ステータス・ラベルを更新するには、以下のように接続状態に応じてテキストと色を変更するだけです：
+ネットワークから切断するには、切断が成功したかどうかを確認し、成功した場合はポート番号を-1にリセットして「connect」ボタンのテキストを変更します [13]。それ以外の場合は、`handleDisconnectError()`ヘルパー関数を呼び出します [14]：
 
 ```cpp
-    void updateConnectionStatusLabel()
+void disconnect()
+{
+    if (oscReceiver.disconnect()) // [13]
     {
-        juce::String text = "Status: ";
- 
-        if (isConnected())
-            text += "Connected to UDP port " + juce::String (currentPortNumber);
-        else
-            text += "Disconnected";
- 
-        auto textColour = isConnected() ? juce::Colours::green : juce::Colours::red;
+        currentPortNumber = -1;
+        connectButton.setButtonText ("Connect");
+    }
+    else
+    {
+        handleDisconnectError(); // [14]
+    }
+}
 ```
 
-接続状態を判断するために、ポート番号がデフォルト値の-1から変更されたかどうかをチェックする：
+[OSCMessage](https://docs.juce.com/master/classOSCMessage.html "An OSC Message.")が受信されると、以下のコールバック関数が呼び出され、メッセージの内容をOSCLogListBoxに転送します：
 
 ```cpp
-    bool isConnected() const
-    {
-        return currentPortNumber != -1;
-    }
+void oscMessageReceived (const juce::OSCMessage& message) override
+{
+    oscLogListBox.addOSCMessage (message);
+}
 ```
 
-そうでなければ、ユーザーが "clear "ボタンを押したとき、単純にOSCLogListBoxにclear命令を送り、スクリーン・ログをリセットする：
+[OSCBundle](https://docs.juce.com/master/classOSCBundle.html "An OSC bundle.")が受信されると、異なるコールバック関数が呼び出され、バンドルの内容をOSCLogListBoxに転送します：
 
 ```cpp
-    void clearButtonClicked()
-    {
-        oscLogListBox.clear();
-    }
+void oscBundleReceived (const juce::OSCBundle& bundle) override
+{
+    oscLogListBox.addOSCBundle (bundle);
+}
 ```
 
-送信側アプリケーションに接続するために`connect()`関数である：
+各タイプのエラーに対してメッセージボックスを表示して実装を完了します：
 
 ```cpp
-    void connect()
-    {
-        auto portToConnect = portNumberField.getText().getIntValue();   // [9]
- 
-        if (! isValidOscPort (portToConnect))                           // [10]
-        {
-            handleInvalidPortNumberEntered();
-            return;
-        }
- 
-        if (oscReceiver.connect (portToConnect))                        // [11]
-        {
-            currentPortNumber = portToConnect;
-            connectButton.setButtonText ("Disconnect");
-        }
-        else                                                            // [12]
-        {
-            handleConnectError (portToConnect);
-        }
-    }
+//==============================================================================
+void handleConnectError (int failedPort)
+{
+    juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
+        "OSC Connection error",
+        "Error: could not connect to port " + juce::String (failedPort),
+        "OK");
+}
+
+//==============================================================================
+void handleDisconnectError()
+{
+    juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
+        "Unknown error",
+        "An unknown error occured while trying to disconnect from UDP port.",
+        "OK");
+}
+
+//==============================================================================
+void handleInvalidPortNumberEntered()
+{
+    juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
+        "Invalid port number",
+        "Error: you have entered an invalid UDP port number.",
+        "OK");
+}
 ```
 
-- \[9\]ポート番号のテキストをint値に変換し、一時変数に格納する。
-- \[10\]ポート番号が無効な場合は、次のようなエラーメッセージを表示します。`handleInvalidPortNumberEntered()`ヘルパー関数。
-- \[11\]そうでなければ、ポート番号が有効であることを意味し、接続を試みることができる。接続に成功したら、一時的なポート番号変数を正しい値に更新し、「接続」ボタンのテキストを変更する。
-- \[12\]接続に失敗した場合は、対応する`handleConnectError()`ヘルパー関数でエラーを表示する。
-
-ポート番号が有効であることを確認するために、以下の範囲に該当するかどうかをチェックしてください。1 ..65535包括的だ：
-
-```cpp
-    bool isValidOscPort (int port) const
-    {
-        return port > 0 && port < 65536;
-    }
-```
-
-ネットワークから切断するには、切断が成功したかどうかを確認し、成功した場合はポート番号を-1にリセットし、「接続」ボタンのテキストを変更する。\[13\].それ以外の場合は`handleDisconnectError()`ヘルパー関数\[14\]:
-
-```cpp
-    void disconnect()
-    {
-        if (oscReceiver.disconnect())   // [13]
-        {
-            currentPortNumber = -1;
-            connectButton.setButtonText ("Connect");
-        }
-        else
-        {
-            handleDisconnectError();    // [14]
-        }
-    }
-```
-
-(1)の場合[OSCMessage](https://docs.juce.com/master/classOSCMessage.html "OSCメッセージ。")を受信すると、以下のコールバック関数が呼び出され、メッセージの内容がOSCLogListBoxに転送される：
-
-```cpp
-    void oscMessageReceived (const juce::OSCMessage& message) override
-    {
-        oscLogListBox.addOSCMessage (message);
-    }
-```
-
-もし[OSCBundle](https://docs.juce.com/master/classOSCBundle.html "OSCバンドル。")を受信すると、別のコールバック関数が呼び出され、バンドルの内容をOSCLogListBoxに転送する：
-
-```cpp
-    void oscBundleReceived (const juce::OSCBundle& bundle) override
-    {
-        oscLogListBox.addOSCBundle (bundle);
-    }
-```
-
-エラーの種類ごとにメッセージボックスを表示し、実装を完了する：
-
-```cpp
-    //==============================================================================
-    void handleConnectError (int failedPort)
-    {
-        juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
-                                                "OSC Connection error",
-                                                "Error: could not connect to port " + juce::String (failedPort),
-                                                "OK");
-    }
- 
-    //==============================================================================
-    void handleDisconnectError()
-    {
-        juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
-                                                "Unknown error",
-                                                "An unknown error occured while trying to disconnect from UDP port.",
-                                                "OK");
-    }
- 
-    //==============================================================================
-    void handleInvalidPortNumberEntered()
-    {
-        juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
-                                                "Invalid port number",
-                                                "Error: you have entered an invalid UDP port number.",
-                                                "OK");
-    }
-```
-
-これで、送信側のロータリー・ノブが操作されると、モニター・アプリケーションは受信したすべてのメッセージをログに記録し、ウィンドウは次のようになります：
+これで、送信ロータリーノブを操作すると、モニターアプリケーションは受信したすべてのメッセージをログし、ウィンドウは以下のようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_osc_sender_receiver_screenshot5.png"
-  caption="OSCモニターアプリのウィンドウ"
+  caption="OSCモニターアプリウィンドウ"
 />
 
+:::tip
+このコードの変更版のソースコードは、デモプロジェクトの`OSCMonitorTutorial_02.h`ファイルにあります。
+:::
+
 :::note
-
-この修正版のソースコードは`OSCMonitorTutorial_02.h`ファイルにある。
-
+演習：[ToggleButton](https://docs.juce.com/master/classToggleButton.html "A button that can be toggled on/off.")や[ComboBox](https://docs.juce.com/master/classComboBox.html "A component that lets the user choose from a drop-down list of choices.")オブジェクトなどの他のGUIコンポーネントを使用して、異なるOSCメッセージを処理するように送信機と受信機アプリケーションを変更してください。
 :::
 
-:::danger[エクササイズ]
+## まとめ
 
-以下のような他のGUIコンポーネントを使用して、異なるOSCメッセージを扱うように送信側と受信側のアプリケーションを修正する。[ToggleButton](https://docs.juce.com/master/classToggleButton.html "オン／オフを切り替えられるボタン。")または[ComboBox](https://docs.juce.com/master/classComboBox.html "ドロップダウンリストの選択肢からユーザーを選択させるコンポーネント。")オブジェクトがある。
+このチュートリアルでは、アプリケーションインスタンス間で情報を送信するためにOSCプロトコルを実装する方法を学びました。特に、以下のことを行いました：
 
-:::
+- 送信アプリケーションでロータリーノブを使用してOSCメッセージを送信しました。
+- 受信アプリケーションに接続し、対応するメッセージを処理しました。
+- モニターアプリケーションを使用してOSCインタラクションを詳細に表示しました。
 
-## 概要
+## 関連項目
 
-このチュートリアルでは、アプリケーション・インスタンス間で情報を送信するためのOSCプロトコルの実装方法を学びました。特に
-
-- 送信側アプリケーションのロータリーノブを使ってOSCメッセージを送信。
-- レシーバー・アプリケーションに接続し、対応するメッセージを処理する。
-- モニター・アプリケーションを使用して、OSCとのやりとりを冗長な方法で表示。
-
-## 参照
-
-- [Tutorial: The Slider class](../../interface-design/tutorial_slider_values/)
-- [Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)
-- [Tutorial: Customise the look and feel of your app](../../interface-design/tutorial_look_and_feel_customisation/)
+- [チュートリアル：Sliderクラス](../../interface-design/tutorial_slider_values/)
+- [チュートリアル：リスナーとブロードキャスター](../../interface-design/tutorial_listeners_and_broadcasters/)
+- [チュートリアル：アプリのルック＆フィールをカスタマイズする](../../interface-design/tutorial_look_and_feel_customisation/)

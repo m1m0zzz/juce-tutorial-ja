@@ -1,118 +1,114 @@
 ---
-title: UndoManagerとValueTreeの併用
+title: ValueTreeでUndoManagerを使用する
 sidebar_position: 5
 tags: [中級]
 ---
 
-# ValueTreeでUndoManagerを使う
+# チュートリアル：ValueTreeでUndoManagerを使用する
 
 <SourcePageLink path="tutorial_undo_manager_value_tree" />
 
-アプリケーションに取り消し/やり直しアクションを実装します。で以前の中間状態を簡単に復元できます。[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "UndoManagerクラスが、実行と取り消しが可能なアクションを保存するために使用します。")オブジェクトを作成し、取り消し可能なアクションをトランザクションにグループ化する方法を学ぶ。
+アプリケーションにアンドゥ/リドゥアクションを実装します。[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "Used by the UndoManager class to store an action which can be done and undone.")オブジェクトを使用して以前の中間状態を簡単に復元し、アンドゥ可能なアクションをトランザクションとしてグループ化する方法を学びます。
 
-レベル：中級
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands."), [UndoableAction](https://docs.juce.com/master/classUndoableAction.html "Used by the UndoManager class to store an action which can be done and undone."), [ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ..."), [TreeView](https://docs.juce.com/master/classTreeView.html "A tree-view component."), [TreeViewItem](https://docs.juce.com/master/classTreeViewItem.html "An item in a TreeView.")
 
-プラットフォーム：Windows, macOS, Linux
+## はじめに
 
-クラス： [UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。"),[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "UndoManagerクラスが、実行と取り消しが可能なアクションを保存するために使用します。"),[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。"),[TreeView](https://docs.juce.com/master/classTreeView.html "ツリービューコンポーネント。"),[TreeViewItem](https://docs.juce.com/master/classTreeViewItem.html "TreeViewのアイテム。")
+このチュートリアルは、[チュートリアル：ValueTreeクラス](../tutorial_value_tree/)で説明されている[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトの基本的な理解を前提としています。まだ読んでいない場合は、最初にそのチュートリアルを読む必要があります。
 
-## スタート
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/UndoManagerValueTreeTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/UndoManagerValueTreeTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-このチュートリアルでは[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")で説明されているように[Tutorial: The ValueTree class](../tutorial_value_tree/).もしまだなら、まずそのチュートリアルを読むべきだ。
+この手順についてサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/UndoManagerValueTreeTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/UndoManagerValueTreeTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップにヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-## デモ・プロジェクト
-
-このデモ・プロジェクトは[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")クラスは[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")過去の歴史がいかに簡単に復元できるかを示すために。それは[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")データをツリー構造として扱うには[TreeView](https://docs.juce.com/master/classTreeView.html "ツリービューコンポーネント。")そして[TreeViewItem](https://docs.juce.com/master/classTreeViewItem.html "TreeViewのアイテム。")クラスを作成します。プロジェクトをビルドして実行すると、このように表示されるはずだ：
+デモプロジェクトは、過去の履歴を簡単に復元できることを示すために、[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトと組み合わせて[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")クラスの使用を説明しています。[TreeView](https://docs.juce.com/master/classTreeView.html "A tree-view component.")と[TreeViewItem](https://docs.juce.com/master/classTreeViewItem.html "An item in a TreeView.")クラスを使用して、[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")データをツリー構造として表示します。プロジェクトをビルドして実行すると、以下のようなものが表示されるはずです：
 
 <CaptionImage
   src="/_images/tutorial_undo_manager_value_tree_screenshot1.png"
-  caption="デモプロジェクトのアプリケーション・ウィンドウ"
+  caption="デモプロジェクトのアプリケーションウィンドウ"
 />
 
-現時点では、ドラッグ&ドロップで[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードを作成し、データ構造の階層を変更できます。子ノードを展開したり折りたたんだりすることもできるが、変更を元に戻したりやり直したりすることはできない。この機能を[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")クラスである。
+現時点では、[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")ノードをドラッグアンドドロップしてデータ構造の階層を変更できます。また、子を展開したり折りたたんだりできますが、変更をアンドゥおよびリドゥすることはできません。[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")クラスを使用してその機能を実装してみましょう。
 
-:::note
-
-ここで紹介するコードは、大まかに以下のものと似ている。**バリューツリーデモ**JUCEデモより。
-
+:::tip
+ここで紹介するコードは、JUCE Demoの**ValueTreesDemo**と大まかに類似しています。
 :::
 
-## 元に戻す／やり直しボタンの追加
+## アンドゥ/リドゥボタンの追加
 
-まず、次の2つを加えてみよう。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトをユーザー・インタフェースに追加し、アンドゥとリドゥの機能を使えるようにしました。このセクションではラムダ関数に慣れている必要があります。[Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)チュートリアル
+まず、アンドゥとリドゥ機能を許可するために、ユーザーインターフェースに2つの[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")オブジェクトを追加しましょう。このセクションではラムダ関数に精通している必要があり、これらの手順についてサポートが必要な場合は、[チュートリアル：リスナーとブロードキャスター](../../interface-design/tutorial_listeners_and_broadcasters/)を参照できます。
 
-の中で`MainContentComponent`クラスを宣言します。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")各ボタンの変数\[1\]:
-
-```cpp
-    juce::TreeView tree;
-    juce::TextButton undoButton, redoButton;    // [1]
-    std::unique_ptr rootItem;
-```
-
-コンストラクタのメンバー初期化リストで、以下のテキストを設定する。[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクト\[2\]:
+`MainContentComponent`クラスで、各ボタンの[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")変数を宣言します [1]：
 
 ```cpp
-    MainContentComponent()
-        : undoButton ("Undo"),
-          redoButton ("Redo")   // [2]
-    {
+juce::TreeView tree;
+juce::TextButton undoButton, redoButton; // [1]
+std::unique_ptr<ValueTreeItem> rootItem;
 ```
 
-最後に、ボタンを表示させます。\[3\]に割り当てるラムダ関数を準備する。[Button::onClick](https://docs.juce.com/master/classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "このコールバック・オブジェクトにラムダを代入すると、ボタンがクリックされたときに呼び出されるようになります。")ヘルパーオブジェクト\[4\]:
+コンストラクタのメンバー初期化リストで、[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")オブジェクトのテキストを設定します [2]：
+
+```cpp
+MainContentComponent()
+    : undoButton ("Undo"),
+      redoButton ("Redo") // [2]
+{
+```
+
+最後に、ボタンを表示可能にし [3]、[Button::onClick](https://docs.juce.com/master/classButton.html#a30b76ab312dc7f66e67596ae20540ec2 "You can assign a lambda to this callback object to have it called when the button is clicked.")ヘルパーオブジェクトに割り当てるラムダ関数を準備します [4]：
 
 ```cpp
 //...
 addAndMakeVisible (undoButton);
-addAndMakeVisible (redoButton);          // [3]
-undoButton.onClick = [this] {  };
-redoButton.onClick = [this] {  };        // [4]
- 
+addAndMakeVisible (redoButton); // [3]
+undoButton.onClick = [this] {};
+redoButton.onClick = [this] {}; // [4]
+
 setSize (600, 400);
 ```
 
-次に、ボタンの境界を`resized()`メソッドを使用する：
+次に、`resized()`メソッドでボタンの境界を設定できます：
 
 ```cpp
-    void resized() override
-    {
-        // This is called when the MainContentComponent is resized.
-        // If you add any child components, this is where you should
-        // update their positions.
- 
-        auto r = getLocalBounds();
- 
-        auto buttons = r.removeFromBottom (20);
-        undoButton.setBounds (buttons.removeFromLeft (100));
-        redoButton.setBounds (buttons.removeFromLeft (100));
- 
-        tree.setBounds (r);
-    }
+void resized() override
+{
+    // これはMainContentComponentがリサイズされるときに呼び出されます。
+    // 子コンポーネントを追加する場合、ここでそれらの位置を
+    // 更新する必要があります。
+
+    auto r = getLocalBounds();
+
+    auto buttons = r.removeFromBottom (20);
+    undoButton.setBounds (buttons.removeFromLeft (100));
+    redoButton.setBounds (buttons.removeFromLeft (100));
+
+    tree.setBounds (r);
+}
 ```
 
 ## UndoManagerインスタンスを引数として渡す
 
-以来[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスはアンドゥ／リドゥの動作を自動的に処理する。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")インスタンスをパラメータとして登録します。[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "UndoManagerクラスが、実行と取り消しが可能なアクションを保存するために使用します。")オブジェクトのインスタンスを宣言する。これを実装するには、まず[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")クラス\[1\]:
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスはアンドゥ/リドゥ動作を自動的に処理するため、[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "Used by the UndoManager class to store an action which can be done and undone.")オブジェクトを登録するには[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")インスタンスをパラメータとして渡すだけです。これを実装するには、まず[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")クラスのインスタンスを宣言します [1]：
 
 ```cpp
-    juce::UndoManager undoManager;              // [1]
+juce::UndoManager undoManager; // [1]
 ```
 
-次に、対応するアンドゥ／リドゥの動作を処理するために、ボタンがクリックされたときに呼び出される関数を代入する。ラムダ関数では、それぞれ`[UndoManager::undo()](https://docs.juce.com/master/classUndoManager.html#a39f45c284e8d0df1a0d378e676246931 "Tries to roll-back the last transaction.")`そして`[UndoManager::redo()](https://docs.juce.com/master/classUndoManager.html#aaea507a3b9eaea3360c0e393edf69ccb "Tries to redo the last transaction that was undone.")`以下の通りである：
+次に、対応するアンドゥ/リドゥ動作を処理するためにボタンがクリックされたときに呼び出される関数を割り当てます。ラムダ関数で、それぞれ[`UndoManager::undo()`](https://docs.juce.com/master/classUndoManager.html#a39f45c284e8d0df1a0d378e676246931 "Tries to roll-back the last transaction.")と[`UndoManager::redo()`](https://docs.juce.com/master/classUndoManager.html#aaea507a3b9eaea3360c0e393edf69ccb "Tries to redo the last transaction that was undone.")を以下のように呼び出します：
 
 ```cpp
-        addAndMakeVisible (undoButton);
-        addAndMakeVisible (redoButton);                         // [3]
-        undoButton.onClick = [this] { undoManager.undo(); };
-        redoButton.onClick = [this] { undoManager.redo(); };    // [4]
- 
-        setSize (600, 400);
+addAndMakeVisible (undoButton);
+addAndMakeVisible (redoButton); // [3]
+undoButton.onClick = [this] { undoManager.undo(); };
+redoButton.onClick = [this] { undoManager.redo(); }; // [4]
+
+setSize (600, 400);
 ```
 
-の中で`ValueTreeItem`クラスへの参照も保持する。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")インスタンス\[2\]:
+`ValueTreeItem`クラスでは、[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")インスタンスへの参照も保持します [2]：
 
 ```cpp
 private:
@@ -120,129 +116,122 @@ private:
     juce::UndoManager& undoManager; // [2]
 ```
 
-クラス・コンストラクタのメンバー初期化リストに[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")参照\[3\]:
+クラスコンストラクタのメンバー初期化リストで、[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")参照を割り当てます [3]：
 
 ```cpp
-    ValueTreeItem (const juce::ValueTree& v, juce::UndoManager& um)
-        : tree (v), undoManager (um)    // [3]
-    {
+ValueTreeItem (const juce::ValueTree& v, juce::UndoManager& um)
+    : tree (v), undoManager (um) // [3]
+{
 ```
 
-ValueTreeItemのサブ項目が再帰的に作成されるときは、必ず[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")インスタンス\[4\]:
+ValueTreeItemのサブアイテムが再帰的に作成されるたびに、[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")インスタンスを渡す必要があります [4]：
 
 ```cpp
-    void refreshSubItems()
-    {
-        clearSubItems();
- 
-        for (auto i = 0; i < tree.getNumChildren(); ++i)
-            addSubItem (new ValueTreeItem (tree.getChild (i), undoManager));    // [4]
-    }
+void refreshSubItems()
+{
+    clearSubItems();
+
+    for (auto i = 0; i < tree.getNumChildren(); ++i)
+        addSubItem (new ValueTreeItem (tree.getChild (i), undoManager)); // [4]
+}
 ```
 
-これで、ルートValueTreeItemをインスタンス化できます。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")インスタンス\[5\]での`MainContentComponent`クラスである：
+これで、`MainContentComponent`クラスで[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")インスタンスを渡すことでルートValueTreeItemをインスタンス化できます [5]：
 
 ```cpp
-        tree.setDefaultOpenness (true);
-        tree.setMultiSelectEnabled (true);
-        rootItem.reset (new ValueTreeItem (createRootValueTree(), undoManager));    // [5]
-        tree.setRootItem (rootItem.get());
+tree.setDefaultOpenness (true);
+tree.setMultiSelectEnabled (true);
+rootItem.reset (new ValueTreeItem (createRootValueTree(), undoManager)); // [5]
+tree.setRootItem (rootItem.get());
 ```
 
-このように、3つの異なるメソッドがあり、それらを更新する必要がある。[TreeView](https://docs.juce.com/master/classTreeView.html "ツリービューコンポーネント。").
+今度は、[TreeView](https://docs.juce.com/master/classTreeView.html "A tree-view component.")に行った変更を登録するために更新が必要な3つの異なるメソッドがあります。
 
 ```cpp
-    void itemDropped (const juce::DragAndDropTarget::SourceDetails&, int insertIndex) override
-    {
-        juce::OwnedArray selectedTrees;
-        getSelectedTreeViewItems (*getOwnerView(), selectedTrees);
- 
-        moveItems (*getOwnerView(), selectedTrees, tree, insertIndex, undoManager);     // [1]
-    }
- 
-    static void moveItems (juce::TreeView& treeView, const juce::OwnedArray& items,
-                           juce::ValueTree newParent, int insertIndex, juce::UndoManager& undoManager)
-    {
+void itemDropped (const juce::DragAndDropTarget::SourceDetails&, int insertIndex) override
+{
+    juce::OwnedArray<juce::ValueTree> selectedTrees;
+    getSelectedTreeViewItems (*getOwnerView(), selectedTrees);
+
+    moveItems (*getOwnerView(), selectedTrees, tree, insertIndex, undoManager); // [1]
+}
+
+static void moveItems (juce::TreeView& treeView, const juce::OwnedArray<juce::ValueTree>& items, juce::ValueTree newParent, int insertIndex, juce::UndoManager& undoManager)
+{
 ```
 
 ```cpp
-                    v.getParent().removeChild (v, &undoManager);                        // [2]
-                    newParent.addChild (v, insertIndex, &undoManager);                  // [3]
+v.getParent().removeChild (v, &undoManager); // [2]
+newParent.addChild (v, insertIndex, &undoManager); // [3]
 ```
 
-- \[1\]アイテムがドラッグ&ドロップされるたびに、移動を処理する静的関数にundoManagerを渡します。
-- \[2\]このアクションをundoManagerに登録する必要がある。
-- \[3\]次に、その子を新しい親に追加し、新しいアクションをundoManagerに登録します。
+- [1]：アイテムがドラッグアンドドロップされるたびに、移動を処理する静的関数にundoManagerを渡します。
+- [2]：前の親から子を削除し、そのアクションをundoManagerに登録する必要があります。
+- [3]：次に、新しい親に子を追加し、新しいアクションをundoManagerに登録できます。
 
-を通過させる。`undoManager`について言及する。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")機能`addChild()`そして`removeChild()`とする。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")を実行する。[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "UndoManagerクラスが、実行と取り消しが可能なアクションを保存するために使用します。")を呼び出してください。`perform()`関数について説明する。私たちは以下をカバーする。[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "UndoManagerクラスが、実行と取り消しが可能なアクションを保存するために使用します。")オブジェクトは今後のチュートリアルで紹介する。
+`undoManager`参照を[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")関数`addChild()`と`removeChild()`に渡すことで、[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")に裏で`perform()`関数を呼び出すことで[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "Used by the UndoManager class to store an action which can be done and undone.")を実行させます。[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "Used by the UndoManager class to store an action which can be done and undone.")オブジェクトについては、将来のチュートリアルで説明します。
 
-:::danger[エクササイズ]
-
-に保存されたアンドゥとリドゥの説明を表示します。[Label](https://docs.juce.com/master/classLabel.html "テキスト文字列を表示するコンポーネントで、クリックするとオプションでテキストエディタになります。")コンポーネントをそれぞれの[TextButton](https://docs.juce.com/master/classTextButton.html "標準的な菱形の背景にテキストを並べたボタン。")オブジェクトを使用する。`getUndoDescription()`そして`getRedoDescription()`関数をそれぞれ使用する。
-
+:::note
+演習：[Label](https://docs.juce.com/master/classLabel.html "A component that displays a text string, and can optionally become a text editor when clicked.")コンポーネントを使用して、それぞれの[TextButton](https://docs.juce.com/master/classTextButton.html "A button that uses the standard lozenge-shaped background with a line of text on it.")オブジェクトの横に格納されたアンドゥおよびリドゥアクションの説明を表示し、それぞれ`getUndoDescription()`および`getRedoDescription()`関数を使用します。
 :::
 
-## イベントをトランザクションとして扱う
+## イベントをトランザクションとして処理する
 
-のもう1つの便利な機能である。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")は、複数のアクションを1つのアンドゥ／リドゥ・トランザクションとしてグループ化できる機能である。この機能は`beginNewTransaction()`関数を使用する。`undoManager`インスタンスへの呼び出しはすべて`perform()`の機能である。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")は、次の`beginNewTransaction()`コール。
+[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")のもう1つの便利な機能は、複数のアクションを単一のアンドゥ/リドゥトランザクションとしてグループ化する機能です。`undoManager`インスタンスで`beginNewTransaction()`関数を呼び出すことで、[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")の`perform()`関数へのすべての呼び出しは、次の`beginNewTransaction()`呼び出しまでグループ化されます。
 
-例として[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")を呼び出す。`beginNewTransaction()`関数を定期的に実行し、アクションのグループをトランザクションとしてまとめて保存する。トランザクションは`MainContentComponent`を継承する。[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")タイマー・コールバックを受け取るクラス\[1\]:
+例として、`beginNewTransaction()`関数を定期的に呼び出し、アクションのグループをトランザクションとして一緒に格納する[Timer](https://docs.juce.com/master/classTimer.html "Makes repeated callbacks to a virtual method at a specified time interval.")を作成しましょう。`MainContentComponent`で、タイマーコールバックを受け取るために[Timer](https://docs.juce.com/master/classTimer.html "Makes repeated callbacks to a virtual method at a specified time interval.")クラスを継承します [1]：
 
 ```cpp
-class MainContentComponent   : public juce::Component,
-                               public juce::DragAndDropContainer,
-                               private juce::Timer      // [1]
+class MainContentComponent : public juce::Component,
+                             public juce::DragAndDropContainer,
+                             private juce::Timer // [1]
 {
 public:
 ```
 
-対応するヘッダーファイルでコールバック関数を宣言する。\[2\]:
+対応するヘッダファイルでコールバック関数を宣言します [2]：
 
 ```cpp
-    void timerCallback() override               // [2]
-    {
-        undoManager.beginNewTransaction();      // [4]
-    }
+void timerCallback() override // [2]
+{
+    undoManager.beginNewTransaction(); // [4]
+}
 ```
 
-コンストラクタで、トランザクション呼び出しの間隔をミリ秒単位で指定してタイマーを開始する。\[3\]:
+コンストラクタで、トランザクション呼び出し間の希望する間隔（ミリ秒）でタイマーを開始します [3]：
 
 ```cpp
-        startTimer (500);       // [3]
-    }
+startTimer (500); // [3]
+}
 ```
 
-最後に`beginNewTransaction()`関数を使用する。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")タイマーのコールバックで\[4\]:
+最後に、タイマーコールバックで[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")の`beginNewTransaction()`関数を呼び出すことができます [4]：
 
 ```cpp
-    void timerCallback() override               // [2]
-    {
-        undoManager.beginNewTransaction();      // [4]
-    }
+void timerCallback() override // [2]
+{
+    undoManager.beginNewTransaction(); // [4]
+}
 ```
-
-:::danger[エクササイズ]
-
-アクションのグループを区切るためにタイマーを使用する代わりに、取り消し/やり直しアクション5回ごとにトランザクションを実装する。
-
-:::
 
 :::note
-
-この修正版のソースコードは`UndoManagerTutorial_02.h`ファイルにある。
-
+演習：タイマーを使用してアクションのグループを分離する代わりに、5つのアンドゥ/リドゥアクションごとにトランザクションを実装してください。
 :::
 
-## 概要
+:::tip
+このコードの変更版のソースコードは、デモプロジェクトの`UndoManagerTutorial_02.h`ファイルにあります。
+:::
 
-このチュートリアルを完了することで、アプリケーションの以前の状態を復元する方法を学びました。特に
+## まとめ
 
-- 保存[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "UndoManagerクラスが、実行と取り消しが可能なアクションを保存するために使用します。")オブジェクトを[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")オブジェクトがある。
-- 合格[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")インスタンスを[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")アクセス機能。
-- 取り消し/やり直しアクションのグループをトランザクションとして処理。
+このチュートリアルを完了することで、アプリケーションの以前の状態を復元する方法を学びました。特に、以下のことを行いました：
 
-## 参照
+- [UndoableAction](https://docs.juce.com/master/classUndoableAction.html "Used by the UndoManager class to store an action which can be done and undone.")オブジェクトを[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")オブジェクトに格納しました。
+- [UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")インスタンスを[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")アクセス関数にパラメータとして渡しました。
+- アンドゥ/リドゥアクションのグループをトランザクションとして処理しました。
 
-- [Tutorial: The ValueTree class](../tutorial_value_tree/)
-- [Tutorial: Saving and loading your plug-in state](../../plugins/tutorial_audio_processor_value_tree_state/)
-- [Tutorial: Listeners and Broadcasters](../../interface-design/tutorial_listeners_and_broadcasters/)
+## 関連項目
+
+- [チュートリアル：ValueTreeクラス](../tutorial_value_tree/)
+- [チュートリアル：プラグイン状態の保存と読み込み](../../plugins/tutorial_audio_processor_value_tree_state/)
+- [チュートリアル：リスナーとブロードキャスター](../../interface-design/tutorial_listeners_and_broadcasters/)

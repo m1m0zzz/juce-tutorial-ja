@@ -4,321 +4,306 @@ sidebar_position: 4
 tags: [中級]
 ---
 
-# ValueTreeクラス
+# チュートリアル：ValueTreeクラス
 
 <SourcePageLink path="tutorial_value_tree" />
 
-の使い方を学ぶ。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスを使用すると、アプリケーションでデータを効率的に管理できます。
+アプリケーションでデータを効果的に管理するために[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスを使用する方法を学びます。
 
-レベル：中級
-
-プラットフォーム：Windows, macOS, Linux, iOS, Android
-
-クラス： [ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。"),[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。"),[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")
+**レベル:** 中級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ..."), [var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values."), [Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")
 
 ## はじめに
 
-について[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスはJUCEの秘密兵器です。これは、アプリケーションの内部的な複雑さを大幅に合理化する力を持っており、従来は受動的であったデータモデルを、実行時の操作に積極的に参加するものに変えます。このクラスは、データをGUIと連動させたり、データ変更の自動アンドゥやリドゥを提供したり、データのユニバーサルコンテナを提供したりといった、開発における面倒な部分を引き受けてくれます。また、本質的にシリアライズが可能なので、エクスポートやインポート処理が非常に簡単になります。
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスはJUCEの秘密兵器です。アプリケーションの内部の複雑さを大幅に簡素化し、従来は受動的なデータモデルを実行時操作の能動的な参加者に変える力を持っています。データとGUIのインターフェース、データ変更の自動アンドゥとリドゥの提供など、開発のより面倒な側面を処理し、データの普遍的なコンテナも提供します。また、本質的にシリアライズ可能であり、エクスポートとインポートプロセスを非常に簡単にします。
 
-このガイドブックでは、サッカーに必要な知識をすべて網羅することを目的としている。このガイドでは、それらを使用するために知っておく必要があるすべてをカバーすることを目的としています。
+あなたはそれらについて知らないかもしれませんし、あるいは単にその可能性に気づいていないかもしれません。このガイドは、それらを使用するために知っておく必要があるすべてをカバーすることを目的としています。
 
-## 必要不可欠な3つのクラス
+## 3つの重要なクラス
 
-について[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスはまさにアンサンブルであり、彼らと仕事をする際には、少なくとも3つの重要なクラスと常に関わり合うことになる。その3つとは[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラス自体が[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")クラスと[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")クラスである。で意味のあることをするのは不可能だ。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")そのため、それらをどのように（そしてなぜ）使うべきかを理解することは有益である。したがって、このようなデータを操作する実際の実務について説明する前に、以下のことをよく理解しておく必要がある：
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスは実際にはアンサンブルであり、それらを操作する際には、少なくとも3つの重要なクラスと常にやり取りすることになります。これらは[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラス自体、[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")クラス、および[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")クラスです。これらに遭遇せずに[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトで意味のあることを行うことは不可能なので、それらをどのように（そしてなぜ）使用すべきかを理解することが有用です。したがって、そのようなデータを操作する実際の実践について議論する前に、以下について理解しておく必要があります：
 
 ### ValueTreeクラスの概要
 
-について[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスは究極のコンテナ・クラスであり、あらゆる種類の情報を保持できる。これが型の明らかな役割かもしれないが、型には他にも多くの側面があり、単なる構造的な役割を超えている。
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスは究極のコンテナクラスであり、あらゆる種類の情報を保持できます。これがこの型の明らかな役割かもしれませんが、それには多くの他の側面があり、単なる構造的な役割を超えています。
 
-#### データ保管
+#### データストレージ
 
-A[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトは柔軟な多目的データオブジェクトです。基本的な*タイプ*という名前を持ち、名前付きプロパティの任意のセットを保持できる。これは一種の*ユニバーサル構造体*どのような（あるいはどの程度の）データを保持するかを定義する必要はない。
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトは柔軟で多目的なデータオブジェクトです。基本的な_型_名を持ち、任意の名前付きプロパティのセットを保持できます。これは一種の_ユニバーサル構造体_のようなものです；どのような（またはどれだけの）データを保持すべきかを事前に定義する必要はなく、実行時に好きなように使用できます。
 
-説明のために、1つのオブジェクト（ここでは*疑似データ*)は以下の情報を保持しているかもしれない：
+説明のために、1つのオブジェクト（ここでは_疑似データ_として示されています）は以下の情報を保持するかもしれません：
 
-```cpp
+```
 Pet
-    Name = "Fluffmuff"
-    Animal = "Cat"
-    Size = 2.4
+Name = "Fluffmuff"
+Animal = "Cat"
+Size = 2.4
 ```
 
-その名の通り[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトはツリー構造のノードとしても機能します。名前付きのプロパティとともに、任意の数の子ノードを含むことができます（そして、それ自体を親ノードに追加することもできます）。
+名前が示すように、[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトはツリー構造のノードとしても機能できます。名前付きプロパティとともに、任意の数の子ノードを含むことができます（そして、それ自体を親ノードに追加することもできます）。
 
-```cpp
+```
 Pet
-    Name = "Fluffmuff"
-    Animal = "Cat"
-    Size = 2.4
-    Accessories
-        Collar
-            Colour = "Pink"
-        Camera
-            HasFlash = false
-            Capacity = 32
-ColourRepresents a colour, also including a transparency value.Definition juce_Colour.h:50
+Name = "Fluffmuff"
+Animal = "Cat"
+Size = 2.4
+Accessories
+Collar
+Colour = "Pink"
+Camera
+HasFlash = false
+Capacity = 32
 ```
 
-これらの構造は、XMLフォーマットで形成される構造と非常によく似ている。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードは[XmlElement](https://docs.juce.com/master/classXmlElement.html "XML ドキュメントを表す要素のツリーを構築するために使用します。")オブジェクトで、名前、プロパティ、子を持つ。大きな違いは、プロパティが、XMLフォーマットで使用されるテキスト・フォー・エヴリシング表現ではなく、実際の型付きデータとして格納されることである。つまり、より複雑なタイプのデータを保持し、より効率的にアクセスでき、一般的に（シリアライズだけでなく）データモデルでの使用に適しています。実際、XMLテキスト（または特殊なバイナリ形式）を任意の[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードを作成し、後でその構造を復元する。
+これらの構造はXML形式で形成されるものと非常に似ています；個々の[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")ノードは、名前、プロパティ、子を持つ[XmlElement](https://docs.juce.com/master/classXmlElement.html "Used to build a tree of elements representing an XML document.")オブジェクトに非常に似ています。大きな違いは、プロパティがXML形式で使用されるすべてをテキストで表現するのではなく、実際の型付きデータとして格納されることです。これは、より複雑な型のデータを保持でき、より効率的にアクセスでき、一般的にデータモデル（およびシリアライゼーションだけでなく）での使用により適していることを意味します。実際、任意の[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")ノードからXMLテキスト（または特別なバイナリ形式）を自動的に生成し、後でその構造を復元することが可能です。
 
-#### 参考カウント
+#### 参照カウント
 
-各ノードは参照カウントされるため、その寿命は簡単に管理できる。データ自体は、実際には隠された共有インスタンスに格納される。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスは、軽い、参照を保持するラッパー・インタフェースに過ぎない。
+各ノードは参照カウントされているため、ライフタイムの管理が簡単です。データ自体は実際には隠された共有インスタンスに格納されており、[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスは軽量な参照保持ラッパーインターフェースにすぎません。
 
-を返すことで、ポインタを直接使用することなく、値で素早く渡すことができます。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトを関数からコピーしても、データはコピーされず、参照だけがコピーされる。
+値で素早く渡すことができ、ポインタを直接使用する必要がありません；関数から[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトを返してもデータはコピーされず、参照のみがコピーされるため、インターフェースがシンプルかつ安全になります。
 
-自分でノードを削除する心配はありません。ノードが使われなくなると、自動的に破棄されます。これは、非同期UIでダングリングポインタが発生しないようにするために特に便利です。
+自分で削除することを心配する必要はありません；どこかで使用されなくなるとすぐに自動的に破棄されます。これは、まだ使用しているかもしれないノードデータが誤って削除されることがないことも意味し、非同期UIがダングリングポインタに遭遇しないことを保証するのに特に便利です。
 
-#### シンプルなインタフェース
+#### シンプルなインターフェース
 
-プロパティや子プロパティを操作するためのシンプルで汎用的なインタフェースを持つ。汎用的であることで、コンテンツの種類や構成に関係なく、コンテンツにアクセスするための単一のインタフェースを持つことができます。普遍的な[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")クラスを共通のプロパティ・タイプとすることで、さまざまな入力を取ることができる。そのため[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")クラスを使って、これらのプロパティを名前別に保存したり取得したりすることで、直感的にデータを整理できます。
+プロパティと子を操作するためのシンプルで普遍的なインターフェースを持っています。汎用的であることで、型や構成に関係なくコンテンツにアクセスするための単一のインターフェースを持つことができます。共通のプロパティ型としてユニバーサルな[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")クラスを使用することで、さまざまな入力を受け取ることができます。これらのプロパティを名前で格納および取得するために[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")クラスを使用することで、データを整理するための直感的な方法を提供します。
 
-#### 取り消しとやり直し
+#### アンドゥとリドゥ
 
-コンテンツを変更するすべての関数に、あらかじめ定義された取り消し可能なアクションが組み込まれている。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")オブジェクトを使うことで、アプリケーションにそのような機能を持たせることができます。まだ納得されていない方のために言っておくと、これは[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトをデータモデルに追加する。
+このような簡潔なコントロールセットを持つことで、アンドゥの組み込みサポートを提供できます；コンテンツを変更するすべての関数には事前定義されたアンドゥ可能なアクションが組み込まれているため、アプリケーションでそのような機能を提供するには[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")オブジェクトを供給するだけです。まだ納得していない場合、これはデータモデルで[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトを使用する非常に説得力のある理由です。
 
-#### お知らせ
+#### 通知
 
-もう1つの非常に強力な機能は、バリューツリーのコンテンツが変更されたときに通知を送信する機能である。例えば[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")ノードの内容を表示するために使用されているオブジェクトは、データが編集されたことを確認するたびに、それ自身をリフレッシュできます。[ValueTree::Listener](https://docs.juce.com/master/classValueTree_1_1Listener.html "ValueTree に発生するイベントのリスナークラスです。")サブクラスである。
+もう1つの非常に強力な機能は、ValueTreesがコンテンツが変更されたときに通知を送信する機能です；これは、特にUIを最新の状態に保つために、巨大な実用的簡素化を提供します。例えば、ノードのコンテンツを表示するために使用される[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")オブジェクトは、データが編集されたことを確認するたびに単にリフレッシュできます ---[ValueTree::Listener](https://docs.juce.com/master/classValueTree_1_1Listener.html "Listener class for events that happen to a ValueTree.")サブクラスとして実装するだけです。
 
-#### 概要
+#### まとめ
 
-について[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスは、アプリケーションのデータモデルにとって奇跡のクラスのようなもので、アプリケーションの内部をまとめる方法を単純化するための豊富な機能を難なく提供してくれる。
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスは、アプリケーションデータモデルのための一種の奇跡のクラスのようなもので、アプリケーションの内部がどのように組み合わさるかを簡素化するための豊富な機能を簡単に提供します。
 
-### クラス概要
+### varクラスの概要
 
-について[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")クラスは普遍的な*バリアント*クラスは、さまざまな型のデータを保持する。その機能は、JSONデータ構造を表現するのに適している。
+[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")クラスは、さまざまな型のデータを保持するためのユニバーサルな_バリアント_クラスです。その機能により、JSONデータ構造を表現するのに適しています。
 
-従来は、コード内の変数に格納するデータの種類をあらかじめ決めておく必要がありました（たとえば、整数を格納したい場合は`int`その変数が使えるのはそれだけである）。しかし[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")様々なタイプに対応しているので、そのような決定を下す必要はない。
+従来、コード内の任意の変数がどのような型のデータを格納できるかを事前に決定する必要がありました（例えば、整数を保持したい場合は`int`を選択し、その変数はそれにしか使用できません）。しかし、[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")を使用すれば、そのような決定をする必要はありません。さまざまな型と互換性があるからです。
 
-これは汎用のカメレオン変数のようなもので、基本的な数値 (`int`または`double`)、テキスト(a[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクト)、および`bool`値と同様に`void`状態（なぜなら`0`または`false`とは概念的に異なることがある。*何もない*).から派生したクラスへのポインタを保持することもできる。[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")クラス（想像しうるあらゆる種類の複雑なデータで構成されうる）。これだけでは十分でないかのように、単一の[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトは、複数の[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトがある！
+これは汎用的なカメレオン変数のようなもので、基本的な数値（`int`または`double`）、テキスト（[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクト）、`bool`値を表現でき、`void`状態も持てます（`0`や`false`は概念的に_nothing_とは異なる場合があるため）。また、[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "A base class which provides methods for reference-counting.")クラスから派生した任意のクラスへのポインタも保持できます（これは想像できるあらゆる種類の複雑なデータで構成できます）。それだけでは不十分かのように、単一の[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")オブジェクトは複数の[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")オブジェクトの配列としても使用できます！
 
-この多用途性により、一般的なコンテナ（たとえば[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")基本的な型には暗黙のキャスト（とオーバーロードされた代入演算子）があり、コード上のやりとりをシンプルにする。さらに、現在の値の文字列表現を自動的に返すこともできる（テキスト以外の型も含む）。これらの贅沢がすべて適用されないのは[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトは[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "参照カウントのためのメソッドを提供する基底クラス。")オブジェクトにキャストする必要があります。これらは未知の型なので、自分でキャストしなければならない。`dynamic_cast`を返す。`nullptr`正しい型でない場合）。
+この多様性により、汎用コンテナ（[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスなど）での使用に理想的であり、そのインターフェースはvarで保持できる限り、何を与えるか（または期待するか）について気にする必要がないという贅沢を得られます。基本型には暗黙的なキャスト（およびオーバーロードされた代入演算子）があり、コードでのやり取りがシンプルになります。現在の値の文字列表現を自動的に返すこともできます（非テキスト型を含む）。これらの贅沢がすべて適用されない唯一の場所は、[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")オブジェクトが[ReferenceCountedObject](https://docs.juce.com/master/classReferenceCountedObject.html "A base class which provides methods for reference-counting.")オブジェクトを保持している場合です。これらは未知の型なので、自分でキャストする必要があります（正しい型でない場合は`nullptr`を返すため、`dynamic_cast`で安全にこれを行うことができます）。
 
-においてである。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトとして保持されます。[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトにアクセスできます。この多目的クラスをプロパティタイプとして選択することで、どのようなものであれ、それらにアクセスするための関数を1つにまとめることができます。のために1つの関数を使う必要はない。`int`このような関数はすべて、以下のように統一できる。[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")オブジェクトがある。
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトでは、すべてのプロパティは[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")オブジェクトとして保持されます。この多目的クラスをプロパティ型として選択することで、それらが何であるかに関係なく、アクセスするための単一の関数セットを持つことが可能です。`int`値用に1つの関数を使用し、テキスト用に別の関数を使用する必要はありません；そのような関数はすべて[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")オブジェクトを扱うことで統一できます。
 
-### 識別子クラスの概要
+### Identifierクラスの概要
 
-このクラスは、人間が読むことができる*キー*データの識別に使用される。
+このクラスは、データを識別するために使用される人間が読める_キー_として意図されています。
 
-基本的には[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトは文字列です。オブジェクトは[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトとして取り出すこともできます。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトのコンテキストでは[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスでは、ノードのタイプ名を指定するためと、各プロパティを一意にラベル付けするために使用されます。
+本質的に、[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトは文字列です。[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトから割り当てることができ、内容を[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトとして取得することもできます。[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスのコンテキストでは、ノードの型名を指定するためと、各プロパティに一意のラベルを付けるために使用されます。
 
-#### なぜStringクラスを使わないのか？
+#### なぜStringクラスを使用しないのか？
 
-汎用クラスではなく特殊クラスを使う主な理由は2つある。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスである。
+汎用目的の[String](https://docs.juce.com/master/classString.html "The JUCE String class!")クラスの代わりに特殊なクラスを使用する2つの主な理由があります。
 
-- 限られた文字セットを強制できる：第一に、このクラスは有効なキーを構成する文字の制限を強制します。`_-:#$%`.これは少しくだらなく聞こえるかもしれないが、同じ制限（例えばXMLフォーマットやスクリプト）を持つ他のシステムとの互換性を確保することが可能になる。
-- 目的に応じて最適化できる：2つ目の（しかし最も重要な）理由は、それらをどのように使いたいかに起因する。リストは、任意のサイズのリストから1つの項目を特定するためのキーとして機能するものであり、そのため、それらを使って実行される最も一般的な操作は比較である。しかし[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトはかなり時間がかかる。実際にテキストをチェックする必要があり、最初に異なる文字を見つけて初めて、2つの[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトは同じではない。ほとんど同じ文字列の場合、ほとんどの文字をチェックすることになるかもしれない（一致する文字列はすべての文字がテストされることになる）。しかし、1つの文字列を1つのリストと比較する場合（キーとして使用する場合）、すべての処理に長い時間がかかる可能性があります。
+- 制限された文字セットを強制できる：まず、このクラスは有効なキーを構成できる文字に制限を強制します；英数字と特殊文字`_-:#$%`のみを許可します。これは少しひどいように聞こえるかもしれませんが、同じ制限を持つ他のシステム（例えば、XML形式やスクリプト）との互換性を確保することが可能になります。
+- 目的に最適化できる：2番目の（しかし最も重要な）理由は、それらをどのように使用したいかに由来します。それらは任意のサイズのリストから単一のアイテムを識別するためのキーとして機能するため、それらで実行される最も一般的な操作は比較です。しかし、[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトの比較はかなり遅い場合があります。実際にテキストをチェックする必要があり、最初の異なる文字を見つけたときにのみ、2つの[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトが同じではないと確信できます。ほとんど同じ文字列の場合、ほとんどの文字をチェックすることになる場合があります（一致する文字列の場合はすべての文字がテストされます）。単一の比較では、それは許容できるかもしれませんが、1つの文字列をリストと比較したい場合（キーとして使用するときに行うように）、全体のビジネスには長い時間がかかる可能性があります。
 
-特別なクラスを使うことで、素早く比較できるように最適化されていることを保証できる。この最適化（と文字セットの制限）のため、一般的なテキスト・ハンドリングに使用することは意図されていないが、文字列のようなデータをキーとして使用するには最適である。
+特別なクラスを使用することで、素早い比較を可能にするように最適化されていることを確認できます。この最適化（および制限された文字セット）のため、一般的なテキスト処理に使用することを意図していませんが、文字列のようなデータをキーとして使用するのに完璧に適しています。
 
-#### どうすればもっと早く比較できるのか？
+#### なぜ比較が速いのか？
 
-の最適化について知っておくことは有益である。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")クラスで使用されます。ひとつには、コードが各テストで密かにすべての文字をチェックしているわけではないという安心感がある。しかしもっと重要なのは、多くの最適化にはコストがつきものであり、それがどこにあるのかを知っておくことで、問題になるのを避けることができるということだ。
+[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")クラスの最適化について知っておくと便利です。一方では、コードが各テストですべての文字を密かにチェックしていないことを安心させてくれます。しかし、より重要なのは、多くの最適化と同様にコストがかかるため、問題にならないようにそれがどこにあるかを知っておくと役立ちます。
 
-を使用することは完全に可能である。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")このようなことを知らなくても、トレードオフがどこで発生するかは理解できるだろう。
+これを知らなくても[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")を完全に使用することは可能ですが、トレードオフがどこで発生するかをよりよく理解できます。
 
-:::note
-
-この最適化の詳細は変更される可能性がありますが（これはクラスのセカンダリー・ナレッジです）、あなたの実装に影響を与える可能性は低いでしょう。
-
+:::tip
+この最適化の詳細は変わる可能性があります（これはクラスの副次的な知識です）が、実装への影響が変わる可能性は低いです。
 :::
 
-#### 文字列の比較における特殊なケース
+#### String比較の特殊なケース
 
-ということを知る。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトが同じであることを証明しなければならない。たまたま[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスは参照カウントされたテキストを保持する。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトが実際に同じデータを指しているのであれば、すぐにわかる（どちらも同じアドレスを保持しているからだ）。
+2つの[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトが同じであることを知るには、実際にはそれらが異なっていないことを証明する必要があります。たまたま、[String](https://docs.juce.com/master/classString.html "The JUCE String class!")クラスは参照カウントされたテキストを保持しているため、2つの[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトが実際には同じデータを指している可能性があります；その場合、すぐに発見できます（両方とも同じアドレスを保持しているため）。
 
-このような特殊なケースの方がはるかに速い。[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")クラスがそれを利用できるのは、それが起こった場合だけである。アドレスが同じでない場合、その内容が等価でないことの証明にはならないので、やはり文字をチェックしなければならない。
+これらの特殊なケースははるかに高速ですが、[String](https://docs.juce.com/master/classString.html "The JUCE String class!")クラスはそれらが発生した場合にのみそれらを利用できます。アドレスが同じでない場合、内容が同等でないことを証明するわけではないため、文字をチェックする必要があります。
 
-#### 特殊なケースを利用する
+#### 特殊なケースの活用
 
-について[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")クラスはこの挙動を利用し、すべての等価な[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトは常に同じデータを指す。最適化されているため、異なる[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトが異なるメモリーアドレスに存在することはない。つまり*特例*したがって、両者が異なることを証明するのは、両者が異なるアドレスを保持していることを見抜くのと同じくらい簡単である。
+[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")クラスはこの動作を活用し、すべての同等の[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトが常に同じデータを指していることを保証できるようにします。最適化の方法により、異なる[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトの文字ごとの一致は、異なるメモリアドレスに対しては存在しません。これは、同一文字列の_特殊なケース_が同等である唯一の方法になり、したがって異なることを証明することは、異なるアドレスを保持していることを発見するのと同じくらい簡単になります。
 
-しかし、これはマジックではない。
+しかし、これは魔法ではありません。コストは単に他の場所に移動しているだけです。
 
-この動作を強制するために、すべての[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトは、単一の、隠された、ユニークな文字列のグローバルなプールを共有する。すべての[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")実行時に使用されるオブジェクトは、このプールに格納される。実行時に[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトから[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトがある場合、そのプールに同等のコピーがすでにあるかどうかがチェックされる。もしそうでなければ、新しい[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトが追加され、次の[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトを探す。
+この動作を強制するために、すべての[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトは単一の隠された一意の文字列のグローバルプールを共有します。実行時に使用されるすべての[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトによって保持される文字列はこのプールに格納されます。[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトから[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトを割り当てると、プールがチェックされて同等のコピーがすでに含まれているかどうかが確認されます。含まれている場合は、代わりにそれが使用されます；含まれていない場合は、新しい[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトが追加され、次の[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトがそれを探す準備が整います。
 
 #### コスト
 
-したがって[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトから[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトは、その運営において最も高価な部分である。一度存在すれば、常にそこからコピーしていれば、二度とその価格を支払う必要はない。やむを得ない場合もある（具体的には、ある選手を獲得する場合）。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクト、または通常の[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクト)を比較するよりも遥かに少ない頻度である。素[String](https://docs.juce.com/master/classString.html "JUCE Stringクラス！")オブジェクトを（データから、またはコード内のリテラルとして）代入する場合、最適化を実施するためにプール・チェックが必要になります。代わりに別の既存の[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトがあれば、そのようなチェックがすでに行われていることが保証される。
+したがって、[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトから[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトをインスタンス化することは、その操作の中で最もコストがかかる部分です。存在したら、常にそれからコピーすれば、二度とそのコストを払う必要はありません。時には避けられないことがあります（具体的には、入力から[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトを取得する場合、または通常の[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトに保持されているデータから）が、これはそれらを比較するよりもはるかに頻繁に発生することではありません。ベアの[String](https://docs.juce.com/master/classString.html "The JUCE String class!")オブジェクトから割り当てるたびに（データから、またはコード内のリテラルとして）、最適化を強制するためにプールチェックが必要です。代わりに別の既存の[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトから割り当てる場合、そのようなチェックがすでに行われていることが保証されます。
 
 #### コストを最小限に抑える方法
 
-を初期化するのが良い方法です。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")インスタンスに変換されます。コードから、リテラル文字列の代わりにこれらのインスタンスを使用できます。グローバルにアクセス可能な名前空間に置いたり、ファイルの静的インスタンスを使ったり、静的クラス・メンバーを使って整理することもできます。
+良い戦略は、起動時にいくつかの簡単にアクセスできる[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")インスタンスを初期化することです。コードからは、リテラル文字列の代わりにこれらを使用でき、それらからの追加のルックアップペナルティは発生しません。グローバルにアクセス可能な名前空間に入れたり、ファイル静的インスタンスを使用したり、静的クラスメンバーを使用して整理するのに役立てることもできます。
 
-## ValueTreeクラスの基本的な使い方
+## 基本的なValueTreeクラスの使用法
 
-に加えて[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")そして[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")クラスと組み合わせて使用されるクラスは、実際にはもっとたくさんあります。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトは、後で説明する。しかし、これらのオブジェクトは、次のような基本的な操作のほとんどに必要である。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスである。
+[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")と[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")クラスに加えて、後で見るように、[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトと一緒に使用される他のクラスが実際には多くあります。しかし、これらは[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスのほとんどの基本的な操作に必要です。
 
-3つの必須クラスについて学んだら、基本的なことをピックアップしていくのに良い状態になるはずだ。
+3つの重要なクラスについて学んだら、基本を理解する良い立場にいるはずです。
 
-このガイドブックは、「サッカー」の本質的なコア機能のすべてを紹介する基本的なガイドです。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスがあります。あなたのコードで使い始めるために必要な機能をすべて網羅している。
+これは[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスのすべての重要なコア関数を紹介する基本ガイドです。コードでそれらを使い始めるために必要なすべての機能をカバーしています。
 
 ### ValueTreeオブジェクトの作成
 
-を簡単に使うことができる。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトをスタック上に（またはクラスのメンバーとして）作成するだけである。
+スタック上に（またはクラスのメンバーとして）オブジェクトを作成するだけで[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトを簡単に使用できます。
 
 ### 無効なValueTreeオブジェクト
 
-A[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトがデフォルトである、**無効**.つまり[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")で初期化された*デフォルトコンストラクタ*はまったくデータを持たない。明示的に[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")(または既存の有効な、[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")つまり、空っぽの殻なのだ。
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトはデフォルトで**無効**です。つまり、_デフォルトコンストラクタ_で初期化された[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトはデータをまったく持ちません。[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")（または既存の有効な[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクト）で明示的に初期化しない限り、何も保持しません；空の殻です。
 
 ```cpp
-juce::ValueTree myNode; // this object is invalid - it does not hold any node data
+juce::ValueTree myNode; // このオブジェクトは無効です - ノードデータを保持していません
 ```
 
-これはヌル・ポインタに似ているが（実際、内部的にはまさにそうである）、固有の危険性はない。有効なノードが割り当てられるまでは、何も参照しない。ここでの主な違いは、（操作されるものが何もないため）ほとんど何の効果もないとはいえ、インタフェース関数をまだ使用できることである。
+これはnullポインタに似ています（実際、内部的にはまさにそれです）が、固有の危険はありません。有効なノードが割り当てられるまで、何も参照しません。ここでの主な違いは、インターフェース関数を引き続き使用できることですが、（操作するものがないため）ほとんど効果がありません。
 
-無効なノードでアクセス関数を "偶然 "呼び出すことは安全だが、それはあまり得策ではない！
+無効なノードでアクセス関数を「誤って」呼び出しても安全ですが、あまり意味がありません！
 
-### ノードが無効かどうかをチェックする方法
+### ノードが無効かどうかを確認する方法
 
-あなたのコードでは、メンバー関数[ValueTree::isValid()](https://docs.juce.com/master/classValueTree.html#a9c1506afbe6b840e4ab43fabf275845a "このツリーが有効なデータを参照している場合に真を返します。")を確認する。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")は空である：
+コードでは、[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")が空かどうかを確認するためにメンバー関数[ValueTree::isValid()](https://docs.juce.com/master/classValueTree.html#a9c1506afbe6b840e4ab43fabf275845a "Returns true if this tree refers to some valid data.")を呼び出すことができます：
 
 ```cpp
 if (myNode.isValid())
 {
-    // This will not be reached for an invalid node
+    // 無効なノードではここには到達しません
 }
 ```
 
 ### 有効なValueTreeオブジェクト
 
-有効な手段を生み出す主な手段[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトを有効な[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトを使用します。これは*名称*新しいノードを表し、そのノードの**タイプ**.
+有効な[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトを作成する主な方法は、有効な[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトで初期化することです。これは新しいノードに_名前_を付けるために使用され、ノードの**型**を表します。
 
 ```cpp
-static juce::Identifier myNodeType ("MyNode"); // pre-create an Identifier
-juce::ValueTree myNode (myNodeType);           // This is a valid node, of type "MyNode"
+static juce::Identifier myNodeType ("MyNode"); // Identifierを事前に作成
+juce::ValueTree myNode (myNodeType); // これは「MyNode」型の有効なノードです
 ```
 
-:::note
-
-を明示的に指定する代わりに、文字列リテラルを使用できます。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトを使用するのがよいでしょう。[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")インスタンスを作成する。参照[Identifier class overview](https://docs.juce.com/master/#tutorial_value_tree_indentifier_overview)を参照)。
-
+:::tip
+[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトを明示的に提供する代わりに文字列リテラルを使用できますが、可能な場合は既存の[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")インスタンスを使用する方が良い習慣です（詳細については[Identifierクラスの概要](#tutorial_value_tree_indentifier_overview)を参照）。
 :::
 
-有効なノードが型を持つことを要求することで、どのようなデータを含むべきかを示すメカニズムができる。逆に[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトの型をチェックできます。[ValueTree::getType()](https://docs.juce.com/master/classValueTree.html#aaba6256213ee02c418e9ef3d320f0ff1 "このツリーの型を返します。")関数の中に何があるのかを知ることができる。
+有効なノードが型を持つことを要求することで、どのようなデータを含むべきかを示すメカニズムがあります。逆に、[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトに直面したとき（例えば、関数に供給されるパラメータとして）、その型を確認して、中に何を期待するかを判断できます ---[ValueTree::getType()](https://docs.juce.com/master/classValueTree.html#aaba6256213ee02c418e9ef3d320f0ff1 "Returns the type of this tree.")関数を使用します。
 
 ```cpp
 void foo (const juce::ValueTree& someNode)
 {
     if (someNode.getType() == myNodeType)
     {
-        // This would be hit for nodes created as “MyNode”
+        // 「MyNode」として作成されたノードの場合、ここに到達します
     }
 }
 ```
 
-:::note
-
-一度ノードが作成されると、そのタイプを変更することはできません。これは意図的なもので、このような情報は実際にはオブジェクトのプロパティではなく、オブジェクトの基本的なエッセンスだからです。
-
+:::tip
+ノードが作成されると、その型を変更することはできません。これは意図的であり、そのような情報はオブジェクトのプロパティではなく、オブジェクトの基本的な本質であるためです。
 :::
 
 ### 有効なValueTreeオブジェクトの共有
 
-第3の方法[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")コピーコンストラクタを使って、既存の[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトがある。
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")を初期化する3番目の方法は、コピーコンストラクタを介して、既存の[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトを提供することです。
 
 ```cpp
-[1]:    juce::ValueTree myNode (myNodeType); // creates a new node of type "MyNode"
-[2]:    juce::ValueTree sameNode (myNode);   // This object points to the same data as myNode
+[1] : juce::ValueTree myNode (myNodeType); // 「MyNode」型の新しいノードを作成
+[2] : juce::ValueTree sameNode (myNode); // このオブジェクトはmyNodeと同じデータを指します
 ```
 
-この結果*同じノードデータ*を既存のオブジェクトとして使用する。
+これにより、既存のオブジェクトと_同じノードデータ_を参照するオブジェクトが生成されます。
 
-ここで重要なのは、参照以外は何もコピーされないということだ。**同じインスタンス**は、元のノード・データのどちらかに加えられた変更（共有ノードが有効な場合）は、もう一方のノードの検査で発見されます。
+ここでコピーされるのは参照のみであることを理解することが重要です；両方のオブジェクトは元のノードデータの**同じ基礎インスタンス**にアタッチされています。どちらか一方に（共有ノードが有効な場合）変更を加えると、他方の検査時にも見つかります。
 
-代入演算子を使っても同じ結果（ノード・データの共有）を得ることができる。
+代入演算子を使用しても同じ結果（ノードデータの共有）を達成できます。
 
 ```cpp
-[3]:    juce::ValueTree otherNode (myNodeType); // This creates a second (new) "MyNode" node...
-[4]:    otherNode = sameNode;                   // ...but the object now points to the first instance
+[3] : juce::ValueTree otherNode (myNodeType); // これは2番目の（新しい）「MyNode」ノードを作成します...
+[4] : otherNode = sameNode; // ...しかしオブジェクトは今最初のインスタンスを指しています
 ```
 
-ここで質問がある：
+ここで質問があります：
 
-で作成されたノード・インスタンスはどうなるのか？ \[3\]で置き換えると、次のようになる。\[4\]?
+行[3]で作成されたノードインスタンスは、行[4]で置き換えられるとどうなりますか？
 
-最後には、3つの変数はすべて同じ初期インスタンスを指している。もはや[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトは2番目のインスタンスを参照している。**滅びる**.
+最終的に、3つの変数すべてが同じ最初のインスタンスを指しています。2番目のインスタンスを参照する[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトはなくなったため、**破棄されます**。
 
-を使用する場合は常に[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトが再割り当てされる（あるいはスコープ外に出る）と、そのオブジェクトが指していた基礎データは参照を失う。そのデータが他の場所に保持されていなければ、自動的に破棄される。これは、データがいつ自己破壊してもおかしくない世界で操作しているようで怖く聞こえるかもしれないが、実際には、不注意でノードを失うことはほとんどない！ 非常に堅牢なシステムなのだ。その上、データが重要であれば、すでにどこかに保存されていることに気づくでしょう。
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトが再割り当てされる（またはスコープ外になる）たびに、指していた基礎データは参照を失います。そのデータが他の場所に保持されていない場合、自動的に破棄されます。これは、データがいつでも自己破壊する可能性のある世界で操作しているかのように怖く聞こえるかもしれません；実際には、ノードを誤って失う可能性は非常に低いです！それは非常に堅牢なシステムです。さらに、データが重要であれば、実際にはすでにどこかに保存していることがわかるでしょう；望むように直感的です。
 
 :::warning
-
-これは、オーディオ・コールバックのようなリアルタイム・コードでは注意が必要であることも意味する。コールバックの[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトをオーディオ・コールバックで使用すると、誤って`delete`演算子は、以前に割り当てられたデータへの参照がなくなった場合に使用する。
-
+これは、オーディオコールバックなどのリアルタイムコードで注意する必要があることも意味します。オーディオコールバックで[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトを再割り当てすると、以前に割り当てられたデータへの参照がなくなった場合、不注意に`delete`演算子を呼び出す可能性があります。
 :::
 
 ### UndoManagerクラスについてのメモ
 
-のアクセス関数はすべて[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")の使い方を理解している。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")オブジェクト。それらは適切な[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "UndoManagerクラスが、実行と取り消しが可能なアクションを保存するために使用します。")オブジェクトへのポインタを与えるだけでよい。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")オブジェクトを呼び出すと、操作可能で取り消し可能な変更記録が自動的に追加される。
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスのすべてのアクセス関数は、[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")オブジェクトの使用方法を理解しています。適切な[UndoableAction](https://docs.juce.com/master/classUndoableAction.html "Used by the UndoManager class to store an action which can be done and undone.")オブジェクトが事前に準備されており；呼び出しで[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")オブジェクトへのポインタを提供するだけで、変更の操作可能なアンドゥ可能なレコードが自動的に追加されます。
 
-これを管理するために必要な知識はそれほど多くない。[Tutorial: Using an UndoManager with a ValueTree](../tutorial_undo_manager_value_tree/).
+これを管理するために知っておくべきことはそれほど多くありませんが、[チュートリアル：ValueTreeでUndoManagerを使用する](../tutorial_undo_manager_value_tree/)でより詳しく説明しています。
 
-当面は、履歴を保存することなく、関数を利用するために`nullptr`の値である。このような修正関数には、少なくともNULLポインタが与えられなければならない。[UndoManager](https://docs.juce.com/master/classUndoManager.html "取り消し/やり直しコマンドのリストを管理する。")もちろん、そのようなこともあるだろう。`nullptr`例で見ることができる値。
+今のところ、`nullptr`値を提供することで履歴を保存せずに関数を使用します。コンテンツを変更する関数を説明するときは、少なくとも[UndoManager](https://docs.juce.com/master/classUndoManager.html "Manages a list of undo/redo commands.")オブジェクトへのnullポインタを与える必要があることを前提とします；もちろん例では`nullptr`値が見えます。
 
-### リスナーとして通知を受け取る
+### リスナーとしての通知の受信
 
-のリスナーとして登録する。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")を使うと、データが変更されたときに同期的に通知を受けることができる。リスナーへのポインターは[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")従って、通常、そのコピーを取るのがベストである。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")このように登録する前に
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")にリスナーとして登録すると、データが変更されたときに同期的に通知を受けることができます。リスナーへのポインタは[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")インスタンスに保持されるため、通常は登録する前に[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")のコピーを取ることが最善です：
 
 ```cpp
-struct ExampleListener  : public juce::ValueTree::Listener
+struct ExampleListener : public juce::ValueTree::Listener
 {
     ExampleListener (juce::ValueTree v)
         : tree (v)
     {
         tree.addListener (this);
     }
- 
+
     juce::ValueTree tree;
 };
-AccessibilityRole::tree@ tree
 ```
 
-そして、通知を受けたい動作に応じて、以下のコールバック関数を実装できる：
+その後、通知を受けたい動作に応じて、以下のコールバック関数を実装できます：
 
-- valueTreePropertyChanged()：でプロパティの変更が発生したときに呼び出されます。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")またはその子である。
-- valueTreeChildAdded()：子ノードが[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")またはその子である。
-- valueTreeChildRemoved()：子ノードが[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")またはその子である。
-- valueTreeChildOrderChanged()：子ノードが[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")またはその子である。
-- valueTreeParentChanged()：が変更されたときに呼び出されます。[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")は親ノードから追加または削除される。
+- valueTreePropertyChanged()：[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")またはその子でプロパティの変更が発生したときに呼び出されます。
+- valueTreeChildAdded()：[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")またはその子に子ノードが追加されたときに呼び出されます。
+- valueTreeChildRemoved()：[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")またはその子から子ノードが削除されたときに呼び出されます。
+- valueTreeChildOrderChanged()：[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")またはその子で子ノードが並べ替えられたときに呼び出されます。
+- valueTreeParentChanged()：[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")が親ノードに追加または削除されたときに呼び出されます。
 
-コールバックはツリー階層の上方に伝搬されるため、親ノードのリスナーは子ノードからのプロパティ変更コールバックも受け取ることになり、型とプロパティ名をチェックする必要がある。
+コールバックはツリー階層を上向きに伝播するため、親ノードへのリスナーも子からプロパティ変更コールバックを受け取り、したがって型とプロパティ名をチェックする必要があります。
 
 :::warning
-
-コールバックは同期的なので、時間が重要なアプリケーションでは[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "非同期に起動されるコールバックメソッドを持つ。")プロパティの変更を処理する。
-
+コールバックは同期的であるため、タイムクリティカルなアプリケーションでは[AsyncUpdater](https://docs.juce.com/master/classAsyncUpdater.html "Has a callback method that is triggered asynchronously.")を使用してプロパティの変更を処理する必要があります。
 :::
 
-## 基本的な物件へのアクセス
+## 基本的なプロパティアクセス
 
 ### プロパティの設定
 
-について[ValueTree::setProperty()](https://docs.juce.com/master/classValueTree.html#a550e9c8780d4ee56d14d67de17f200e2 "ツリーの指定されたプロパティを変更する。")関数は、有効なノードにプロパティを設定する直接的な方法の1つです。有効なノードにプロパティを設定するには[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトで、設定したいプロパティの名前を指定します。[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")の値を取る：
+[ValueTree::setProperty()](https://docs.juce.com/master/classValueTree.html#a550e9c8780d4ee56d14d67de17f200e2 "Changes a named property of the tree.")関数は、有効なノードにプロパティを設定する1つの直接的な方法です。設定したいプロパティの名前を指定するための[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトと、それが取る[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")値を提供する必要があります：
 
 ```cpp
 static juce::Identifier propertyName ("name");
 myNode.setProperty (propertyName, "Fluffmuff", nullptr);
 ```
 
-### 物件取得
+### プロパティの取得
 
-プロパティを取得するには、2つの基本的な方法があります。それぞれの方法で[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")で、要求する名前付きプロパティを指定する。
+プロパティを取得する2つの基本的な方法があります。各アプローチでは、要求している名前付きプロパティを指定するための[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")を提供する必要があります。
 
-を使用している。[ValueTree::getProperty()](https://docs.juce.com/master/classValueTree.html#a97f6d4b2a0e28be73d349cba363ab7e2 "指定されたプロパティの値を返します。")関数である：
+[ValueTree::getProperty()](https://docs.juce.com/master/classValueTree.html#a97f6d4b2a0e28be73d349cba363ab7e2 "Returns the value of a named property.")関数を使用する場合：
 
 ```cpp
 juce::String name (myNode.getProperty (propertyName));
-nameint UnityEventModifiers const char * nameDefinition juce_UnityPluginInterface.h:204
 ```
 
-あるいは、添え字演算子（つまり[ValueTree::operator\[\]](https://docs.juce.com/master/classValueTree.html#a6cf8b3f5eac2d14f1323f5fe0f228a71 "指定されたプロパティの値を返します。")関数)：
+または添字演算子（つまり、[ValueTree::operator\[\]](https://docs.juce.com/master/classValueTree.html#a6cf8b3f5eac2d14f1323f5fe0f228a71 "Returns the value of a named property.")関数）を使用する場合：
 
 ```cpp
 name = myNode[propertyName];
 ```
 
-上記の行はどちらも、同じ結果を`name`変数に格納できます。これらのプロパティは[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")型である。したがって、以下のコードも有効である：
+上記の両方の行は、`name`変数に同じ結果を格納します。これらのプロパティはサポートされている任意の[var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")型を保持できることを覚えておいてください。したがって、以下のコードも有効です：
 
 ```cpp
 static juce::Identifier propertySize ("size");
@@ -326,21 +311,21 @@ myNode.setProperty (propertySize, 2.4, nullptr);
 double size = myNode[propertySize];
 ```
 
-ここでは、プロパティは`double`値として簡単に読み戻せます。また、既存のプロパティを異なるタイプの値で置き換えることも可能です。
+ここでは、`double`値を使用してプロパティが同じ方法で設定され、そのように簡単に読み返されます。既存のプロパティを異なる型の値で置き換えることも可能です。
 
-個々の値を[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノード（それ以上複雑なものはない）であれば、すでに始めるのに十分な知識がある！
+[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")ノードに個々の値を格納するだけ（それ以上複雑なことはなく）したい場合は、開始するために十分な知識があります！
 
-### 物件を探す
+### プロパティについて調べる
 
-構造体を使う場合は、これらのメンバー変数を直接設定したり取得したりする機能しかない。しかし[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")ノードを使用することで、(実行時に)*変数*がある。
+構造体を使用している場合、これらのメンバー変数を直接設定または取得する機能しかありません。[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")ノードでは、（実行時に）どのような_変数_があるかを調べることもできます。
 
-について[ValueTree::getNumProperties()](https://docs.juce.com/master/classValueTree.html#a018730ee95c743705aa9132a37829b32 "ツリーに含まれるプロパティの総数を返します。")関数は、ノードが持つプロパティの数を示します：
+[ValueTree::getNumProperties()](https://docs.juce.com/master/classValueTree.html#a018730ee95c743705aa9132a37829b32 "Returns the total number of properties that the tree contains.")関数は、ノードが持つプロパティの数を教えてくれます：
 
 ```cpp
 int numProperties = myNode.getNumProperties();
 ```
 
-について[ValueTree::getPropertyName()](https://docs.juce.com/master/classValueTree.html#a6ea2ce53b4759a37d58e3f99d9702e36 "指定されたインデックスを持つプロパティの識別子を返します。")関数は[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")オブジェクトが、指定された位置のプロパティ名を与える。これを[ValueTree::getNumProperties()](https://docs.juce.com/master/classValueTree.html#a018730ee95c743705aa9132a37829b32 "ツリーに含まれるプロパティの総数を返します。")関数を使えば、そのプロパティの内容を事前に知らなくても、繰り返し実行できる。
+[ValueTree::getPropertyName()](https://docs.juce.com/master/classValueTree.html#a6ea2ce53b4759a37d58e3f99d9702e36 "Returns the identifier of the property with a given index.")関数は、指定された位置のプロパティの名前を示す[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")オブジェクトを返します。これを[ValueTree::getNumProperties()](https://docs.juce.com/master/classValueTree.html#a018730ee95c743705aa9132a37829b32 "Returns the total number of properties that the tree contains.")関数と組み合わせて使用することで、以前に何であるかを知らなくてもプロパティを反復処理することが可能です。
 
 ```cpp
 for (int i = 0; i < numProperties; ++i)
@@ -350,86 +335,85 @@ for (int i = 0; i < numProperties; ++i)
 }
 ```
 
-について[ValueTree::hasProperty()](https://docs.juce.com/master/classValueTree.html#a0dbec0d665fb9d57b9fd7b3189ec0ee0 "ツリーに名前付きプロパティが含まれる場合、true を返します。")関数は、単に特定の名前のプロパティがノードに設定されているかどうかを知らせます：
+[ValueTree::hasProperty()](https://docs.juce.com/master/classValueTree.html#a0dbec0d665fb9d57b9fd7b3189ec0ee0 "Returns true if the tree contains a named property.")関数は、特定の名前付きプロパティがノードに設定されているかどうかを単純に教えてくれます：
 
 ```cpp
 if (myNode.hasProperty (nameProperty))
 {
-   // property was found
+    // プロパティが見つかりました
 }
 ```
 
-これらの関数を使うことで、リフレクションと呼ばれる、プログラムがオブジェクトの性質を調べることができるようになります。あるオブジェクトを扱うとき、あなたのコードがそのオブジェクトを利用できるようにするには、必ずしも定義（たとえばクラス・ヘッダー）が必要なわけではない。
+これらの関数はリフレクションと呼ばれるものを可能にし、プログラムがオブジェクトの性質を検査できます。操作するオブジェクトに直面したとき、コードは必ずしもそれを使用できるようにするための定義（例えば、クラスヘッダー）を必要としません；どのようなメンバーがあるかを確認し、適切であれば使用できます。
 
-## 基本的な子供のアクセス
+## 基本的な子アクセス
 
-より複雑な構造を作りたい場合は、これらのオブジェクトを階層のノードとして使い始めることになる。
+より複雑な構造を作成したい場合は、これらのオブジェクトを階層のノードとして使用し始めたいと思うでしょう。
 
-### 子供の追加
+### 子の追加
 
-ノードには多くのプロパティを付加できるが、配列のようにいくつかの子ノードを含むこともできる。
+ノードは多数のプロパティをアタッチできますが、配列のように多数の子ノードも含めることができます。
 
-子ノードとして追加したいノードがあれば、単純に[ValueTree::addChild](https://docs.juce.com/master/classValueTree.html#a93d639299ef9dfedc651544e05f06693 "このツリーに子を追加する。")()関数を呼び出す。当然、新しい子ノードを渡しますが、その子ノードの位置も指定しなければなりません。特定の位置に子ノードを挿入する必要がない場合は、次のように指定します。`-1`を端に置くだけでいい。
+子として追加したいノードがある場合、追加したいノードで[ValueTree::addChild](https://docs.juce.com/master/classValueTree.html#a93d639299ef9dfedc651544e05f06693 "Adds a child to this tree.") ()関数を呼び出すだけです。当然、新しい子ノードを渡しますが、どこに行くべきかも指定する必要があります。特定の位置に挿入する必要がない場合は、`-1`を指定して単に最後に配置できます。
 
 ```cpp
 juce::ValueTree childNode (myNodeType);
 myNode.addChild (childNode, -1, nullptr);
 ```
 
-ここでは`childNode`ノードは`myNode`.
+ここで、`childNode`ノードに保持されているデータは`myNode`に保持されているデータに属します。
 
-なお、この*所有*も追加参照である。もし`childNode`変数を使用しても、既存のデータが失われることはない。
+この_所属_は追加の参照でもあることに注意してください。`childNode`変数を再割り当てしても、既存のデータは失われません。
 
 ```cpp
 childNode = juce::ValueTree (myNodeType);
 myNode.addChild (childNode, -1, nullptr);
 ```
 
-もはや何もないのかもしれないが[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")そのインスタンスを直接指している直属のスコープ内のオブジェクトは、元のノード内で生かされている。
+直接のスコープにそのインスタンスを直接指す[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトがなくなっても、元のノード内で維持されています。
 
-### 子供を得る
+### 子の取得
 
-子ノードを取り出す方法はいくつかある。どのようなタスクに対してどの方法を選択すべきかは、選択した構造がどのように構成されているかに依存します。
+子ノードを取得するいくつかの方法があります。任意のタスクでどれを選択すべきかは、選択した構造がどのように整理されているかによって異なります。
 
-これらすべてにおいて、子プロセスに対応しないリクエストは無効なオブジェクトを返します。
+それらすべてで、子に対応しないリクエストは無効なオブジェクトを返します。
 
-について[ValueTree::getChild()](https://docs.juce.com/master/classValueTree.html#a3f89053219ec515f24997a115cfd74e5 "このツリーのサブツリーの1つを返します。")関数は、ノードの内部リスト内で指定された位置にある子を返します。常に末尾に追加している場合は`0`は最初に入れたものに対応する：
+[ValueTree::getChild()](https://docs.juce.com/master/classValueTree.html#a3f89053219ec515f24997a115cfd74e5 "Returns one of this tree's sub-trees.")関数は、ノードの内部リスト内の指定された位置に現在存在する子を返します。常に最後に追加している場合、`0`は最初に入れたものに対応します：
 
 ```cpp
 childNode = myNode.getChild (0);
 ```
 
-について[ValueTree::getChildWithName()](https://docs.juce.com/master/classValueTree.html#a4047208c32c4e024a1f2809d1c35be48 "指定された型名を持つ最初のサブツリーを返します。")関数は、指定された名前識別子をノード型として持つ最初の子を返します：
+[ValueTree::getChildWithName()](https://docs.juce.com/master/classValueTree.html#a4047208c32c4e024a1f2809d1c35be48 "Returns the first sub-tree with the specified type name.")関数は、ノード型として指定された名前識別子を持つ最初の子を返します：
 
 ```cpp
 childNode = myNode.getChildWithName (myNodeType);
 ```
 
-について[ValueTree::getChildWithProperty()](https://docs.juce.com/master/classValueTree.html#aa17ae8b3ef8149fe5b9cc8b37d4ebd7d "指定されたプロパティ値を持つ最初のサブツリーを探します。")関数は、指定されたプロパティが指定された値に設定されている最初の子を返します：
+[ValueTree::getChildWithProperty()](https://docs.juce.com/master/classValueTree.html#aa17ae8b3ef8149fe5b9cc8b37d4ebd7d "Looks for the first sub-tree that has the specified property value.")関数は、名前付きプロパティが指定された値に設定されている最初の子を返します：
 
 ```cpp
 childNode = myNode.getChildWithProperty (nameProperty, "Fluffmuff");
 ```
 
-他の条件（例えば、マッチするノード・タイプとプロパティ値の組み合わせ）で子を検索する独自の関数を書くのは簡単です。
+最後の2つは、他の必要なメソッドと同様に、最初のものを使用して書くことができます；他の基準（例えば、一致するノード型とプロパティ値の組み合わせ）で子を取得する独自の関数を書くのは簡単です。
 
-また、任意のノードの現在の所有者を取得するには[ValueTree::getParent()](https://docs.juce.com/master/classValueTree.html#ad22561c896d9bcdb763d27aacbb5815c "このツリーを含む親ツリーを返します。")関数である：
+[ValueTree::getParent()](https://docs.juce.com/master/classValueTree.html#ad22561c896d9bcdb763d27aacbb5815c "Returns the parent tree that contains this one.")関数を使用して、任意のノードの現在の所有者を取得することもできます：
 
 ```cpp
 ValueTree parent (childNode.getParent());
-ValueTreeA powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...Definition juce_ValueTree.h:84
 ```
 
-## 概要
+## まとめ
 
-このチュートリアルでは[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")クラスと関連するクラスがあります。特に
+このチュートリアルでは、[ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")クラスと関連クラスの詳細な概要を提供しました。特に、以下のことができるはずです：
 
-- の重要性を知る。[var](https://docs.juce.com/master/classvar.html "プリミティブ値の範囲を保持するために使用できるバリアントクラス。")そして[Identifier](https://docs.juce.com/master/classIdentifier.html "名前によってプロパティにアクセスするために設計された文字列識別子を表します。")クラスである。
-- どのように作るか[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")のオブジェクトを渡している。
-- のプロパティを追加してアクセスする方法[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトがある。
-- 子ノードを[ValueTree](https://docs.juce.com/master/classValueTree.html "自由形式のデータを保持するために使用できる強力なツリー構造で、独自のアンドゥを扱うことができる。")オブジェクトがある。
+- [var](https://docs.juce.com/master/classvar.html "A variant class, that can be used to hold a range of primitive values.")と[Identifier](https://docs.juce.com/master/classIdentifier.html "Represents a string identifier, designed for accessing properties by name.")クラスの重要性を理解する。
+- [ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトを作成して渡す方法。
+- [ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトのプロパティを追加およびアクセスする方法。
+- [ValueTree](https://docs.juce.com/master/classValueTree.html "A powerful tree structure that can be used to hold free-form data, and which can handle its own undo ...")オブジェクトに子ノードを追加およびアクセスする方法。
 
-## 参照
+## 関連項目
 
-- [Tutorial: Using an UndoManager with a ValueTree](../tutorial_undo_manager_value_tree/)
-- [Tutorial: Saving and loading your plug-in state](../../plugins/tutorial_audio_processor_value_tree_state/)
+- [チュートリアル：ValueTreeでUndoManagerを使用する](../tutorial_undo_manager_value_tree/)
+- [チュートリアル：プラグイン状態の保存と読み込み](../../plugins/tutorial_audio_processor_value_tree_state/)

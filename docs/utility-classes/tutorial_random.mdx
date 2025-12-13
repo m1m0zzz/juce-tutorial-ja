@@ -1,122 +1,120 @@
 ---
-title: ランダムクラス
+title: Randomクラス
 sidebar_position: 2
 tags: [初級]
 ---
 
-# ランダム・クラス
+# チュートリアル：Randomクラス
 
 <SourcePageLink path="tutorial_random" />
 
-このチュートリアルでは[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスである。[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")数字は、ゲーム、暗号、オーディオなど、あらゆる場面で役に立つ。
+このチュートリアルでは、[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスを使用した乱数生成を紹介します。[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")数はゲーム、暗号、オーディオなど、あらゆる場面で役立ちます。
 
-レベル初心者
+**レベル:** 初級<br/>
+**プラットフォーム:** Windows, macOS, Linux, iOS, Android<br/>
+**クラス:** [Random](https://docs.juce.com/master/classRandom.html "A random number generator."), [Range](https://docs.juce.com/master/classRange.html "A general-purpose range object, that simply represents any linear range with a start and end point."), [BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class."), [Colour](https://docs.juce.com/master/classColour.html "Represents a colour, also including a transparency value.")
 
-プラットフォーム：Windows, macOS, Linux, iOS, Android
+## はじめに
 
-クラス： [Random](https://docs.juce.com/master/classRandom.html "乱数発生器。"),[Range](https://docs.juce.com/master/classRange.html "汎用の範囲オブジェクトで、始点と終点を持つ任意の線形範囲を単純に表します。"),[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。"),[Colour](https://docs.juce.com/master/classColour.html "色を表し、透明度の値も含む。")
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/RandomTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/RandomTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-## スタート
+この手順についてサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/RandomTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/RandomTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
+## デモプロジェクト
 
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
+デモプロジェクトは、さまざまな操作の結果を表示できるシンプルなテキストコンソールを設定しています。これにより、このチュートリアルで[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスのいくつかの機能を実証できます。
 
-## デモ・プロジェクト
+デフォルト設定では、デモプロジェクトは100個のランダムに生成された32ビット整数の系列を表示します。これらの値は、`-2,147,483,648 .. 2,147,483,647`の範囲でほぼ均等に分布するはずです。もちろん、これらの値は本当の意味でランダムではありません。コンピュータによって生成されるため、これらは_擬似乱数_です。ほとんどの目的では[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")オブジェクトで十分にランダムですが、特定の重要なアプリケーションや専門的なアプリケーションでは、より洗練された技術を使用する必要があるかもしれません。
 
-デモ・プロジェクトでは、シンプルなテキスト・コンソールをセットアップし、さまざまな操作の結果を表示できるようにしています。これによって[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスがあります。
+## テストベッドコード
 
-デフォルトの設定では、デモ・プロジェクトはランダムに生成された100個の32ビット整数を表示する。これらの値は、次の範囲にほぼ一様に分布していなければならない。\-2,147,483,648 ..2,147,483,647.もちろん、これらの値は本当にランダムなものではない。コンピュータによって生成されたものなので、これらは*きんじランダム*.ほとんどの目的には[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")オブジェクトは十分にランダムであるが、特定の重要なアプリケーションや専門的なアプリケーションでは、より洗練されたテクニックを使用する必要があるかもしれない。
-
-## テストベッド・コード
-
-このチュートリアルでは、デモ・プロジェクトの一部を変更し、以下の機能のさまざまなデモンストレーションを行います。[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスである。これから説明するコードはすべて`MainComponent`クラスである。実際、最初のインスタンスでの変更の多くは`runExample()`関数である。
-
-```cpp
-    void runExample()
-    {
-        logMessage ("------------------------- START --------------------------");
- 
-        for (auto iteration = 0; iteration < 100; ++iteration)
-        {
-            auto randomInt = juce::Random::getSystemRandom().nextInt();
- 
-            logMessage (juce::String (randomInt));
-        }
- 
-        logMessage ("----------------------- FINISHED -------------------------");
-    }
-```
-
-ここでは、共有の（グローバルな）[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")オブジェクトを使用する。[Random::getSystemRandom()](https://docs.juce.com/master/classRandom.html#ad7d9d42dd0efbb68d569e975b0778518 "新しいRandomオブジェクトを作成するオーバーヘッドはかなり小さいが、もしそれを避けたいのであれば...。")関数を使用します。私たちは[Random::nextInt()](https://docs.juce.com/master/classRandom.html#a69dd2014564478eb13ca41c03679c8f9 "次のランダムな 32 ビット整数を返します。")このシステムで機能する[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")オブジェクトを使用して乱数を生成します。ほとんどの場合、このシステム・ランダム・オブジェクトを使ってすべての乱数を生成すれば十分です。しかし、場合によっては[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスで生成されます。これは通常、生成している値が別のスレッドで生成されている場合である。[Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/).2つ以上のスレッドがシステムにアクセスしようとした場合[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")オブジェクトを使用すると、シーケンスが破損し、問題が発生する可能性がある。
-
-## 制限範囲
-
-によって生成される値の範囲を制限したいと思うのは、ほぼ間違いないだろう。[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスである。これは単純な算数でできるが[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスはさらに簡単だ。
-
-### 最大値の設定
-
-最大値を設定するには[Random::nextInt()](https://docs.juce.com/master/classRandom.html#a69dd2014564478eb13ca41c03679c8f9 "次のランダムな 32 ビット整数を返します。")のように整数を指定する：
-
-```cpp
-auto randomInt = juce::Random::getSystemRandom().nextInt (6);
-```
-
-これは最大値を、渡された引数より1小さい値に設定する。この場合、値は以下の範囲になる。0 ..5.この場合、引数は可能な結果の数であると考えた方が簡単かもしれない。最大値として6を使うということは、可能な結果が6つあるということである。これは、ダイスの面が数字であることを除けば、ダイスを振るのと同じである。0 ..5よりも1 ..6!
-
-### 最小値と最大値の設定
-
-もちろん1 ..6このように1を追加すればいい：
-
-```cpp
-auto randomInt = juce::Random::getSystemRandom().nextInt (6) + 1;
-```
-
-しかし[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスを渡すことで、この処理を行うことができます。[Range](https://docs.juce.com/master/classRange.html "汎用の範囲オブジェクトで、始点と終点を持つ任意の線形範囲を単純に表します。")オブジェクト
-
-```cpp
-auto randomInt = juce::Random::getSystemRandom().nextInt (juce::Range (1, 7));
-```
-
-最大値はやはり[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")オブジェクトを生成できるようにする。最小値は*包括的*そして最大値は*排他的*.
-
-## その他の数値タイプ
-
-上記の例では、生成される値はすべて32ビット整数の範囲である。また[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスは64ビットの整数値や、任意の大きさの整数を生成できます。[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")クラスである。
-
-### より大きな整数
-
-64ビット整数を生成するには[Random::nextInt64()](https://docs.juce.com/master/classRandom.html#aa78fa923adb76a168c5c67d072cfcef3 "次の64ビット乱数を返します。")関数である：
-
-```cpp
-auto randomInt = juce::Random::getSystemRandom().nextInt64();
-```
-
-の範囲の整数を生成する。\-9,223,372,036,854,775,808 ..9,223,372,036,854,775,807.64ビット整数でより小さい範囲を指定するには、自分で演算を行う必要がある。
-
-任意に大きな整数を生成するには[Random::nextLargeNumber()](https://docs.juce.com/master/classRandom.html#af9aacfc547bfcdba8aa2fa8f04022896 "乱数を含む BigInteger を返します。")関数を使用します。これは[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトを受け取り[BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトを引数にとり、最大値を示す（ここでも最大値は*排他的*):
+このチュートリアル全体を通して、[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスのさまざまな機能を実証するためにデモプロジェクトの一部を変更します。議論中のすべてのコードは`MainComponent`クラス内にあります。実際、最初のインスタンスでの変更の多くは`runExample()`関数に対するものです。
 
 ```cpp
 void runExample()
 {
     logMessage ("------------------------- START --------------------------");
- 
+
+    for (auto iteration = 0; iteration < 100; ++iteration)
+    {
+        auto randomInt = juce::Random::getSystemRandom().nextInt();
+
+        logMessage (juce::String (randomInt));
+    }
+
+    logMessage ("----------------------- FINISHED -------------------------");
+}
+```
+
+ここでは、[Random::getSystemRandom()](https://docs.juce.com/master/classRandom.html#ad7d9d42dd0efbb68d569e975b0778518 "The overhead of creating a new Random object is fairly small, but if you want to avoid it,...")関数を使用して共有（グローバル）[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")オブジェクトにアクセスしています。このシステム[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")オブジェクトで[Random::nextInt()](https://docs.juce.com/master/classRandom.html#a69dd2014564478eb13ca41c03679c8f9 "Returns the next random 32 bit integer.")関数を呼び出して乱数を生成します。ほとんどの場合、すべての乱数を生成するためにこのシステムランダムオブジェクトを使用することで十分です。場合によっては、[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスの独自のインスタンスを作成する必要があります。これは通常、別のスレッドで値を生成している場合です --- [チュートリアル：ホワイトノイズジェネレータを構築する](../../synth/tutorial_simple_synth_noise/)を参照してください。2つ（またはそれ以上）のスレッドがシステム[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")オブジェクトにアクセスしようとすると、シーケンスが破損し、問題を引き起こす可能性があります。
+
+## 範囲の制限
+
+[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスによって生成される値の範囲を制限したい場合がほとんどです。これは単純な算術演算で行うこともできますが、[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスはさらに簡単にしてくれます。
+
+### 最大値の設定
+
+最大値を設定するには、[Random::nextInt()](https://docs.juce.com/master/classRandom.html#a69dd2014564478eb13ca41c03679c8f9 "Returns the next random 32 bit integer.")に整数を次のように渡すだけです：
+
+```cpp
+auto randomInt = juce::Random::getSystemRandom().nextInt (6);
+```
+
+これは最大値を渡された引数より1少ない値に設定します。この場合、値は`0 .. 5`の範囲になります。この場合、引数を可能な結果の数として考える方が簡単かもしれません。最大値として6を使用すると、6つの可能な結果があることを意味します。これはサイコロを振るのと同じですが、サイコロの面は`1 .. 6`ではなく`0 .. 5`に番号付けされています！
+
+### 最小値と最大値の設定
+
+もちろん、`1 .. 6`の範囲の値を生成するには、次のように1を加えることができます：
+
+```cpp
+auto randomInt = juce::Random::getSystemRandom().nextInt (6) + 1;
+```
+
+しかし、[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスは[Range](https://docs.juce.com/master/classRange.html "A general-purpose range object, that simply represents any linear range with a start and end point.")オブジェクトを渡すことでこれを処理できます：
+
+```cpp
+auto randomInt = juce::Random::getSystemRandom().nextInt (juce::Range<int> (1, 7));
+```
+
+最大値は、[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")オブジェクトが生成できる最大値より1大きくする必要があります。最小値は_包含的_で、最大値は_排他的_です。
+
+## その他の数値型
+
+上記の例では、生成された値はすべて32ビット整数の範囲内にあります。[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスは64ビット整数値を生成でき、[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")クラスを使用して任意に大きな整数も生成できます。
+
+### より大きな整数
+
+64ビット整数を生成するには、[Random::nextInt64()](https://docs.juce.com/master/classRandom.html#aa78fa923adb76a168c5c67d072cfcef3 "Returns the next 64-bit random number.")関数を使用します：
+
+```cpp
+auto randomInt = juce::Random::getSystemRandom().nextInt64();
+```
+
+これは`−9,223,372,036,854,775,808 .. 9,223,372,036,854,775,807`の範囲の整数を生成します。64ビット整数のより小さな範囲を指定するには、自分で算術演算を行う必要があります。
+
+任意に大きな整数を生成するには、[Random::nextLargeNumber()](https://docs.juce.com/master/classRandom.html#af9aacfc547bfcdba8aa2fa8f04022896 "Returns a BigInteger containing a random number.")関数を使用します。これは[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトを返し、最大値を示す単一の[BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトを引数として取ります（ここでも最大値は_排他的_です）：
+
+```cpp
+void runExample()
+{
+    logMessage ("------------------------- START --------------------------");
+
     juce::BigInteger maximumValue;
     maximumValue.setBit (256);
- 
+
     for (auto iteration = 0; iteration < 100; ++iteration)
     {
         auto randomInt = juce::Random::getSystemRandom().nextLargeNumber (maximumValue);
         logMessage (randomInt.toString (10));
     }
- 
+
     logMessage ("----------------------- FINISHED -------------------------");
 }
 ```
 
-の最大値を非常に大きくする。2256のビット256を設定する。`maximumValue` [BigInteger](https://docs.juce.com/master/classBigInteger.html "任意に大きな整数クラス。")オブジェクトを返します。出力はランダムに生成された非常に大きな整数である。例えば
+ここでは、`maximumValue` [BigInteger](https://docs.juce.com/master/classBigInteger.html "An arbitrarily large integer class.")オブジェクトのビット256を設定することで、`2^256`の非常に大きな最大値を作成しています。出力は非常に大きなランダムに生成された整数です。例えば：
 
-```cpp
+```
 ...
 104920467355765962354471349450287456411052143302125448224736731840703932891139
 113537286625531390989138082815985050172086775818737779507269901485377454431686
@@ -132,101 +130,98 @@ void runExample()
 
 ### 浮動小数点値
 
-について[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスは浮動小数点値も生成できる：
+[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスは浮動小数点値も生成できます：
 
 ```cpp
 void runExample()
 {
     logMessage ("------------------------- START --------------------------");
- 
+
     for (auto iteration = 0; iteration < 100; ++iteration)
     {
         auto randomValue = juce::Random::getSystemRandom().nextFloat();
- 
+
         logMessage (juce::String (randomValue));
     }
- 
+
     logMessage ("----------------------- FINISHED -------------------------");
 }
 ```
 
-そして、それを生み出すことができる。`double`価値観の違いだ：
+また、`double`値も生成できます：
 
 ```cpp
 auto randomValue = juce::Random::getSystemRandom().nextDouble();
 ```
 
-いずれの場合も、返される値は以下の範囲にある。0.0 .. 1.0.別の範囲を生成するには、自分で演算を適用する必要があります ([Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)を使うことができる）。を使うことができる。[jmap()](https://docs.juce.com/master/group__juce__core-maths.html#ga53851e83e8f5c5faeb5dbc64196bb329)関数を使用する。
+これらの両方の場合、返される値は`0.0 .. 1.0`の範囲です。異なる範囲を生成するには、自分で算術演算を適用する必要があります（例については[チュートリアル：ホワイトノイズジェネレータを構築する](../../synth/tutorial_simple_synth_noise/)を参照）。これには[jmap()](https://docs.juce.com/master/namespacejuce.html#a3008f211db495b28375125e8ca04f85d)関数を使用できます。
 
-## 価値の可視化
+## 値の可視化
 
-生成された乱数値を視覚化することは、数値の長いリストを見るよりも便利です。これは、一様分布以外の分布を持つ乱数値のセットが必要な場合に特に便利です。これはまた、いくつかの興味深いパターンを作成できます。
+長い数字のリストを見るよりも、生成されたランダム値を可視化すると便利な場合があります。これは、一様分布以外の分布を持つランダム値のセットが必要な場合に特に便利です。これにより、いくつかの興味深いパターンも作成できます。
 
-### ランダムな長方形の位置
+### ランダムな矩形位置
 
-を変更する。`MainContentComponent`を次の単純なコードに置き換える：
+`MainContentComponent`を以下のシンプルなコードに変更してください：
 
 ```cpp
-class MainContentComponent   : public juce::Component
+class MainContentComponent : public juce::Component
 {
 public:
     MainContentComponent()
     {
         setSize (600, 600);
     }
- 
+
     ~MainContentComponent() {}
- 
+
     void paint (juce::Graphics& g) override
     {
         g.fillAll (juce::Colours::black);
         g.setColour (juce::Colours::orange);
- 
+
         auto& random = juce::Random::getSystemRandom();
-        juce::Rectangle rect (0, 0, 20, 20);
- 
+        juce::Rectangle<int> rect (0, 0, 20, 20);
+
         for (auto i = 0; i < 100; ++i)
         {
             rect.setCentre (random.nextInt (getWidth()), random.nextInt (getHeight()));
             g.drawRect (rect);
         }
     }
- 
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
-JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR#define JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(className)This is a shorthand way of writing both a JUCE_DECLARE_NON_COPYABLE and JUCE_LEAK_DETECTOR macro for ...Definition juce_PlatformDefs.h:262
 ```
 
-このような画像が生成されるはずだ：
+これにより、以下のような画像が生成されるはずです：
 
 <CaptionImage
   src="/_images/tutorial_random_screenshot1.png"
-  caption="ランダムに生成された100個の長方形"
+  caption="100個のランダムに生成された矩形"
 />
 
-ウィンドウのサイズを変更してみてください。ウィンドウのサイズが変更されるたびに、新しい矩形のセットが生成されることに気づくだろう。`paint()`関数が呼び出される。
+ウィンドウのサイズを変更してみてください。ウィンドウがリサイズされて`paint()`関数が呼び出されるたびに、新しい矩形のセットが生成されることに気づくでしょう。
 
-:::danger[エクササイズ]
-
-矩形の数や大きさを変えてみてください。例えば、矩形の大きさをウィンドウの大きさに比例させることもできます。矩形の代わりに円を描いてみる。
-
+:::note
+演習：矩形の数とサイズを変更してみてください。例えば、矩形のサイズをウィンドウのサイズに比例させることもできます。矩形の代わりに円を描いてみてください。
 :::
 
-### ランダムな長方形のサイズ
+### ランダムな矩形サイズ
 
-長方形の大きさをランダムにするためには、こうすればいい：
+矩形のサイズをランダム化するには、次のようにします：
 
 ```cpp
 void paint (Graphics& g) override
 {
     g.fillAll (juce::Colours::black);
     g.setColour (juce::Colours::orange);
- 
+
     auto& random = juce::Random::getSystemRandom();
-    juce::Rectangle rect (0, 0, 20, 20);
- 
+    juce::Rectangle<int> rect (0, 0, 20, 20);
+
     for (auto i = 0; i < 100; ++i)
     {
         rect.setSize (random.nextInt (getWidth() / 4), random.nextInt (getHeight() / 4));
@@ -234,13 +229,9 @@ void paint (Graphics& g) override
         g.drawRect (rect);
     }
 }
-GraphicsA graphics context, used for drawing a component or image.Definition juce_GraphicsContext.h:57
-Graphics::drawRectvoid drawRect(int x, int y, int width, int height, int lineThickness=1) constDraws a rectangular outline, using the current colour or brush.
-Graphics::fillAllvoid fillAll() constFills the context's entire clip region with the current colour or brush.
-Graphics::setColourvoid setColour(Colour newColour)Changes the current drawing colour.
 ```
 
-毎回正方形を生成させるには、こうすればいい：
+毎回正方形を生成するようにするには、次のようにします：
 
 ```cpp
 for (auto i = 0; i < 100; ++i)
@@ -250,67 +241,66 @@ for (auto i = 0; i < 100; ++i)
     rect.setCentre (random.nextInt (getWidth()), random.nextInt (getHeight()));
     g.drawRect (rect);
 }
-jminconstexpr Type jmin(Type a, Type b)Returns the smaller of two values.Definition juce_MathsFunctions.h:367
 ```
 
-### ランダムカラー
+### ランダムな色
 
-[Colours](https://docs.juce.com/master/namespaceColours.html "定義済みの名前付き色のセットを含む（ほとんどは標準的なHTMLカラー）。")もランダム化できるが、ランダム化を使って相性の良い色を作るのは少し難しい。例えば、これはそれぞれの長方形に新しいランダムな色を生成します。しかしこの色は*いずれも*色だ：
+[Colours](https://docs.juce.com/master/namespacejuce_1_1Colours.html "Contains a set of predefined named colours (mostly standard HTML colours)")もランダム化できますが、ランダム化を使用してうまく合う色を作成するには少しトリッキーです。例えば、これは各矩形に対して新しいランダムな色を生成します。しかし、この色は_どんな_色でも可能です：
 
 ```cpp
 void paint (juce::Graphics& g) override
 {
     g.fillAll (juce::Colours::black);
- 
+
     auto& random = juce::Random::getSystemRandom();
-    juce::Rectangle rect (0, 0, 20, 20);
- 
+    juce::Rectangle<int> rect (0, 0, 20, 20);
+
     for (auto i = 0; i < 100; ++i)
     {
         juce::Colour colour (random.nextInt (256),
-                             random.nextInt (256),
-                             random.nextInt (256));
- 
+            random.nextInt (256),
+            random.nextInt (256));
+
         g.setColour (colour);
- 
+
         rect.setCentre (random.nextInt (getWidth()), random.nextInt (getHeight()));
         g.drawRect (rect);
     }
 }
 ```
 
-このようになるはずだ：
+これは以下のようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_random_screenshot2.png"
   caption="ランダムに生成された色"
 />
 
-単純な方法で色を限定するには、要素の1つか2つ（赤、緑、青）だけをランダムにして、値の範囲を限定すればいい：
+シンプルな方法で色を制限するには、要素（赤、緑、または青）の1つまたは2つのみをランダム化し、値の範囲を制限することができます：
 
 ```cpp
-juce::Colour colour (random.nextInt (juce::Range (100, 256)),
-                     random.nextInt (juce::Range (50,  200)),
-                     200);
- 
+juce::Colour colour (random.nextInt (juce::Range<int> (100, 256)),
+    random.nextInt (juce::Range<int> (50, 200)),
+    200);
+
 g.setColour (colour);
 ```
 
-これにより、ピンクや紫の色合いが生まれる：
+これにより、ピンクと紫の色合いの色が生成されます：
 
 <CaptionImage
   src="/_images/tutorial_random_screenshot3.png"
-  caption="ピンクとパープル"
+  caption="ピンクと紫"
 />
 
-具体的には、色相、彩度、明度を用いて色を生成できる。例えば、オレンジは色相が約30°（または0.0 .. 1の範囲)。ランダムな色相を0.05 .. 0.15これらはすべて異なるオレンジの色合いであるべきだ。
+より具体的にするには、色相、彩度、明度を使用して色を生成できます。例えば、オレンジは約30°（または`0 .. 1`範囲で0.083）の色相にあります。`0.05 .. 0.15`の範囲でランダムな色相を生成すると、これらはすべて異なるオレンジの色合いになるはずです。
 
 ```cpp
 for (auto i = 0; i < 100; ++i)
 {
     auto hue = juce::jmap (random.nextFloat(), 0.05f, 0.15f);
     g.setColour (juce::Colour::fromHSV (hue, 0.9f, 0.9f, 1.0f));
- 
+
     rect.setCentre (random.nextInt (getWidth()), random.nextInt (getHeight()));
     g.drawRect (rect);
 }
@@ -318,21 +308,19 @@ for (auto i = 0; i < 100; ++i)
 
 <CaptionImage
   src="/_images/tutorial_random_screenshot4.png"
-  caption="ランダムに生成されるオレンジの色合い"
+  caption="ランダムに生成されたオレンジの色相"
 />
 
-:::danger[エクササイズ]
-
-相性の良い色をランダムに集めてみよう。
-
+:::note
+演習：うまく合う他のランダムな色のコレクションを生成してみてください。
 :::
 
-### 配列からランダムに選択する
+### 配列からランダムに選択
 
-配列を使って、特定の色のセットからランダムに選ぶこともできる：
+配列を使用して特定の色のセットからランダムに選択できます：
 
 ```cpp
-class MainContentComponent   : public Component
+class MainContentComponent : public Component
 {
 public:
     MainContentComponent()
@@ -340,59 +328,57 @@ public:
         colours.add (juce::Colours::white);
         colours.add (juce::Colours::orange);
         colours.add (juce::Colours::lightgreen);
- 
+
         setSize (400, 400);
     }
- 
+
     ~MainContentComponent() {}
- 
+
     void paint (juce::Graphics& g) override
     {
         g.fillAll (juce::Colours::black);
- 
+
         auto& random = Random::getSystemRandom();
-        juce::Rectangle rect (0.0f, 0.0f, 5.0f, 5.0f);
- 
+        juce::Rectangle<float> rect (0.0f, 0.0f, 5.0f, 5.0f);
+
         for (auto i = 0; i < 1000; ++i)
         {
             g.setColour (colours[random.nextInt (colours.size())]);
             rect.setCentre ((float) random.nextInt (getWidth()),
-                            (float) random.nextInt (getHeight()));
+                (float) random.nextInt (getHeight()));
             g.drawEllipse (rect, 1.0f);
         }
     }
- 
+
 private:
-    juce::Array colours;
- 
+    juce::Array<Colour> colours;
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
-ComponentThe base class for all JUCE user-interface objects.Definition juce_Component.h:48
-Random::getSystemRandomstatic Random & getSystemRandom() noexceptThe overhead of creating a new Random object is fairly small, but if you want to avoid it,...
 ```
 
-ここでは、項目を配列に格納している。ランダムに項目を選択するために、配列のサイズに基づいてランダムな値を生成します。そして、この値を配列のインデックスとして使用します。
+ここでは、アイテムを配列に格納しています。ランダムにアイテムを選択するには、配列のサイズに基づいてランダムな値を生成します。次に、この値を配列へのインデックスとして使用します。
 
-## その他の分配金
+## その他の分布
 
-このチュートリアルで生成された乱数はすべて、最小値と最大値の間に一様に分布しています。これは統計学のチュートリアルではありませんが、ランダムに生成された特定の値を他の値よりも発生しやすくする簡単な方法をいくつか知っておくと便利です。これは、ゲーム、CGアート、ジェネレーティブサウンドや音楽に応用できます。
+このチュートリアルでこれまでに生成されたすべての乱数は、最小値と最大値の間で均等に分布していました。これは統計に関するチュートリアルではありませんが、特定のランダムに生成された値が他の値よりも発生しやすくするいくつかの簡単な方法を知っておくと便利です。これはゲーム、コンピュータ生成アート、ジェネレーティブサウンドや音楽に応用できます。
 
-以下のコードでは、ウィンドウ全体に一様に分布した1,000個の円を生成している：
+以下のコードでは、ウィンドウ全体に均等に分布した1,000個の円を生成します：
 
 ```cpp
 void paint (juce::Graphics& g) override
 {
     g.fillAll (juce::Colours::black);
     g.setColour (juce::Colours::orange);
- 
+
     auto& random = juce::Random::getSystemRandom();
-    juce::Rectangle rect (0.0f, 0.0f, 5.0f, 5.0f);
- 
+    juce::Rectangle<float> rect (0.0f, 0.0f, 5.0f, 5.0f);
+
     for (auto i = 0; i < 1000; ++i)
     {
         rect.setCentre ((float) random.nextInt (getWidth()),
-                        (float) random.nextInt (getHeight()));
+            (float) random.nextInt (getHeight()));
         g.drawEllipse (rect, 1.0f);
     }
 }
@@ -400,185 +386,178 @@ void paint (juce::Graphics& g) override
 
 <CaptionImage
   src="/_images/tutorial_random_screenshot5.png"
-  caption="一様分布円"
+  caption="均等に分布した円"
 />
 
-画像から、円がほぼ均一に分布していることがわかるだろう。
+画像から、円がほぼ均等に分布していることがわかります。
 
-線形分布とは、範囲の一端にある値が他の値よりも可能性が高いというものです。範囲全体の値は、範囲のもう一方の端に向かって可能性が低くなります。この2点間の確率は線形に変化します。これを実装する簡単な方法は、別の乱数値の結果に基づいて1つの乱数値を生成することです。以下の例ではxそしてy円の座標。
+線形分布は、範囲の一端の値が他の値よりも可能性が高い分布です。範囲全体の値は、もう一方の端に向かって可能性が低くなります。これら2点間の確率は線形に変化します。これを実装する簡単な方法は、別のランダム値の結果に基づいて1つのランダム値を生成することです。以下の例では、円の`x`と`y`座標の両方に線形分布値を生成します。
 
 ```cpp
 for (auto i = 0; i < 1000; ++i)
 {
-    auto x = random.nextInt (random.nextInt (Range (1, getWidth())));
-    auto y = random.nextInt (random.nextInt (Range (1, getHeight())));
- 
+    auto x = random.nextInt (random.nextInt (Range<int> (1, getWidth())));
+    auto y = random.nextInt (random.nextInt (Range<int> (1, getHeight())));
+
     rect.setCentre (x, y);
     g.drawEllipse (rect, 1.0f);
 }
-RangeA general-purpose range object, that simply represents any linear range with a start and end point.Definition juce_Range.h:55
-xfloat xDefinition juce_UnityPluginInterface.h:200
-yfloat float yDefinition juce_UnityPluginInterface.h:200
 ```
 
-ここでは、ランダムな値を1つ生成し、その結果を[Random::nextInt()](https://docs.juce.com/master/classRandom.html#a69dd2014564478eb13ca41c03679c8f9 "次のランダムな 32 ビット整数を返します。")関数を使って最終値を生成する。
+ここでは、1つのランダム値を生成し、その結果を[Random::nextInt()](https://docs.juce.com/master/classRandom.html#a69dd2014564478eb13ca41c03679c8f9 "Returns the next random 32 bit integer.")関数に渡して最終値を生成しています。
 
-:::note
-
-に渡される最大値としてゼロを使うことはできない。[Random::nextInt()](https://docs.juce.com/master/classRandom.html#a69dd2014564478eb13ca41c03679c8f9 "次のランダムな 32 ビット整数を返します。")関数を使うので、最初の乱数が最小値1であることを確認する必要がある。
-
+:::tip
+[Random::nextInt()](https://docs.juce.com/master/classRandom.html#a69dd2014564478eb13ca41c03679c8f9 "Returns the next random 32 bit integer.")関数に渡す最大値としてゼロを使用することはできないため、最初の乱数が最低1であることを確認する必要があります。
 :::
 
-結果はこのようになるはずだ：
+結果は以下のようになるはずです：
 
 <CaptionImage
   src="/_images/tutorial_random_screenshot6.png"
-  caption="左上を中心としたサークル"
+  caption="左上隅を中心とした円"
 />
 
-ゼロに向かう値の方が可能性が高いので、円は左上隅に集中しているように見える。円を中心に表示するには、コードを次のように変更する：
+ゼロに向かう値がより可能性が高いため、円は左上隅を中心に集まっているように見えます。円を中央に集中させるには、コードを次のように変更できます：
 
 ```cpp
-auto centreX = getWidth()  / 2;
+auto centreX = getWidth() / 2;
 auto centreY = getHeight() / 2;
- 
+
 for (auto i = 0; i < 1000; ++i)
 {
-    auto x0 = random.nextInt (juce::Range (1, getWidth()  / 2));
-    auto x  = random.nextInt (juce::Range (centreX - x0, centreX + x0));
-    auto y0 = random.nextInt (juce::Range (1, getHeight() / 2));
-    auto y  = random.nextInt (juce::Range (centreY - y0, centreY + y0));
- 
+    auto x0 = random.nextInt (juce::Range<int> (1, getWidth() / 2));
+    auto x = random.nextInt (juce::Range<int> (centreX - x0, centreX + x0));
+    auto y0 = random.nextInt (juce::Range<int> (1, getHeight() / 2));
+    auto y = random.nextInt (juce::Range<int> (centreY - y0, centreY + y0));
+
     rect.setCentre (x, y);
     g.drawEllipse (rect, 1.0f);
 }
 ```
 
-### 加重分布
+### 重み付き分布
 
-場合によっては、特定の結果の確率に特別な重み付けをしたいこともあるだろう。先ほどの例で、配列の3色からランダムに選んだ場合を考えてみよう。白が最も可能性が高く、オレンジは可能性が低く、緑はオレンジよりもさらに可能性が低いとします。確率は次の表のように定義できる：
+場合によっては、特定の結果の確率を具体的に重み付けしたい場合があります。配列から3つの色をランダムに選択した以前の例を取り上げましょう。白が最も可能性が高く、オレンジがそれほど可能性が高くなく、緑がオレンジよりもさらに可能性が低いとしましょう。以下の表に示すように確率を定義できます：
 
-| カラー | 確率 |
-| --- | --- |
-| ホワイト | 70% |
+| 色 | 確率 |
+|------|------|
+| 白 | 70% |
 | オレンジ | 25% |
-| グリーン | 5% |
+| 緑 | 5% |
 
-の配列を追加することもできる。*ウェイト*を、重みのインデックスが色のインデックスに対応するコードに置き換えた：
+重みのインデックスが色のインデックスに対応する追加の_重み_配列をコードに追加できます：
 
 ```cpp
-class MainContentComponent   : public juce::Component
+class MainContentComponent : public juce::Component
 {
 public:
     MainContentComponent()
     {
         colours.add (juce::Colours::white);
         weights.add (0.7f);
- 
+
         colours.add (juce::Colours::orange);
         weights.add (0.25f);
- 
+
         colours.add (juce::Colours::lightgreen);
         weights.add (0.05f);
- 
+
         setSize (400, 400);
     }
- 
+
     void paint (juce::Graphics& g) override
     {
         g.fillAll (juce::Colours::black);
- 
+
         juce::Random random;
-        juce::Rectangle rect (0.0f, 0.0f, 5.0f, 5.0f);
- 
+        juce::Rectangle<float> rect (0.0f, 0.0f, 5.0f, 5.0f);
+
         auto sumOfWeights = sumFloatArray (weights); // [1]
- 
+
         for (auto i = 0; i < 1000; ++i)
         {
             g.setColour (colourAtQuantile (random.nextFloat() * sumOfWeights)); // [2]
- 
+
             rect.setCentre ((float) random.nextInt (getWidth()),
-                            (float) random.nextInt (getHeight()));
- 
+                (float) random.nextInt (getHeight()));
+
             g.drawEllipse (rect, 1.0f);
         }
     }
- 
+
 private:
-    static float sumFloatArray (const juce::Array& values)
+    static float sumFloatArray (const juce::Array<float>& values)
     {
         auto sum = 0.0f;
- 
+
         for (auto value : values)
             sum += value;
- 
+
         return sum;
     }
- 
-    static int indexOfQuantile (const juce::Array& weights, float quantile)
+
+    static int indexOfQuantile (const juce::Array<float>& weights, float quantile)
     {
         auto runningTotal = 0.0f; // [4]
- 
+
         for (auto weight : weights)
         {
             runningTotal += weight;
- 
+
             if (quantile < runningTotal) // [5]
                 return weights.indexOf (weight);
         }
- 
+
         return -1;
     }
- 
-    juce::Colour colourAtQuantile (float quantile) const  // [3]
+
+    juce::Colour colourAtQuantile (float quantile) const // [3]
     {
         auto index = indexOfQuantile (weights, quantile);
         return index < 0 ? juce::Colours::transparentBlack : colours[index];
     }
- 
+
     //==============================================================================
-    juce::Array colours;
-    juce::Array weights;
- 
+    juce::Array<juce::Colour> colours;
+    juce::Array<float> weights;
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-これは次のように機能する：
+これは以下のように機能します：
 
-- \[1\]乱数を生成するには、まず重みの和を取る。この場合、重みの和は1.0であることが分かっているが、この手法では重みは1.0にはならない。*必要*を合計して1.0とする。
-- \[2\]の範囲で乱数を生成する。0 ... 合計.
-- \[3\]:その`colourAtQuantile()`関数はこの値を使って色を見つける。
-- \[4\]これは、重みの配列を繰り返しながら、重みの合計を計算し続けることで達成される。
-- \[5\]実行中の合計がランダムに生成された値を超えたら、その色を見つけたことになる。
+- [1]：乱数を生成するには、まず重みの合計を取ります。この場合、重みの合計が1.0であることがわかっていますが、この技術を使用すると、重みは1.0に合計する_必要_はありません。
+- [2]：次に、`0 .. sum`の範囲で乱数を生成します。
+- [3]：`colourAtQuantile()`関数はこの値を使用して色を見つけます。
+- [4]：これは、重みの配列を反復処理しながら重みの累計を保持することで達成されます。
+- [5]：累計がランダムに生成された値を超えると、色が見つかります。
 
-:::note
-
-この最後の例のコードは`RandomTutorial_02.h`ファイルにある。
-
+:::tip
+この最後の例のコードは、デモプロジェクトの`RandomTutorial_02.h`ファイルにあります。
 :::
 
-結果は以下のスクリーンショットの通り：
+結果は以下のスクリーンショットに示されています：
 
 <CaptionImage
   src="/_images/tutorial_random_screenshot7.png"
-  caption="重み付けされた色の選択"
+  caption="重み付きの色の選択"
 />
 
-## 概要
+## まとめ
 
-このチュートリアルでは[Random](https://docs.juce.com/master/classRandom.html "乱数発生器。")クラスと一般的な乱数生成について説明します。このチュートリアルを読めば、次のことができるようになるでしょう：
+このチュートリアルでは、[Random](https://docs.juce.com/master/classRandom.html "A random number generator.")クラスと乱数生成全般について紹介しました。このチュートリアルを読んだ後、以下のことができるはずです：
 
 - ランダムな整数と浮動小数点値を生成する。
 - 生成される乱数の範囲を制限する。
-- ランダムな値を使用して描画タスクを実行します。
-- ランダムに生成された色の特定の範囲を生成する。
-- 配列から値をランダムに選択する。
+- ランダムな値を使用して描画タスクを実行する。
+- ランダムに生成される色の特定の範囲を生成する。
+- 配列からランダムに値を選択し、これらの選択の確率を重み付けすることを含む。
 
-## 参照
+## 関連項目
 
-- [Tutorial: The BigInteger class](../tutorial_big_integer/)
-- [Tutorial: Colours in JUCE](../../interface-design/tutorial_colours/)
-- [Tutorial: File reading](../tutorial_file_reading/)
-- [Tutorial: Build a white noise generator](../../synth/tutorial_simple_synth_noise/)
+- [チュートリアル：BigIntegerクラス](../tutorial_big_integer/)
+- [チュートリアル：JUCEの色](../../interface-design/tutorial_colours/)
+- [チュートリアル：ファイル読み込み](../tutorial_file_reading/)
+- [チュートリアル：ホワイトノイズジェネレータを構築する](../../synth/tutorial_simple_synth_noise/)

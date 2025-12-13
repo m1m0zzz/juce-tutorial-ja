@@ -1,90 +1,92 @@
 ---
-title: オンライン登録でプラグインのロックを解除
+title: オンライン登録でプラグインをアンロックする
 sidebar_position: 7
 tags: [上級]
 ---
 
-# オンライン登録でプラグインのロックを解除する
+# チュートリアル：オンライン登録でプラグインをアンロックする
 
 <SourcePageLink path="tutorial_online_unlock_status" />
 
-認証されるまでアクセスをロックすることで、アプリやプラグインのセキュリティを向上させましょう。オンラインでキーを登録することで、プラグインのロックを解除する仕組みをユーザーに提供する方法をご紹介します。
+認証されるまでアクセスをロックすることで、アプリやプラグインのセキュリティを向上させます。オンラインキー登録を通じてプラグインをアンロックするメカニズムをユーザーに提供する方法を学びます。
 
-レベル：上級
-
-プラットフォーム：Windows, macOS, Linux
-
-クラス： [OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "オンラインアンロックシステムの基本クラス。"),[OnlineUnlockForm](https://docs.juce.com/master/classOnlineUnlockForm.html "GUIとして動作し、ユーザーに詳細を尋ね、Onlineの適切なメソッドを呼び出す。"),[KeyGeneration](https://docs.juce.com/master/classKeyGeneration.html "OnlineUnlockStatus句でアンロックできるキー・ファイルを生成するための静的ユーティリティが含まれている。"),[RSAKey](https://docs.juce.com/master/classRSAKey.html "RSA 公開鍵/秘密鍵ペア暗号化クラス。"),[TracktionMarketplaceStatus](https://docs.juce.com/master/classTracktionMarketplaceStatus.html "Tracktion Marketplace サーバと通信する OnlineUnlockStatus クラスの実装です。")
+**レベル:** 上級<br/>
+**プラットフォーム:** Windows, macOS, Linux<br/>
+**クラス:** [OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "A base class for online unlocking systems."), [OnlineUnlockForm](https://docs.juce.com/master/classOnlineUnlockForm.html "Acts as a GUI which asks the user for their details, and calls the appropriate methods on your Online..."), [KeyGeneration](https://docs.juce.com/master/classKeyGeneration.html "Contains static utilities for generating key-files that can be unlocked by the OnlineUnlockStatus cla..."), [RSAKey](https://docs.juce.com/master/classRSAKey.html "RSA public/private key-pair encryption class."), [TracktionMarketplaceStatus](https://docs.juce.com/master/classTracktionMarketplaceStatus.html "An implementation of the OnlineUnlockStatus class which talks to the Tracktion Marketplace server.")
 
 :::warning
-
-このチュートリアルでは、RSA暗号、証明書、ネットワークプロトコル、PHP構文についての初歩的な知識を前提としています。
-
+このチュートリアルは、RSA暗号、証明書、ネットワークプロトコル、PHPの構文に関する初歩的な知識を前提としています。
 :::
-
-## スタート
-
-このチュートリアルのデモ・プロジェクトのダウンロードはこちらから：[PIP](https://docs.juce.com/tutorials/PIPs/OnlineUnlockStatusTutorial.zip)|[ZIP](https://docs.juce.com/tutorials/ZIPs/OnlineUnlockStatusTutorial.zip).プロジェクトを解凍し、最初のヘッダーファイルをProjucerで開く。
-
-このステップでヘルプが必要な場合は、以下を参照してください。[Tutorial: Projucer Part 1: Getting started with the Projucer](../../getting-started/tutorial_new_projucer_project/).
-
-## デモ・プロジェクト
-
-デモ・プロジェクトは、2つのボタンを持つ非常にシンプルなUIを示しており、そのうちの1つは、登録によってもう1つへのアクセスをロック解除するために使用されます。Unlock "ボタンが押されると、ユーザーが認証情報を入力するための登録フォームが開きます。現時点では、バックエンドサーバーの実装を開始するまで、登録プロセスは失敗します。
-
-<CaptionImage
-  src="/_images/tutorial_online_unlock_status_screenshot1.png"
-  caption="ロックされたアプリケーション・ウィンドウ"
-/>
-
-アプリケーションの実装と認証に成功すると、このチュートリアルの最後には、以下のようにアプリのロックが解除された状態が表示されるはずです。
-
-<CaptionImage
-  src="/_images/tutorial_online_unlock_status_screenshot2.png"
-  caption="ロック解除されたアプリケーション・ウィンドウ"
-/>
 
 ## はじめに
 
-プラグイン製造者として、ハッカーによってあなたのプラグインがクラックされたり、あなたの同意なしに無料で配布されたりすることは、時にフラストレーションがたまるものです。あなたのアプリケーションをそのような脅威に対して完全に防御することは難しいかもしれませんが、ハッカーにとってこのプロセスをより面倒なものにする手段はあります。時には、製品を購入するかどうかを決める前に、ユーザーに試用期間を提供したり、無料層のユーザーに対して特定の機能を制限したりすることもできます。
+このチュートリアルのデモプロジェクトをこちらからダウンロードしてください：[PIP](https://docs.juce.com/tutorials/PIPs/OnlineUnlockStatusTutorial.zip) \| [ZIP](https://docs.juce.com/tutorials/ZIPs/OnlineUnlockStatusTutorial.zip)。プロジェクトを解凍し、最初のヘッダファイルをProjucerで開いてください。
 
-PACEのiLokのようなサードパーティライセンスソリューションを使用する場合もあるが、これはライセンスを携帯するための物理的なUSBスティックを必要とする。
+この手順についてサポートが必要な場合は、[チュートリアル：Projucer Part 1: Projucerを始めよう](../../getting-started/tutorial_new_projucer_project/)を参照してください。
 
-このチュートリアルでは、ウェブサーバー認証によってプラグインを登録する2番目の方法について説明します。この方法の利点は、オンラインでもオフラインでも機能し、登録に物理的なデバイスを必要としないことです。しかし、プラグインは一定期間マシンに登録されるため、プラグインを起動するたびに認証が必要なPACEのソリューションと比較すると、この手法はハッキングに対してより脆弱です。
+## デモプロジェクト
 
-では、サーバー認証はどのように行われるのでしょうか？ マシンがインターネットに接続されている場合、プラグインが安全な接続を通じてユーザー認証情報を送信し、サーバーにライセンスキーを問い合わせる、いわゆるオンライン認証を行うことができます。ユーザーが製品を購入したことが確認されれば、サーバーはキーファイルをマシンに送り返し、プラグインはロック解除されます。一方、マシンがオフラインの場合でも、ユーザーはインターネットに接続された別のコンピューターでウェブサーバーからキーファイルをダウンロードし、そのキーファイルをコピーしてプラグインにロードすることで、オフラインのマシンに適用できる。
+デモプロジェクトは、2つのボタンを持つ非常にシンプルなUIを表示します。そのうちの1つは、登録を通じてもう1つへのアクセスをアンロックするために使用されます。「Unlock」ボタンが押されると、ユーザーが資格情報を入力するための登録フォームが開きます。現時点では、バックエンドサーバーの実装を開始するまで、登録プロセスは失敗します。
+
+<CaptionImage
+  src="/_images/tutorial_online_unlock_status_screenshot1.png"
+  caption="ロックされたアプリケーションウィンドウ"
+/>
+
+このチュートリアルの終わりに実装と認証が成功すると、以下のようなアプリのアンロック状態が表示されるはずです。
+
+<CaptionImage
+  src="/_images/tutorial_online_unlock_status_screenshot2.png"
+  caption="アンロックされたアプリケーションウィンドウ"
+/>
+
+## 導入
+
+プラグインメーカーとして、プラグインがハッカーにクラックされたり、同意なしに無料で配布されたりすることは時としてフラストレーションを感じることがあります。そのような脅威に対してアプリケーションを完全に防御することは難しい場合がありますが、ハッカーにとってこのプロセスをより面倒にする手段はあります。場合によっては、ユーザーが製品を購入する前に試用できる試用期間を提供したり、無料ティアユーザーに対して特定の機能を制限したりすることもあります。
+
+メーカーによって、プラグインのセキュリティを向上させるために異なる方法が使用されます：一部はライセンスを持ち運ぶための物理的なUSBスティックを必要とするPACEのiLokなどのサードパーティのライセンスソリューションを使用したり、リモートWebサーバー上のデータベースに対して資格情報をチェックしてユーザーを認証する独自のシステムを使用したりします。
+
+このチュートリアルでは、Webサーバー認証を介してプラグインを登録する2番目の方法を見ていきます。この方法の利点は、オンラインでもオフラインでも機能し、登録に物理的なデバイスを必要としないことです。ただし、プラグインは一定期間マシンに登録されるため、この技術はプラグインが起動するたびに認証を必要とするPACEのソリューションに比べてハッキングに対してより脆弱です。
+
+では、サーバー認証はどのように機能するのでしょうか？マシンがインターネットに接続されている場合、オンライン認証と呼ばれるものを実行でき、プラグインは安全な接続を通じてユーザーの資格情報を送信し、サーバーにライセンスキーをプローブします。ユーザーが製品を購入したことが確認された場合、サーバーはマシンにキーファイルを送り返し、プラグインをアンロックできます。一方、マシンがオフラインの場合、ユーザーはインターネットに接続された別のコンピュータを介してWebサーバーからキーファイルをダウンロードでき、そのキーファイルをオフラインマシンにコピーしてプラグインにロードすることで適用できます。
 
 ### RSA暗号化
 
-ここで暗号について少し話をしよう。二者間の伝送中に情報が改ざんされないようにするにはどうすればいいのでしょうか？ これを確実にするために、RSAと呼ばれる広く使われている安全な暗号化アルゴリズムを使います。RSAは、素数を用いて一対の鍵を作成し、一方を公開鍵、もう一方を秘密鍵として機能します。公開鍵は公に共有でき、メッセージの暗号化に使われる。秘密鍵は受信側で秘密にされ、メッセージの復号化に使われる。
+では、暗号について少し話しましょう。2つの当事者間の送信中に情報が改ざんされないことをどのように保証するのでしょうか？これを保証するためにRSAと呼ばれる広く使用されている安全な暗号化アルゴリズムを使用します。RSAは、素数を使用してペアのキーが作成され、そのうちの1つが公開で、もう1つが非公開であることに基づいて機能します。公開キーは公開で共有でき、メッセージを暗号化するために使用されます。秘密キーは受信者によって非公開に保持され、メッセージを復号化するために使用されます。
 
-RSAの設計上、一致するペアの対応する公開鍵で暗号化されたメッセージを復号できるのは秘密鍵の所有者のみである。このシナリオは、ボブは公開鍵を知っており、アリスは秘密鍵を所有し、イブはメッセージを傍受しようとする第三者である、という次の図で説明できる：
+RSAの設計方法により、一致するペアの対応する公開キーで暗号化されたメッセージを復号化できるのは秘密キーの所有者だけです。このシナリオは、Bobが公開キーを知っており、Aliceが秘密キーを所有し、Eveがメッセージを傍受しようとする第三者である以下の図で説明できます：
 
-<p><b>このブラウザではSVGを表示できません: 代わりにFirefox、Chrome、Safari、またはOperaをお試しください。</b></p>
+<CaptionImage
+  src="/_images/dot_inline_dotgraph_8.svg"
+  caption=""
+/>
 
-上記の場合、Eveはメッセージを復号するための秘密鍵を持っていないので、 Bobからのメッセージを読むことはできない。彼女は公開鍵を使って暗号化されたメッセージをアリスに送ることはできるが、 ボブのメッセージを傍受したいイヴには使えない。これは通常、RSAの最も一般的な使用例で、あるパーティが秘密のメッセージを送りたい場合に使われるが、プラグイン登録プロセスでRSAが使われるのはこの方法ではない。
+上記の場合、Eveはメッセージを復号化する秘密キーを持っていないため、Bobからのメッセージを読むことができません。彼女は公開キーを使用してAliceに暗号化されたメッセージを送信できますが、これはBobのメッセージを傍受したいEveには役に立ちません。これは通常、ある当事者が秘密のメッセージを送信したいRSAの最も一般的なユースケースですが、これはプラグイン登録プロセスでRSAが使用される方法ではありません。
 
-プラグインの認証に使われるRSAには、秘密鍵でメッセージを暗号化し、公開鍵でそれを復号化するというシナリオもある。ボブはプラグインがインストールされたマシン、アリスは登録のための認証ウェブサーバ、イブはプラグインをハックしようとするサードパーティである：
+プラグイン認証に使用されるRSAの代替シナリオがあり、秘密キーがメッセージを暗号化するために使用され、公開キーがそれを復号化するために使用されます。これは、Bobがプラグインがインストールされているマシン、Aliceが登録用の認証Webサーバー、Eveがプラグインにハッキングしようとする第三者である以下の図で説明できます：
 
-<p><b>このブラウザではSVGを表示できません: 代わりにFirefox、Chrome、Safari、またはOperaをお試しください。</b></p>
+<CaptionImage
+  src="/_images/dot_inline_dotgraph_9.svg"
+  caption=""
+/>
 
-この場合、BobとEveを含むAliceが秘密鍵で暗号化したメッセージは、 公開鍵を持っていれば誰でも復号できる。しかし、もしEveが暗号化されたメッセージを、マッチするペアの対応する秘密鍵なしでBobに送ろうとすると、Bobは公開鍵で復号することでメッセージの真正性をチェックできる。その結果、データにはゴミが含まれるため、EveはAliceになりすますことができない。
+この場合、公開キーを持つ誰でも（BobとEveを含む）、Aliceの秘密キーで暗号化されたメッセージを復号化できます。ただし、Eveが一致するペアの対応する秘密キーなしでBobに暗号化されたメッセージを送信しようとした場合、Bobは公開キーで復号化することでメッセージの真正性を確認できます。その後、データにゴミが含まれるため、結果が確かに有効であることを確認でき、したがってEveはAliceになりすますことができません。
 
-これと同様に、プラグイン認証は、サーバから送信されたメッセージが有効かどうかをチェックするだけで、実行できます。ありがたいことに、この暗号化と復号化の手続きは、JUCEライブラリが以下のようなクラスによって処理してくれます。[KeyGeneration](https://docs.juce.com/master/classKeyGeneration.html "OnlineUnlockStatus句でアンロックできるキー・ファイルを生成するための静的ユーティリティが含まれている。")そして[RSAKey](https://docs.juce.com/master/classRSAKey.html "RSA 公開鍵/秘密鍵ペア暗号化クラス。").
+同様に、サーバーが資格情報がデータベースに対して正しい場合にのみ応答を送信することを条件として、サーバーから送信されたメッセージが有効かどうかを確認するだけでプラグイン認証を実行できます。幸いなことに、この暗号化と復号化の手順はすべて、[KeyGeneration](https://docs.juce.com/master/classKeyGeneration.html "Contains static utilities for generating key-files that can be unlocked by the OnlineUnlockStatus cla...")や[RSAKey](https://docs.juce.com/master/classRSAKey.html "RSA public/private key-pair encryption class.")などのクラスによってJUCEライブラリで処理されます。
 
-RSA暗号化の仕組みを理解したところで、デモ・プロジェクトに登録メカニズムを実装してみよう。
+RSA暗号化がどのように機能するかを理解したので、デモプロジェクトに登録メカニズムを実装し始めましょう。
 
-## 市場ステータスの導入
+## マーケットプレイスステータスの実装
 
-あるマシンでアプリケーションを使用するクライアントと、アプリケーションを認可する登録サーバとの間の通信を容易にするために、JUCEライブラリは[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "オンラインアンロックシステムの基本クラス。")クラスで定義されています。このクラスは、アプリケーションがインストールされている現在のマシンの登録ステータスを管理する基盤を提供します。
+マシン上のアプリケーションを使用するクライアントとアプリケーションを認証する登録サーバー間の通信を容易にするために、JUCEライブラリは[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "A base class for online unlocking systems.")クラスと呼ばれるインターフェースとして機能する基本クラスを提供します。このクラスは、アプリケーションがインストールされている現在のマシンの登録ステータスを管理するための基盤を提供します。
 
-店舗固有のマーケットプレイスを実装するための最初のステップは、次のものを継承することである。[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "オンラインアンロックシステムの基本クラス。")クラスと、このサブクラスの実装方法の例は[TracktionMarketplaceStatus](https://docs.juce.com/master/classTracktionMarketplaceStatus.html "Tracktion Marketplace サーバと通信する OnlineUnlockStatus クラスの実装です。")クラスを作成します。この実装はTracktionマーケットプレイス専用に設計されたものなので、独自のサブクラスを作成する必要がありますが、サーバからのレスポンスを処理するコードはそのまま流用します。
+ストア固有のマーケットプレイスを実装するための最初のステップは、[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "A base class for online unlocking systems.")クラスから継承することであり、このサブクラスを実装する方法の例は[TracktionMarketplaceStatus](https://docs.juce.com/master/classTracktionMarketplaceStatus.html "An implementation of the OnlineUnlockStatus class which talks to the Tracktion Marketplace server.")クラスで説明されています。この実装はTracktionマーケットプレイス用に特別に設計されているため、独自の独立したサブクラスを作成する必要がありますが、サーバーからの応答を処理するコードは同一のままにできるため借用します。
 
-まずは`TutorialMarketplaceStatus`クラスから派生した[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "オンラインアンロックシステムの基本クラス。")クラスである。クラスは`readReplyFromWebserver()`そして`userCancelled()`の関数をコピーした。[TracktionMarketplaceStatus](https://docs.juce.com/master/classTracktionMarketplaceStatus.html "Tracktion Marketplace サーバと通信する OnlineUnlockStatus クラスの実装です。")を実装した。
+まず、[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "A base class for online unlocking systems.")クラスから派生する`TutorialMarketplaceStatus`クラスの実装を見てみましょう。`readReplyFromWebserver()`と`userCancelled()`関数は、簡単のために[TracktionMarketplaceStatus](https://docs.juce.com/master/classTracktionMarketplaceStatus.html "An implementation of the OnlineUnlockStatus class which talks to the Tracktion Marketplace server.")実装からコピーされていることに注意してください。
 
-あとは、基底クラスの残りの仮想関数を埋めて、独自のマーケットプレイス実装を完成させる必要がある。
+基本クラスからの残りの仮想関数を埋めて、独自のマーケットプレイス実装を完成させる必要があります。
 
-アプリケーションのプロダクトIDを`getProductID()`関数を使用して、このIDが後でサーバー上の製品IDと一致することを確認する：
+`getProductID()`関数にアプリケーションの製品IDを挿入し、このIDが後でサーバー上の製品IDと一致することを確認してください：
 
 ```cpp
 juce::String getProductID() override
@@ -93,7 +95,7 @@ juce::String getProductID() override
 }
 ```
 
-以下の通りである。`doesProductIDMatch()`関数は、サーバーから送信されたIDが、前のステップで挿入された製品IDと一致するかどうかを検証しなければならない：
+次の`doesProductIDMatch()`関数は、サーバーから送信されたIDが前のステップで挿入された製品IDと一致するかどうかを確認する必要があります：
 
 ```cpp
 bool doesProductIDMatch (const juce::String& returnedIDFromServer) override
@@ -102,7 +104,7 @@ bool doesProductIDMatch (const juce::String& returnedIDFromServer) override
 }
 ```
 
-次に、ウェブサイトの名前を`getWebsiteName()`関数を使用します。この情報は、サーバーに問い合わせる際にユーザーにドメイン名を表示するためだけに使用されます。
+次に、`getWebsiteName()`関数にウェブサイトの名前を挿入します。この情報は、サーバーに連絡するときにユーザーにドメイン名を表示するためにのみ使用されます。
 
 ```cpp
 juce::String getWebsiteName() override
@@ -111,7 +113,7 @@ juce::String getWebsiteName() override
 }
 ```
 
-次の関数が重要で、これはアプリの認証を試みる際にコンタクトされるアドレスであり、マーケットプレイスサーバーを指す必要がある。このチュートリアルの目的では、テストサーバーが私たちのマシン上でローカルに実行されるため、"localhost "または "127.0.0.1 "のIPアドレスを指します。サーバーは単純化のためにPHP言語を使用するため、指すページはPHP拡張子で終わります。
+次の関数は重要です。これはアプリの認証を試みるときに連絡されるアドレスであり、マーケットプレイスサーバーを指す必要があります。このチュートリアルの目的のために、テストサーバーはマシン上でローカルに実行されるため、「localhost」または「127.0.0.1」IPアドレスを指します。サーバーは簡単のためにPHP言語を使用するため、ポイントするページはPHP拡張子で終わります。
 
 ```cpp
 juce::URL getServerAuthenticationURL() override
@@ -120,15 +122,13 @@ juce::URL getServerAuthenticationURL() override
 }
 ```
 
-:::note
-
-サーバとの通信に使用するプロトコルはHTTPSでなければならない。8443ポートはこの選択を反映し、デフォルトのSSLポートを示します。
-
+:::tip
+認証プロセスは安全な接続でのみ機能するため、サーバーとの通信に使用されるプロトコルはHTTPSである必要があることに注意してください。8443ポートはこの選択を反映し、デフォルトのSSLポートを示します。
 :::
 
-登録プロセスが開始すると、クライアントアプリはユーザーから提供された認証情報を使って認証を要求し、サーバーは暗号化されたメッセージで応答します。アプリのロックを解除するための鍵ファイルを含むこのメッセージは、サーバー側でメッセージの暗号化に使用されたRSA秘密鍵に対応するRSA公開鍵を使用してのみ復号化できます。
+登録プロセスが開始されると、クライアントアプリはユーザーが提供した資格情報で認証を要求し、サーバーは暗号化されたメッセージで応答します。アプリをアンロックするためのキーファイルを含むこのメッセージは、サーバー側でメッセージを暗号化するために使用された秘密RSAキーに対応する公開RSAキーを使用してのみ復号化できます。
 
-について`getPublicKey()`関数はこの公開鍵を返す必要があり、後でこのチュートリアルの鍵生成のステップで入力します。以下のように関数を準備し、フィールドはとりあえず空白にしておきます：
+`getPublicKey()`関数はこの公開キーを返す必要があり、このチュートリアルのキー生成ステップで後で入力されます。以下のように関数を準備し、フィールドは今のところ空白のままにしておきます：
 
 ```cpp
 juce::RSAKey getPublicKey() override
@@ -137,44 +137,45 @@ juce::RSAKey getPublicKey() override
 }
 ```
 
-について`TutorialMarketplaceStatus`クラスはこれで、マーケットプレイス・サーバーと通信してキーを取得するために必要な情報をすべて手に入れたことになる。
+`TutorialMarketplaceStatus`クラスは、マーケットプレイスサーバーと通信してキーを取得するために必要なすべての情報を持っています。
 
 ## 登録フォームの提供
 
-ユーザーがアプリやプラグインに入力するための登録フォームを表示するには、いくつかの方法があります。通常の[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")をポップアップ表示させることもできます。[DialogWindow](https://docs.juce.com/master/classDialogWindow.html "ダイアログボックス形式のウィンドウ。")をメインウィンドウの上に追加します。後者のオプションは、プラグインを検証する際に単純なスキャンルーチンをフリーズさせる可能性があり、また登録ウィンドウがまだアクティブな状態でDAWがプラグインをシャットダウンした場合に問題が発生する可能性があるため、プラグインを開発する際には非常にお勧めできません。
+ユーザーがアプリやプラグインで入力するための登録フォームを表示するにはいくつかの方法があります。インターフェースの上に通常の[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")をオーバーレイするか、メインウィンドウの上に[DialogWindow](https://docs.juce.com/master/classDialogWindow.html "A dialog-box style window.")をポップアップさせることができます。後者のオプションは、プラグインを開発する際には非常に推奨されません。これにより、プラグインを検証する際の単純なスキャンルーチンがフリーズする可能性があり、登録ウィンドウがまだアクティブな状態でDAWがプラグインをシャットダウンした場合にも問題を引き起こす可能性があります。
 
-したがって、このセクションでは、アプリとプラグインの両方との互換性を確保するために、前者のオプションを選択します。登録ユーザインタフェースの実装プロセスを単純化するために、JUCEライブラリは[OnlineUnlockForm](https://docs.juce.com/master/classOnlineUnlockForm.html "GUIとして動作し、ユーザーに詳細を尋ね、Onlineの適切なメソッドを呼び出す。")このクラスは、電子メールとパスワードのための2つのフィールドを表示し、登録のためのシームレスな実装を提供します。[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "オンラインアンロックシステムの基本クラス。")クラスである。
+したがって、このセクションでは、アプリとプラグインの両方との互換性を確保するために前者のオプションを選択します。登録ユーザーインターフェースの実装プロセスを簡素化するために、JUCEライブラリは[OnlineUnlockForm](https://docs.juce.com/master/classOnlineUnlockForm.html "Acts as a GUI which asks the user for their details, and calls the appropriate methods on your Online...")クラスを提供しており、メールとパスワード用の2つのフィールドを表示し、[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "A base class for online unlocking systems.")クラスと組み合わせて登録のためのシームレスな実装を提供します。
 
-という名前のクラスを作成する。`TutorialUnlockForm`に由来する。[OnlineUnlockForm](https://docs.juce.com/master/classOnlineUnlockForm.html "GUIとして動作し、ユーザーに詳細を尋ね、Onlineの適切なメソッドを呼び出す。")以下の通りである：
+`TutorialUnlockForm`という名前のクラスを作成し、[OnlineUnlockForm](https://docs.juce.com/master/classOnlineUnlockForm.html "Acts as a GUI which asks the user for their details, and calls the appropriate methods on your Online...")から以下のように派生します：
 
 ```cpp
-class TutorialUnlockForm    : public juce::OnlineUnlockForm
+class TutorialUnlockForm : public juce::OnlineUnlockForm
 {
 public:
     TutorialUnlockForm (TutorialMarketplaceStatus& status)
         : OnlineUnlockForm (status, "Please provide your email and password.")
-    {}
+    {
+    }
 ```
 
-ここでは`TutorialMarketplaceStatus`クラスを実装し、クラス・コンストラクタでユーザーに指示するための説明メッセージを提供する。
+ここでは、前のセクションで実装した`TutorialMarketplaceStatus`クラスへの参照も渡し、クラスコンストラクタでユーザーに指示するための説明メッセージを提供します。
 
-の中で`MainContentComponent`のインスタンスである。`TutorialMarketplaceStatus`そして`TutorialUnlockForm`オブジェクトと、アプリケーションのロックが解除されたかどうかを保存するブール値。
+`MainContentComponent`で、それぞれ`TutorialMarketplaceStatus`と`TutorialUnlockForm`オブジェクトのインスタンス、およびアプリケーションがアンロックされたかどうかを保存するブール値の3つのプライベートメンバー変数を宣言します。
 
 ```cpp
-    TutorialMarketplaceStatus marketplaceStatus;
-    TutorialUnlockForm unlockForm;
- 
-    bool isUnlocked = false;
- 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
+TutorialMarketplaceStatus marketplaceStatus;
+TutorialUnlockForm unlockForm;
+
+bool isUnlocked = false;
+
+JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 ```
 
-コンストラクタを修正して`TutorialUnlockForm`を渡すことで`TutorialMarketplaceStatus`オブジェクトを作成し、フォームを子として追加します。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")この通りである：
+`TutorialMarketplaceStatus`オブジェクトを渡して`TutorialUnlockForm`を初期化するようにコンストラクタを変更し、ここに示すようにフォームを子[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")として追加します：
 
 ```cpp
-class MainContentComponent   : public juce::Component,
-                               private juce::Timer
+class MainContentComponent : public juce::Component,
+                             private juce::Timer
 {
 public:
     //==============================================================================
@@ -184,201 +185,198 @@ public:
 ```
 
 ```cpp
-        addChildComponent (unlockForm);
- 
-        setSize (400, 250);
-        startTimer (100);
-    }
+addChildComponent (unlockForm);
+
+setSize (400, 250);
+startTimer (100);
+}
 ```
 
-からも継承している。[Timer](https://docs.juce.com/master/classTimer.html "指定した時間間隔で仮想メソッドへのコールバックを繰り返す。")クラスを呼び出し`startTimer()`この関数は、アプリがロック解除されているかどうかをチェックするために後で使われる。
+ここでは、[Timer](https://docs.juce.com/master/classTimer.html "Makes repeated callbacks to a virtual method at a specified time interval.")クラスからも継承し、後でアプリがアンロックされたかどうかを確認するために使用される`startTimer()`関数を呼び出していることに注意してください。
 
-の中で`resized()`メソッドを呼び出して、インタフェースの大部分をカバーするフォームのサイズを設定する。`centreWithSize()`関数は次のようになる：
+`resized()`メソッドで、`centreWithSize()`関数を呼び出すことでインターフェースのほとんどをカバーするようにフォームのサイズを設定します：
 
 ```cpp
-    void resized() override
-    {
-        unlockForm  .centreWithSize (300, 200);
+void resized() override
+{
+    unlockForm.centreWithSize (300, 200);
 ```
 
-について`showForm()`ヘルパー関数は、ユーザーによって「ロック解除」ボタンが押されたときに呼び出されます。そのため[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。")を追加しただけである。`addChildComponent()`関数の代わりに`addAndMakeVisible()`を呼び出すだけで、フォームはデフォルトで非表示になります。`setVisible()`ここにフォームを表示する：
+`showForm()`ヘルパー関数は、ユーザーが「Unlock」ボタンを押したときに呼び出されます。[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")は`addAndMakeVisible()`ではなく`addChildComponent()`関数で単純に追加されたため、フォームはデフォルトで非表示になっているため、ここでは`setVisible()`を呼び出してフォームを表示するだけです：
 
 ```cpp
-    void showForm()
-    {
-        unlockForm.setVisible (true);
-    }
+void showForm()
+{
+    unlockForm.setVisible (true);
+}
 ```
 
-登録がキャンセルされた場合、または登録が成功した場合は、フォームを破棄して[OnlineUnlockForm](https://docs.juce.com/master/classOnlineUnlockForm.html "GUIとして動作し、ユーザーに詳細を尋ね、Onlineの適切なメソッドを呼び出す。")クラスは自動的に`dismiss()`コールバックで行う。コールバックは`TutorialUnlockForm`宣言をオーバーライドするには`setVisible()`を隠す。[Component](https://docs.juce.com/master/classComponent.html "すべてのJUCEユーザ・インタフェース・オブジェクトの基本クラス。"):
+登録プロセスがキャンセルまたは成功した場合、フォームを閉じる必要があり、[OnlineUnlockForm](https://docs.juce.com/master/classOnlineUnlockForm.html "Acts as a GUI which asks the user for their details, and calls the appropriate methods on your Online...")クラスは自動的に`dismiss()`コールバックを呼び出してこれを行います。`TutorialUnlockForm`宣言で、`setVisible()`を呼び出して[Component](https://docs.juce.com/master/classComponent.html "The base class for all JUCE user-interface objects.")を非表示にするだけでこの関数をオーバーライドします：
 
 ```cpp
-    void dismiss() override
-    {
-        setVisible (false);
-    }
+void dismiss() override
+{
+    setVisible (false);
+}
 };
 ```
 
-のコンストラクタで見たとおりである。`MainContentComponent`でアプリケーションが正常にロック解除されたかどうかを定期的にチェックするタイマーが起動される。`timerCallback()`関数である：
+`MainContentComponent`のコンストラクタで前に見たように、タイマーが起動されて、`timerCallback()`関数でアプリケーションが正常にアンロックされたかどうかを定期的に確認します：
 
 ```cpp
-    void timerCallback() override
+void timerCallback() override
+{
+    if (!isUnlocked && marketplaceStatus.isUnlocked())
     {
-        if (! isUnlocked && marketplaceStatus.isUnlocked())
-        {
-            isUnlocked = true;
-            unlockApp();
-        }
+        isUnlocked = true;
+        unlockApp();
     }
+}
 ```
 
-ここでは、アプリがまだロックされているかどうかを`isUnlocked`ローカル変数に尋ねる。[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "オンラインアンロックシステムの基本クラス。")インスタンスを使って、アプリがまだロックされているかどうかを調べます。`isUnlocked()`関数を呼び出す。アプリが認証された場合、ローカル変数を切り替えてその後の繰り返しを防ぎ、以下を呼び出す。`unlockApp()`ヘルパー関数：
+ここでは、`isUnlocked`ローカル変数でアプリがまだロックされているかどうかを確認し、そうであれば、`isUnlocked()`関数を介して[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "A base class for online unlocking systems.")インスタンスにアプリがまだロックされているかどうかを尋ねます。アプリが認証された場合、その後の反復を防ぐためにローカル変数を切り替え、次の`unlockApp()`ヘルパー関数を呼び出します：
 
 ```cpp
-    void unlockApp()
-    {
-        secretButton.setEnabled (true);
-        unlockButton.setEnabled (false);
- 
-        unlockLabel.setText ("Status: Unlocked", juce::dontSendNotification);
-        unlockLabel.setColour (juce::Label::textColourId, juce::Colours::green);
-    }
+void unlockApp()
+{
+    secretButton.setEnabled (true);
+    unlockButton.setEnabled (false);
+
+    unlockLabel.setText ("Status: Unlocked", juce::dontSendNotification);
+    unlockLabel.setColour (juce::Label::textColourId, juce::Colours::green);
+}
 ```
 
-この機能は、単にシークレット機能にアクセスするためのボタンを有効にし、新しい認証ステータスを表示しながらアプリのロックを解除するためのボタンを無効にします。
+この関数は単に秘密機能にアクセスするボタンを有効にし、アプリをアンロックするボタンを無効にして、新しい認証ステータスを表示します。
 
-最後に`checkFeature()`関数は、ユーザーが秘密機能ボタンをクリックしたときに呼び出され、ロック解除されたアプリケーションの動作をシミュレートします：
+最後に、`checkFeature()`関数はユーザーが秘密機能ボタンをクリックしたときに呼び出され、アンロックされたアプリケーションの動作をシミュレートします：
 
 ```cpp
-    void checkFeature()
-    {
-        if (marketplaceStatus.isUnlocked())
-            DBG ("App unlocked!");
-        else
-            DBG ("Beware of hackers!");
-    }
+void checkFeature()
+{
+    if (marketplaceStatus.isUnlocked())
+        DBG ("App unlocked!");
+    else
+        DBG ("Beware of hackers!");
+}
 ```
 
-この関数は、アプリケーションにもう1つのセキュリティ・レイヤーを提供するものとして重要である。ここで、この関数が再び[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "オンラインアンロックシステムの基本クラス。")インスタンスで、アプリがまだアンロックされているかどうかを確認します。この背景には、ハッカーがアプリのロックを解除するためにこの関数をクラックする必要があるだけでなく、アプリの制限された機能を完全に突破するためには、アプリケーションコード内のこの関数のインスタンスをすべて置き換える必要があるからです。
+この関数は重要です。アプリケーションに別のセキュリティ層を提供するためです。ここで、関数が[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "A base class for online unlocking systems.")インスタンスでアプリがまだアンロックされているかどうかを再度確認していることに注意してください。この背後にある理由は、ハッカーがアプリをアンロックするためにこの関数をクラックする必要があるだけでなく、アプリの制限された機能を完全に侵害するためにアプリケーションコード内のこの関数のすべてのインスタンスを置き換える必要があるためです。
 
-:::note
-
-したがって、より強固なセキュリティ・メカニズムを提供するために、コード内のできるだけ多くの場所でアプリケーションの認証状態をチェックすることをお勧めします。
-
+:::tip
+したがって、より堅牢なセキュリティメカニズムを提供するために、コード内のできるだけ多くの場所でアプリケーションの認証ステータスを確認することをお勧めします。
 :::
 
-アプリケーションを実行すると、登録フォームを表示できるようになりました。
+これでアプリケーションを実行すると登録フォームを表示できます。
 
 <CaptionImage
   src="/_images/tutorial_online_unlock_status_screenshot3.png"
   caption="登録フォーム"
 />
 
-しかし、任意のメールアドレスとパスワードの組み合わせでアプリを登録しようとすると、以下のようなエラーメッセージが表示される：
+ただし、任意のメールとパスワードの組み合わせでアプリを登録しようとすると、以下のエラーメッセージが表示されます：
 
 <CaptionImage
   src="/_images/tutorial_online_unlock_status_screenshot4.png"
-  caption="接続問題ダイアログ"
+  caption="接続問題のダイアログ"
 />
 
-これは、アプリケーションが認証サーバーに接続できないためです。
+これは、認証サーバーへの接続ができないためであり、セットアップはこのチュートリアルの次のセクションで説明されています。
 
-:::note
-
-この修正版のソースコードは`OnlineUnlockStatusTutorial_02.h`ファイルにある。
-
+:::tip
+このコードの変更版のソースコードは、デモプロジェクトの`OnlineUnlockStatusTutorial_02.h`ファイルにあります。
 :::
 
 ## バックエンドサーバーのセットアップ
 
-:::note
-
-このセクションでは、PHPを使用したmacOSとWindowsのローカル・テスト・サーバーのセットアップ手順を説明しますが、Java、Ruby、Pythonなど、どのようなタイプのバックエンド・サーバーでもご自由にお使いください。
-
+:::tip
+このセクションでは、PHPを使用したmacOSとWindowsでのローカルテストサーバーのセットアップ手順を説明しますが、Java、Ruby、Pythonなど、任意のタイプのバックエンドサーバーを自由に使用してください...
 :::
 
-以来[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "オンラインアンロックシステムの基本クラス。")クラスはサーバーからの応答をXMLフォーマットで扱うので、 PHPを使ってXMLレスポンスを提供しなければなりません。アプリケーションは認証情報を[URL](https://docs.juce.com/master/classURL.html "URLを表し、それを操作するための便利な関数がたくさんある。")で供給される。`getServerAuthenticationURL()`の機能である。`TutorialMarketplaceStatus`チュートリアルの最初のセクションで "https://localhost:8443/auth.php "と定義された実装である。
+[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "A base class for online unlocking systems.")クラスはXML形式でサーバーからの応答を処理するため、PHPを使用してXML応答を提供する必要があります。アプリケーションは、チュートリアルの最初のセクションで「https://localhost:8443/auth.php」として定義された`TutorialMarketplaceStatus`実装の`getServerAuthenticationURL()`関数で提供された[URL](https://docs.juce.com/master/classURL.html "Represents a URL and has a bunch of useful functions to manipulate it.")に資格情報を送信します。
 
-従って、次のことを見てみよう。`auth.php`デモ・プロジェクトに付属している`Resources`フォルダに移動し、PHPでどのように応答が作成されたかを調べます：
+したがって、デモプロジェクトの`Resources`フォルダに付属の`auth.php`ファイルを見て、PHPで応答がどのように作成されたかを調べましょう：
 
-```cpp
-';              // [2]
-    if($_POST["email"] === "test@example.com" and $_POST["pw"] === "test") // [3]
-        $response .= 'INSERT_KEY_HERE';
-    else
-        $response .= '';
- 
+```php
+<?php
+function sendResponse() // [1]
+{
+    $response = '<?xml version="1.0" encoding="utf-8"?>'; // [2]
+    if ($_POST['email'] === 'test@example.com' and $_POST['pw'] === 'test') // [3] {
+        $response .=
+            '<MESSAGE message="Thanks for registering our product!"><KEY>INSERT_KEY_HERE</KEY></MESSAGE>';
+    } else {
+        $response .=
+            '<ERROR error="Sorry, we were not able to authorise your request. Please provide a valid email address and password."></e>';
+    }
+
     return $response;
 }
- 
-header("Content-type: text/xml; charset=utf-8");                        // [4]
+
+header('Content-type: text/xml; charset=utf-8'); // [4]
 echo sendResponse();
 ?>
+
 ```
 
-- \[1\]という関数を定義する。`sendResponse()`これは、XMLコンテンツを表示するために後で呼び出される。
-- \[2\]次に、メタデータヘッダをPHPのローカル変数に代入してXMLドキュメントを準備します。
-- \[3\]次に、POSTで受け取ったテスト用の電子メールとパスワードの文字列と比較することで、認証情報がテス ト・ユーザーに対応しているかどうかをチェックする。認証情報が一致した場合、成功メッセージと、次のセクションで挿入する暗号化鍵ファイルを追加します。そうでなければ、認証に失敗した理由を説明するエラーメッセージを追加します。
-- \[4\]最後に、コンテンツがXMLフォーマットであることを示すレスポンス・ヘッダを設定し、レスポンスを`echo`関数である。
+- [1]：まず、後でXMLコンテンツを表示するために呼び出される`sendResponse()`という関数を定義します。
+- [2]：次に、メタデータヘッダーをローカルPHP変数に割り当ててXMLドキュメントを準備します。
+- [3]：次に、POST経由で受信したテストメールとパスワード文字列と比較して、資格情報がテストユーザーに対応するかどうかを確認します。資格情報が一致する場合、次のセクションで挿入する暗号化されたキーファイルとともに成功メッセージを追加します。そうでなければ、認証が失敗した理由を説明するエラーメッセージを追加します。
+- [4]：最後に、コンテンツがXML形式であることを示すように応答ヘッダーを設定し、`echo`関数で応答を送信します。
 
-この時点で、ローカルでサーバーを実行し、アプリから認証サーバーに接続しようとすると、セキュリティ警告が表示され、接続がプライベートまたはセキュアでないことを知らされる。この場合[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "オンラインアンロックシステムの基本クラス。")インスタンスに認証情報を安全に送信するために、HTTPSプロトコルを介してSSLを使用したセキュアな接続を作成する必要があります。
+この時点で、サーバーをローカルで実行してアプリから認証サーバーに連絡しようとすると、接続がプライベートまたは安全ではないというセキュリティ警告を受け取ります。[OnlineUnlockStatus](https://docs.juce.com/master/classOnlineUnlockStatus.html "A base class for online unlocking systems.")インスタンスが資格情報を安全に送信するには、HTTPSプロトコルを介してSSLを使用して安全な接続を作成する必要があります。
 
-テスト目的でローカルでこれを行うには、自己署名証明書を作成し、トンネリングを使用して、基盤となる安全でないHTTPプロトコルにHTTPSでアクセスすればよい。
+これをテスト目的でローカルで行うには、自己署名証明書を作成し、トンネリングを使用してHTTPSを介して基礎となる安全でないHTTPプロトコルにアクセスできます。
 
 :::warning
-
-バックエンドサーバーをテストするために、OpenSSL、PHP、"stunnel "がコンピューターにインストールされていることを確認してください。OpenSSLは自己署名証明書を生成するために必要で、PHPはあなたのマシンでローカルに実行できる組み込みのウェブサーバーを提供し、"stunnel "は安全な接続をトンネル化できます。
-
+バックエンドサーバーをテストするには、OpenSSL、PHP、および「stunnel」がコンピュータにインストールされていることを確認してください。OpenSSLは自己署名証明書を生成するために必要であり、PHPはマシン上でローカルに実行できる組み込みWebサーバーを提供し、「stunnel」は安全な接続をトンネルすることができます。
 :::
 
-に移動する。`Resources`フォルダを開き、ターミナルから以下のコマンドを実行して自己署名証明書を作成する：
+プロジェクトの`Resources`フォルダに移動し、ターミナルから以下のコマンドを実行して自己署名証明書を作成します：
 
-```cpp
-// Creates an RSA key and certificate pair.
- 
+```bash
+// RSAキーと証明書のペアを作成します。
+
 // macOS
 openssl req -new -newkey rsa:4096 -x509 -nodes -sha256 -days 365 -keyout stunnel.key -out stunnel.cert
- 
+
 // Windows
-C:\path-to-openssl\openssl req -new -newkey rsa:4096 -x509 -nodes -sha256 -days 365 -keyout stunnel.key -out stunnel.cert
+C:\\path-to-openssl\\openssl req -new -newkey rsa:4096 -x509 -nodes -sha256 -days 365 -keyout stunnel.key -out stunnel.cert
 ```
 
-証明書の情報を入力するプロンプトが表示されたら、「localhost」と入力するコモン・ネーム（CN）項目以外のすべてのフィールドをスキップする。
+証明書の情報を提供するよう求められたら、共通名またはCNエントリを除くすべてのフィールドをスキップし、「localhost」と入力します。
 
-:::note
-
-ドメイン名のスペルが間違っていると、サーバーに接続する際に問題が発生するので、間違えないように注意すること。
-
+:::tip
+ドメイン名のスペルミスがないことを確認してください。これにより、サーバーへの接続時に問題が発生する可能性があります。
 :::
 
-これにより、SHA-256ハッシュ・アルゴリズムと1年の有効期限を使用した、RSA 4096ビットの鍵と証明書のペアを形成する2つのファイルが作成される。X.509標準は、われわれが関心を持っている自己署名ポリシーを示す。単純化するために、生成された鍵ファイルと証明書ファイルを次のように1つのPEMファイルにまとめる：
+これにより、SHA-256ハッシュアルゴリズムと1年の有効期限を使用したRSA 4096ビットキーと証明書のペアを形成する2つのファイルが作成されます。X.509標準は、関心のある自己署名ポリシーを示します。簡単にするために、生成されたキーと証明書ファイルを次のように1つのPEMファイルに結合します：
 
-```cpp
-// Combines the key and certificate into a PEM file.
- 
+```bash
+// キーと証明書をPEMファイルに結合します。
+
 // macOS
 cat stunnel.key stunnel.cert > stunnel.pem
- 
+
 // Windows
 type stunnel.key stunnel.cert > stunnel.pem
 ```
 
-macOSでは、PEMファイルをダブルクリックします。`Finder`をクリックして、証明書をキーチェインに追加します。これで`Keychain Access`アプリケーションは`Applications/Utilities`フォルダに追加します。リスト内の新しく追加された証明書をダブルクリックして、詳細ビューを開き**信頼**ビューを表示します。AlwaysTrust（常に信頼する）\]オプションを選択し、以下のように、証明書をmacの現在のユーザーアカウントで信頼できるようにします：
+macOSでは、`Finder`でPEMファイルをダブルクリックして、証明書をキーチェーンに追加します。これにより、`Applications/Utilities`フォルダにある`キーチェーンアクセス`アプリケーションが開きます。リスト内の新しく追加された証明書をダブルクリックして詳細ビューを開き、**信頼**ビューを展開します。以下に示すように、Macの現在のユーザーアカウントで証明書を信頼するために「常に信頼」オプションを選択します：
 
 <CaptionImage
   src="/_images/tutorial_online_unlock_status_screenshot5.png"
   caption="自己署名証明書"
 />
 
-Windowsの場合は`Microsoft Management Console`に「MMC」と入力してください。`Run`プロンプトを表示し**ファイル > スナップインの追加...**をクリックし、"Certificates "を選択する。をクリックしてください。**追加**をクリックして、現在のユーザーの証明書を追加し**OK**を終了する。
+Windowsでは、`実行`プロンプトで「MMC」と入力して`Microsoft管理コンソール`を開き、**ファイル > スナップインの追加...**に移動して「証明書」を選択します。**追加**をクリックして現在のユーザーの証明書を追加し、**OK**をクリックして終了します。
 
 <CaptionImage
   src="/_images/tutorial_online_unlock_status_screenshot9.png"
   caption="証明書スナップインの追加"
 />
 
-次に、自己署名証明書を**信頼できるルート認証局 > 証明書**左のパネルで対応するフォルダに移動し、次の項目を選択します。**アクション > すべてのタスク > インポート...**を選択します。証明書を探す手順が表示されますので、その時点で`.cert`拡張子がMMCで受け入れられるフォーマットである。
+次に、左パネルの対応するフォルダに移動し、メニュー項目から**アクション > すべてのタスク > インポート...**を選択して、自己署名証明書を**信頼されたルート証明機関 > 証明書**にインポートします。証明書を見つけるステップに案内され、その時点でMMCが受け入れる形式である`.cert`拡張子のファイルを選択する必要があります。
 
 <CaptionImage
   src="/_images/tutorial_online_unlock_status_screenshot10.png"
@@ -386,14 +384,12 @@ Windowsの場合は`Microsoft Management Console`に「MMC」と入力してく�
 />
 
 :::warning
-
-自己署名証明書やトンネリングは、CA署名証明書ほど安全でないとみなされるため、実際のアプリケーションでは使用しないでください。この方法はあくまでデモンストレーションのために使用するものです。
-
+実際のアプリケーションでは自己署名証明書やトンネリングを使用しないでください。これはCA署名証明書ほど安全とは見なされません。この方法はデモンストレーション目的でのみ使用されます。
 :::
 
-次に、トンネリングプロトコルを設定するために`stunnel.conf`デモ・プロジェクトに付属している`Resources`フォルダー
+次に、デモプロジェクトの`Resources`フォルダに付属の`stunnel.conf`ファイルを開いてトンネリングプロトコルを設定しましょう：
 
-```cpp
+```
 [https]
 accept = 8443
 connect = 8080
@@ -401,143 +397,143 @@ cert = stunnel.pem
 TIMEOUTclose = 0
 ```
 
-ここでは、接続元と接続先の入出ポート、およびリンクをセキュアにするために前のステップで作成した証明書ファイルを定義します。アプリケーションはポート8443への接続を試み、トンネリングはPHPサーバーが動作しているポート8080にリンクします。
+ここでは、接続する送受信ポートと、リンクを保護するために前のステップで作成した証明書ファイルを定義します。アプリケーションはポート8443に接続しようとし、トンネリングはPHPサーバーが実行されているポート8080にリンクします。
 
-サーバーを起動するには、最後に`Resources`ディレクトリに移動し、ターミナルから以下のコマンドを実行する：
+最後に、`Resources`ディレクトリに移動し、ターミナルから以下のコマンドを実行してサーバーを起動できます：
 
-```cpp
-// Starts the built in PHP web server and tunnels a secure connection.
- 
+```bash
+// 組み込みPHP Webサーバーを起動し、安全な接続をトンネルします。
+
 // macOS
 php -S localhost:8080 & stunnel stunnel.conf
- 
+
 // Windows
-C:\path-to-php\php -S 127.0.0.1:8080 & C:\path-to-stunnel\stunnel stunnel.conf
+C:\\path-to-php\\php -S 127.0.0.1:8080 & C:\\path-to-stunnel\\stunnel stunnel.conf
 ```
 
-これにより、ローカルサーバーが8080番ポートで起動し、アプリケーションが安全にアクセスできるように、接続が8443番ポートにトンネルされます。認証を開く[URL](https://docs.juce.com/master/classURL.html "URLを表し、それを操作するための便利な関数がたくさんある。")お気に入りのブラウザーで "https://localhost:8443/auth.php "をクリックし、サーバーが稼動していることを確認してください。で宣言されたエラーメッセージが表示されるはずです。`auth.php`ファイルをXMLレスポンスの形で返さなければならない。
+これにより、ローカルサーバーがポート8080で起動し、アプリケーションが安全にアクセスできるように接続がポート8443にトンネルされます。お気に入りのブラウザで認証[URL](https://docs.juce.com/master/classURL.html "Represents a URL and has a bunch of useful functions to manipulate it.")「https://localhost:8443/auth.php」を開いて、サーバーが実行されていることを確認してください。`auth.php`ファイルで宣言されたエラーメッセージがXML応答の形式で表示されるはずです。
 
-すべてが正常に動作している場合、アプリケーションを起動し、任意の電子メールとパスワードの組み合わせを送信して認証を試みます。表示されるエラーメッセージは、前回の試行とは異なり、ブラウザに表示されるメッセージと一致するはずです：
+すべてが正しく機能する場合は、アプリケーションを起動し、任意のメールとパスワードの組み合わせを送信して認証を試みます。受信するエラーメッセージは前回の試みとは異なり、以下のようにブラウザに表示されたメッセージと一致するはずです：
 
 <CaptionImage
   src="/_images/tutorial_online_unlock_status_screenshot6.png"
   caption="エラーメッセージダイアログ"
 />
 
-これは、アプリケーションはサーバーとのコンタクトに成功し、レスポンスを処理したことを意味するが、アプリケーションのロックを解除するには、正しいキーファイルを生成して送信する必要がある。
+これは、アプリケーションがサーバーに正常に連絡し、応答を処理したことを意味しますが、アプリケーションをアンロックするために正しいキーファイルを生成して送信する必要があります。
 
-キーボードの「Ctrl+C」を押してサーバーを停止するか、以下のコマンドを実行してサーバーとトンネリングを停止する：
+キーボードの「Ctrl+C」を押すか、以下のコマンドを実行してサーバーとトンネリングを停止します：
 
-```cpp
-// Stops any running PHP server processes and the HTTPS to HTTP tunneling.
- 
+```bash
+// 実行中のPHPサーバープロセスとHTTPSからHTTPへのトンネリングを停止します。
+
 // macOS
 killall php & killall stunnel
- 
+
 // Windows
 taskkill /f /im php.exe & taskkill /f /im stunnel.exe
 ```
 
-## セキュリティ・キーの生成
+## セキュリティキーの生成
 
-最後のステップとして、セキュリティ・キーの生成を見てみよう。
+最後のステップとしてセキュリティキーの生成を見てみましょう。
 
-というヘルパー・コンソール・アプリケーションがあります。`KeyGenerator`での`Resources`フォルダに、このアプリケーションの認証に使用するRSAキー・ペアを生成します。秘密鍵が何らかの形で漏洩しない限り、新しいペアを作成する必要があります）。
+プロジェクトの`Resources`フォルダに、このアプリケーションの認証に使用するRSAキーペアを生成する`KeyGenerator`というヘルパーコンソールアプリケーションがあります。これらはプロジェクトの存続期間中同じままでいられるため、アプリやプラグインごとに1回だけキーを生成する必要があります（秘密キーが何らかの形で侵害された場合を除き、その場合は新しいペアを作成する必要があります）。
 
-を見てみよう。`main()`の機能である。`KeyGenerator`を呼び出すだけであることがわかる。`createKeyPair()`関数から[RSAKey](https://docs.juce.com/master/classRSAKey.html "RSA 公開鍵/秘密鍵ペア暗号化クラス。")クラスのキー・サイズを256ビットに設定し、結果を画面に表示する：
+`KeyGenerator`アプリの`main()`関数を見ると、256ビットのキーサイズで[RSAKey](https://docs.juce.com/master/classRSAKey.html "RSA public/private key-pair encryption class.")クラスの`createKeyPair()`関数を呼び出し、結果を画面に出力しているだけであることがわかります：
 
 ```cpp
-    juce::RSAKey publicKey;
-    juce::RSAKey privateKey;
- 
-    juce::RSAKey::createKeyPair (publicKey, privateKey, 256);
- 
-    std::cout << "Public Key: "  << publicKey .toString() << std::endl
-              << "Private Key: " << privateKey.toString() << std::endl
-              << std::endl;
+juce::RSAKey publicKey;
+juce::RSAKey privateKey;
+
+juce::RSAKey::createKeyPair (publicKey, privateKey, 256);
+
+std::cout << "Public Key: " << publicKey.toString() << std::endl
+          << "Private Key: " << privateKey.toString() << std::endl
+          << std::endl;
 ```
 
-を構築する。`KeyGenerator`アプリを起動し、以下のコマンドを実行してキーを取得する：
+`KeyGenerator`アプリをビルドし、以下のコマンドを実行してキーを取得します：
 
-```cpp
-// Run the program and copy the keys.
- 
+```bash
+// プログラムを実行してキーをコピーします。
+
 // macOS
 ./KeyGenerator
- 
+
 // Windows
 KeyGenerator.exe
 ```
 
-前のステップの公開鍵をコピーして`getPublicKey()`の機能である。`TutorialMarketplaceStatus`クラスである：
+前のステップから公開キーをコピーして、`TutorialMarketplaceStatus`クラスの`getPublicKey()`関数に貼り付けます：
 
 ```cpp
 return juce::RSAKey ("INSERT_PUBLIC_KEY_HERE");
 ```
 
-これによりアプリケーションは、メッセージが本物であり、一致する秘密鍵を使って暗号化されていれば、サーバーからのメッセージを復号化できるようになる。
+これにより、メッセージが本物であり、一致する秘密キーを使用して暗号化された場合、アプリケーションはサーバーからのメッセージを復号化できます。
 
-アプリからのリクエストに応じてサーバーが真正な鍵ファイルを生成するには、前のステップで生成した秘密鍵を使用してメッセージを暗号化する必要があります。実際の運用シナリオでは、鍵の生成ステップはサーバー上でプログラム的に実行する必要がありますが、このチュートリアルではこのステップを手動で実行し、鍵ファイルをPHPスクリプトにコピーペーストします。
+サーバーがアプリから要求されたときに本物のキーファイルを生成するには、メッセージを暗号化するために前のステップで生成された秘密キーを所有している必要があります。実際の本番シナリオでは、キー生成ステップはサーバー上でプログラム的に行う必要がありますが、このチュートリアルの目的のために、このステップを手動で実行し、キーファイルをPHPスクリプトにコピーして貼り付けます。
 
-に移動する。`Resources`というヘルパー・コンソール・アプリケーションを見つける。`Unlocker`.を呼び出すことで、アプリのロックを解除するために必要なキーファイルを作成します。`generateKeyFile()`関数から[KeyGeneration](https://docs.juce.com/master/classKeyGeneration.html "OnlineUnlockStatus句でアンロックできるキー・ファイルを生成するための静的ユーティリティが含まれている。")クラスである：
+`Resources`フォルダに再度移動して、`Unlocker`という別のヘルパーコンソールアプリケーションを見つけます。これは、[KeyGeneration](https://docs.juce.com/master/classKeyGeneration.html "Contains static utilities for generating key-files that can be unlocked by the OnlineUnlockStatus cla...")クラスの`generateKeyFile()`関数を呼び出すことで、アプリをアンロックするために必要なキーファイルを作成します：
 
 ```cpp
-    // args[0]: app-name
-    // args[1]: user-email
-    // args[2]: username
-    // args[3]: machine-numbers
-    // args[4]: private-key
- 
-    std::cout << juce::KeyGeneration::generateKeyFile (args[0], args[1], args[2], args[3], juce::RSAKey (args[4])) << std::endl;
+// args[0]: app-name
+// args[1]: user-email
+// args[2]: username
+// args[3]: machine-numbers
+// args[4]: private-key
+
+std::cout << juce::KeyGeneration::generateKeyFile (args[0], args[1], args[2], args[3], juce::RSAKey (args[4])) << std::endl;
 ```
 
-この関数は引数として、アプリ名、ユーザーEメール、ユーザー名、使用を許可されたマシンID、およびメッセージを暗号化するためのRSA秘密鍵を受け取ります。対応するマシンIDは、デモ・プロジェクトを実行する際に、登録を試みた際のデバッガ・ログを確認することで見つけることができます。
+この関数は、アプリ名、ユーザーのメールとユーザー名、使用が許可されたマシンID、およびメッセージを暗号化するRSA秘密キーを引数として取ります。デモプロジェクトを実行して登録を試みると、デバッガログを確認することで対応するマシンIDを見つけることができます。
 
-を構築する。`Unlocker`アプリを起動し、以下のコマンドを実行して暗号化された鍵ファイルを取得します：
+`Unlocker`アプリをビルドし、以下のコマンドを実行して暗号化されたキーファイルを取得します：
 
-```cpp
-// Run the program and copy the key.
- 
+```bash
+// プログラムを実行してキーをコピーします。
+
 // macOS
 ./Unlocker TestApp test@example.com testuser INSERT_MACHINE_ID_HERE INSERT_PRIVATE_KEY_HERE
- 
+
 // Windows
 Unlocker.exe TestApp test@example.com testuser INSERT_MACHINE_ID_HERE INSERT_PRIVATE_KEY_HERE
 ```
 
-で始まるキーファイルをコピーして、前のステップの`sendResponse()`関数を使用し、"#"文字を含めてください：
+前のステップから「#」文字で始まるキーファイルをコピーして、PHPスクリプトの`sendResponse()`関数に「#」文字を含めて貼り付けます：
 
-```cpp
-$response .= 'INSERT_KEY_HERE';
+```php
+$response .= '<MESSAGE message="Thanks for registering our product!"><KEY>INSERT_KEY_HERE</KEY></MESSAGE>';
 ```
 
-サーバーを起動してアプリケーションを実行し、PHPスクリプトで定義された適切な電子メールとパスワードの組み合わせを送信して認証を試みます：
+サーバーを起動し、PHPスクリプトで定義された適切なメールとパスワードの組み合わせを送信して認証を試みるためにアプリケーションを実行します：
 
 <CaptionImage
   src="/_images/tutorial_online_unlock_status_screenshot7.png"
-  caption="資格証明書の記入"
+  caption="資格情報の入力"
 />
 
-すべてがうまくいけば、次のような成功メッセージが表示され、登録フォームが自動的に解除された後、アプリケーションのロックが解除されるはずです：
+すべてがうまくいけば、以下の成功メッセージが表示され、登録フォームが閉じた後にアプリケーションがアンロックされるはずです：
 
 <CaptionImage
   src="/_images/tutorial_online_unlock_status_screenshot8.png"
   caption="登録成功ダイアログ"
 />
 
-## 概要
+## まとめ
 
-このチュートリアルでは、オンライン登録によってプラグインのロックを解除する方法を学びました。特に
+このチュートリアルでは、オンライン登録を通じてプラグインをアンロックする方法を学びました。特に、以下のことを行いました：
 
-- RSA暗号の原理を理解。
-- ユーザーがフォームを通じてアプリのロックを解除するためのUIを提供。
-- アプリのロック解除メカニズム用にセキュリティキーを生成。
-- バックエンドとして機能するシンプルでセキュアなローカルサーバーを構築。
-- 登録状況に応じて、アプリケーションの機能がアンロックされます。
+- RSAによる暗号化の原理を理解しました。
+- フォームを通じてユーザーがアプリをアンロックするためのUIを提供しました。
+- アプリのアンロックメカニズムのためのセキュリティキーを生成しました。
+- バックエンドとして機能するシンプルな安全なローカルサーバーを構築しました。
+- 登録ステータスに応じてアプリケーションの機能をアンロックしました。
 
-## 参照
+## 関連項目
 
-- [Tutorial: Package your app or plugin for distribution](../tutorial_app_plugin_packaging/)
-- [Tutorial: App analytics collection](../tutorial_analytics_collection/)
-- [Tutorial: In-App Purchases on desktop and mobile devices](../../mobile/tutorial_in_app_purchases/)
-- [Tutorial: Push Notifications on desktop and mobile devices](../../mobile/tutorial_push_notifications/)
+- [チュートリアル：配布用にアプリやプラグインをパッケージ化する](../tutorial_app_plugin_packaging/)
+- [チュートリアル：アプリアナリティクス収集](../tutorial_analytics_collection/)
+- [チュートリアル：デスクトップとモバイルデバイスでのアプリ内購入](../../mobile/tutorial_in_app_purchases/)
+- [チュートリアル：デスクトップとモバイルデバイスでのプッシュ通知](../../mobile/tutorial_push_notifications/)
