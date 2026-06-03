@@ -24,9 +24,9 @@
     "react-dom": "^19.2.1"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.9.2",
-    "@docusaurus/tsconfig": "3.9.2",
-    "@docusaurus/types": "3.9.2",
+    "@docusaurus/module-type-aliases": "3.10.1",
+    "@docusaurus/tsconfig": "3.10.1",
+    "@docusaurus/types": "3.10.1",
     "textlint": "15.5.2",
     "textlint-plugin-mdx": "1.0.2",
     "textlint-rule-preset-ja-spacing": "2.4.3",
