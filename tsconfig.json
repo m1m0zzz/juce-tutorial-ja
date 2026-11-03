@@ -1,9 +1,9 @@
 {
   // This file is not used in compilation. It is here just for a nice editor experience.
   "extends": "@docusaurus/tsconfig",
-  // "compilerOptions": {
-  //   "paths": {
-  //     "*": ["./src/*"]
-  //   }
-  // }
+  "compilerOptions": {
+    // 継承元の baseUrl は node_modules/@docusaurus/tsconfig を基準に解決されるため、
+    // ここで上書きしないと @site/* がプロジェクト直下を指さない
+    "baseUrl": "."
+  }
 }
