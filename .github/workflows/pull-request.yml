@@ -23,6 +23,10 @@ jobs:
           node-version-file: ".nvmrc"
           cache: npm
 
+      # npm 12 を同梱する Node がまだ無いため明示的に入れる。
+      # .npmrc と engines が npm 12 前提なので、無いと npm ci が EBADENGINE で落ちる
+      - run: npm install -g npm@12
+
       - run: npm ci
 
       - run: npm run typecheck
